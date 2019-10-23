@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
-    <version>7.1.0</version>
+    <version>7.1.9-SNAPSHOT</version>
     <relativePath />
   </parent>
 
@@ -16,6 +16,7 @@
   <description>OCR is an iText 7 add-on that lets you to parse text from provided images and adds it to PDF.</description>
 
   <properties>
+    <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
     <itext.version>${project.parent.version}</itext.version>
     <java.version>1.8</java.version>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -90,6 +91,16 @@
 
     <plugins>
       <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${spotbugs.version}</version>
+        <configuration>
+          <threshold>High</threshold>
+          <failOnError>true</failOnError>
+          <!--   <excludeFilterFile>findbugs-filter.xml</excludeFilterFile>-->
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
         <artifactId>jgitflow-maven-plugin</artifactId>
         <version>1.0-m5.1</version>
@@ -107,18 +118,22 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.0</version>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.version}</version>
         <configuration>
-          <excludes>
-            <exclude>**</exclude>
-          </excludes>
+          <subpackages>com.itextpdf.ocr</subpackages>
+          <groups>
+            <group>
+              <title>OCR</title>
+              <packages>com.itextpdf.ocr*</packages>
+            </group>
+          </groups>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>${surefire.version}</version>
         <configuration>
           <groups>${unittests}</groups>
         </configuration>
