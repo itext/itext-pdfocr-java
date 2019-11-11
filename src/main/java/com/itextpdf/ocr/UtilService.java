@@ -29,13 +29,13 @@ final class UtilService {
      * Constant to convert pixels to points (for tests).
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    public static final float PX_TO_PT = 3f / 4f;
+    static final float PX_TO_PT = 3f / 4f;
 
     /**
      * Constantsfor points per inch (for tests).
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    public static final float POINTS_PER_INCH = 72.0f;
+    private static final float POINTS_PER_INCH = 72.0f;
 
     /**
      * UtilService logger.
@@ -59,7 +59,7 @@ final class UtilService {
     static boolean runCommand(final List<String> command,
                               final boolean isWindows) {
         LOGGER.info("Running command: " + String.join(" ", command));
-        boolean cmdSucceeded = true;
+        boolean cmdSucceeded;
         try {
             Process process;
             if (isWindows) {
@@ -100,7 +100,7 @@ final class UtilService {
      * @throws IOException IOException
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    public static List<TextInfo> parseHocrFile(final File inputFile)
+    static List<TextInfo> parseHocrFile(final File inputFile)
             throws IOException {
         List<TextInfo> textData = new ArrayList<>();
 
@@ -178,10 +178,10 @@ final class UtilService {
      * @param requiredSize Rectangle
      * @return Rectangle
      */
-    public static Rectangle calculatePageSize(final ImageData imageData,
-                                              final IPdfRenderer.ScaleMode
-                                                      scaleMode,
-                                              final Rectangle requiredSize) {
+    static Rectangle calculatePageSize(final ImageData imageData,
+                                       final IPdfRenderer.ScaleMode
+                                               scaleMode,
+                                       final Rectangle requiredSize) {
         // Adjust image size and dpi
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;
@@ -229,7 +229,7 @@ final class UtilService {
      * @param pixels float
      * @return float
      */
-    public static float getPoints(final float pixels) {
+    static float getPoints(final float pixels) {
         return pixels * PX_TO_PT;
     }
 
@@ -240,8 +240,8 @@ final class UtilService {
      * @param page Integer
      * @return List<TextInfo>
      */
-    public static List<TextInfo> getTextForPage(final List<TextInfo> data,
-                                                final Integer page) {
+    static List<TextInfo> getTextForPage(final List<TextInfo> data,
+                                         final Integer page) {
         return data.stream()
                 .filter(item -> item.getPage().equals(page))
                 .collect(Collectors.toList());

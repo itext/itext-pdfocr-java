@@ -3,6 +3,7 @@ package com.itextpdf.ocr;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 
 import java.io.File;
 import java.util.List;
@@ -166,19 +167,11 @@ public interface IPdfRenderer {
      */
     PdfDocument doPdfOcr();
 
-
     /**
-     * Path to created pdf file (if needed).
+     * Perform OCR using provided pdfWriter.
      *
-     * @param path a {@link java.lang.String} object.
+     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
-    void setPdfPath(String path);
-
-    /**
-     * Path to created pdf file (if needed).
-     *
-     * @return a {@link java.lang.String} object.
-     */
-    String getPdfPath();
+    PdfDocument doPdfOcr(PdfWriter pdfWriter);
 }
 

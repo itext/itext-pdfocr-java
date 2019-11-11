@@ -28,6 +28,12 @@ import java.util.List;
  *
  */
 public class TesseractReader implements IOcrReader {
+
+    /**
+     * Path to hocr config script.
+     */
+    private static String pathToHocr = "src/main/resources/com/itextpdf/ocr/configs/hocr";
+
     /**
      *  Type of current OS.
      */
@@ -204,8 +210,7 @@ public class TesseractReader implements IOcrReader {
         List<TextInfo> words = new ArrayList<>();
         try {
             String tempDir = System.getProperty("java.io.tmpdir");
-            // File outputHocr = File
-            // .createTempFile(UUID.randomUUID().toString(), "hocr");
+            // File outputHocr = File.createTempFile(UUID.randomUUID().toString(), "hocr");
             String tmpPath = "src/test/resources/com/itextpdf/ocr/tmp";
 
             File tmpFile = null;
@@ -268,7 +273,7 @@ public class TesseractReader implements IOcrReader {
                     Arrays.asList("-l", String.join("+", languages)));
         }
 
-        command.add("src/main/resources/com/itextpdf/ocr/configs/hocr");
+        command.add(pathToHocr);
         command.add("quiet");
 
         return UtilService.runCommand(command, isWindows());
@@ -387,4 +392,4 @@ class TextInfo {
     public void setCoordinates(final List<Integer> newCoordinates) {
         coordinates = newCoordinates;
     }
-};
+}

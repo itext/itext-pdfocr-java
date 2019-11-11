@@ -1,6 +1,6 @@
 package com.itextpdf.ocr;
 
-import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.image.TiffImageData;
@@ -61,7 +61,7 @@ public class PdfRenderer implements IPdfRenderer {
     private Color color = DeviceCmyk.BLACK;
 
     /**
-     * Scale mode for input images: "keepOriginalSize" by default.
+     * Scale mode for input images: "keepOriginalSize" xby default.
      */
     private ScaleMode scaleMode = ScaleMode.keepOriginalSize;
 
@@ -288,27 +288,37 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
-     * Perform OCR for the givem list of input images using provided ocrReader.
+     * Perform OCR for the given list of input images using provided ocrReader
+     * and default PdfWriter.
+     *
+     *
+     * @return PdfDocument
+     */
+    public final PdfDocument doPdfOcr() {
+        try {
+            PdfWriter writer = new PdfWriter(new ObjectOutputStream(new ByteArrayOutputStream()));
+            return doPdfOcr(writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Perform OCR for the given list of input images using provided ocrReader.
      *
      * @return PDFDocument containing number of pages corresponding
      * the number of input images
      */
-    public final PdfDocument doPdfOcr() {
+    public final PdfDocument doPdfOcr(PdfWriter pdfWriter) {
         try {
             LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
 
-            PdfWriter pdfWriter = null;
-            if (getPdfPath() != null && !getPdfPath().isEmpty()) {
-                pdfWriter = new PdfWriter(getPdfPath());
-            } else {
-                pdfWriter = new PdfWriter(
-                        new ObjectOutputStream(new ByteArrayOutputStream()));
-            }
             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
 
             LOGGER.info("Current scale mode: " + getScaleMode());
             PdfFont defaultFont = PdfFontFactory
-                    .createFont(FontConstants.TIMES_ROMAN);
+                    .createFont(StandardFonts.HELVETICA);
 
             for (File inputImage : inputImages) {
                 doOCRForImage(inputImage, pdfDocument, defaultFont);

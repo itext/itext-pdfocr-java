@@ -2,22 +2,25 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDictionary;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfName;
-import com.itextpdf.kernel.pdf.PdfStream;
+import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
+import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,40 +28,23 @@ import java.util.stream.Collectors;
 @Category(IntegrationTest.class)
 public class TesseractIntegrationTest {
 
+    // directory with test files
+    private static String directory = "src/test/resources/com/itextpdf/ocr/";
+
     private static float delta = 1e-4f;
 
     @Test
-    public void testNoisyImage() {
-        String path = "src/test/resources/com/itextpdf/ocr/noisy_01.png";
-        // SHOULD BE
-        // String expectedOutput = "Noisy image\nto test\nTesseract OCR\n";
-
-        // FOR NOW
-        String expectedOutput = "Noisyimage to test Tesseract OCR";
-
-        testImageOcrText(path, expectedOutput);
-    }
-
-    @Test
-    public void testDifferentTextStyles() {
-        String path = "src/test/resources/com/itextpdf/ocr/example_04.png";
-        String expectedOutput = "Does this OCR thing really work? H . " +
-                "How about a bigger font? " +
-                "123456789 {23 " +
-                "What about thiy font?";
-
-        testImageOcrText(path, expectedOutput);
-    }
-
-    @Test
     public void testKeepOriginalSizeScaleMode() {
-        File file = new File("src/test/resources/com/itextpdf/ocr/numbers_01.jpg");
+        String filePath = directory + "numbers_01.jpg";
+        File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(file),
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file),
                 IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr();
+
+        assert doc != null;
 
         ImageData imageData = null;
         try {
@@ -84,7 +70,8 @@ public class TesseractIntegrationTest {
 
     @Test
     public void testScaleWidthMode() {
-        File file = new File("src/test/resources/com/itextpdf/ocr/numbers_01.jpg");
+        String filePath = directory + "numbers_01.jpg";
+        File file = new File(filePath);
 
         ImageData originalImageData = null;
         try {
@@ -93,19 +80,11 @@ public class TesseractIntegrationTest {
             e.printStackTrace();
         }
 
-        IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(file),
-                IPdfRenderer.ScaleMode.scaleWidth);
-
         float pageWidthPt = 500f;
         float pageHeightPt = 500f;
 
-        pdfRenderer.setPageSize(new Rectangle(pageWidthPt, pageHeightPt));
-
-        PdfDocument doc = pdfRenderer.doPdfOcr();
-
-        Rectangle pageSize = doc.getFirstPage().getPageSize();
-        Image resultImage = retrieveImage(doc);
+        Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
+        Image resultImage = retrieveImageFromPdf(file, IPdfRenderer.ScaleMode.scaleWidth, pageSize);
 
         // page size should be equal to the result image size
         // result image height should be equal to the value that was set as page height
@@ -132,14 +111,12 @@ public class TesseractIntegrationTest {
             Assert.assertEquals(resultImageWidth, expectedImageWidth, delta);
         }
 
-        if (!doc.isClosed()) {
-            doc.close();
-        }
     }
 
     @Test
     public void testScaleHeightMode() {
-        File file = new File("src/test/resources/com/itextpdf/ocr/numbers_01.jpg");
+        String filePath = directory + "numbers_01.jpg";
+        File file = new File(filePath);
 
         ImageData originalImageData = null;
         try {
@@ -148,19 +125,11 @@ public class TesseractIntegrationTest {
             e.printStackTrace();
         }
 
-        IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(file),
-                IPdfRenderer.ScaleMode.scaleHeight);
-
         float pageWidthPt = 500f;
         float pageHeightPt = 500f;
 
-        pdfRenderer.setPageSize(new Rectangle(pageWidthPt, pageHeightPt));
-
-        PdfDocument doc = pdfRenderer.doPdfOcr();
-
-        Rectangle pageSize = doc.getFirstPage().getPageSize();
-        Image resultImage = retrieveImage(doc);
+        Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
+        Image resultImage = retrieveImageFromPdf(file, IPdfRenderer.ScaleMode.scaleHeight, pageSize);
 
         if (originalImageData != null) {
             float originalImageHeight = UtilService.getPoints(originalImageData.getHeight());
@@ -182,20 +151,20 @@ public class TesseractIntegrationTest {
             Assert.assertEquals(resultImageHeight, expectedImageHeight, delta);
             Assert.assertEquals(resultImageWidth, pageWidthPt, delta);
         }
-        if (!doc.isClosed()) {
-            doc.close();
-        }
     }
 
     @Test
     public void testScaleToFitMode() {
-        File file = new File("src/test/resources/com/itextpdf/ocr/numbers_01.jpg");
+        String filePath = directory + "numbers_01.jpg";
+        File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(file),
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file),
                 IPdfRenderer.ScaleMode.scaleToFit);
 
         PdfDocument doc = pdfRenderer.doPdfOcr();
+
+        assert doc != null;
 
         float realWidth = doc.getFirstPage().getPageSize().getWidth();
         float realHeight = doc.getFirstPage().getPageSize().getHeight();
@@ -209,129 +178,268 @@ public class TesseractIntegrationTest {
     }
 
     @Test
-    public void testInputBMP() {
-        String path = "src/test/resources/com/itextpdf/ocr/example_01.BMP";
-        String expectedOutput = "This is a test message for OCR Scanner Test";
+    public void testTextFromBMP() {
+        String path = directory + "example_01.BMP";
+        String expectedOutput = "This is a test\nmessage\nfor\nOCR Scanner\nTest";
 
-        testImageOcrText(path, expectedOutput);
+        File file = new File(path);
+
+        String realOutputHocr = retrieveTextFromPdf(file);
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
-    public void testInputJFIF() {
-        String path = "src/test/resources/com/itextpdf/ocr/example_01.JFIF";
-        String expectedOutput = "This is a test message for OCR Scanner Test";
+    public void testTextFromJFIF() {
+        String path = directory + "example_02.JFIF";
+        String expectedOutput = "This is a test\nmessage\nfor\nOCR Scanner\nTest";
 
-        testImageOcrText(path, expectedOutput);
+        File file = new File(path);
+        String realOutputHocr = retrieveTextFromPdf(file);
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
-    public void testInputJPG() {
-        String path = "src/test/resources/com/itextpdf/ocr/numbers_01.jpg";
+    public void testTextFromJPG() {
+        String path = directory + "numbers_01.jpg";
         String expectedOutput = "619121";
 
-        testImageOcrText(path, expectedOutput);
+        File file = new File(path);
+        String realOutputHocr = retrieveTextFromPdf(file);
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
     public void testInputTIFFBig() {
-        String path = "src/test/resources/com/itextpdf/ocr/example_03_10MB.tiff";
-        String expectedOutput = "Tagged Image File Format";
+        String path = directory + "example_03_10MB.tiff";
+        String expectedOutput = "Tagged\nImage\nFile Format";
 
-        testImageOcrText(path, expectedOutput);
+        File file = new File(path);
+        String realOutputHocr = retrieveTextFromPdf(file);
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
-
 
     @Test
     public void testInputMultipagesTIFF() {
-        String path = "src/test/resources/com/itextpdf/ocr/multi.tiff";
-        String expectedOutput = "Multipage TIFF Example Page 6";
+        String path = directory + "multipage.tiff";
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage\n6";
 
-        IOcrReader tesseractReader = new TesseractReader();
-
-        File ex1 = new File(path);
-
-        String realOutputHocr = getText(tesseractReader, ex1, 7);
+        File file = new File(path);
+        String realOutputHocr = retrieveTextFromPdf(file, 6);
+        assert realOutputHocr != null;
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
     public void testInputWrongFormat() {
-        File ex = new File("src/test/resources/com/itextpdf/ocr/example.txt");
+        File ex = new File(directory + "example.txt");
 
         IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(ex));
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(ex));
         PdfDocument doc = pdfRenderer.doPdfOcr();
 
+        assert doc != null;
         if (!doc.isClosed()) {
             doc.close();
         }
     }
 
+    @Test
+    public void compareNumbersJPG() throws IOException, InterruptedException {
+        String filename = "numbers_01";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
 
+        doOcr(directory + filename + ".jpg", resultPdfPath);
 
-    /*@Test
-    public void testTextColor() throws IOException {
-        String path = "src/test/resources/numbers_01.jpg";
-        String expectedOutput = "619121";
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
 
-        TesseractReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Arrays.asList(new File(path)));
-        pdfRenderer.setColor(DeviceCmyk.RED);
-        PdfDocument doc = pdfRenderer.doPdfOcr();
+//        deleteFile(resultPdfPath);
+    }
 
-        PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
-        PdfDictionary pageResources = pageDict.getAsDictionary(PdfName.Resources);
-        PdfDictionary pageXObjects = pageResources.getAsDictionary(PdfName.Font);
+    @Test
+    public void compareBigTiff() throws IOException, InterruptedException {
+        String filename = "example_03_10MB";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
 
-        PdfName fontRef = pageXObjects.keySet().iterator().next();
-        String val = fontRef.getValue();
+        doOcr(directory + filename + ".tiff", resultPdfPath);
 
-        PdfDictionary dict = pageXObjects.getAsDictionary(fontRef);
-        PdfObject o1 = pageXObjects.get(fontRef);
-        PdfIndirectReference ref = o1.getIndirectReference();
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
 
-        if (!doc.isClosed()) {
-            doc.close();
-        }
-    }*/
+        deleteFile(resultPdfPath);
+    }
 
-    private void doOcr(String imgPath, String pdfPath, List<String> languages) {
-        TesseractReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Arrays.asList(new File(imgPath)));
+    @Test
+    public void compareEngTextPNG() throws IOException, InterruptedException {
+        String filename = "scanned_eng_01";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
 
-        pdfRenderer.setPdfPath(pdfPath);
-        PdfDocument doc = pdfRenderer.doPdfOcr();
+        doOcr(directory + filename + ".png", resultPdfPath);
 
-        if (!doc.isClosed()) {
-            doc.close();
-        }
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
+    public void compareMultiPageEngTiff() throws IOException, InterruptedException {
+        String filename = "multipage";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
+
+        doOcr(directory + filename + ".tiff", resultPdfPath);
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
+    public void compareMultiLangImage() throws IOException, InterruptedException {
+        String filename = "multilang";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
+
+        doOcr(directory + filename + ".png", resultPdfPath);
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
+    public void compareScannedSpanishPNG() throws IOException, InterruptedException {
+        String filename = "scanned_spa_01";
+        String expectedPdfPath = directory + filename + ".pdf";
+        String resultPdfPath = directory + filename + "_created.pdf";
+
+        doOcr(directory + filename + ".png", resultPdfPath);
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                directory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
+    public void testNoisyImage() {
+        String path = directory + "noisy_01.png";
+        // SHOULD BE
+        // String expectedOutput = "Noisy image\nto test\nTesseract OCR\n";
+
+        // FOR NOW
+        String expectedOutput = "Noisyimage to test Tesseract OCR";
+
+        testImageOcrText(path, expectedOutput);
+    }
+
+    @Test
+    public void testDifferentTextStyles() {
+        String path = directory + "example_04.png";
+        String expectedOutput = "Does this OCR thing really work? H . " +
+                "How about a bigger font? " +
+                "123456789 {23 " +
+                "What about thiy font?";
+
+        testImageOcrText(path, expectedOutput);
     }
 
     /**
-     * Parse text from image and compare with expected
+     * Parse text from image and compare with expected.
+     *
      * @param path
      * @param expectedOutput
      */
     private void testImageOcrText(String path, String expectedOutput) {
         IOcrReader tesseractReader = new TesseractReader();
-
         File ex1 = new File(path);
 
-        String realOutputHocr = getText(tesseractReader, ex1);
+        String realOutputHocr = getTextUsingTesseractFromImage(tesseractReader, ex1);
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     /**
-     * Retrieve text from given document and specified page
+     * Retrieve image from given pdf document.
+     *
+     * @param file
+     * @param scaleMode
+     * @param pageSize
+     * @return
+     */
+    private Image retrieveImageFromPdf(File file, IPdfRenderer.ScaleMode scaleMode, Rectangle pageSize) {
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Arrays.asList(file), scaleMode);
+
+        pdfRenderer.setPageSize(pageSize);
+
+        PdfDocument doc = pdfRenderer.doPdfOcr();
+
+        Image image = null;
+
+        assert doc != null;
+        if (!doc.isClosed()) {
+            PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
+            PdfDictionary pageResources = pageDict.getAsDictionary(PdfName.Resources);
+            PdfDictionary pageXObjects = pageResources.getAsDictionary(PdfName.XObject);
+            PdfName imgRef = pageXObjects.keySet().iterator().next();
+            PdfStream imgStream = pageXObjects.getAsStream(imgRef);
+
+            PdfImageXObject imgObject = new PdfImageXObject(imgStream);
+
+            image = new Image(imgObject);
+            doc.close();
+        }
+
+        return image;
+    }
+
+    /**
+     * Retrieve text from specified page from given pdf document.
+     *
+     * @param file
+     * @param page
+     * @return
+     */
+    private String retrieveTextFromPdf(File file, int page) {
+        try {
+            InputStream stream = doOcr(file);
+            PdfDocument pdf = new PdfDocument(new PdfReader(stream));
+
+            ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+
+            stream.close();
+            return PdfTextExtractor.getTextFromPage(pdf.getPage(page), strategy);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Retrieve text from the first page of given pdf document.
+     *
+     * @param file
+     * @return
+     */
+    private String retrieveTextFromPdf(File file) {
+        return retrieveTextFromPdf(file, 1);
+    }
+
+    /**
+     * Parse text from given image and specified page using tesseract.
      *
      * @param tesseractReader
      * @param file
      * @param page
      * @return
      */
-    private String getText(IOcrReader tesseractReader, File file, int page) {
+    private String getTextUsingTesseractFromImage(IOcrReader tesseractReader, File file, int page) {
         List<TextInfo> data = tesseractReader.readDataFromInput(file);
         List<TextInfo> pageText = UtilService.getTextForPage(data, page);
 
@@ -341,24 +449,69 @@ public class TesseractIntegrationTest {
     }
 
     /**
-     * Retrieve text from given document and specified page
+     * Parse text from given image using tesseract.
+     *
      * @param tesseractReader
      * @param file
      * @return
      */
-    private String getText(IOcrReader tesseractReader, File file) {
-        return getText(tesseractReader, file, 1);
+    private String getTextUsingTesseractFromImage(IOcrReader tesseractReader, File file) {
+        return getTextUsingTesseractFromImage(tesseractReader, file, 1);
     }
 
-    private Image retrieveImage(PdfDocument doc) {
-        PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
-        PdfDictionary pageResources = pageDict.getAsDictionary(PdfName.Resources);
-        PdfDictionary pageXObjects = pageResources.getAsDictionary(PdfName.XObject);
-        PdfName imgRef = pageXObjects.keySet().iterator().next();
-        PdfStream imgStream = pageXObjects.getAsStream(imgRef);
+    /**
+     *  Perform OCR using provided path to image (imgPath) and save result pdf document to "pdfPath".
+     *  (Method is used for compare tool)
+     *
+     * @param imgPath
+     * @param pdfPath
+     */
+    private void doOcr(String imgPath, String pdfPath) {
+        TesseractReader tesseractReader = new TesseractReader();
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(new File(imgPath)));
 
-        PdfImageXObject imgObject = new PdfImageXObject(imgStream);
+        PdfDocument doc = null;
+        try {
+            doc = pdfRenderer.doPdfOcr(new PdfWriter(pdfPath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-        return new Image(imgObject);
+        assert doc != null;
+        if (!doc.isClosed()) {
+            doc.close();
+        }
+    }
+
+    /**
+     * Performs OCR for provided image file.
+     *
+     * @param file
+     * @return
+     */
+    private InputStream doOcr(File file) {
+        IOcrReader tesseractReader = new TesseractReader();
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfDocument doc = pdfRenderer.doPdfOcr(new PdfWriter(baos));
+        assert doc != null;
+        doc.close();
+
+        InputStream stream = new ByteArrayInputStream(baos.toByteArray());
+        return stream;
+    }
+
+    /**
+     * Delete file using provided path.
+     *
+     * @param filePath
+     */
+    private void deleteFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }
