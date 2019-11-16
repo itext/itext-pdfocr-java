@@ -3,13 +3,11 @@ package com.itextpdf.ocr;
 import java.io.File;
 import java.util.List;
 
-
 /**
  * Interface for OcrReader classes.
  *
  * IOcrReader interface provides possibility to perform OCR actions,
  * read data from input files and return contained text in the described format
- *
  */
 public interface IOcrReader {
 
@@ -24,5 +22,4 @@ public interface IOcrReader {
      * @return List<TextInfo>
      */
     List<TextInfo> readDataFromInput(File input);
-
 }

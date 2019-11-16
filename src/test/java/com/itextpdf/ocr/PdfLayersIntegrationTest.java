@@ -1,0 +1,219 @@
+package com.itextpdf.ocr;
+
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfName;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
+import com.itextpdf.kernel.pdf.layer.PdfLayer;
+import com.itextpdf.test.annotations.type.IntegrationTest;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+@Category(IntegrationTest.class)
+public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
+
+    /*@Test
+    public void testPdfLayersWithDefaultNames() {
+        String path = directory + "numbers_01.jpg";
+        File file = new File(path);
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+        PdfDocument doc = pdfRenderer.doPdfOcr();
+
+        assert doc != null;
+        List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
+
+        Assert.assertEquals(2, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals("Text Layer",
+                layers.get(1).getPdfObject().get(PdfName.Name).toString());
+
+        doc.close();
+    }
+
+    @Test
+    public void testPdfLayersWithCustomNames() {
+        String path = directory + "numbers_01.jpg";
+        File file = new File(path);
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        pdfRenderer.setImageLayerName("name image 1");
+        pdfRenderer.setTextLayerName("name text 1");
+
+        PdfDocument doc = pdfRenderer.doPdfOcr();
+
+        // setting layer's name after ocr was done, name shouldn't change
+        pdfRenderer.setImageLayerName("name image 100500");
+
+        assert doc != null;
+        List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
+
+        Assert.assertEquals(2, layers.size());
+        Assert.assertEquals("name image 1",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+        Assert.assertEquals("name text 1",
+                layers.get(1).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(1).isOn());
+
+        doc.close();
+    }
+
+    @Test
+    public void testTextFromPdfLayers() throws IOException {
+        String path = directory + "numbers_01.jpg";
+        String pdfPath = directory + "test.pdf";
+        File file = new File(path);
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), createPdfOutputIntent());
+
+        assert doc != null;
+        List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
+
+        Assert.assertEquals(2, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+        Assert.assertEquals("Text Layer",
+                layers.get(1).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(1).isOn());
+
+        doc.close();
+
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "619121";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, "Text Layer", 1));
+        Assert.assertEquals("",
+                getTextFromPdfLayer(pdfPath, "Image Layer", 1));
+
+        deleteFile(pdfPath);
+    }
+
+    @Test
+    public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
+        String path = directory + "multipage.tiff";
+        String pdfPath = directory + "test.pdf";
+        File file = new File(path);
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), createPdfOutputIntent());
+
+        assert doc != null;
+        int numOfPages = doc.getNumberOfPages();
+        List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
+
+        Assert.assertEquals(numOfPages * 2, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(2).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals("Text Layer",
+                layers.get(3).getPdfObject().get(PdfName.Name).toString());
+
+        doc.close();
+
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage\n5";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, "Text Layer", 5));
+        Assert.assertEquals("",
+                getTextFromPdfLayer(pdfPath, "Image Layer", 5));
+
+        deleteFile(pdfPath);
+    }
+
+    @Test
+    public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {
+        String pdfPath = directory + "test.pdf";
+
+        List<File> files = Arrays.asList(
+                new File(directory + "example_01.BMP"),
+                new File(directory + "example_02.JFIF"),
+                new File(directory + "numbers_01.jpg"),
+                new File(directory + "example_04.png")
+        );
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, files);
+        pdfRenderer.setImageLayerName("image");
+        pdfRenderer.setTextLayerName("text");
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), createPdfOutputIntent());
+
+        assert doc != null;
+        int numOfPages = doc.getNumberOfPages();
+        Assert.assertEquals(numOfPages, files.size());
+        List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
+
+        Assert.assertEquals(numOfPages * 2, layers.size());
+        Assert.assertEquals("image",
+                layers.get(2).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals("text",
+                layers.get(3).getPdfObject().get(PdfName.Name).toString());
+
+        doc.close();
+
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "619121";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, "text", 3));
+        Assert.assertEquals("",
+                getTextFromPdfLayer(pdfPath, "image", 3));
+
+        deleteFile(pdfPath);
+    }
+
+    @Test
+    public void testInputInvalidImage() throws IOException {
+        String pdfPath = directory + "test.pdf";
+
+        File file1 = new File(directory + "example.txt");
+        File file2 = new File(directory + "example_05_corrupted.bmp");
+        File file3 = new File(directory + "numbers_01.jpg");
+
+        String expectedPage = "619121";
+
+        IOcrReader tesseractReader = new TesseractReader();
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Arrays.asList(file3, file1, file2, file3));
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), createPdfOutputIntent());
+        assert doc != null;
+        doc.close();
+
+        String realPage1 = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
+        String realPage2 = getTextFromPdfLayer(pdfPath, "Text Layer", 2);
+        String realPage3 = getTextFromPdfLayer(pdfPath, "Text Layer", 3);
+        String realPage4 = getTextFromPdfLayer(pdfPath, "Text Layer", 4);
+
+        Assert.assertEquals(expectedPage, realPage1);
+        Assert.assertEquals("", realPage2);
+        Assert.assertEquals("", realPage3);
+        Assert.assertEquals(expectedPage, realPage4);
+    }*/
+}

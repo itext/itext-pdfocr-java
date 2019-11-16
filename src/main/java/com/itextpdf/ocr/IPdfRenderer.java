@@ -3,11 +3,11 @@ package com.itextpdf.ocr;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfWriter;
 
 import java.io.File;
 import java.util.List;
-
 
 /**
  * Interface for PDF Renderer classes.
@@ -16,12 +16,11 @@ import java.util.List;
  * to be used for OCR, to set scaling mode for images, color of text in output
  * PDF document,  set fixed size of the PDF document
  * and to perform OCR using given images and return PDFDocument as result
- *
  */
 public interface IPdfRenderer {
 
     /**
-     *  Enum describing possible scale modes for images.
+     * Enum describing possible scale modes for images.
      *
      *
      * <li>{@link #keepOriginalSize}</li>
@@ -32,7 +31,7 @@ public interface IPdfRenderer {
     enum ScaleMode {
         /**
          * keepOriginalSize (default value).
-         *
+         * <p>
          * the size of every page of
          * the output PDF document will match the size of the
          * corresponding input image
@@ -61,7 +60,6 @@ public interface IPdfRenderer {
 
     /**
      * Supported image formats.
-     *
      */
     enum ImageFormat {
         /**
@@ -161,17 +159,88 @@ public interface IPdfRenderer {
     Rectangle getPageSize();
 
     /**
-     * Perform OCR using provided parameters.
+     * Set name for the image layer.
+     * (of by default it is "Image layer")
      *
-     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
+     * @param name layer's name
      */
-    PdfDocument doPdfOcr();
+    void setImageLayerName(String name);
 
     /**
-     * Perform OCR using provided pdfWriter.
+     * Get name of image layer.
      *
+     * @return layer's name that was manually set or the default one (="Image layer")
+     */
+    String getImageLayerName();
+
+    /**
+     * Set name for the text layer.
+     * (of by default it is "Text layer")
+     *
+     * @param name layer's name
+     */
+    void setTextLayerName(String name);
+
+    /**
+     * @return layer's name that was manually set or the default one (="Text layer")
+     */
+    String getTextLayerName();
+
+    /**
+     * Specify pdf natural language, and optionally locale.
+     * @param lang
+     */
+    void setPdfLang(String lang);
+
+    /**
+     * @return pdf document lang
+     */
+    String getPdfLang();
+
+    /**
+     * Set pdf document title.
+     * @param name
+     */
+    void setTitle(String name);
+
+    /**
+     *
+     * @return pdf document title
+     */
+    String getTitle();
+
+    /**
+     * Set path to font to be used in pdf document.
+     * @param name
+     */
+    void setFontPath(String name);
+
+    /**
+     *
+     * @return path to font
+     */
+    String getFontPath();
+
+    /**
+     * Perform OCR using provided pdfWriter and pdfOutputIntent.
+     * - if 'createPdfA3u' is true PdfADocument will be created, otherwise - PdfDocument;
+     * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
+     *
+     * @param pdfWriter
+     * @param createPdfA3u
+     * @param pdfOutputIntent
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter);
-}
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u, PdfOutputIntent pdfOutputIntent);
 
+    /**
+     * Perform OCR using provided pdfWriter and pdfOutputIntent.
+     * - if 'createPdfA3u' is true PdfADocument will be created, otherwise - PdfDocument;
+     * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
+     *
+     * @param pdfWriter
+     * @param createPdfA3u
+     * @return
+     */
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u);
+}

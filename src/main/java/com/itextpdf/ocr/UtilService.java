@@ -2,12 +2,6 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.geom.Rectangle;
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.EndTag;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,19 +11,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.EndTag;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
  * Helper class.
- *
  */
 final class UtilService {
-
-    /**
-     * Constant to convert pixels to points (for tests).
-     */
-    @SuppressWarnings("checkstyle:magicnumber")
-    static final float PX_TO_PT = 3f / 4f;
 
     /**
      * Constantsfor points per inch (for tests).
@@ -44,6 +36,12 @@ final class UtilService {
             .getLogger(UtilService.class);
 
     /**
+     * Constant to convert pixels to points (for tests).
+     */
+    @SuppressWarnings("checkstyle:magicnumber")
+    static final float PX_TO_PT = 3f / 4f;
+
+    /**
      * Simple UtilService constructor.
      */
     private UtilService() {
@@ -52,19 +50,19 @@ final class UtilService {
     /**
      * Run given command in command line.
      *
-     * @param command List<String>
+     * @param command   List<String>
      * @param isWindows boolean
      * @return true if command succeeded, false - if there ere some errors
      */
     static boolean runCommand(final List<String> command,
-                              final boolean isWindows) {
+            final boolean isWindows) {
         LOGGER.info("Running command: " + String.join(" ", command));
         boolean cmdSucceeded;
         try {
             Process process;
             if (isWindows) {
-                String cmd =  String.join(" ", command);
-                process  = Runtime.getRuntime().exec(cmd, null);
+                String cmd = String.join(" ", command);
+                process = Runtime.getRuntime().exec(cmd, null);
             } else {
                 ProcessBuilder pb = new ProcessBuilder("bash", "-c",
                         String.join(" ", command));
@@ -173,15 +171,15 @@ final class UtilService {
      * Calculate the size of the PDF document page
      * should transform pixels to points and according to image resolution.
      *
-     * @param imageData ImageData
-     * @param scaleMode IPdfRenderer.ScaleMode
+     * @param imageData    ImageData
+     * @param scaleMode    IPdfRenderer.ScaleMode
      * @param requiredSize Rectangle
      * @return Rectangle
      */
     static Rectangle calculatePageSize(final ImageData imageData,
-                                       final IPdfRenderer.ScaleMode
-                                               scaleMode,
-                                       final Rectangle requiredSize) {
+            final IPdfRenderer.ScaleMode
+                    scaleMode,
+            final Rectangle requiredSize) {
         // Adjust image size and dpi
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;
@@ -207,11 +205,11 @@ final class UtilService {
                 // scale image and add to canvas to background
                 if (scaleMode == IPdfRenderer.ScaleMode.scaleHeight) {
                     float newHeight = imgHeightPt
-                            * requiredSize.getWidth()  / imgWidthPt;
+                            * requiredSize.getWidth() / imgWidthPt;
                     requiredSize.setHeight(newHeight);
                 } else if (scaleMode == IPdfRenderer.ScaleMode.scaleWidth) {
                     float newWidth = imgWidthPt
-                            * requiredSize.getHeight()  / imgHeightPt;
+                            * requiredSize.getHeight() / imgHeightPt;
                     requiredSize.setWidth(newWidth);
                 }
                 LOGGER.info("Final size in points: (" + requiredSize.getWidth()
@@ -241,10 +239,9 @@ final class UtilService {
      * @return List<TextInfo>
      */
     static List<TextInfo> getTextForPage(final List<TextInfo> data,
-                                         final Integer page) {
+            final Integer page) {
         return data.stream()
                 .filter(item -> item.getPage().equals(page))
                 .collect(Collectors.toList());
     }
-
 }

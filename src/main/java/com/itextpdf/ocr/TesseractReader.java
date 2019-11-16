@@ -1,13 +1,14 @@
 package com.itextpdf.ocr;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract reader class.
@@ -25,46 +26,45 @@ import java.util.List;
  *
  * Please note that It's assumed that "tesseract" is already
  * installed in the system
- *
  */
 public class TesseractReader implements IOcrReader {
-
-    /**
-     * Path to hocr config script.
-     */
-    private static String pathToHocr = "src/main/resources/com/itextpdf/ocr/configs/hocr";
-
-    /**
-     *  Type of current OS.
-     */
-    private String osType;
-
-    /**
-     *  List of languages required for ocr for provided images.
-     */
-    private List<String> languages;
-
-    /**
-     *  List of scripts required for ocr for provided images.
-     */
-    private List<String> scripts;
-
-    /**
-     *  Path to directory with tess data.
-     */
-    private String tessDataDir;
-
-    /**
-     *  Path to the tesseract executable.
-     *  By default it's assumed that "tesseract" already exists in the PATH
-     */
-    private String pathToExecutable;
 
     /**
      * TesseractReader logger.
      */
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractReader.class);
+
+    /**
+     * Path to hocr config script.
+     */
+    private static final String pathToHocr = "src/main/resources/com/itextpdf/ocr/configs/hocr";
+
+    /**
+     * Type of current OS.
+     */
+    private String osType;
+
+    /**
+     * List of languages required for ocr for provided images.
+     */
+    private List<String> languages;
+
+    /**
+     * List of scripts required for ocr for provided images.
+     */
+    private List<String> scripts;
+
+    /**
+     * Path to directory with tess data.
+     */
+    private String tessDataDir;
+
+    /**
+     * Path to the tesseract executable.
+     * By default it's assumed that "tesseract" already exists in the PATH
+     */
+    private String pathToExecutable;
 
     /**
      * TesseractReader constructor.
@@ -88,14 +88,14 @@ public class TesseractReader implements IOcrReader {
      * TesseractReader constructor with path to executable,
      * list of languages, scripts and path to tessData directory.
      *
-     * @param path String
+     * @param path          String
      * @param languagesList List<String>
-     * @param scriptsList List<String>
-     * @param tessData String
+     * @param scriptsList   List<String>
+     * @param tessData      String
      */
     public TesseractReader(final String path, final List<String> languagesList,
-                           final List<String> scriptsList,
-                           final String tessData) {
+            final List<String> scriptsList,
+            final String tessData) {
         pathToExecutable = path;
         languages = languagesList;
         scripts = scriptsList;
@@ -209,15 +209,15 @@ public class TesseractReader implements IOcrReader {
 
         List<TextInfo> words = new ArrayList<>();
         try {
-            String tempDir = System.getProperty("java.io.tmpdir");
-            // File outputHocr = File.createTempFile(UUID.randomUUID().toString(), "hocr");
-            String tmpPath = "src/test/resources/com/itextpdf/ocr/tmp";
+            // String tempDir = System.getProperty("java.io.tmpdir");
+            String extension = ".hocr";
+            File tmpFile = File.createTempFile(UUID.randomUUID().toString(), extension);
 
-            File tmpFile = null;
-
-            LOGGER.info("Temp path: " + tmpPath + "." + type);
-            if (doTesseractOcr(input.getAbsolutePath(), tmpPath)) {
-                tmpFile = new File(tmpPath + "." + type);
+            // filename without extension
+            String fileName = tmpFile.getAbsolutePath()
+                    .substring(0, tmpFile.getAbsolutePath().indexOf(extension));
+            LOGGER.info("Temp path: " + tmpFile.toString());
+            if (doTesseractOcr(input.getAbsolutePath(), fileName)) {
                 if (tmpFile.exists()) {
                     words = UtilService.parseHocrFile(tmpFile);
 
@@ -230,9 +230,7 @@ public class TesseractReader implements IOcrReader {
                 LOGGER.error("Cannot read data from output");
             }
 
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
+            tmpFile.delete();
         } catch (IOException e) {
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
         }
@@ -243,30 +241,29 @@ public class TesseractReader implements IOcrReader {
     /**
      * Perform tesseract OCR.
      *
-     * @param inputPath - path to the file with input image
+     * @param inputPath  - path to the file with input image
      * @param outputPath String
      * @return true if tesseract OCR action succeeded, false - if not
      */
     public final boolean doTesseractOcr(final String inputPath,
-                                  final String outputPath) {
-        System.setProperty("java.awt.headless", "true");
-
+            final String outputPath) {
         // path to tesseract executable cannot be uninitialized
         if (pathToExecutable == null || pathToExecutable.isEmpty()) {
             return false;
         }
         List<String> command = new ArrayList<>();
 
-        command.add("\"" + pathToExecutable + "\"");
+        command.add(addQuotes(pathToExecutable));
 
         if (tessDataDir != null && !tessDataDir.isEmpty()) {
-            command.addAll(
-                    Arrays.asList("--tessdata-dir", "\"" + tessDataDir + "\""));
+            command.addAll(Arrays.asList(
+                    "--tessdata-dir", addQuotes(tessDataDir)
+            ));
         }
 
-        command.addAll(
-                Arrays.asList("\"" + inputPath + "\"",
-                        "\"" + outputPath + "\""));
+        command.addAll(Arrays.asList(
+                addQuotes(inputPath), addQuotes(outputPath)
+        ));
 
         if (languages != null && !languages.isEmpty()) {
             command.addAll(
@@ -299,14 +296,22 @@ public class TesseractReader implements IOcrReader {
     private boolean isWindows() {
         return osType.toLowerCase().contains("win");
     }
+
+    /**
+     * Surrounds given string with quotes.
+     *
+     * @return String
+     */
+    private String addQuotes(String value) {
+        return "\"" + value + "\"";
+    }
 }
 
 /**
  * TextInfo class.
- *
+ * <p>
  * This class describes item of text info retrieved
  * from HOCR file after parsing
- *
  */
 class TextInfo {
 
@@ -328,12 +333,12 @@ class TextInfo {
     /**
      * TextInfo Constructor.
      *
-     * @param newText String
-     * @param newPage Integer
+     * @param newText        String
+     * @param newPage        Integer
      * @param newCoordinates List<Integer>
      */
-    TextInfo(final String newText, final Integer newPage,
-             final List<Integer> newCoordinates) {
+    public TextInfo(final String newText, final Integer newPage,
+            final List<Integer> newCoordinates) {
         text = newText;
         page = newPage;
         coordinates = newCoordinates;

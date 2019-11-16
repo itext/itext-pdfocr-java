@@ -2,10 +2,11 @@
 
 pipeline {
 
-    agent any
+    agent { label '!master' }
 
     environment {
         JDK_VERSION = 'jdk-8-oracle'
+        tesseractDir = tool name: 'Tesseract', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
     }
 
     options {
@@ -53,12 +54,12 @@ pipeline {
                 timeout(time: 30, unit: 'MINUTES')
             }
             environment {
-                SONAR_BRANCH_TARGET= sh (returnStdout: true, script: '[ $BRANCH_NAME = master ] && echo master || echo develop').trim()
+                SONAR_BRANCH_TARGET = sh(returnStdout: true, script: '[ $BRANCH_NAME = master ] && echo master || echo develop').trim()
             }
             steps {
                 withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     withSonarQubeEnv('Sonar') {
-                        sh 'mvn --activate-profiles test verify -DgsExec="${gsExec}" -DcompareExec="${compareExec}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent org.jacoco:jacoco-maven-plugin:report sonar:sonar -Dsonar.branch.name="${BRANCH_NAME}" -Dsonar.branch.target="${SONAR_BRANCH_TARGET}"'
+                        sh 'mvn --activate-profiles test verify -DgsExec="${gsExec}" -DcompareExec="${compareExec}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true -DtesseractDir="${DtesseractDir}" org.jacoco:jacoco-maven-plugin:prepare-agent org.jacoco:jacoco-maven-plugin:report sonar:sonar -Dsonar.branch.name="${BRANCH_NAME}" -Dsonar.branch.target="${SONAR_BRANCH_TARGET}"'
                     }
                 }
             }

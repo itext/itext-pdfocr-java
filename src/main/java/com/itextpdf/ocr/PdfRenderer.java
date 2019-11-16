@@ -1,10 +1,9 @@
 package com.itextpdf.ocr;
 
-import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.image.TiffImageData;
-import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.kernel.colors.Color;
@@ -13,17 +12,15 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.layer.PdfLayer;
+import com.itextpdf.pdfa.PdfADocument;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -38,11 +35,36 @@ import java.util.List;
  * and to perform OCR using given images and return PDFDocument as result
  *
  * PDFRenderer's ocr is based on the provided IOcrReader (e.g. tesseract).
- * This is the obligatory parameter that should be provided in constructor
+ * This parameter is obligatory and it should be provided in constructor
  * or using setter
- *
  */
 public class PdfRenderer implements IPdfRenderer {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PdfRenderer.class);
+
+       /**
+     * Path to image placeholder file that is used in case of any error.
+     */
+    private static final String placeholderImagePath = "src/main/resources/com/itextpdf/ocr/placeholder.jpg";
+
+    /**
+     * Path to default font file (PTSans-Regular).
+     */
+    private static final String defaultFontPath = "src/main/resources/com/itextpdf/ocr/PTSans.ttf";
+
+    /**
+     * Path to default color profile.
+     */
+    private static final String defaultCMYKColorProfilePath = "src/main/resources/com/itextpdf/ocr/CoatedFOGRA27.icc";
+
+    /**
+     * Path to default color profile.
+     */
+    private static final String defaultRGBColorProfilePath = "src/main/resources/com/itextpdf/ocr/sRGB_CS_profile.icm";
 
     /**
      * Path to output pdf file.
@@ -69,25 +91,42 @@ public class PdfRenderer implements IPdfRenderer {
      * Size of the PDF document pages: "A4" by default.
      * This parameter is taken into account only if "scaleMode" is scaleWidth,
      * scaleHeight or scaleToFit
-     *
      */
     private Rectangle pageSize = new Rectangle(PageSize.A4.getX(),
             PageSize.A4.getY(), PageSize.A4.getWidth(),
             PageSize.A4.getHeight());
 
     /**
-     * Parameter describing selectedOCR reader
-     * that corresponds IOcrReader interface.
-     *
+     * Name of the image layer.
      */
-    private IOcrReader ocrReader;
+    private String imageLayerName = "Image Layer";
 
     /**
-     * Logger.
+     * Name of the text layer.
      */
-    private static final Logger LOGGER = LoggerFactory
-             .getLogger(PdfRenderer.class);
+    private String textLayerName = "Text Layer";
 
+    /**
+     * Pdf Language (default: "en-US").
+     */
+    private String pdfLang = "en-US";
+
+    /**
+     * Title of the created document (empty by default).
+     */
+    private String title = "";
+
+    /**
+     * Path to font.
+     * (should be set explicitly or default font will be used)
+     */
+    private String fontPath;
+
+    /**
+     * Parameter describing selectedOCR reader
+     * that corresponds IOcrReader interface.
+     */
+    private IOcrReader ocrReader;
 
     /**
      * PdfRenderer constructor with IOcrReader.
@@ -115,10 +154,10 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param reader IOcrReader
      * @param images List<File>
-     * @param mode ScaleMode
+     * @param mode   ScaleMode
      */
     public PdfRenderer(final IOcrReader reader, final List<File> images,
-                       final ScaleMode mode) {
+            final ScaleMode mode) {
         ocrReader = reader;
         inputImages = images;
         scaleMode = mode;
@@ -128,12 +167,12 @@ public class PdfRenderer implements IPdfRenderer {
      * PdfRenderer constructor with IOcrReader, list of input files
      * and text color.
      *
-     * @param reader IOcrReader
-     * @param images List<File>
+     * @param reader   IOcrReader
+     * @param images   List<File>
      * @param newColor Color
      */
     public PdfRenderer(final IOcrReader reader, final List<File> images,
-                       final Color newColor) {
+            final Color newColor) {
         ocrReader = reader;
         inputImages = images;
         color = newColor;
@@ -144,13 +183,13 @@ public class PdfRenderer implements IPdfRenderer {
      * PdfRenderer constructor with IOcrReader, list of input files,
      * text color and scale mode.
      *
-     * @param reader IOcrReader
-     * @param images List<File>
+     * @param reader   IOcrReader
+     * @param images   List<File>
      * @param newColor Color
-     * @param mode ScaleMode
+     * @param mode     ScaleMode
      */
     public PdfRenderer(final IOcrReader reader, final List<File> images,
-                       final Color newColor, final ScaleMode mode) {
+            final Color newColor, final ScaleMode mode) {
         ocrReader = reader;
         color = newColor;
         inputImages = images;
@@ -250,7 +289,113 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
+     * Set name for the image layer.
+     * (of by default it is "Image layer")
+     *
+     * @param name layer's name
+     */
+    public final void setImageLayerName(String name) {
+        imageLayerName = name;
+    }
+
+    /**
+     * Get name of image layer.
+     *
+     * @return layer's name that was manually set or the default one (="Image layer")
+     */
+    public final String getImageLayerName() {
+        return imageLayerName;
+    }
+
+    /**
+     * Set name for the text layer.
+     * (of by default it is "Text layer")
+     *
+     * @param name layer's name
+     */
+    public final void setTextLayerName(String name) {
+        textLayerName = name;
+    }
+
+    /**
+     * @return layer's name that was manually set or the default one (="Text layer")
+     */
+    public final String getTextLayerName() {
+        return textLayerName;
+    }
+
+    /**
+     * Specify pdf natural language, and optionally locale.
+     * @param lang
+     */
+    public final void setPdfLang(String lang) {
+        pdfLang = lang;
+    }
+
+    /**
+     *
+     * @return pdf document lang
+     */
+    public final String getPdfLang() {
+        return pdfLang;
+    }
+
+    /**
+     * Set pdf document title.
+     * @param name
+     */
+    public final void setTitle(String name) {
+        title = name;
+    }
+
+    /**
+     * @return pdf document title
+     */
+    public final String getTitle() {
+        return title;
+    }
+
+    /**
+     * Set path to font to be used in pdf document.
+     * (if it isn't set default font will be used)
+     *
+     * @param path
+     */
+    public void setFontPath(String path) {
+        fontPath = path;
+    }
+
+    /**
+     * @return Font path that was set or default font path
+     */
+    public String getFontPath() {
+        return fontPath != null && !fontPath.isEmpty() ? fontPath : defaultFontPath;
+    }
+
+    /**
+     * @return path to default font
+     */
+    public String getDefaultFontPath() {
+        return defaultFontPath;
+    }
+
+    /**
+     * @return path to default CMYK color profile
+     */
+    public String getDefaultCMYKColorProfilePath() {
+        return defaultCMYKColorProfilePath;
+    }
+
+    /**
+     * @return path to default RGB color profile
+     */
+    public String getDefaultRGBColorProfilePath() {
+        return defaultRGBColorProfilePath;
+    }
+
+    /**
      * Set IOcrReader reader (e.g. TesseractReader object).
+     *
      * @param reader IOcrReader
      */
     public final void setOcrReader(final IOcrReader reader) {
@@ -264,6 +409,63 @@ public class PdfRenderer implements IPdfRenderer {
      */
     public final IOcrReader getOcrReader() {
         return ocrReader;
+    }
+
+    public final PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u) {
+        return doPdfOcr(pdfWriter, createPdfA3u, null);
+    }
+
+    /**
+     * Perform OCR for the given list of input images using provided pdfWriter.
+     *
+     * @param pdfWriter
+     * @param createPdfA3u - true if output result should PdfADocument
+     * @param pdfOutputIntent - required parameter only if createPdfA3u is true
+     * @return
+     */
+    public final PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u, PdfOutputIntent pdfOutputIntent) {
+        try {
+            LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
+
+            PdfDocument pdfDocument;
+            if (createPdfA3u) {
+                if (pdfOutputIntent != null) {
+                    pdfDocument = new PdfADocument(pdfWriter, PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
+                } else {
+                    throw new Exception(Exception.OutputIntentCannotBeNull);
+                }
+            } else {
+                pdfDocument = new PdfDocument(pdfWriter);
+            }
+
+            // add metadata
+            pdfDocument.getCatalog().setLang(new PdfString(getPdfLang()));
+            pdfDocument.getCatalog().setViewerPreferences(
+                    new PdfViewerPreferences().setDisplayDocTitle(true));
+            PdfDocumentInfo info = pdfDocument.getDocumentInfo();
+            info.setTitle(getTitle());
+
+            LOGGER.info("Current scale mode: " + getScaleMode());
+            PdfFont defaultFont;
+            try {
+                defaultFont = PdfFontFactory.createFont(getFontPath(),
+                        PdfEncodings.IDENTITY_H, true);
+            } catch (com.itextpdf.io.IOException | IOException e) {
+                LOGGER.error(e.getMessage());
+                LOGGER.error("Using default font");
+                defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
+                        PdfEncodings.IDENTITY_H, true);
+            }
+
+            for (File inputImage : inputImages) {
+                doOCRForImage(inputImage, pdfDocument, defaultFont);
+            }
+
+            return pdfDocument;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -288,59 +490,15 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
-     * Perform OCR for the given list of input images using provided ocrReader
-     * and default PdfWriter.
-     *
-     *
-     * @return PdfDocument
-     */
-    public final PdfDocument doPdfOcr() {
-        try {
-            PdfWriter writer = new PdfWriter(new ObjectOutputStream(new ByteArrayOutputStream()));
-            return doPdfOcr(writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Perform OCR for the given list of input images using provided ocrReader.
-     *
-     * @return PDFDocument containing number of pages corresponding
-     * the number of input images
-     */
-    public final PdfDocument doPdfOcr(PdfWriter pdfWriter) {
-        try {
-            LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
-
-            PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-
-            LOGGER.info("Current scale mode: " + getScaleMode());
-            PdfFont defaultFont = PdfFontFactory
-                    .createFont(StandardFonts.HELVETICA);
-
-            for (File inputImage : inputImages) {
-                doOCRForImage(inputImage, pdfDocument, defaultFont);
-            }
-
-            return pdfDocument;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * Perform OCR for input image.
      *
-     * @param inputImage input file
+     * @param inputImage  input file
      * @param pdfDocument output pdf document
      * @param defaultFont default font
      */
     private void doOCRForImage(final File inputImage,
-                               final PdfDocument pdfDocument,
-                               final PdfFont defaultFont) {
+            final PdfDocument pdfDocument,
+            final PdfFont defaultFont) throws IOException {
         if (validateImageFormat(inputImage)) {
             try {
                 List<ImageData> imageDataList = getImageData(inputImage);
@@ -356,32 +514,55 @@ public class PdfRenderer implements IPdfRenderer {
                                 .calculatePageSize(imageData, getScaleMode(),
                                         getPageSize());
 
+                        LOGGER.info("Started parsing image " + inputImage.getName());
                         PageSize newPageSize = new PageSize(size);
-                        PdfPage pdfPage = pdfDocument.addNewPage(newPageSize);
-                        PdfCanvas canvas = new PdfCanvas(pdfPage);
 
-                        addImageToCanvas(imageData, newPageSize, canvas);
-                        LOGGER.info("Added image page to canvas: "
-                                + inputImage.getName());
-
-                        addTextToCanvas(imageData,
-                                UtilService
-                                        .getTextForPage(data, page + 1),
-                                canvas, defaultFont);
+                        addToCanvas(pdfDocument, defaultFont, newPageSize,
+                                    UtilService.getTextForPage(data, page + 1),
+                                    imageData);
                     }
                 } else {
                     PageSize newPageSize = new PageSize(getPageSize());
-                    pdfDocument.addNewPage(newPageSize);
+                    ImageData imageData = !imageDataList.isEmpty() ? imageDataList.get(0) : null;
+                    addToCanvas(pdfDocument, defaultFont, newPageSize, new ArrayList<>(), imageData);
                 }
             } catch (IOException e) {
                 LOGGER.error("Error occurred:" + e.getLocalizedMessage());
             }
         } else {
             PageSize size = new PageSize(getPageSize());
-            pdfDocument.addNewPage(size);
+            addToCanvas(pdfDocument, defaultFont, size, new ArrayList<>(), null);
             LOGGER.error("Invalid image format: "
                     + inputImage.getAbsolutePath());
         }
+    }
+
+    /**
+     * Add image and text to canvas
+     *
+     * @param pdfDocument
+     * @param defaultFont
+     * @param pageSize
+     * @param pageText
+     * @param imageData
+     */
+    void addToCanvas(final PdfDocument pdfDocument, final PdfFont defaultFont, PageSize pageSize,
+                     List<TextInfo> pageText, ImageData imageData) throws IOException {
+        PdfPage pdfPage = pdfDocument.addNewPage(pageSize);
+        PdfCanvas canvas = new PdfCanvas(pdfPage);
+
+        PdfLayer imageLayer = new PdfLayer(getImageLayerName(), pdfDocument);
+        PdfLayer textLayer = new PdfLayer(getTextLayerName(), pdfDocument);
+
+        canvas.beginLayer(imageLayer);
+        addImageToCanvas(imageData, pageSize, canvas);
+        canvas.endLayer();
+        LOGGER.info("Added image page to canvas");
+
+        canvas.beginLayer(textLayer);
+        addTextToCanvas(imageData == null ? pageSize.getHeight() : imageData.getHeight(),
+                        pageText, canvas, defaultFont);
+        canvas.endLayer();
     }
 
     /**
@@ -409,7 +590,7 @@ public class PdfRenderer implements IPdfRenderer {
             for (int page = 0; page < tiffPages; page++) {
                 ImageData imageData = ImageDataFactory
                         .createTiff(tiffFile.toUri().toURL(),
-                        true, page + 1, true);
+                                true, page + 1, true);
                 images.add(imageData);
             }
             raf.close();
@@ -426,90 +607,107 @@ public class PdfRenderer implements IPdfRenderer {
      * Add image to canvas to background.
      *
      * @param imageData imageData
-     * @param newSize PageSize
-     * @param canvas pdfCanvas
+     * @param newSize   PageSize
+     * @param canvas    pdfCanvas
      */
-    private void addImageToCanvas(final ImageData imageData,
-                                  final PageSize newSize,
-                                  final PdfCanvas canvas) {
-        imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
-        imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
-
-        canvas.addImage(imageData, newSize, false);
+    private void addImageToCanvas(ImageData imageData,
+            final PageSize newSize,
+            final PdfCanvas canvas) {
+        if (imageData == null) {
+            List<ImageData> data = new ArrayList<>();
+            try {
+                data = getImageData(new File(placeholderImagePath));
+            } catch (IOException e) {
+                LOGGER.error("Error during create image data (using path "
+                        + placeholderImagePath + "): " + e.getLocalizedMessage());
+            }
+            imageData = data.isEmpty() ? null : data.get(0);
+        }
+        // up to this step imageData should not be null anymore
+        if (imageData != null) {
+            imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
+            imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
+            canvas.addImage(imageData, newSize, false);
+        }
     }
 
     /**
      * Add retrieved text to canvas.
      *
-     * @param imageData imageData
-     * @param data list of text objects (lines/words)
-     * @param canvas pdfCanvas
-     * @param defaultFont default font
+     * @param pageImagePixelHeight
+     * @param data
+     * @param canvas
+     * @param defaultFont
+     * @throws IOException
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    private void addTextToCanvas(final ImageData imageData,
-                                 final List<TextInfo> data,
-                                 final PdfCanvas canvas,
-                                 final PdfFont defaultFont) {
-        float pageImagePixelHeight = imageData.getHeight();
+    private void addTextToCanvas(float pageImagePixelHeight,
+            final List<TextInfo> data,
+            final PdfCanvas canvas,
+            final PdfFont defaultFont) throws IOException {
+        if (data == null || data.isEmpty()) {
+            canvas.beginText().setFontAndSize(defaultFont, 1);
+            canvas.showText("").endText();
+        } else {
+            for (TextInfo item : data) {
+                String line = item.getText();
+                List<Integer> coordinates = item.getCoordinates();
+                final Integer left = coordinates.get(0);
+                final Integer right = coordinates.get(2);
+                final Integer top = coordinates.get(1);
+                final Integer bottom = coordinates.get(3);
+                final float delta = 0.1f;
 
-        for (TextInfo item : data) {
-            String line = item.getText();
-            List<Integer> coordinates = item.getCoordinates();
-            final Integer left = coordinates.get(0);
-            final Integer right = coordinates.get(2);
-            final Integer top = coordinates.get(1);
-            final Integer bottom = coordinates.get(3);
-            final float delta = 0.1f;
+                float bboxWidthPt = UtilService
+                        .getPoints(right - left);
+                float bboxHeightPt = UtilService
+                        .getPoints(bottom - top);
+                if (!line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0) {
+                    // Scale the text width to fit the OCR bbox
+                    float fontSize = calculateFontSize(line, defaultFont,
+                            bboxWidthPt, bboxHeightPt, delta);
 
-            float bboxWidthPt = UtilService
-                    .getPoints(right - left);
-            float bboxHeightPt = UtilService
-                    .getPoints(bottom - top);
-            if (!line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0) {
-                // Scale the text width to fit the OCR bbox
-                float fontSize = calculateFontSize(line, defaultFont,
-                        bboxWidthPt, bboxHeightPt, delta);
+                    // logger.info("Setting font size " + fontSize);
 
-                // logger.info("Setting font size " + fontSize);
+                    float deltaX = UtilService.getPoints(left);
+                    float deltaY = UtilService
+                            .getPoints(pageImagePixelHeight - bottom);
 
-                float deltaX = UtilService.getPoints(left);
-                float deltaY = UtilService
-                        .getPoints(pageImagePixelHeight - bottom);
+                    // set font and its size
+                    canvas.beginText()
+                            .setFontAndSize(defaultFont, fontSize)
+                            .setColor(getColor(), true);
 
-                // set font and its size
-                canvas.beginText()
-                        .setFontAndSize(defaultFont, fontSize)
-                        .setColor(getColor(), true);
+                    // make text invisible
+                    // canvas.setTextRenderingMode(1); // 3 // 1
 
-                // make text invisible
-                // canvas.setTextRenderingMode(1); // 3 // 1
+                    // place text correctly
+                    canvas.moveText(deltaX, deltaY);
 
-                // place text correctly
-                canvas.moveText(deltaX, deltaY);
-
-                // add text on canvas
-                canvas.showText(line)
-                        .endText();
+                    // add text on canvas
+                    canvas.showText(line)
+                            .endText();
+                }
             }
         }
+
     }
 
     /**
      * Calculate appropriate font size to fit bbox's width and height.
      *
-     * @param line text line
-     * @param defaultFont default font
-     * @param bboxWidthPt bbox width
-     * @param bboxHeightPt bbox height
+     * @param line          text line
+     * @param defaultFont   default font
+     * @param bboxWidthPt   bbox width
+     * @param bboxHeightPt  bbox height
      * @param fontSizeDelta float
      * @return float
      */
     private float calculateFontSize(final String line,
-                                    final PdfFont defaultFont,
-                                    final float bboxWidthPt,
-                                    final float bboxHeightPt,
-                                    final float fontSizeDelta) {
+            final PdfFont defaultFont,
+            final float bboxWidthPt,
+            final float bboxHeightPt,
+            final float fontSizeDelta) {
         float fontSize = bboxHeightPt;
         boolean textScaled = false;
 
@@ -519,7 +717,7 @@ public class PdfRenderer implements IPdfRenderer {
                 textScaled = true;
             } else if (lineWidth < bboxWidthPt) {
                 fontSize += fontSizeDelta;
-            }  else {
+            } else {
                 fontSize -= fontSizeDelta;
             }
         }
@@ -527,4 +725,35 @@ public class PdfRenderer implements IPdfRenderer {
         return fontSize;
     }
 
+    /**
+     * Create Pdf Output Intent with CMYK color profile if it wasn't done by user
+     *
+     * @return
+     */
+    private PdfOutputIntent getCMYKOutputIntent() {
+        InputStream is = null;
+        try {
+            is = new FileInputStream(getDefaultCMYKColorProfilePath());
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getLocalizedMessage());
+        }
+        return new PdfOutputIntent("Custom", "",
+                "http://www.color.org", "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
+    }
+
+    /**
+     * Create Pdf Output Intent with CMYK color profile if it wasn't done by user
+     *
+     * @return
+     */
+    private PdfOutputIntent getRGBOutputIntent() {
+        InputStream is = null;
+        try {
+            is = new FileInputStream(getDefaultCMYKColorProfilePath());
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getLocalizedMessage());
+        }
+        return new PdfOutputIntent("Custom", "",
+                "https://www.color.org","sRGB IEC61966-2.1", is);
+    }
 }
