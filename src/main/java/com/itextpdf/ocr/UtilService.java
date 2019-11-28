@@ -2,6 +2,12 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.geom.Rectangle;
+import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.EndTag;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,12 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.EndTag;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Helper class.

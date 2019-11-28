@@ -5,23 +5,40 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
-    <version>7.1.9-SNAPSHOT</version>
+    <version>7.1.10-SNAPSHOT</version>
     <relativePath />
   </parent>
 
   <artifactId>ocr</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
-  <name>OCR</name>
+  <name>PdfOcr</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from provided images and adds it to PDF.</description>
 
   <properties>
-    <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
     <itext.version>${project.parent.version}</itext.version>
-    <java.version>1.8</java.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>itext-snapshot</id>
+      <name>iText Repository - snapshots</name>
+      <url>https://repo.itextsupport.com/snapshot</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>itext-releases</id>
+      <name>iText Repository - releases</name>
+      <url>https://repo.itextsupport.com/releases</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -60,39 +77,33 @@
       <version>${itext.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdftest</artifactId>
+      <version>${itext.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>itext-snapshot</id>
-      <name>iText Repository - snapshots</name>
-      <url>https://repo.itextsupport.com/snapshot</url>
-    </repository>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>itext-releases</id>
-      <name>iText Repository - releases</name>
-      <url>https://repo.itextsupport.com/releases</url>
-    </repository>
-  </repositories>
-
   <build>
-
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.ttf</include>
+          <include>**/*.jpg</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${spotbugs.version}</version>
-        <configuration>
-          <threshold>High</threshold>
-          <failOnError>true</failOnError>
-          <!--   <excludeFilterFile>findbugs-filter.xml</excludeFilterFile>-->
-        </configuration>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
@@ -100,9 +111,16 @@
         <version>1.0-m5.1</version>
       </plugin>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>${failsafe.version}</version>
         <configuration>
           <includes>
             <include>**/*Test.java</include>
@@ -115,10 +133,9 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc.version}</version>
         <configuration>
-          <subpackages>com.itextpdf.ocr</subpackages>
           <groups>
             <group>
-              <title>OCR</title>
+              <title>Ocr</title>
               <packages>com.itextpdf.ocr*</packages>
             </group>
           </groups>
@@ -130,9 +147,6 @@
         <version>${surefire.version}</version>
         <configuration>
           <groups>${unittests}</groups>
-          <systemPropertyVariables>
-            <tesseractDir>tesseract</tesseractDir>
-          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>
@@ -152,6 +166,5 @@
         </configuration>
       </plugin>
     </plugins>
-
   </build>
 </project>

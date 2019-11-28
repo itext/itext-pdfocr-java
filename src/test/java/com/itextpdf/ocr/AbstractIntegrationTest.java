@@ -7,24 +7,23 @@ import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.CanvasTag;
 import com.itextpdf.kernel.pdf.canvas.parser.EventType;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
-import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.itextpdf.kernel.pdf.canvas.parser.data.IEventData;
 import com.itextpdf.kernel.pdf.canvas.parser.data.TextRenderInfo;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextChunkLocation;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
+import org.junit.Assert;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 class AbstractIntegrationTest {
 
     // directory with test files
-    static String directory = "src/test/resources/com/itextpdf/ocr/";
+    static String testDirectory = "src/test/resources/com/itextpdf/ocr/";
     // directory with trained data for tests
     static String tessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/";
 
@@ -32,7 +31,9 @@ class AbstractIntegrationTest {
 
     String getTesseractDirectory() {
         String tesseractDir = System.getProperty("tesseractDir");
-        return tesseractDir != null && !tesseractDir.isEmpty() ? tesseractDir : "tesseract";
+        String os = System.getProperty("os.name");
+        return os.toLowerCase().contains("win") && tesseractDir != null
+                && !tesseractDir.isEmpty() ? tesseractDir + "\\tesseract.exe" : "tesseract";
     }
 
     /**
@@ -45,7 +46,7 @@ class AbstractIntegrationTest {
      */
     Image getImageFromPdf(File file, IPdfRenderer.ScaleMode scaleMode,
                                   Rectangle pageSize) throws IOException {
-        IOcrReader tesseractReader = new TesseractReader();
+        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), scaleMode);
 
@@ -55,7 +56,7 @@ class AbstractIntegrationTest {
 
         Image image = null;
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
         if (!doc.isClosed()) {
             PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
             PdfDictionary pageResources = pageDict.getAsDictionary(PdfName.Resources);
@@ -79,19 +80,19 @@ class AbstractIntegrationTest {
      * @param page
      * @return
      */
-    String getTextFromPdfFile(File file, int page, String tessDataDir, List<String> languages) {
+    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages) {
+        String pdfPath = testDirectory + "test.pdf";
+        doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages);
+
+        String result = null;
         try {
-            InputStream stream = doOcr(file, tessDataDir, languages);
-            PdfDocument pdf = new PdfDocument(new PdfReader(stream));
-
-            ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
-
-            stream.close();
-            return PdfTextExtractor.getTextFromPage(pdf.getPage(page), strategy);
+            result = getTextFromPdfLayer(pdfPath, "Text Layer", page);
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        deleteFile(pdfPath);
+
+        return result;
     }
 
     /**
@@ -100,8 +101,8 @@ class AbstractIntegrationTest {
      * @param file
      * @return
      */
-    String getTextFromPdfFile(File file, String tessDataDir, List<String> languages) {
-        return getTextFromPdfFile(file, 1, tessDataDir, languages);
+    String getTextFromPdf(File file, String tessDataDir, List<String> languages) {
+        return getTextFromPdf(file, 1, tessDataDir, languages);
     }
 
     /**
@@ -111,8 +112,8 @@ class AbstractIntegrationTest {
      * @param page
      * @return
      */
-    String getTextFromPdfFile(File file, int page) {
-        return getTextFromPdfFile(file, page, null, null);
+    String getTextFromPdf(File file, int page) {
+        return getTextFromPdf(file, page, null, null);
     }
 
     /**
@@ -121,8 +122,8 @@ class AbstractIntegrationTest {
      * @param file
      * @return
      */
-    String getTextFromPdfFile(File file) {
-        return getTextFromPdfFile(file, 1, null, null);
+    String getTextFromPdf(File file) {
+        return getTextFromPdf(file, 1, null, null);
     }
 
     /**
@@ -155,7 +156,7 @@ class AbstractIntegrationTest {
      * @param pdfPath
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir, List<String> languages) {
-        TesseractReader tesseractReader = new TesseractReader();
+        TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
         if (tessDataDir != null) {
             tesseractReader.setPathToTessData(tessDataDir);
         }
@@ -172,7 +173,7 @@ class AbstractIntegrationTest {
             e.printStackTrace();
         }
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
         if (!doc.isClosed()) {
             doc.close();
         }
@@ -188,33 +189,6 @@ class AbstractIntegrationTest {
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath) {
         doOcrAndSaveToPath(imgPath, pdfPath, null, null);
-    }
-
-    /**
-     * Performs OCR for provided image file providing path to tessData
-     * and list of required languages.
-     *
-     * @param file
-     * @return InputStream
-     */
-    InputStream doOcr(File file, String tessDataDir, List<String> languages) throws FileNotFoundException {
-        TesseractReader tesseractReader = new TesseractReader();
-        if (tessDataDir != null) {
-            tesseractReader.setPathToTessData(tessDataDir);
-        }
-        if (languages != null) {
-            tesseractReader.setLanguages(languages);
-        }
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file));
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter pw = createPdfWriter(baos);
-        PdfDocument doc = pdfRenderer.doPdfOcr(pw, false);
-        assert doc != null;
-        doc.close();
-
-        InputStream stream = new ByteArrayInputStream(baos.toByteArray());
-        return stream;
     }
 
     /**
@@ -270,22 +244,22 @@ class AbstractIntegrationTest {
      */
     PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(getDefaultRGBColorProfilePath());
-        return new PdfOutputIntent("Custom", "",
-                "http://www.color.org", "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
+        return new PdfOutputIntent("", "",
+                "", "sRGB IEC61966-2.1", is);
     }
 
     /**
      * @return path to default cmyk color profile
      */
     String getDefaultCMYKColorProfilePath() {
-        return "src/main/resources/com/itextpdf/ocr/CoatedFOGRA27.icc";
+        return "src/test/resources/com/itextpdf/ocr/CoatedFOGRA27.icc";
     }
 
     /**
      * @return path to default rgb color profile
      */
     String getDefaultRGBColorProfilePath() {
-        return "src/main/resources/com/itextpdf/ocr/sRGB_CS_profile.icm";
+        return "src/test/resources/com/itextpdf/ocr/sRGB_CS_profile.icm";
     }
 
     /**
@@ -332,6 +306,22 @@ class AbstractIntegrationTest {
 
         PdfFont getPdfFont() {
             return pdfFont;
+        }
+
+        @Override
+        protected boolean isChunkAtWordBoundary(TextChunk chunk, TextChunk previousChunk) {
+            String cur = chunk.getText();
+            String prev = previousChunk.getText();
+            ITextChunkLocation curLoc = chunk.getLocation();
+            ITextChunkLocation prevLoc = previousChunk.getLocation();
+
+            if (curLoc.getStartLocation().equals(curLoc.getEndLocation()) ||
+                    prevLoc.getEndLocation().equals(prevLoc.getStartLocation())) {
+                return false;
+            }
+
+            return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
+                    (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth()) / 2.0f;
         }
 
         @Override

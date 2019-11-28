@@ -1,5 +1,8 @@
 #!/usr/bin/env groovy
 
+def sonarBranchName = env.BRANCH_NAME.contains('master') ? '-Dsonar.branch.name=master' : '-Dsonar.branch.name=' + env.BRANCH_NAME
+def sonarBranchTarget = env.BRANCH_NAME.contains('master') ? '' : env.BRANCH_NAME == 'develop' ? '-Dsonar.branch.target=master' : '-Dsonar.branch.target=develop'
+
 pipeline {
 
     agent { label '!master' }
@@ -36,6 +39,7 @@ pipeline {
             steps {
                 withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     sh 'mvn clean'
+                    sh 'mvn dependency:purge-local-repository -Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false'
                 }
             }
         }
@@ -45,7 +49,7 @@ pipeline {
             }
             steps {
                 withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                    sh 'mvn compile test-compile'
+                    sh 'mvn compile test-compile package -Dmaven.test.skip=true -Dmaven.javadoc.failOnError=false'
                 }
             }
         }
@@ -53,13 +57,11 @@ pipeline {
             options {
                 timeout(time: 30, unit: 'MINUTES')
             }
-            environment {
-                SONAR_BRANCH_TARGET = sh(returnStdout: true, script: '[ $BRANCH_NAME = master ] && echo master || echo develop').trim()
-            }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
                     withSonarQubeEnv('Sonar') {
-                        sh 'mvn --activate-profiles test verify -DgsExec="${gsExec}" -DcompareExec="${compareExec}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true -DtesseractDir="${DtesseractDir}" org.jacoco:jacoco-maven-plugin:prepare-agent org.jacoco:jacoco-maven-plugin:report sonar:sonar -Dsonar.branch.name="${BRANCH_NAME}" -Dsonar.branch.target="${SONAR_BRANCH_TARGET}"'
+                        sh 'mvn --activate-profiles test -DgsExec="${gsExec}"' +
+                                ' -DcompareExec="${compareExec}" -DtesseractDir="${tesseractDir}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report -Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" sonar:sonar '
                     }
                 }
             }
@@ -69,8 +71,8 @@ pipeline {
                 timeout(time: 30, unit: 'MINUTES')
             }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                    sh 'mvn --activate-profiles qa verify -Dpmd.analysisCache=true  -Dmaven.javadoc.skip=true'
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
+                    sh 'mvn --activate-profiles qa verify -Dpmd.analysisCache=true -Dmaven.javadoc.skip=true'
                 }
             }
         }
@@ -95,7 +97,7 @@ pipeline {
                 script {
                     def server = Artifactory.server('itext-artifactory')
                     def rtMaven = Artifactory.newMavenBuild()
-                    rtMaven.deployer server: server, releaseRepo: 'releases', snapshotRepo: 'snapshot'
+                    rtMaven.deployer server: server, snapshotRepo: 'snapshot'
                     rtMaven.tool = 'M3'
                     def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install -Dmaven.test.skip=true -Dspotbugs.skip=true -Dmaven.javadoc.failOnError=false'
                     server.publishBuildInfo buildInfo

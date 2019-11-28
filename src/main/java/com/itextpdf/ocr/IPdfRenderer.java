@@ -119,14 +119,14 @@ public interface IPdfRenderer {
      *
      * @param newColor a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    void setColor(Color newColor);
+    void setFontColor(Color newColor);
 
     /**
      * Get text color in output PDF document.
      *
      * @return a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    Color getColor();
+    Color getFontColor();
 
     /**
      * Set scale mode for input images using available options
@@ -188,7 +188,7 @@ public interface IPdfRenderer {
 
     /**
      * Specify pdf natural language, and optionally locale.
-     * @param lang
+     * @param lang String
      */
     void setPdfLang(String lang);
 
@@ -199,7 +199,7 @@ public interface IPdfRenderer {
 
     /**
      * Set pdf document title.
-     * @param name
+     * @param name String
      */
     void setTitle(String name);
 
@@ -211,7 +211,7 @@ public interface IPdfRenderer {
 
     /**
      * Set path to font to be used in pdf document.
-     * @param name
+     * @param name String
      */
     void setFontPath(String name);
 
@@ -226,21 +226,22 @@ public interface IPdfRenderer {
      * - if 'createPdfA3u' is true PdfADocument will be created, otherwise - PdfDocument;
      * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
      *
-     * @param pdfWriter
-     * @param createPdfA3u
-     * @param pdfOutputIntent
+     * @param pdfWriter PdfWriter
+     * @param createPdfA3u boolean
+     * @param pdfOutputIntent PdfOutputIntent
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u, PdfOutputIntent pdfOutputIntent);
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u,
+            PdfOutputIntent pdfOutputIntent);
 
     /**
-     * Perform OCR using provided pdfWriter and pdfOutputIntent.
-     * - if 'createPdfA3u' is true PdfADocument will be created, otherwise - PdfDocument;
-     * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
+     * Perform OCR using provided pdfWriter.
+     * - if 'createPdfA3u' is true an exception will be thrown,
+     * otherwise PdfDocument will be created;
      *
-     * @param pdfWriter
-     * @param createPdfA3u
-     * @return
+     * @param pdfWriter provided pdfWriter
+     * @param createPdfA3u boolean
+     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter, Boolean createPdfA3u);
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u);
 }

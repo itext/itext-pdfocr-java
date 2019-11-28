@@ -15,17 +15,17 @@ import java.util.Collections;
 @Category(IntegrationTest.class)
 public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
-    /*@Test
+    @Test
     public void compareMultiLangImage() throws IOException, InterruptedException {
         String filename = "multilang";
-        String expectedPdfPath = directory + filename + ".pdf";
-        String resultPdfPath = directory + filename + "_created.pdf";
+        String expectedPdfPath = testDirectory + filename + ".pdf";
+        String resultPdfPath = testDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(directory + filename + ".png", resultPdfPath,
+        doOcrAndSaveToPath(testDirectory + filename + ".png", resultPdfPath,
                 tessDataDirectory, Arrays.asList("eng", "deu", "spa"));
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                directory, "diff_");
+                testDirectory, "diff_");
 
         deleteFile(resultPdfPath);
     }
@@ -33,14 +33,14 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void compareSpanishPNGUsingTessData() throws IOException, InterruptedException {
         String filename = "scanned_spa_01";
-        String expectedPdfPath = directory + filename + ".pdf";
-        String resultPdfPath = directory + filename + "_created.pdf";
+        String expectedPdfPath = testDirectory + filename + ".pdf";
+        String resultPdfPath = testDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(directory + filename + ".png", resultPdfPath,
+        doOcrAndSaveToPath(testDirectory + filename + ".png", resultPdfPath,
                 tessDataDirectory, Arrays.asList("spa", "spa_old"));
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                directory, "diff_");
+                testDirectory, "diff_");
 
         deleteFile(resultPdfPath);
     }
@@ -48,60 +48,60 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testSpanishWithTessData() {
-        String imgPath = directory + "spanish_01.jpg";
+        String imgPath = testDirectory + "spanish_01.jpg";
         File file = new File(imgPath);
         String expectedSpanish = "Aquí\nhablamos\nespañol";
 
         // correct result with specified spanish language
-        Assert.assertEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("spa")), expectedSpanish);
-        Assert.assertEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Arrays.asList("spa", "eng")), expectedSpanish);
+        Assert.assertEquals(expectedSpanish, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("spa")));
+        Assert.assertEquals(expectedSpanish, getTextFromPdf(file, tessDataDirectory,
+                Arrays.asList("spa", "eng")));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("eng")), expectedSpanish);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory, new ArrayList<>()), expectedSpanish);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Arrays.asList("eng", "spa")), expectedSpanish);
+        Assert.assertNotEquals(expectedSpanish, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("eng")));
+        Assert.assertNotEquals(expectedSpanish, getTextFromPdf(file, tessDataDirectory, new ArrayList<>()));
+        Assert.assertNotEquals(expectedSpanish, getTextFromPdf(file, tessDataDirectory,
+                Arrays.asList("eng", "spa")));
     }
 
     @Test
     public void testGermanWithTessData() {
-        String imgPath = directory + "german_01.jpg";
+        String imgPath = testDirectory + "german_01.jpg";
         File file = new File(imgPath);
-        String expectedGerman = "Das Geheimnis\ndes Könnens\nliegt\nim Wollen.";
+        String expectedGerman = "Das Geheimnis\ndes Könnens\nim\nWollen.\nliegt";
 
         // correct result with specified spanish language
-        Assert.assertEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("deu")), expectedGerman);
+        Assert.assertEquals(expectedGerman, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("deu")));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("eng")), expectedGerman);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("fra")), expectedGerman);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory, new ArrayList<>()), expectedGerman);
+        Assert.assertNotEquals(expectedGerman, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("eng")));
+        Assert.assertNotEquals(expectedGerman, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("fra")));
+        Assert.assertNotEquals(expectedGerman, getTextFromPdf(file, tessDataDirectory, new ArrayList<>()));
     }
 
     @Test
     public void testFrenchWithTessData() {
-        String imgPath = directory + "french01.jpg";
+        String imgPath = testDirectory + "french01.jpg";
         File file = new File(imgPath);
-        String expectedFr = "LA PHRASE NÉGATIVE EN\nFRANÇAIS\nFormation de la\nnégation, exemples\net exercises.";
+        String expectedFr = "LA EN\nPHRASE NÉGATIVE\nFRANÇAIS\nFormation de la\nnégation,\nexemples\net exercises.";
 
         // correct result with specified spanish language
-        Assert.assertEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("fra")), expectedFr);
+        Assert.assertEquals(expectedFr, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("fra")));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("eng")), expectedFr);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory,
-                Collections.singletonList("spa")), expectedFr);
-        Assert.assertNotEquals(getTextFromPdfFile(file, tessDataDirectory, new ArrayList<>()), expectedFr);
-    }*/
+        Assert.assertNotEquals(expectedFr, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("eng")));
+        Assert.assertNotEquals(expectedFr, getTextFromPdf(file, tessDataDirectory,
+                Collections.singletonList("spa")));
+        Assert.assertNotEquals(expectedFr, getTextFromPdf(file, tessDataDirectory, new ArrayList<>()));
+    }
 }

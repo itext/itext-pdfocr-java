@@ -2,15 +2,12 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -20,9 +17,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +27,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testKeepOriginalSizeScaleMode() throws IOException {
-        String filePath = directory + "numbers_01.jpg";
+        String filePath = testDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -41,7 +36,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
 
         ImageData imageData = null;
         try {
@@ -67,7 +62,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleWidthMode() throws IOException {
-        String filePath = directory + "numbers_01.jpg";
+        String filePath = testDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         ImageData originalImageData = null;
@@ -111,7 +106,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleHeightMode() throws IOException {
-        String filePath = directory + "numbers_01.jpg";
+        String filePath = testDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         ImageData originalImageData = null;
@@ -151,7 +146,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleToFitMode() throws IOException {
-        String filePath = directory + "numbers_01.jpg";
+        String filePath = testDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -160,7 +155,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
 
         float realWidth = doc.getFirstPage().getPageSize().getWidth();
         float realHeight = doc.getFirstPage().getPageSize().getHeight();
@@ -175,7 +170,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testNoisyImage() {
-        String path = directory + "noisy_01.png";
+        String path = testDirectory + "noisy_01.png";
         String expectedOutput = "Noisyimage to test Tesseract OCR";
 
         testImageOcrText(path, expectedOutput);
@@ -183,7 +178,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testDifferentTextStyles() {
-        String path = directory + "example_04.png";
+        String path = testDirectory + "example_04.png";
         String expectedOutput = "Does this OCR thing really work? H . " +
                 "How about a bigger font? " +
                 "123456789 {23 " +
@@ -194,8 +189,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testFontColor() throws IOException {
-        String path = directory + "numbers_01.jpg";
-        String pdfPath = directory + "test.pdf";
+        String path = testDirectory + "numbers_01.jpg";
+        String pdfPath = testDirectory + "test.pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -203,11 +198,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
         Color color = DeviceCmyk.CYAN;
-        pdfRenderer.setColor(color);
+        pdfRenderer.setFontColor(color);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
         doc.close();
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
@@ -228,8 +223,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testFontColorInMultiPagePdf() throws IOException {
-        String path = directory + "multipage.tiff";
-        String pdfPath = directory + "test.pdf";
+        String path = testDirectory + "multipage.tiff";
+        String pdfPath = testDirectory + "test.pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -237,11 +232,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
         Color color = DeviceCmyk.MAGENTA;
-        pdfRenderer.setColor(color);
+        pdfRenderer.setFontColor(color);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
 
-        assert doc != null;
+        Assert.assertNotNull(doc);
         doc.close();
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));

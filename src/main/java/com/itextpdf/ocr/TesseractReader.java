@@ -1,14 +1,14 @@
 package com.itextpdf.ocr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract reader class.
@@ -38,7 +38,8 @@ public class TesseractReader implements IOcrReader {
     /**
      * Path to hocr config script.
      */
-    private static final String pathToHocr = "src/main/resources/com/itextpdf/ocr/configs/hocr";
+    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/"+
+                                                      "itextpdf/ocr/configs/hocr";
 
     /**
      * Type of current OS.
@@ -205,13 +206,12 @@ public class TesseractReader implements IOcrReader {
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final File input) {
-        String type = "hocr";
-
         List<TextInfo> words = new ArrayList<>();
         try {
             // String tempDir = System.getProperty("java.io.tmpdir");
             String extension = ".hocr";
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(), extension);
+            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
+                                               extension);
 
             // filename without extension
             String fileName = tmpFile.getAbsolutePath()
@@ -270,7 +270,7 @@ public class TesseractReader implements IOcrReader {
                     Arrays.asList("-l", String.join("+", languages)));
         }
 
-        command.add(pathToHocr);
+        command.add(PATH_TO_HOCR_SCRIPT);
         command.add("quiet");
 
         return UtilService.runCommand(command, isWindows());
@@ -300,9 +300,10 @@ public class TesseractReader implements IOcrReader {
     /**
      * Surrounds given string with quotes.
      *
-     * @return String
+     * @param value String
+     * @return String in quotes
      */
-    private String addQuotes(String value) {
+    private String addQuotes(final String value) {
         return "\"" + value + "\"";
     }
 }
