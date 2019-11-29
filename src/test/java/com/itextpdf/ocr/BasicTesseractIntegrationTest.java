@@ -15,9 +15,7 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
@@ -260,6 +258,15 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
+    @Test
+    public void testRunningTesseractCmd() {
+        boolean result = UtilService.runCommand(Arrays.asList("tesseract", "random.jpg"), false);
+        Assert.assertFalse(result);
+
+        result = UtilService.runCommand(null, false);
+        Assert.assertFalse(result);
+    }
+
     /**
      * Parse text from image and compare with expected.
      *
@@ -285,6 +292,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         int page = 1;
         List<TextInfo> data = tesseractReader.readDataFromInput(file);
         List<TextInfo> pageText = UtilService.getTextForPage(data, page);
+
+        if (!pageText.isEmpty()) {
+            Assert.assertEquals(4,
+                    pageText.get(0).getCoordinates().size());
+        }
 
         return pageText.stream()
                 .map(TextInfo::getText)

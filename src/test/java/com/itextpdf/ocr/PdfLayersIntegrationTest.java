@@ -24,8 +24,8 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        pdfRenderer.setInputImages(Collections.singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
         Assert.assertNotNull(doc);
@@ -36,7 +36,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 layers.get(0).getPdfObject().get(PdfName.Name).toString());
         Assert.assertEquals("Text Layer",
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
-
+        Assert.assertEquals(1, pdfRenderer.getInputImages().size());
         doc.close();
     }
 
@@ -46,8 +46,8 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        pdfRenderer.setInputImages(Collections.singletonList(file));
 
         pdfRenderer.setImageLayerName("name image 1");
         pdfRenderer.setTextLayerName("name text 1");
@@ -67,6 +67,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals("name text 1",
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
         Assert.assertTrue(layers.get(1).isOn());
+        Assert.assertEquals(1, pdfRenderer.getInputImages().size());
 
         doc.close();
     }
@@ -177,6 +178,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 getTextFromPdfLayer(pdfPath, "text", 3));
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath, "image", 3));
+        Assert.assertEquals(4, pdfRenderer.getInputImages().size());
 
         deleteFile(pdfPath);
     }

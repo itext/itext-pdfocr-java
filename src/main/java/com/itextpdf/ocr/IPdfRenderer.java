@@ -7,6 +7,7 @@ import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfWriter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -232,7 +233,7 @@ public interface IPdfRenderer {
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
     PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u,
-            PdfOutputIntent pdfOutputIntent);
+            PdfOutputIntent pdfOutputIntent) throws IOException;
 
     /**
      * Perform OCR using provided pdfWriter.
@@ -243,5 +244,5 @@ public interface IPdfRenderer {
      * @param createPdfA3u boolean
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u);
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u) throws IOException;
 }

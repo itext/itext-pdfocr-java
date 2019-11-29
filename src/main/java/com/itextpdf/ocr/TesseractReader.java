@@ -138,7 +138,7 @@ public class TesseractReader implements IOcrReader {
      * @return List<String>
      */
     public final List<String> getLanguages() {
-        return languages;
+        return new ArrayList<>(languages);
     }
 
     /**
@@ -156,7 +156,7 @@ public class TesseractReader implements IOcrReader {
      * @return List<String>
      */
     public final List<String> getScripts() {
-        return scripts;
+        return new ArrayList<>(scripts);
     }
 
     /**
@@ -390,7 +390,7 @@ class TextInfo {
      * @return List<Integer>
      */
     public List<Integer> getCoordinates() {
-        return coordinates;
+        return new ArrayList<>(coordinates);
     }
 
     /**

@@ -176,16 +176,14 @@ class AbstractIntegrationTest {
         PdfDocument doc = null;
         try {
             doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (languages != null) {
             Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
         }
-        if (languages != null) {
-            Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
-        }
+        Assert.assertEquals(0, tesseractReader.getScripts().size());
 
         Assert.assertNotNull(doc);
         if (!doc.isClosed()) {

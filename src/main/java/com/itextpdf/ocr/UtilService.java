@@ -54,11 +54,11 @@ final class UtilService {
      * @param isWindows boolean
      * @return true if command succeeded, false - if there ere some errors
      */
-    static boolean runCommand(final List<String> command,
+    public static boolean runCommand(final List<String> command,
             final boolean isWindows) {
-        LOGGER.info("Running command: " + String.join(" ", command));
         boolean cmdSucceeded;
         try {
+            LOGGER.info("Running command: " + String.join(" ", command));
             Process process;
             if (isWindows) {
                 String cmd = String.join(" ", command);
@@ -79,7 +79,10 @@ final class UtilService {
             }
 
             process.destroy();
-        } catch (java.lang.Exception e) {
+        } catch (NullPointerException | IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             cmdSucceeded = false;
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
         }

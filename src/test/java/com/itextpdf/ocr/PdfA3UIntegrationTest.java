@@ -138,9 +138,10 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setFontPath(testFontPath);
+        pdfRenderer.setDefaultFontPath(path);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true, getCMYKPdfOutputIntent());
 
@@ -195,6 +196,28 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testInvalidFontTwice() {
+        String path = testDirectory + "numbers_01.jpg";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        try{
+            File file = new File(path);
+            IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.singletonList(file));
+            pdfRenderer.setFontPath(path);
+            pdfRenderer.setDefaultFontPath(path);
+
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+                    true, getCMYKPdfOutputIntent());
+
+            Assert.assertNotNull(doc);
+            doc.close();
+        } catch (com.itextpdf.io.IOException | IOException e) {
+            deleteFile(pdfPath);
+        }
+    }
+
+    @Test
     public void testPdfDefaultMetadata() throws IOException {
         String path = testDirectory + "example_04.png";
         String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
@@ -202,8 +225,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-        pdfRenderer.setFontColor(DeviceRgb.BLACK);
+                Collections.singletonList(file), DeviceRgb.BLACK);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true, getRGBPdfOutputIntent());
 
@@ -248,6 +270,27 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException, InterruptedException {
+        String filename = "numbers_01";
+        String expectedPdfPath = testDirectory + filename + "_a3u.pdf";
+        String resultPdfPath = testDirectory + filename + "_a3u_created.pdf";
+
+        TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(new File(testDirectory + filename + ".jpg")));
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
+                true, getCMYKPdfOutputIntent());
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
     public void comparePdfA3uRGBSpanishJPG() throws IOException, InterruptedException {
         String filename = "spanish_01";
         String expectedPdfPath = testDirectory + filename + "_a3u.pdf";
@@ -262,28 +305,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setFontColor(DeviceRgb.BLACK);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
-                                    true, getRGBPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-    }
-
-    @Test
-    public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException, InterruptedException {
-        String filename = "numbers_01";
-        String expectedPdfPath = testDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testDirectory + filename + "_a3u_created.pdf";
-
-        TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(new File(testDirectory + filename + ".jpg")));
-
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
-                true, getCMYKPdfOutputIntent());
+                true, getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
 

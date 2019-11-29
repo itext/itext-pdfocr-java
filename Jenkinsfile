@@ -62,7 +62,10 @@ pipeline {
                     withSonarQubeEnv('Sonar') {
                         sh 'mvn --activate-profiles test -DgsExec="${gsExec}"' +
                                 ' -DcompareExec="${compareExec}" ' +
-                                '-DtesseractDir="${tesseractDir}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report -Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" sonar:sonar '
+                                '-DtesseractDir="${tesseractDir}" -Dmaven.test.skip=false -Dmaven.test.failure.ignore=false -Dmaven.javadoc.skip=true ' +
+                                'org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report ' +
+                                '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' +
+                                'sonar:sonar '
                     }
                 }
             }

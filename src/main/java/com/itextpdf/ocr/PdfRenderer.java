@@ -56,22 +56,7 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Path to default font file (PTSans-Regular).
      */
-    private static final String defaultFontPath = "src/main/resources/com/itextpdf/ocr/PTSans.ttf";
-
-    /**
-     * Path to default color profile.
-     */
-    private static final String defaultCMYKColorProfilePath = "src/main/resources/com/itextpdf/ocr/CoatedFOGRA27.icc";
-
-    /**
-     * Path to default color profile.
-     */
-    private static final String defaultRGBColorProfilePath = "src/main/resources/com/itextpdf/ocr/sRGB_CS_profile.icm";
-
-    /**
-     * Path to output pdf file.
-     */
-    private String pdfPath;
+    private String defaultFontPath = "src/main/resources/com/itextpdf/ocr/PTSans.ttf";
 
     /**
      * List of Files with input images.
@@ -213,7 +198,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @return List<File>
      */
     public final List<File> getInputImages() {
-        return inputImages;
+        return new ArrayList<>(inputImages);
     }
 
     /**
@@ -364,6 +349,18 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
+     * @return path to default font
+     */
+    /**
+     * Set default font
+     *
+     * @return
+     */
+    public void setDefaultFontPath(String defaultFont) {
+        defaultFontPath = defaultFont;
+    }
+
+    /**
      * Set IOcrReader reader (e.g. TesseractReader object).
      *
      * @param reader IOcrReader
@@ -381,7 +378,8 @@ public class PdfRenderer implements IPdfRenderer {
         return ocrReader;
     }
 
-    public final PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u) {
+    public final PdfDocument doPdfOcr(PdfWriter pdfWriter,
+                                      boolean createPdfA3u) throws IOException {
         return doPdfOcr(pdfWriter, createPdfA3u, null);
     }
 
@@ -394,49 +392,45 @@ public class PdfRenderer implements IPdfRenderer {
      * @return PdfDocument
      */
     public final PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u,
-            PdfOutputIntent pdfOutputIntent) {
-        try {
-            LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
+        PdfOutputIntent pdfOutputIntent) throws IOException {
 
-            PdfDocument pdfDocument;
-            if (createPdfA3u) {
-                if (pdfOutputIntent != null) {
-                    pdfDocument = new PdfADocument(pdfWriter,
-                            PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
-                } else {
-                    throw new Exception(Exception.OUTPUT_INTENT_CANNOT_BE_NULL);
-                }
+        LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
+
+        PdfDocument pdfDocument;
+        if (createPdfA3u) {
+            if (pdfOutputIntent != null) {
+                pdfDocument = new PdfADocument(pdfWriter,
+                        PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
             } else {
-                pdfDocument = new PdfDocument(pdfWriter);
+                throw new Exception(Exception.OUTPUT_INTENT_CANNOT_BE_NULL);
             }
-
-            // add metadata
-            pdfDocument.getCatalog().setLang(new PdfString(getPdfLang()));
-            pdfDocument.getCatalog().setViewerPreferences(
-                    new PdfViewerPreferences().setDisplayDocTitle(true));
-            PdfDocumentInfo info = pdfDocument.getDocumentInfo();
-            info.setTitle(getTitle());
-
-            LOGGER.info("Current scale mode: " + getScaleMode());
-            PdfFont defaultFont;
-            try {
-                defaultFont = PdfFontFactory.createFont(getFontPath(),
-                        PdfEncodings.IDENTITY_H, true);
-            } catch (java.lang.Exception e) {
-                LOGGER.error("Error occurred when setting default font: " + e.getMessage());
-                defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
-                        PdfEncodings.IDENTITY_H, true);
-            }
-
-            for (File inputImage : inputImages) {
-                doOCRForImage(inputImage, pdfDocument, defaultFont);
-            }
-
-            return pdfDocument;
-        } catch (IOException e) {
-            LOGGER.error("Error occurred performing OCR: " + e.getMessage());
-            return null;
+        } else {
+            pdfDocument = new PdfDocument(pdfWriter);
         }
+
+        // add metadata
+        pdfDocument.getCatalog().setLang(new PdfString(getPdfLang()));
+        pdfDocument.getCatalog().setViewerPreferences(
+                new PdfViewerPreferences().setDisplayDocTitle(true));
+        PdfDocumentInfo info = pdfDocument.getDocumentInfo();
+        info.setTitle(getTitle());
+
+        LOGGER.info("Current scale mode: " + getScaleMode());
+        PdfFont defaultFont = null;
+        try {
+            defaultFont = PdfFontFactory.createFont(getFontPath(),
+                    PdfEncodings.IDENTITY_H, true);
+        } catch (com.itextpdf.io.IOException | IOException e) {
+            LOGGER.error("Error occurred when setting default font: " + e.getMessage());
+            defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
+                    PdfEncodings.IDENTITY_H, true);
+        }
+
+        for (File inputImage : inputImages) {
+            doOCRForImage(inputImage, pdfDocument, defaultFont);
+        }
+
+        return pdfDocument;
     }
 
     /**
