@@ -8,15 +8,15 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.test.annotations.type.IntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
@@ -44,8 +44,8 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testTextFromJPG() {
-        String path = testDirectory + "numbers_01.jpg";
-        String expectedOutput = "619121";
+        String path = testDirectory + "numbers_02.jpg";
+        String expectedOutput = "0123456789";
 
         File file = new File(path);
         String realOutputHocr = getTextFromPdf(file);
@@ -80,37 +80,6 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String realOutput = getTextFromPdf(file);
         Assert.assertNotNull(realOutput);
         Assert.assertEquals("", realOutput);
-    }
-
-    @Test
-    public void testInputInvalidImage() throws IOException {
-        File file1 = new File(testDirectory + "example.txt");
-        File file2 = new File(testDirectory + "example_05_corrupted.bmp");
-        File file3 = new File(testDirectory + "numbers_01.jpg");
-
-        String expectedPage3 = "619121";
-
-        IOcrReader tesseractReader = new TesseractReader();
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Arrays.asList(file1, file2, file3));
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(baos), false);
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        InputStream stream = new ByteArrayInputStream(baos.toByteArray());
-        PdfDocument pdf = new PdfDocument(new PdfReader(stream));
-        stream.close();
-
-        ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
-        String realPage1 = PdfTextExtractor.getTextFromPage(pdf.getPage(1), strategy);
-        String realPage2 = PdfTextExtractor.getTextFromPage(pdf.getPage(2), strategy);
-        String realPage3 = PdfTextExtractor.getTextFromPage(pdf.getPage(3), strategy);
-
-        Assert.assertEquals("", realPage1);
-        Assert.assertEquals("", realPage2);
-        Assert.assertEquals(expectedPage3, realPage3);
     }
 
     @Test

@@ -79,7 +79,7 @@ final class UtilService {
             }
 
             process.destroy();
-        } catch (IOException | InterruptedException e) {
+        } catch (java.lang.Exception e) {
             cmdSucceeded = false;
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
         }

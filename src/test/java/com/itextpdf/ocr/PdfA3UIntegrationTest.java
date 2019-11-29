@@ -8,50 +8,62 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.pdfa.PdfAConformanceException;
 import com.itextpdf.test.annotations.type.IntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
     public final String testFontPath = "src/test/resources/com/itextpdf/ocr/PTSans_bold.ttf";
 
-    @Test(expected = Exception.class)
+    @Test
     public void testPdfA3uWithoutIntentException() throws IOException {
         String path = testDirectory + "example_01.BMP";
-        String pdfPath = testDirectory + "test.pdf";
-        File file = new File(path);
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        try {
+            File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+            IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.singletonList(file));
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true);
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true);
+        } catch (Exception e) {
+            deleteFile(pdfPath);
+            Assert.assertEquals(Exception.OUTPUT_INTENT_CANNOT_BE_NULL, e.getMessage());
+        }
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testPdfA3uWithNullIntentException() throws IOException {
         String path = testDirectory + "example_01.BMP";
-        String pdfPath = testDirectory + "test.pdf";
-        File file = new File(path);
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        try {
+            File file = new File(path);
+            IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.singletonList(file));
 
-        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true, null);
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+                    true, null);
+        } catch (Exception e) {
+            deleteFile(pdfPath);
+            Assert.assertEquals(Exception.OUTPUT_INTENT_CANNOT_BE_NULL, e.getMessage());
+        }
     }
 
     @Test
     public void testNotPdfA3uWithIntent() throws IOException {
-        String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + "test.pdf";
+        String path = testDirectory + "numbers_02.jpg";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -70,34 +82,35 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
-    @Test(expected = com.itextpdf.kernel.PdfException.class)
+    @Test
     public void testIncompatibleOutputIntentAndFontColorSpaceException() throws IOException {
         String path = testDirectory + "example_01.BMP";
-        String pdfPath = testDirectory + "test.pdf";
-        File file = new File(path);
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        try {
+            File file = new File(path);
+            IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.singletonList(file), DeviceCmyk.BLACK);
 
-        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-        pdfRenderer.setFontColor(DeviceCmyk.BLACK);
-
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true, getRGBPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        deleteFile(pdfPath);
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+                    true, getRGBPdfOutputIntent());
+            Assert.assertNotNull(doc);
+            doc.close();
+        } catch (com.itextpdf.kernel.PdfException e) {
+            deleteFile(pdfPath);
+            Assert.assertEquals(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT, e.getMessage());
+        }
     }
 
     @Test
     public void testDefaultFontInPdf() throws IOException {
         String path = testDirectory + "example_01.BMP";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-        pdfRenderer.setFontColor(DeviceRgb.BLACK);
+                Collections.singletonList(file), DeviceRgb.BLACK);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true, getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
@@ -121,7 +134,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testCustomFontInPdf() throws IOException {
         String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -145,6 +158,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("PTSans-Bold"));
         Assert.assertTrue(font.isEmbedded());
+        Assert.assertEquals(testFontPath, pdfRenderer.getFontPath());
 
         deleteFile(pdfPath);
     }
@@ -152,7 +166,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testInvalidCustomFontInPdf() throws IOException {
         String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -183,7 +197,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testPdfDefaultMetadata() throws IOException {
         String path = testDirectory + "example_04.png";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -207,8 +221,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testPdfCustomMetadata() throws IOException {
-        String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + "test.pdf";
+        String path = testDirectory + "numbers_02.jpg";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -237,7 +251,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public void comparePdfA3uRGBSpanishJPG() throws IOException, InterruptedException {
         String filename = "spanish_01";
         String expectedPdfPath = testDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testDirectory + filename + "_created.pdf";
+        String resultPdfPath = testDirectory + filename + "_a3u_created.pdf";
 
         TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
         tesseractReader.setPathToTessData(tessDataDirectory);
@@ -262,7 +276,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException, InterruptedException {
         String filename = "numbers_01";
         String expectedPdfPath = testDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testDirectory + filename + "_created.pdf";
+        String resultPdfPath = testDirectory + filename + "_a3u_created.pdf";
 
         TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,

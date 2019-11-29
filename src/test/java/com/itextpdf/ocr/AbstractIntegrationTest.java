@@ -14,6 +14,9 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStra
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
+
+import java.util.ArrayList;
+import java.util.UUID;
 import org.junit.Assert;
 
 import java.io.*;
@@ -81,7 +84,7 @@ class AbstractIntegrationTest {
      * @return
      */
     String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages) {
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages);
 
         String result = null;
@@ -155,14 +158,18 @@ class AbstractIntegrationTest {
      * @param imgPath
      * @param pdfPath
      */
-    void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir, List<String> languages) {
+    void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir,
+            List<String> languages) {
         TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        if (tessDataDir != null) {
+        if (languages == null) {
             tesseractReader.setPathToTessData(tessDataDir);
-        }
-        if (languages != null) {
+        } else if (tessDataDir == null) {
             tesseractReader.setLanguages(languages);
+        } else {
+            tesseractReader = new TesseractReader(getTesseractDirectory(), languages,
+                    new ArrayList<>(), tessDataDir);
         }
+
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(new File(imgPath)));
 
@@ -171,6 +178,13 @@ class AbstractIntegrationTest {
             doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+
+        if (languages != null) {
+            Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
+        }
+        if (languages != null) {
+            Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
         }
 
         Assert.assertNotNull(doc);

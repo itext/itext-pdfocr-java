@@ -1,5 +1,6 @@
 package com.itextpdf.ocr;
 
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +50,12 @@ public class TesseractReader implements IOcrReader {
     /**
      * List of languages required for ocr for provided images.
      */
-    private List<String> languages;
+    private List<String> languages = Collections.emptyList();
 
     /**
      * List of scripts required for ocr for provided images.
      */
-    private List<String> scripts;
+    private List<String> scripts = Collections.emptyList();
 
     /**
      * Path to directory with tess data.
@@ -98,8 +99,8 @@ public class TesseractReader implements IOcrReader {
             final List<String> scriptsList,
             final String tessData) {
         pathToExecutable = path;
-        languages = languagesList;
-        scripts = scriptsList;
+        languages = Collections.unmodifiableList(languagesList);
+        scripts = Collections.unmodifiableList(scriptsList);
         tessDataDir = tessData;
         osType = identifyOSType();
     }
@@ -128,7 +129,7 @@ public class TesseractReader implements IOcrReader {
      * @param requiredLanguages List<String>
      */
     public final void setLanguages(final List<String> requiredLanguages) {
-        languages = requiredLanguages;
+        languages = Collections.unmodifiableList(requiredLanguages);
     }
 
     /**
@@ -146,7 +147,7 @@ public class TesseractReader implements IOcrReader {
      * @param requiredScripts List<String>
      */
     public final void setScripts(final List<String> requiredScripts) {
-        scripts = requiredScripts;
+        scripts = Collections.unmodifiableList(requiredScripts);
     }
 
     /**
@@ -230,7 +231,9 @@ public class TesseractReader implements IOcrReader {
                 LOGGER.error("Cannot read data from output");
             }
 
-            tmpFile.delete();
+            if (!tmpFile.delete()) {
+                LOGGER.error("File " + tmpFile.getAbsolutePath() + " cannot be deleted");
+            }
         } catch (IOException e) {
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
         }
@@ -342,7 +345,7 @@ class TextInfo {
             final List<Integer> newCoordinates) {
         text = newText;
         page = newPage;
-        coordinates = newCoordinates;
+        coordinates = Collections.unmodifiableList(newCoordinates);
     }
 
     /**
@@ -396,6 +399,6 @@ class TextInfo {
      * @param newCoordinates List<Integer>
      */
     public void setCoordinates(final List<Integer> newCoordinates) {
-        coordinates = newCoordinates;
+        coordinates = Collections.unmodifiableList(newCoordinates);
     }
 }

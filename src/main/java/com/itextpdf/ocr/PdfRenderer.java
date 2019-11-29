@@ -16,6 +16,8 @@ import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.pdfa.PdfADocument;
+
+import java.util.Collections;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +76,7 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * List of Files with input images.
      */
-    private List<File> inputImages;
+    private List<File> inputImages = Collections.emptyList();
 
     /**
      * CMYK color of the text in the output PDF document.
@@ -145,7 +147,7 @@ public class PdfRenderer implements IPdfRenderer {
      */
     public PdfRenderer(final IOcrReader reader, final List<File> images) {
         ocrReader = reader;
-        inputImages = images;
+        inputImages = Collections.unmodifiableList(images);
     }
 
     /**
@@ -159,7 +161,7 @@ public class PdfRenderer implements IPdfRenderer {
     public PdfRenderer(final IOcrReader reader, final List<File> images,
             final ScaleMode mode) {
         ocrReader = reader;
-        inputImages = images;
+        inputImages = Collections.unmodifiableList(images);
         scaleMode = mode;
     }
 
@@ -174,7 +176,7 @@ public class PdfRenderer implements IPdfRenderer {
     public PdfRenderer(final IOcrReader reader, final List<File> images,
             final Color newColor) {
         ocrReader = reader;
-        inputImages = images;
+        inputImages = Collections.unmodifiableList(images);
         color = newColor;
         scaleMode = ScaleMode.keepOriginalSize;
     }
@@ -192,26 +194,8 @@ public class PdfRenderer implements IPdfRenderer {
             final Color newColor, final ScaleMode mode) {
         ocrReader = reader;
         color = newColor;
-        inputImages = images;
+        inputImages = Collections.unmodifiableList(images);
         scaleMode = mode;
-    }
-
-    /**
-     * Path to output pdf file.
-     *
-     * @param path a {@link java.lang.String} object.
-     */
-    public final void setPdfPath(final String path) {
-        pdfPath = path;
-    }
-
-    /**
-     * Path to output pdf file.
-     *
-     * @return String
-     */
-    public final String getPdfPath() {
-        return pdfPath;
     }
 
     /**
@@ -219,8 +203,8 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param images List<File>
      */
-    public final void setInputImages(final List<File> images) {
-        inputImages = images;
+    public void setInputImages(final List<File> images) {
+        inputImages = Collections.unmodifiableList(images);
     }
 
     /**
@@ -409,14 +393,16 @@ public class PdfRenderer implements IPdfRenderer {
      * @param pdfOutputIntent - required parameter only if createPdfA3u is true
      * @return PdfDocument
      */
-    public final PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u, PdfOutputIntent pdfOutputIntent) {
+    public final PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u,
+            PdfOutputIntent pdfOutputIntent) {
         try {
             LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
 
             PdfDocument pdfDocument;
             if (createPdfA3u) {
                 if (pdfOutputIntent != null) {
-                    pdfDocument = new PdfADocument(pdfWriter, PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
+                    pdfDocument = new PdfADocument(pdfWriter,
+                            PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
                 } else {
                     throw new Exception(Exception.OUTPUT_INTENT_CANNOT_BE_NULL);
                 }
@@ -434,10 +420,10 @@ public class PdfRenderer implements IPdfRenderer {
             LOGGER.info("Current scale mode: " + getScaleMode());
             PdfFont defaultFont;
             try {
-                defaultFont = PdfFontFactory.createFont(getFontPath(), PdfEncodings.IDENTITY_H, true);
-            } catch (com.itextpdf.io.IOException | IOException e) {
-                LOGGER.error(e.getMessage());
-                LOGGER.error("Using default font");
+                defaultFont = PdfFontFactory.createFont(getFontPath(),
+                        PdfEncodings.IDENTITY_H, true);
+            } catch (java.lang.Exception e) {
+                LOGGER.error("Error occurred when setting default font: " + e.getMessage());
                 defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
                         PdfEncodings.IDENTITY_H, true);
             }
@@ -448,7 +434,7 @@ public class PdfRenderer implements IPdfRenderer {
 
             return pdfDocument;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error occurred performing OCR: " + e.getMessage());
             return null;
         }
     }

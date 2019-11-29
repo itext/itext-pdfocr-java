@@ -11,16 +11,17 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
@@ -31,8 +32,9 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file),
-                IPdfRenderer.ScaleMode.keepOriginalSize);
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
@@ -53,6 +55,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
             Assert.assertEquals(imageWidth, realWidth, delta);
             Assert.assertEquals(imageHeight, realHeight, delta);
+            Assert.assertEquals(IPdfRenderer.ScaleMode.keepOriginalSize,
+                    pdfRenderer.getScaleMode());
         }
 
         if (!doc.isClosed()) {
@@ -150,8 +154,9 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, Collections.singletonList(file),
-                IPdfRenderer.ScaleMode.scaleToFit);
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file),
+                DeviceCmyk.BLACK, IPdfRenderer.ScaleMode.scaleToFit);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
@@ -190,7 +195,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testFontColor() throws IOException {
         String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -224,7 +229,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testFontColorInMultiPagePdf() throws IOException {
         String path = testDirectory + "multipage.tiff";
-        String pdfPath = testDirectory + "test.pdf";
+        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
