@@ -15,17 +15,20 @@ import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
+import com.itextpdf.layout.Canvas;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Text;
 import com.itextpdf.pdfa.PdfADocument;
-
-import java.util.Collections;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,9 +57,9 @@ public class PdfRenderer implements IPdfRenderer {
     private static final String placeholderImagePath = "src/main/resources/com/itextpdf/ocr/placeholder.jpg";
 
     /**
-     * Path to default font file (PTSans-Regular).
+     * Path to default font file (Cairo-Regular).
      */
-    private String defaultFontPath = "src/main/resources/com/itextpdf/ocr/PTSans.ttf";
+    private String defaultFontPath = "src/main/resources/com/itextpdf/ocr/fonts/Cairo-Regular.ttf";
 
     /**
      * List of Files with input images.
@@ -599,16 +602,16 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param pageImagePixelHeight float
      * @param data List<TextInfo>
-     * @param canvas PdfCanvas
+     * @param pdfCanvas PdfCanvas
      * @param defaultFont PdfFont
      */
     @SuppressWarnings("checkstyle:magicnumber")
     private void addTextToCanvas(final float pageImagePixelHeight,
                                  final List<TextInfo> data,
-                                 final PdfCanvas canvas, final PdfFont defaultFont) {
+                                 final PdfCanvas pdfCanvas, final PdfFont defaultFont) {
         if (data == null || data.isEmpty()) {
-            canvas.beginText().setFontAndSize(defaultFont, 1);
-            canvas.showText("").endText();
+            pdfCanvas.beginText().setFontAndSize(defaultFont, 1);
+            pdfCanvas.showText("").endText();
         } else {
             for (TextInfo item : data) {
                 String line = item.getText();
@@ -634,20 +637,18 @@ public class PdfRenderer implements IPdfRenderer {
                     float deltaY = UtilService
                             .getPoints(pageImagePixelHeight - bottom);
 
-                    // set font and its size
-                    canvas.beginText()
-                            .setFontAndSize(defaultFont, fontSize)
-                            .setColor(getFontColor(), true);
+//                    pdfCanvas.rectangle(new Rectangle(deltaX, deltaY, bboxWidthPt, bboxHeightPt*2));
+//                    pdfCanvas.setStrokeColor(DeviceCmyk.MAGENTA);
+//                    pdfCanvas.stroke();
 
-                    // make text invisible
-                    // canvas.setTextRenderingMode(1); // 3 // 1
-
-                    // place text correctly
-                    canvas.moveText(deltaX, deltaY);
-
-                    // add text on canvas
-                    canvas.showText(line)
-                            .endText();
+                    Canvas canvas = new Canvas(pdfCanvas, pdfCanvas.getDocument(),
+                            new Rectangle(deltaX, deltaY + fontSize,
+                                    bboxWidthPt * 1.5f, bboxHeightPt));
+                    Text text = new Text(line).setFont(defaultFont)
+                                        .setFontColor(getFontColor())
+                                        .setFontSize(fontSize);
+                    canvas.add(new Paragraph(text));
+                    canvas.close();
                 }
             }
         }
@@ -682,7 +683,7 @@ public class PdfRenderer implements IPdfRenderer {
                 fontSize -= fontSizeDelta;
             }
         }
-        // float lineWidth = defaultFont.getWidth(line, fontSize);
+        float lineWidth = defaultFont.getWidth(line, fontSize);
         return fontSize;
     }
 }

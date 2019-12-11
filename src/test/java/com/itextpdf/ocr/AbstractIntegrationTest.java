@@ -17,6 +17,8 @@ import com.itextpdf.layout.element.Image;
 
 import java.util.ArrayList;
 import java.util.UUID;
+
+import com.itextpdf.licensekey.LicenseKey;
 import org.junit.Assert;
 
 import java.io.*;
@@ -29,6 +31,21 @@ class AbstractIntegrationTest {
     static String testDirectory = "src/test/resources/com/itextpdf/ocr/";
     // directory with trained data for tests
     static String tessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/";
+    // directory with test image files
+    static String testImagesDirectory = testDirectory + "images/";
+    // directory with fonts
+    static String testFontsDirectory = testDirectory + "fonts/";
+    // directory with fonts
+    static String testPdfDirectory = testDirectory + "documents/";
+
+    // path to font for hindi
+    static String notoSansFontPath = testFontsDirectory + "NotoSans-Regular.ttf";
+    // path to font for japanese
+    static String notoSansJPFontPath = testFontsDirectory + "NotoSansJP-Regular.otf";
+    // path to font for arabic
+    static String cairoFontPath = testFontsDirectory + "Cairo-Regular.ttf";
+    // path to font for georgian
+    static String freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
 
     static float delta = 1e-4f;
 
@@ -37,6 +54,13 @@ class AbstractIntegrationTest {
         String os = System.getProperty("os.name");
         return os.toLowerCase().contains("win") && tesseractDir != null
                 && !tesseractDir.isEmpty() ? tesseractDir + "\\tesseract.exe" : "tesseract";
+    }
+
+    /**
+     * Provide license for typography add-on
+     */
+    static void initializeLicense() {
+        LicenseKey.loadLicenseFile(testDirectory + "itextkey1575287294081_0.xml");
     }
 
     /**
@@ -83,12 +107,12 @@ class AbstractIntegrationTest {
      * @param page
      * @return
      */
-    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages) {
-        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
-        doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages);
-
+    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages, String fontPath) {
         String result = null;
+        String pdfPath = null;
         try {
+            pdfPath = File.createTempFile(UUID.randomUUID().toString(), ".pdf").getAbsolutePath();
+            doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages, fontPath);
             result = getTextFromPdfLayer(pdfPath, "Text Layer", page);
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,13 +123,23 @@ class AbstractIntegrationTest {
     }
 
     /**
+     * Retrieve text from the first page of given pdf document setting font.
+     *
+     * @param file
+     * @return
+     */
+    String getTextFromPdf(File file, String tessDataDir, List<String> languages, String fontPath) {
+        return getTextFromPdf(file, 1, tessDataDir, languages, fontPath);
+    }
+
+    /**
      * Retrieve text from the first page of given pdf document.
      *
      * @param file
      * @return
      */
     String getTextFromPdf(File file, String tessDataDir, List<String> languages) {
-        return getTextFromPdf(file, 1, tessDataDir, languages);
+        return getTextFromPdf(file, 1, tessDataDir, languages, null);
     }
 
     /**
@@ -116,7 +150,7 @@ class AbstractIntegrationTest {
      * @return
      */
     String getTextFromPdf(File file, int page) {
-        return getTextFromPdf(file, page, null, null);
+        return getTextFromPdf(file, page, null, null, null);
     }
 
     /**
@@ -126,7 +160,7 @@ class AbstractIntegrationTest {
      * @return
      */
     String getTextFromPdf(File file) {
-        return getTextFromPdf(file, 1, null, null);
+        return getTextFromPdf(file, 1, null, null, null);
     }
 
     /**
@@ -159,7 +193,7 @@ class AbstractIntegrationTest {
      * @param pdfPath
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir,
-            List<String> languages) {
+            List<String> languages, String fontPath) {
         TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
         if (languages == null) {
             tesseractReader.setPathToTessData(tessDataDir);
@@ -172,6 +206,9 @@ class AbstractIntegrationTest {
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(new File(imgPath)));
+        if (fontPath != null && !fontPath.isEmpty()) {
+            pdfRenderer.setFontPath(fontPath);
+        }
 
         PdfDocument doc = null;
         try {
@@ -194,13 +231,26 @@ class AbstractIntegrationTest {
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
+     * (Method uses default font path)
+     *
+     * @param imgPath
+     * @param pdfPath
+     */
+    void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir,
+                            List<String> languages) {
+        doOcrAndSaveToPath(imgPath, pdfPath, tessDataDir, languages, null);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
      *
      * @param imgPath
      * @param pdfPath
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath) {
-        doOcrAndSaveToPath(imgPath, pdfPath, null, null);
+        doOcrAndSaveToPath(imgPath, pdfPath, null, null, null);
     }
 
     /**
@@ -209,9 +259,11 @@ class AbstractIntegrationTest {
      * @param filePath
      */
     void deleteFile(String filePath) {
-        File file = new File(filePath);
-        if (file.exists()) {
-            file.delete();
+        if (filePath != null & !filePath.isEmpty()) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
         }
     }
 

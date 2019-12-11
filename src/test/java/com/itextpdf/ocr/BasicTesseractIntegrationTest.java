@@ -26,7 +26,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testKeepOriginalSizeScaleMode() throws IOException {
-        String filePath = testDirectory + "numbers_01.jpg";
+        String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -64,7 +64,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleWidthMode() throws IOException {
-        String filePath = testDirectory + "numbers_01.jpg";
+        String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         ImageData originalImageData = null;
@@ -108,7 +108,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleHeightMode() throws IOException {
-        String filePath = testDirectory + "numbers_01.jpg";
+        String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         ImageData originalImageData = null;
@@ -148,7 +148,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testScaleToFitMode() throws IOException {
-        String filePath = testDirectory + "numbers_01.jpg";
+        String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -173,7 +173,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testNoisyImage() {
-        String path = testDirectory + "noisy_01.png";
+        String path = testImagesDirectory + "noisy_01.png";
         String expectedOutput = "Noisyimage to test Tesseract OCR";
 
         testImageOcrText(path, expectedOutput);
@@ -181,7 +181,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testDifferentTextStyles() {
-        String path = testDirectory + "example_04.png";
+        String path = testImagesDirectory + "example_04.png";
         String expectedOutput = "Does this OCR thing really work? H . " +
                 "How about a bigger font? " +
                 "123456789 {23 " +
@@ -192,8 +192,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testFontColor() throws IOException {
-        String path = testDirectory + "numbers_01.jpg";
-        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        String path = testImagesDirectory + "numbers_01.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
@@ -226,8 +226,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testFontColorInMultiPagePdf() throws IOException {
-        String path = testDirectory + "multipage.tiff";
-        String pdfPath = testDirectory + UUID.randomUUID().toString() + ".pdf";
+        String path = testImagesDirectory + "multipage.tiff";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());

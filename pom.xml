@@ -83,6 +83,11 @@
       <version>${itext.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext-licensekey</artifactId>
+      <version>3.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
