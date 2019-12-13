@@ -30,7 +30,9 @@ class AbstractIntegrationTest {
     // directory with test files
     static String testDirectory = "src/test/resources/com/itextpdf/ocr/";
     // directory with trained data for tests
-    static String tessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/";
+    static String langTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/";
+    // directory with trained data for tests
+    static String scriptTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/script/";
     // directory with test image files
     static String testImagesDirectory = testDirectory + "images/";
     // directory with fonts
@@ -107,11 +109,13 @@ class AbstractIntegrationTest {
      * @param page
      * @return
      */
-    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages, String fontPath) {
+    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages,
+            String fontPath) {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = File.createTempFile(UUID.randomUUID().toString(), ".pdf").getAbsolutePath();
+            pdfPath = File.createTempFile(UUID.randomUUID().toString(), ".pdf")
+                    .getAbsolutePath();
             doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages, fontPath);
             result = getTextFromPdfLayer(pdfPath, "Text Layer", page);
         } catch (IOException e) {
@@ -200,8 +204,7 @@ class AbstractIntegrationTest {
         } else if (tessDataDir == null) {
             tesseractReader.setLanguages(languages);
         } else {
-            tesseractReader = new TesseractReader(getTesseractDirectory(), languages,
-                    new ArrayList<>(), tessDataDir);
+            tesseractReader = new TesseractReader(getTesseractDirectory(), languages, tessDataDir);
         }
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
@@ -220,7 +223,6 @@ class AbstractIntegrationTest {
         if (languages != null) {
             Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
         }
-        Assert.assertEquals(0, tesseractReader.getScripts().size());
 
         Assert.assertNotNull(doc);
         if (!doc.isClosed()) {

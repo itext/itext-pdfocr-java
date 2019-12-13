@@ -295,7 +295,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
 
         TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
-        tesseractReader.setPathToTessData(tessDataDirectory);
+        tesseractReader.setPathToTessData(langTessDataDirectory);
         tesseractReader.setLanguages(Collections.singletonList("spa"));
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,

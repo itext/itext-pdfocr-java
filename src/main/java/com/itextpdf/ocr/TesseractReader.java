@@ -21,7 +21,7 @@ import java.util.UUID;
  * and return contained text in the described format
  *
  * This class provides possibilities to set type of current os,
- * required scripts and language for OCR for input images,
+ * required languages for OCR for input images,
  * set path to directory with tess data and set path
  * to the tesseract executable
  *
@@ -51,11 +51,6 @@ public class TesseractReader implements IOcrReader {
      * List of languages required for ocr for provided images.
      */
     private List<String> languages = Collections.emptyList();
-
-    /**
-     * List of scripts required for ocr for provided images.
-     */
-    private List<String> scripts = Collections.emptyList();
 
     /**
      * Path to directory with tess data.
@@ -88,19 +83,16 @@ public class TesseractReader implements IOcrReader {
 
     /**
      * TesseractReader constructor with path to executable,
-     * list of languages, scripts and path to tessData directory.
+     * list of languages and path to tessData directory.
      *
      * @param path          String
      * @param languagesList List<String>
-     * @param scriptsList   List<String>
      * @param tessData      String
      */
     public TesseractReader(final String path, final List<String> languagesList,
-            final List<String> scriptsList,
             final String tessData) {
         pathToExecutable = path;
         languages = Collections.unmodifiableList(languagesList);
-        scripts = Collections.unmodifiableList(scriptsList);
         tessDataDir = tessData;
         osType = identifyOSType();
     }
@@ -139,24 +131,6 @@ public class TesseractReader implements IOcrReader {
      */
     public final List<String> getLanguages() {
         return new ArrayList<>(languages);
-    }
-
-    /**
-     * Set list of scripts required for provided images.
-     *
-     * @param requiredScripts List<String>
-     */
-    public final void setScripts(final List<String> requiredScripts) {
-        scripts = Collections.unmodifiableList(requiredScripts);
-    }
-
-    /**
-     * Get list of scripts required for provided images.
-     *
-     * @return List<String>
-     */
-    public final List<String> getScripts() {
-        return new ArrayList<>(scripts);
     }
 
     /**
