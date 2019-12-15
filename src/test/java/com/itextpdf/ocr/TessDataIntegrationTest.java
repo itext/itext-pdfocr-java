@@ -116,12 +116,12 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "arabic_01.jpg";
         File file = new File(imgPath);
         // First sentence
-        String expectedArabic = "الحية»\nوالضحكء؛\nوالحب";
+        String expectedArabic = "الحية.\nوالضحك؛\nوالحب";
         List<String> engWords = Arrays.asList("live", "laugh", "love");
 
         // correct result with specified arabic+english languages
         Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
-                Arrays.asList("ara", "eng")).startsWith(expectedArabic));
+                Arrays.asList("ara", "eng")).contains(expectedArabic));
         engWords.forEach(word -> Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
                 Arrays.asList("ara", "eng")).contains(word)));
 
@@ -272,7 +272,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void testJapanese() {
         String imgPath = testImagesDirectory + "japanese_01.png";
         File file = new File(imgPath);
-        String expected = "本\n語\n⽇\n⽂法";
+        String expected = "語\n⽇\n本\n⽂法";
 
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(file, langTessDataDirectory,
@@ -339,9 +339,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
-                Arrays.asList("ell", "grc"), notoSansFontPath).contains(expected));
-        Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
-                Arrays.asList("ell", "grc"), notoSansFontPath).startsWith(expected));
+                Collections.singletonList("ell"), notoSansFontPath).contains(expected));
         Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
                 Collections.singletonList("ell"), notoSansFontPath).startsWith(expected));
 
@@ -350,11 +348,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
                 Collections.singletonList("ell")).contains(expected));
         Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("grc")).contains(expected));
-        Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("grc"), notoSansFontPath).contains(expected));
-        Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
-                Arrays.asList("ell", "grc")).contains(expected));
+                Arrays.asList("ell")).contains(expected));
         Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory, new ArrayList<>()).contains(expected));
     }
 
