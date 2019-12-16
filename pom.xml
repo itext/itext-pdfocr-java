@@ -21,6 +21,7 @@
     <jdkLevel>1.8</jdkLevel>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <licensekey.version>3.0.0</licensekey.version>
   </properties>
 
   <repositories>
@@ -88,7 +89,12 @@
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>itext-licensekey</artifactId>
-      <version>3.0.0</version>
+      <version>${licensekey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
 

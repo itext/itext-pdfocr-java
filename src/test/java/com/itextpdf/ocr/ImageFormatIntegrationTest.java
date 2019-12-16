@@ -62,7 +62,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
         String realOutputHocr = getTextFromPdf(file, 4);
         Assert.assertNotNull(realOutputHocr);
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assert.assertEquals(expectedOutput, realOutputHocr);
     }
 
     @Test
