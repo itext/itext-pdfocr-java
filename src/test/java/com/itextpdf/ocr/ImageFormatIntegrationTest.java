@@ -57,10 +57,10 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testInputMultipagesTIFF() {
         String path = testImagesDirectory + "multipage.tiff";
-        String expectedOutput = "Multipage\nTIFF\nExample\nPage\n4";
+        String expectedOutput = "Multipage\nTIFF\nExample\n5\nPage";
 
         File file = new File(path);
-        String realOutputHocr = getTextFromPdf(file, 4);
+        String realOutputHocr = getTextFromPdf(file, 5);
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
     }

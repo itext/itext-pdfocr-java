@@ -19,9 +19,9 @@
     <itext.version>${project.parent.version}</itext.version>
     <java.version>1.8</java.version>
     <jdkLevel>1.8</jdkLevel>
+    <licensekey.version>3.0.0</licensekey.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <licensekey.version>3.0.0</licensekey.version>
   </properties>
 
   <repositories>
@@ -46,22 +46,17 @@
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>io</artifactId>
+      <artifactId>pdfa</artifactId>
       <version>${itext.version}</version>
     </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>kernel</artifactId>
-      <version>${itext.version}</version>
+      <artifactId>itext-licensekey</artifactId>
+      <version>${licensekey.version}</version>
     </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>layout</artifactId>
-      <version>${itext.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>pdfa</artifactId>
       <version>${itext.version}</version>
     </dependency>
     <dependency>
@@ -80,22 +75,11 @@
       <version>${itext.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>pdftest</artifactId>
-      <version>${itext.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>itext-licensekey</artifactId>
-      <version>${licensekey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
   </dependencies>
 
   <build>
@@ -109,15 +93,6 @@
       </resource>
     </resources>
     <plugins>
-      <plugin>
-        <groupId>com.github.siom79.japicmp</groupId>
-        <artifactId>japicmp-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
         <artifactId>jgitflow-maven-plugin</artifactId>
