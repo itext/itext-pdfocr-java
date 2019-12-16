@@ -33,7 +33,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
 
-            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), true);
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
         } catch (Exception e) {
             deleteFile(pdfPath);
             Assert.assertEquals(Exception.OUTPUT_INTENT_CANNOT_BE_NULL, e.getMessage());

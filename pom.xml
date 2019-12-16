@@ -46,17 +46,17 @@
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>pdfa</artifactId>
-      <version>${itext.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
       <artifactId>itext-licensekey</artifactId>
       <version>${licensekey.version}</version>
     </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>layout</artifactId>
+      <version>${itext.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdfa</artifactId>
       <version>${itext.version}</version>
     </dependency>
     <dependency>
@@ -70,16 +70,16 @@
       <version>3.3</version>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>pdftest</artifactId>
       <version>${itext.version}</version>
       <scope>test</scope>
     </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
   </dependencies>
 
   <build>
@@ -93,6 +93,16 @@
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <version>0.14.0</version>
+        <executions>
+          <execution>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
         <artifactId>jgitflow-maven-plugin</artifactId>
@@ -122,6 +132,7 @@
         <version>${javadoc.version}</version>
         <configuration>
           <source>1.8</source>
+          <doclint>none</doclint>
           <groups>
             <group>
               <title>Ocr</title>
@@ -153,16 +164,6 @@
         <configuration>
           <skip>true</skip>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.github.siom79.japicmp</groupId>
-        <artifactId>japicmp-maven-plugin</artifactId>
-        <version>0.14.0</version>
-        <executions>
-          <execution>
-            <phase>none</phase>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

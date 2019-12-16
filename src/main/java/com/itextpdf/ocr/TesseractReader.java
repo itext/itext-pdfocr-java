@@ -39,8 +39,7 @@ public class TesseractReader implements IOcrReader {
     /**
      * Path to hocr config script.
      */
-    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/"+
-                                                      "itextpdf/ocr/configs/hocr";
+    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/ocr/configs/hocr";
 
     /**
      * Type of current OS.
@@ -206,7 +205,8 @@ public class TesseractReader implements IOcrReader {
             }
 
             if (!tmpFile.delete()) {
-                LOGGER.error("File " + tmpFile.getAbsolutePath() + " cannot be deleted");
+                LOGGER.error("File " + tmpFile.getAbsolutePath()
+                        + " cannot be deleted");
             }
         } catch (IOException e) {
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
@@ -315,8 +315,8 @@ class TextInfo {
      * @param newPage        Integer
      * @param newCoordinates List<Integer>
      */
-    public TextInfo(final String newText, final Integer newPage,
-            final List<Integer> newCoordinates) {
+    TextInfo(final String newText, final Integer newPage,
+             final List<Integer> newCoordinates) {
         text = newText;
         page = newPage;
         coordinates = Collections.unmodifiableList(newCoordinates);

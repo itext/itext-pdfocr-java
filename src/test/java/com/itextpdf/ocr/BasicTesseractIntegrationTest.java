@@ -34,7 +34,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
 
@@ -156,7 +156,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file),
                 DeviceCmyk.BLACK, IPdfRenderer.ScaleMode.scaleToFit);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
 
@@ -203,7 +203,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Color color = DeviceCmyk.CYAN;
         pdfRenderer.setFontColor(color);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -237,7 +237,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Color color = DeviceCmyk.MAGENTA;
         pdfRenderer.setFontColor(color);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         doc.close();

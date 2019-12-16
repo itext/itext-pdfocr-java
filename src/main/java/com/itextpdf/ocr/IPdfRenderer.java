@@ -32,7 +32,7 @@ public interface IPdfRenderer {
     enum ScaleMode {
         /**
          * keepOriginalSize (default value).
-         * <p>
+         *
          * the size of every page of
          * the output PDF document will match the size of the
          * corresponding input image
@@ -170,7 +170,8 @@ public interface IPdfRenderer {
     /**
      * Get name of image layer.
      *
-     * @return layer's name that was manually set or the default one (="Image layer")
+     * @return layer's name that was manually set or
+     * the default one (="Image layer")
      */
     String getImageLayerName();
 
@@ -183,7 +184,8 @@ public interface IPdfRenderer {
     void setTextLayerName(String name);
 
     /**
-     * @return layer's name that was manually set or the default one (="Text layer")
+     * @return layer's name that was manually set or
+     * the default one (="Text layer")
      */
     String getTextLayerName();
 
@@ -224,13 +226,15 @@ public interface IPdfRenderer {
 
     /**
      * Perform OCR using provided pdfWriter and pdfOutputIntent.
-     * - if 'createPdfA3u' is true PdfADocument will be created, otherwise - PdfDocument;
+     * - if 'createPdfA3u' is true PdfADocument will be created,
+     * otherwise - PdfDocument;
      * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
      *
      * @param pdfWriter PdfWriter
      * @param createPdfA3u boolean
      * @param pdfOutputIntent PdfOutputIntent
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
+     * @throws IOException if provided font or output intent is incorrect
      */
     PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u,
             PdfOutputIntent pdfOutputIntent) throws IOException;
@@ -241,8 +245,8 @@ public interface IPdfRenderer {
      * otherwise PdfDocument will be created;
      *
      * @param pdfWriter provided pdfWriter
-     * @param createPdfA3u boolean
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
+     * @throws IOException if provided font or output intent is incorrect
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u) throws IOException;
+    PdfDocument doPdfOcr(PdfWriter pdfWriter) throws IOException;
 }

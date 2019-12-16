@@ -26,7 +26,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
         pdfRenderer.setInputImages(Collections.singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
@@ -52,7 +52,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setImageLayerName("name image 1");
         pdfRenderer.setTextLayerName("name text 1");
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         // setting layer's name after ocr was done, name shouldn't change
         pdfRenderer.setImageLayerName("name image 100500");
@@ -81,7 +81,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog().getOCProperties(true).getLayers();
@@ -156,7 +156,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, files);
         pdfRenderer.setImageLayerName("image");
         pdfRenderer.setTextLayerName("text");
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
@@ -197,7 +197,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Arrays.asList(file3, file1, file2, file3));
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
         Assert.assertNotNull(doc);
         doc.close();
 
