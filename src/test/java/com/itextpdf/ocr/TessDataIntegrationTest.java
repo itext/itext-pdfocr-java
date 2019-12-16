@@ -269,22 +269,18 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testJapanese() {
-        String imgPath = testImagesDirectory + "japanese_01.png";
-        File file = new File(imgPath);
-        String expected = "語\n⽇\n本\n⽂法";
+    public void compareJapanesePdf() throws IOException, InterruptedException {
+        String filename = "japanese_01";
+        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        // correct result with specified spanish language
-        Assert.assertEquals(expected, getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("jpn"), notoSansJPFontPath));
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".png", resultPdfPath,
+                langTessDataDirectory, Arrays.asList("jpn"));
 
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertNotEquals(expected, getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("jpn")));
-        Assert.assertNotEquals(expected, getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("eng"), notoSansJPFontPath));
-        Assert.assertNotEquals(expected, getTextFromPdf(file, langTessDataDirectory, new ArrayList<>()));
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
     }
 
     @Test
@@ -332,24 +328,18 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testGreek() {
-        String imgPath = testImagesDirectory + "greek_01.jpg";
-        File file = new File(imgPath);
-        String expected = "ὈΡΘΟΔΟΞΟΣ\nΟΜΟΛΟΓΙΑ";
+    public void compareGreekPdf() throws IOException, InterruptedException {
+        String filename = "greek_01";
+        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        // correct result with specified spanish language
-        Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("ell"), notoSansFontPath).contains(expected));
-        Assert.assertTrue(getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("ell"), notoSansFontPath).startsWith(expected));
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".jpg", resultPdfPath,
+                langTessDataDirectory, Arrays.asList("ell"));
 
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
-                Collections.singletonList("ell")).contains(expected));
-        Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory,
-                Arrays.asList("ell")).contains(expected));
-        Assert.assertFalse(getTextFromPdf(file, langTessDataDirectory, new ArrayList<>()).contains(expected));
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
     }
 
     @Test

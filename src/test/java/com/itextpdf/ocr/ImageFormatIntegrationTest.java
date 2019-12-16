@@ -44,26 +44,26 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    /*@Test
+    @Test
     public void testInputTIFFBig() {
-        String path = testDirectory + "example_03_10MB.tiff";
-        String expectedOutput = "File Format\nImage\nTagged";
+        String path = testImagesDirectory + "example_03_10MB.tiff";
+        String expectedOutput = "Tagged\nFile\nFormat\nImage";
 
         File file = new File(path);
         String realOutputHocr = getTextFromPdf(file);
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }*/
+    }
 
-    /*@Test
+    @Test
     public void testInputMultipagesTIFF() {
-        String path = testDirectory + "multipage.tiff";
-        String expectedOutput = "Multipage\nTIFF\nExample\nPage\n5";
+        String path = testImagesDirectory + "multipage.tiff";
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage\n4";
 
         File file = new File(path);
-        String realOutputHocr = getTextFromPdf(file, 5);
+        String realOutputHocr = getTextFromPdf(file, 4);
         Assert.assertNotNull(realOutputHocr);
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }*/
+    }
 
     @Test
     public void testInputWrongFormat() {
