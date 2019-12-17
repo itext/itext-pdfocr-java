@@ -11,15 +11,18 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
@@ -265,6 +268,29 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         result = UtilService.runCommand(null, false);
         Assert.assertFalse(result);
+    }
+
+    @Test
+    public void testCorruptedImageAndPlaceholder() throws IOException {
+        String filePath = testImagesDirectory + "corrupted.jpg";
+        File file = new File(filePath);
+
+        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
+
+        Assert.assertNotNull(doc);
+
+        float realWidth = doc.getFirstPage().getPageSize().getWidth();
+        float realHeight = doc.getFirstPage().getPageSize().getHeight();
+        Assert.assertEquals(PageSize.A4.getWidth(), realWidth, delta);
+        Assert.assertEquals(PageSize.A4.getHeight(), realHeight, delta);
+
+        if (!doc.isClosed()) {
+            doc.close();
+        }
     }
 
     /**

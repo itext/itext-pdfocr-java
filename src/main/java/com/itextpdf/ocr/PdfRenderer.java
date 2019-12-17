@@ -510,9 +510,12 @@ public class PdfRenderer implements IPdfRenderer {
                                     imageData);
                     }
                 } else {
-                    PageSize newPageSize = new PageSize(getPageSize());
                     ImageData imageData = !imageDataList.isEmpty()
                             ? imageDataList.get(0) : null;
+                    Rectangle size = UtilService
+                            .calculatePageSize(imageData, getScaleMode(),
+                                    getPageSize());
+                    PageSize newPageSize = new PageSize(size);
                     addToCanvas(pdfDocument, defaultFont, newPageSize,
                             new ArrayList<>(), imageData);
                 }
@@ -588,9 +591,14 @@ public class PdfRenderer implements IPdfRenderer {
             }
             raf.close();
         } else {
-            ImageData imageData = ImageDataFactory
-                    .create(inputImage.getAbsolutePath());
-            images.add(imageData);
+            try {
+                ImageData imageData = ImageDataFactory
+                        .create(inputImage.getAbsolutePath());
+                images.add(imageData);
+            } catch (com.itextpdf.io.IOException e) {
+                LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
+                        + "image " + e.getLocalizedMessage());
+            }
         }
 
         return images;
@@ -614,10 +622,9 @@ public class PdfRenderer implements IPdfRenderer {
                         + PLACEHOLDER_IMAGE_PATH + "): "
                         + e.getLocalizedMessage());
             }
-            imageData = data.isEmpty() ? null : data.get(0);
-        }
-        // up to this step imageData should not be null anymore
-        if (imageData != null) {
+            ImageData defaultImageData = data.isEmpty() ? null : data.get(0);
+            canvas.addImage(defaultImageData, pageSize, false);
+        } else {
             imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
             imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
             canvas.addImage(imageData, newSize, false);
