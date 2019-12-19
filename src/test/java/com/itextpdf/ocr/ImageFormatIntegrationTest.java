@@ -5,6 +5,7 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         String realOutputHocr = getTextFromPdf(file);
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assert.assertEquals(expectedOutput, realOutputHocr);
     }
 
     @Test
@@ -31,7 +32,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         File file = new File(path);
         String realOutputHocr = getTextFromPdf(file);
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assert.assertEquals(expectedOutput, realOutputHocr);
     }
 
     @Test
@@ -67,11 +68,17 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testInputWrongFormat() {
-        File file = new File(testImagesDirectory + "example.txt");
-
-        String realOutput = getTextFromPdf(file);
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
+        try {
+            File file = new File(testImagesDirectory + "example.txt");
+            String realOutput = getTextFromPdf(file);
+            Assert.assertNotNull(realOutput);
+            Assert.assertEquals("", realOutput);
+        } catch (OCRException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                            "txt");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+        }
     }
 
     @Test
@@ -80,7 +87,8 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".jpg", resultPdfPath);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".jpg",
+                resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
@@ -94,7 +102,8 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".tiff", resultPdfPath);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".tiff",
+                resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
@@ -108,7 +117,8 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".png", resultPdfPath);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".png",
+                resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
@@ -117,12 +127,14 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void compareMultiPageEngTiff() throws IOException, InterruptedException {
+    public void compareMultiPageEngTiff() throws IOException,
+            InterruptedException {
         String filename = "multipage";
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".tiff", resultPdfPath);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".tiff",
+                resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");

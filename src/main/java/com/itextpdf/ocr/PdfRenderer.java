@@ -25,6 +25,7 @@ import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.property.BaseDirection;
 import com.itextpdf.pdfa.PdfADocument;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -58,11 +59,6 @@ public class PdfRenderer implements IPdfRenderer {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PdfRenderer.class);
 
-       /**
-     * Path to image placeholder file that is used in case of any error.
-     */
-    private static final String PLACEHOLDER_IMAGE_PATH = "src/main/resources/com/itextpdf/ocr/placeholder.jpg";
-
     /**
      * Path to default font file (Cairo-Regular).
      */
@@ -77,7 +73,7 @@ public class PdfRenderer implements IPdfRenderer {
      * CMYK color of the text in the output PDF document.
      * "DeviceCmyk.BLACK" by default
      */
-    private Color color = DeviceCmyk.BLACK;
+    private Color textColor = DeviceCmyk.BLACK;
 
     /**
      * Scale mode for input images: "keepOriginalSize" xby default.
@@ -172,7 +168,7 @@ public class PdfRenderer implements IPdfRenderer {
             final Color newColor) {
         ocrReader = reader;
         inputImages = Collections.unmodifiableList(images);
-        color = newColor;
+        textColor = newColor;
         scaleMode = ScaleMode.keepOriginalSize;
     }
 
@@ -188,7 +184,7 @@ public class PdfRenderer implements IPdfRenderer {
     public PdfRenderer(final IOcrReader reader, final List<File> images,
             final Color newColor, final ScaleMode mode) {
         ocrReader = reader;
-        color = newColor;
+        textColor = newColor;
         inputImages = Collections.unmodifiableList(images);
         scaleMode = mode;
     }
@@ -216,8 +212,8 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param newColor CMYK Color
      */
-    public final void setFontColor(final Color newColor) {
-        color = newColor;
+    public final void setTextColor(final Color newColor) {
+        textColor = newColor;
     }
 
     /**
@@ -225,8 +221,8 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @return Color
      */
-    public final Color getFontColor() {
-        return color;
+    public final Color getTextColor() {
+        return textColor;
     }
 
     /**
@@ -422,7 +418,7 @@ public class PdfRenderer implements IPdfRenderer {
                 pdfDocument = new PdfADocument(pdfWriter,
                         PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
             } else {
-                throw new Exception(Exception.OUTPUT_INTENT_CANNOT_BE_NULL);
+                throw new OCRException(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL);
             }
         } else {
             pdfDocument = new PdfDocument(pdfWriter);
@@ -481,11 +477,16 @@ public class PdfRenderer implements IPdfRenderer {
      * @param inputImage  input file
      * @param pdfDocument output pdf document
      * @param defaultFont default font
+     * @throws OCRException if input image cannot be read
      */
     private void doOCRForImage(final File inputImage,
                                final PdfDocument pdfDocument,
-                               final PdfFont defaultFont) {
-        if (validateImageFormat(inputImage)) {
+                               final PdfFont defaultFont) throws OCRException, IOException {
+        if (!validateImageFormat(inputImage)) {
+            throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
+                    .setMessageParams(
+                            FilenameUtils.getExtension(inputImage.getName()));
+        } else {
             try {
                 List<ImageData> imageDataList = getImageData(inputImage);
                 LOGGER.info(inputImage.toString() + " image contains "
@@ -522,12 +523,6 @@ public class PdfRenderer implements IPdfRenderer {
             } catch (IOException e) {
                 LOGGER.error("Error occurred:" + e.getLocalizedMessage());
             }
-        } else {
-            PageSize size = new PageSize(getPageSize());
-            addToCanvas(pdfDocument, defaultFont, size, new ArrayList<>(),
-                    null);
-            LOGGER.error("Invalid image format: "
-                    + inputImage.getAbsolutePath());
         }
     }
 
@@ -566,10 +561,10 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param inputImage input file
      * @return list of ImageData objects (in case of multipage tiff)
-     * @throws IOException IOException
+     * @throws OCRException OCRException
      */
     private List<ImageData> getImageData(final File inputImage)
-            throws IOException {
+            throws OCRException, IOException {
         List<ImageData> images = new ArrayList<>();
 
         String ext = FilenameUtils.getExtension(inputImage.getName());
@@ -598,6 +593,7 @@ public class PdfRenderer implements IPdfRenderer {
             } catch (com.itextpdf.io.IOException e) {
                 LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
                         + "image " + e.getLocalizedMessage());
+                throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
             }
         }
 
@@ -613,21 +609,12 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private void addImageToCanvas(ImageData imageData, final PageSize newSize,
                                   final PdfCanvas canvas) {
-        if (imageData == null) {
-            List<ImageData> data = new ArrayList<>();
-            try {
-                data = getImageData(new File(PLACEHOLDER_IMAGE_PATH));
-            } catch (IOException e) {
-                LOGGER.error("Error during create image data (using path "
-                        + PLACEHOLDER_IMAGE_PATH + "): "
-                        + e.getLocalizedMessage());
-            }
-            ImageData defaultImageData = data.isEmpty() ? null : data.get(0);
-            canvas.addImage(defaultImageData, pageSize, false);
-        } else {
+        if (imageData != null) {
             imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
             imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
             canvas.addImage(imageData, newSize, false);
+        } else {
+            throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
         }
     }
 
@@ -650,11 +637,11 @@ public class PdfRenderer implements IPdfRenderer {
         } else {
             for (TextInfo item : data) {
                 String line = item.getText();
-                List<Integer> coordinates = item.getCoordinates();
-                final Integer left = coordinates.get(0);
-                final Integer right = coordinates.get(2);
-                final Integer top = coordinates.get(1);
-                final Integer bottom = coordinates.get(3);
+                List<Float> coordinates = item.getCoordinates();
+                final Float left = coordinates.get(0);
+                final Float right = coordinates.get(2);
+                final Float top = coordinates.get(1);
+                final Float bottom = coordinates.get(3);
                 final float delta = 0.1f;
 
                 float bboxWidthPt = UtilService
@@ -678,14 +665,14 @@ public class PdfRenderer implements IPdfRenderer {
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
                     Text text = new Text(line).setFont(defaultFont)
-                                        .setFontColor(getFontColor())
-                                        .setFontSize(fontSize);
+                                        .setFontColor(getTextColor())
+                                        .setFontSize(fontSize)
+                            .setBaseDirection(BaseDirection.LEFT_TO_RIGHT);
                     canvas.add(new Paragraph(text));
                     canvas.close();
                 }
             }
         }
-
     }
 
     /**

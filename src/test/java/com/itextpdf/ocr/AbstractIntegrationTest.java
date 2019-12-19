@@ -15,10 +15,8 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
-import com.itextpdf.licensekey.LicenseKey;
 import org.junit.Assert;
 
 import java.io.*;
@@ -55,14 +53,8 @@ class AbstractIntegrationTest {
         String tesseractDir = System.getProperty("tesseractDir");
         String os = System.getProperty("os.name");
         return os.toLowerCase().contains("win") && tesseractDir != null
-                && !tesseractDir.isEmpty() ? tesseractDir + "\\tesseract.exe" : "tesseract";
-    }
-
-    /**
-     * Provide license for typography add-on
-     */
-    static void initializeLicense() {
-        LicenseKey.loadLicenseFile(testDirectory + "itextkey1575287294081_0.xml");
+                && !tesseractDir.isEmpty()
+                ? tesseractDir + "\\tesseract.exe" : "tesseract";
     }
 
     /**
@@ -75,7 +67,8 @@ class AbstractIntegrationTest {
      */
     Image getImageFromPdf(File file, IPdfRenderer.ScaleMode scaleMode,
                                   Rectangle pageSize) throws IOException {
-        IOcrReader tesseractReader = new TesseractReader(getTesseractDirectory());
+        IOcrReader tesseractReader = new TesseractExecutableReader(
+                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), scaleMode);
 
@@ -88,8 +81,10 @@ class AbstractIntegrationTest {
         Assert.assertNotNull(doc);
         if (!doc.isClosed()) {
             PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
-            PdfDictionary pageResources = pageDict.getAsDictionary(PdfName.Resources);
-            PdfDictionary pageXObjects = pageResources.getAsDictionary(PdfName.XObject);
+            PdfDictionary pageResources = pageDict
+                    .getAsDictionary(PdfName.Resources);
+            PdfDictionary pageXObjects = pageResources
+                    .getAsDictionary(PdfName.XObject);
             PdfName imgRef = pageXObjects.keySet().iterator().next();
             PdfStream imgStream = pageXObjects.getAsStream(imgRef);
 
@@ -109,19 +104,22 @@ class AbstractIntegrationTest {
      * @param page
      * @return
      */
-    String getTextFromPdf(File file, int page, String tessDataDir, List<String> languages,
-            String fontPath) {
+    String getTextFromPdf(File file, int page, String tessDataDir,
+                          List<String> languages, String fontPath) {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = File.createTempFile(UUID.randomUUID().toString(), ".pdf")
-                    .getAbsolutePath();
-            doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir, languages, fontPath);
-            result = getTextFromPdfLayer(pdfPath, "Text Layer", page);
+            pdfPath = File.createTempFile(UUID.randomUUID().toString(),
+                    ".pdf").getAbsolutePath();
+            doOcrAndSaveToPath(file.getAbsolutePath(), pdfPath, tessDataDir,
+                    languages, fontPath);
+            result = getTextFromPdfLayer(pdfPath, "Text Layer",
+                    page);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            deleteFile(pdfPath);
         }
-        deleteFile(pdfPath);
 
         return result;
     }
@@ -132,7 +130,8 @@ class AbstractIntegrationTest {
      * @param file
      * @return
      */
-    String getTextFromPdf(File file, String tessDataDir, List<String> languages, String fontPath) {
+    String getTextFromPdf(File file, String tessDataDir, List<String> languages,
+                          String fontPath) {
         return getTextFromPdf(file, 1, tessDataDir, languages, fontPath);
     }
 
@@ -142,8 +141,10 @@ class AbstractIntegrationTest {
      * @param file
      * @return
      */
-    String getTextFromPdf(File file, String tessDataDir, List<String> languages) {
-        return getTextFromPdf(file, 1, tessDataDir, languages, null);
+    String getTextFromPdf(File file, String tessDataDir,
+                          List<String> languages) {
+        return getTextFromPdf(file, 1, tessDataDir,
+                languages, null);
     }
 
     /**
@@ -154,7 +155,8 @@ class AbstractIntegrationTest {
      * @return
      */
     String getTextFromPdf(File file, int page) {
-        return getTextFromPdf(file, page, null, null, null);
+        return getTextFromPdf(file, page, null,
+                null, null);
     }
 
     /**
@@ -164,7 +166,8 @@ class AbstractIntegrationTest {
      * @return
      */
     String getTextFromPdf(File file) {
-        return getTextFromPdf(file, 1, null, null, null);
+        return getTextFromPdf(file, 1, null,
+                null, null);
     }
 
     /**
@@ -180,9 +183,11 @@ class AbstractIntegrationTest {
                                        int page) throws IOException {
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
-        ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(layerName);
+        ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
+                layerName);
 
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(textExtractionStrategy);
+        PdfCanvasProcessor processor = new PdfCanvasProcessor(
+                textExtractionStrategy);
         processor.processPageContent(pdfDocument.getPage(page));
 
         return textExtractionStrategy.getResultantText();
@@ -198,16 +203,18 @@ class AbstractIntegrationTest {
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir,
             List<String> languages, String fontPath) {
-        TesseractReader tesseractReader = new TesseractReader(getTesseractDirectory());
+        TesseractExecutableReader tesseractExecutableReader = new TesseractExecutableReader(
+                getTesseractDirectory());
         if (languages == null) {
-            tesseractReader.setPathToTessData(tessDataDir);
+            tesseractExecutableReader.setPathToTessData(tessDataDir);
         } else if (tessDataDir == null) {
-            tesseractReader.setLanguages(languages);
+            tesseractExecutableReader.setLanguages(languages);
         } else {
-            tesseractReader = new TesseractReader(getTesseractDirectory(), languages, tessDataDir);
+            tesseractExecutableReader = new TesseractExecutableReader(getTesseractDirectory(),
+                    languages, tessDataDir);
         }
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractExecutableReader,
                 Collections.singletonList(new File(imgPath)));
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);
@@ -221,7 +228,8 @@ class AbstractIntegrationTest {
         }
 
         if (languages != null) {
-            Assert.assertEquals(languages.size(), tesseractReader.getLanguages().size());
+            Assert.assertEquals(languages.size(),
+                    tesseractExecutableReader.getLanguages().size());
         }
 
         Assert.assertNotNull(doc);
@@ -240,7 +248,8 @@ class AbstractIntegrationTest {
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath, String tessDataDir,
                             List<String> languages) {
-        doOcrAndSaveToPath(imgPath, pdfPath, tessDataDir, languages, null);
+        doOcrAndSaveToPath(imgPath, pdfPath, tessDataDir, languages,
+                null);
     }
 
     /**
@@ -252,7 +261,8 @@ class AbstractIntegrationTest {
      * @param pdfPath
      */
     void doOcrAndSaveToPath(String imgPath, String pdfPath) {
-        doOcrAndSaveToPath(imgPath, pdfPath, null, null, null);
+        doOcrAndSaveToPath(imgPath, pdfPath, null,
+                null, null);
     }
 
     /**
@@ -287,7 +297,8 @@ class AbstractIntegrationTest {
      * @throws FileNotFoundException
      */
     PdfWriter createPdfWriter(String pdfPath) throws FileNotFoundException {
-        return new PdfWriter(pdfPath, new WriterProperties().addUAXmpMetadata());
+        return new PdfWriter(pdfPath,
+                new WriterProperties().addUAXmpMetadata());
     }
 
     /**
@@ -298,8 +309,9 @@ class AbstractIntegrationTest {
      */
     PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(getDefaultCMYKColorProfilePath());
-        return new PdfOutputIntent("Custom", "",
-                "http://www.color.org", "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
+        return new PdfOutputIntent("Custom",
+                "","http://www.color.org",
+                "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
     }
 
     /**
@@ -375,32 +387,38 @@ class AbstractIntegrationTest {
         }
 
         @Override
-        protected boolean isChunkAtWordBoundary(TextChunk chunk, TextChunk previousChunk) {
+        protected boolean isChunkAtWordBoundary(TextChunk chunk,
+                                                TextChunk previousChunk) {
             String cur = chunk.getText();
             String prev = previousChunk.getText();
             ITextChunkLocation curLoc = chunk.getLocation();
             ITextChunkLocation prevLoc = previousChunk.getLocation();
 
             if (curLoc.getStartLocation().equals(curLoc.getEndLocation()) ||
-                    prevLoc.getEndLocation().equals(prevLoc.getStartLocation())) {
+                    prevLoc.getEndLocation()
+                            .equals(prevLoc.getStartLocation())) {
                 return false;
             }
 
             return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
-                    (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth()) / 2.0f;
+                    (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth())
+                            / 2.0f;
         }
 
         @Override
         public void eventOccurred(IEventData data, EventType type) {
             if (EventType.RENDER_TEXT.equals(type)) {
                 TextRenderInfo renderInfo = (TextRenderInfo) data;
-                java.util.List<CanvasTag> tagHierarchy = renderInfo.getCanvasTagHierarchy();
+                java.util.List<CanvasTag> tagHierarchy = renderInfo
+                        .getCanvasTagHierarchy();
                 for (CanvasTag tag : tagHierarchy) {
                     PdfDictionary dict = tag.getProperties();
                     String name = dict.get(PdfName.Name).toString();
                     if (layerName.equals(name)) {
-                        setFillColor(renderInfo.getGraphicsState().getFillColor());
-                        setStrokeColor(renderInfo.getGraphicsState().getStrokeColor());
+                        setFillColor(renderInfo.getGraphicsState()
+                                .getFillColor());
+                        setStrokeColor(renderInfo.getGraphicsState()
+                                .getStrokeColor());
                         setPdfFont(renderInfo.getGraphicsState().getFont());
                         super.eventOccurred(data, type);
                         break;

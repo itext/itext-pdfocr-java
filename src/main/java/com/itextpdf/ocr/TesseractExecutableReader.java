@@ -1,8 +1,10 @@
 package com.itextpdf.ocr;
 
+import java.io.InputStream;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,18 +30,23 @@ import java.util.UUID;
  * Please note that It's assumed that "tesseract" is already
  * installed in the system
  */
-public class TesseractReader implements IOcrReader {
+public class TesseractExecutableReader implements IOcrReader {
 
     /**
      * TesseractReader logger.
      */
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(TesseractReader.class);
+            .getLogger(TesseractExecutableReader.class);
 
     /**
      * Path to hocr config script.
      */
     private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/ocr/configs/hocr";
+
+    /**
+     * Path to quiet config script.
+     */
+    private static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/com/itextpdf/ocr/configs/quiet";
 
     /**
      * Type of current OS.
@@ -65,7 +72,7 @@ public class TesseractReader implements IOcrReader {
     /**
      * TesseractReader constructor.
      */
-    public TesseractReader() {
+    public TesseractExecutableReader() {
         pathToExecutable = "tesseract";
         osType = identifyOSType();
     }
@@ -75,7 +82,7 @@ public class TesseractReader implements IOcrReader {
      *
      * @param path String
      */
-    public TesseractReader(final String path) {
+    public TesseractExecutableReader(final String path) {
         pathToExecutable = path;
         osType = identifyOSType();
     }
@@ -88,8 +95,8 @@ public class TesseractReader implements IOcrReader {
      * @param languagesList List<String>
      * @param tessData      String
      */
-    public TesseractReader(final String path, final List<String> languagesList,
-            final String tessData) {
+    public TesseractExecutableReader(final String path, final List<String> languagesList,
+                                     final String tessData) {
         pathToExecutable = path;
         languages = Collections.unmodifiableList(languagesList);
         tessDataDir = tessData;
@@ -170,10 +177,24 @@ public class TesseractReader implements IOcrReader {
     }
 
     /**
+     * Reads data from input stream and returns retrieved data
+     * in the following format:
+     *
+     * List<TextInfo> where each list TextInfo element contains word
+     * or line and its 4 coordinates(bbox).
+     *
+     * @param is InputStream
+     * @return List<TextInfo>
+     */
+    public final List<TextInfo> readDataFromInput(InputStream is) {
+        throw new NotImplementedException();
+    }
+
+    /**
      * Reads data from the provided input image file and returns retrieved
      * data in the following format:
-     * List<Map.Entry<String, List<Integer>>> where each list element
-     * Map.Entry<String, List<Integer>> contains word or line as a key
+     * List<Map.Entry<String, List<Float>>> where each list element
+     * Map.Entry<String, List<Float>> contains word or line as a key
      * and its 4 coordinates(bbox) as a values.
      *
      * @param input File
@@ -191,17 +212,14 @@ public class TesseractReader implements IOcrReader {
             String fileName = tmpFile.getAbsolutePath()
                     .substring(0, tmpFile.getAbsolutePath().indexOf(extension));
             LOGGER.info("Temp path: " + tmpFile.toString());
-            if (doTesseractOcr(input.getAbsolutePath(), fileName)) {
-                if (tmpFile.exists()) {
-                    words = UtilService.parseHocrFile(tmpFile);
+            doTesseractOcr(input.getAbsolutePath(), fileName);
+            if (tmpFile.exists()) {
+                words = UtilService.parseHocrFile(tmpFile);
 
-                    LOGGER.info(words.size() + " word(s) were read");
-                } else {
-                    LOGGER.error("Error occurred. File wasn't created "
-                            + tmpFile.getAbsolutePath());
-                }
+                LOGGER.info(words.size() + " word(s) were read");
             } else {
-                LOGGER.error("Cannot read data from output");
+                LOGGER.error("Error occurred. File wasn't created "
+                        + tmpFile.getAbsolutePath());
             }
 
             if (!tmpFile.delete()) {
@@ -220,13 +238,13 @@ public class TesseractReader implements IOcrReader {
      *
      * @param inputPath  - path to the file with input image
      * @param outputPath String
-     * @return true if tesseract OCR action succeeded, false - if not
      */
-    public final boolean doTesseractOcr(final String inputPath,
+    public final void doTesseractOcr(final String inputPath,
             final String outputPath) {
         // path to tesseract executable cannot be uninitialized
         if (pathToExecutable == null || pathToExecutable.isEmpty()) {
-            return false;
+            throw new OCRException(
+                    OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         }
         List<String> command = new ArrayList<>();
 
@@ -248,9 +266,9 @@ public class TesseractReader implements IOcrReader {
         }
 
         command.add(PATH_TO_HOCR_SCRIPT);
-        command.add("quiet");
+        command.add(PATH_TO_QUIET_SCRIPT);
 
-        return UtilService.runCommand(command, isWindows());
+        UtilService.runCommand(command, isWindows());
     }
 
     /**
@@ -282,97 +300,5 @@ public class TesseractReader implements IOcrReader {
      */
     private String addQuotes(final String value) {
         return "\"" + value + "\"";
-    }
-}
-
-/**
- * TextInfo class.
- * <p>
- * This class describes item of text info retrieved
- * from HOCR file after parsing
- */
-class TextInfo {
-
-    /**
-     * Contains word or line.
-     */
-    private String text;
-
-    /**
-     * Contains 4 coordinates: bbox parameters.
-     */
-    private List<Integer> coordinates;
-
-    /**
-     * Number of page for given text.
-     */
-    private Integer page;
-
-    /**
-     * TextInfo Constructor.
-     *
-     * @param newText        String
-     * @param newPage        Integer
-     * @param newCoordinates List<Integer>
-     */
-    TextInfo(final String newText, final Integer newPage,
-             final List<Integer> newCoordinates) {
-        text = newText;
-        page = newPage;
-        coordinates = Collections.unmodifiableList(newCoordinates);
-    }
-
-    /**
-     * Text element.
-     *
-     * @return String
-     */
-    public String getText() {
-        return text;
-    }
-
-    /**
-     * Text element.
-     *
-     * @param newText String
-     */
-    public void setText(final String newText) {
-        text = newText;
-    }
-
-    /**
-     * Page of the word/text.
-     *
-     * @return Integer
-     */
-    public Integer getPage() {
-        return page;
-    }
-
-    /**
-     * Page of the word/text.
-     *
-     * @param newPage Integer
-     */
-    public void setPage(final Integer newPage) {
-        page = newPage;
-    }
-
-    /**
-     * Bbox coordinates.
-     *
-     * @return List<Integer>
-     */
-    public List<Integer> getCoordinates() {
-        return new ArrayList<>(coordinates);
-    }
-
-    /**
-     * Bbox coordinates.
-     *
-     * @param newCoordinates List<Integer>
-     */
-    public void setCoordinates(final List<Integer> newCoordinates) {
-        coordinates = Collections.unmodifiableList(newCoordinates);
     }
 }

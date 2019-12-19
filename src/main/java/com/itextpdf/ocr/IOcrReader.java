@@ -1,6 +1,7 @@
 package com.itextpdf.ocr;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -22,4 +23,16 @@ public interface IOcrReader {
      * @return List<TextInfo>
      */
     List<TextInfo> readDataFromInput(File input);
+
+    /**
+     * Reads data from input stream and returns retrieved data
+     * in the following format:
+     *
+     * List<TextInfo> where each list TextInfo element contains word
+     * or line and its 4 coordinates(bbox).
+     *
+     * @param is InputStream
+     * @return List<TextInfo>
+     */
+    List<TextInfo> readDataFromInput(InputStream is);
 }

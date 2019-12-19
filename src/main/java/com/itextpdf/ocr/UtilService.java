@@ -52,14 +52,14 @@ final class UtilService {
      *
      * @param command   List<String>
      * @param isWindows boolean
-     * @return true if command succeeded, false - if there ere some errors
+     * @throws OCRException if command failed
      */
-    public static boolean runCommand(final List<String> command,
-            final boolean isWindows) {
-        boolean cmdSucceeded;
+    public static void runCommand(final List<String> command,
+            final boolean isWindows) throws OCRException {
+        Process process = null;
         try {
-            LOGGER.info("Running command: " + String.join(" ", command));
-            Process process;
+            LOGGER.info("Running command: "
+                    + String.join(" ", command));
             if (isWindows) {
                 String cmd = String.join(" ", command);
                 process = Runtime.getRuntime().exec(cmd, null);
@@ -72,10 +72,11 @@ final class UtilService {
 
             int exitVal = process.waitFor();
 
-            cmdSucceeded = exitVal == 0;
+            boolean cmdSucceeded = exitVal == 0;
             if (!cmdSucceeded) {
                 LOGGER.error("Error occurred during running command: "
                         + String.join(" ", command));
+                throw new OCRException(OCRException.TESSERACT_FAILED);
             }
 
             process.destroy();
@@ -83,11 +84,8 @@ final class UtilService {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            cmdSucceeded = false;
             LOGGER.error("Error occurred:" + e.getLocalizedMessage());
         }
-
-        return cmdSucceeded;
     }
 
     /**
@@ -146,10 +144,10 @@ final class UtilService {
                                 .matcher(bboxMatcher.group());
                         bboxCoordinateMatcher.find();
 
-                        List<Integer> coordinates1 = IntStream
+                        List<Float> coordinates = IntStream
                                 .range(0, 4)
                                 .boxed()
-                                .map(i -> Integer.parseInt((
+                                .map(i -> Float.parseFloat((
                                         bboxCoordinateMatcher.group(i + 1))))
                                 .collect(Collectors.toList());
 
@@ -157,7 +155,7 @@ final class UtilService {
                                 .getTextExtractor().toString();
 
                         textData.add(new TextInfo(line, matchedPage,
-                                coordinates1));
+                                coordinates));
                     }
                     ocrTag = source.getNextStartTag(ocrTag.getEnd(),
                             "class", searchedTag, false);
@@ -244,7 +242,7 @@ final class UtilService {
     static List<TextInfo> getTextForPage(final List<TextInfo> data,
             final Integer page) {
         return data.stream()
-                .filter(item -> item.getPage().equals(page))
+                .filter(item -> item.getPageNumber().equals(page))
                 .collect(Collectors.toList());
     }
 }

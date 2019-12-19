@@ -120,14 +120,14 @@ public interface IPdfRenderer {
      *
      * @param newColor a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    void setFontColor(Color newColor);
+    void setTextColor(Color newColor);
 
     /**
      * Get text color in output PDF document.
      *
      * @return a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    Color getFontColor();
+    Color getTextColor();
 
     /**
      * Set scale mode for input images using available options

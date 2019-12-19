@@ -17,11 +17,6 @@ import java.util.List;
 @Category(IntegrationTest.class)
 public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
-    @BeforeClass
-    public static void setup() {
-        initializeLicense();
-    }
-
     @Test
     public void compareMultiLangImage() throws IOException, InterruptedException {
         String filename = "multilang";
@@ -358,7 +353,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList("Bengali")).startsWith(expected));
         Assert.assertFalse(getTextFromPdf(file, scriptTessDataDirectory,
                 Collections.singletonList("Bengali"), notoSansJPFontPath).startsWith(expected));
-        Assert.assertFalse(getTextFromPdf(file, scriptTessDataDirectory, new ArrayList<>()).startsWith(expected));
     }
 
     @Test
@@ -393,6 +387,58 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList("Georgian")).contains(expected));
         Assert.assertFalse(getTextFromPdf(file, scriptTessDataDirectory,
                 Collections.singletonList("Japanese")).contains(expected));
-        Assert.assertFalse(getTextFromPdf(file, scriptTessDataDirectory, new ArrayList<>()).contains(expected));
+    }
+
+    @Test
+    public void testIncorrectPathToTessData() {
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        try {
+            getTextFromPdf(file, "test/", Collections.singletonList("eng"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIncorrectLanguages() {
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        getTextFromPdf(file, langTessDataDirectory,
+                Collections.singletonList("spa"));
+        try {
+            getTextFromPdf(file, langTessDataDirectory,
+                    Arrays.asList("spa", "spa_new", "spa_old"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+
+        try {
+            getTextFromPdf(file, langTessDataDirectory,
+                    Collections.singletonList("spa_new"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+
+        getTextFromPdf(file, scriptTessDataDirectory,
+                Collections.singletonList("Georgian"));
+        try {
+            getTextFromPdf(file, scriptTessDataDirectory,
+                    Collections.singletonList("English"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+
+        try {
+            getTextFromPdf(file, scriptTessDataDirectory,
+                    Arrays.asList("Georgian", "Japanese", "English"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+
+        try {
+            getTextFromPdf(file, scriptTessDataDirectory,
+                    new ArrayList<>());
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
     }
 }
