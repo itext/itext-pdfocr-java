@@ -1,17 +1,15 @@
 package com.itextpdf.ocr;
 
-import java.io.InputStream;
-import java.util.Collections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract reader class.
@@ -41,12 +39,14 @@ public class TesseractExecutableReader implements IOcrReader {
     /**
      * Path to hocr config script.
      */
-    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/ocr/configs/hocr";
+    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/"
+            + "ocr/configs/hocr";
 
     /**
      * Path to quiet config script.
      */
-    private static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/com/itextpdf/ocr/configs/quiet";
+    private static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/com/itextpdf/"
+            + "ocr/configs/quiet";
 
     /**
      * Type of current OS.
@@ -186,8 +186,8 @@ public class TesseractExecutableReader implements IOcrReader {
      * @param is InputStream
      * @return List<TextInfo>
      */
-    public final List<TextInfo> readDataFromInput(InputStream is) {
-        throw new NotImplementedException();
+    public final List<TextInfo> readDataFromInput(final InputStream is) {
+        throw new UnsupportedOperationException();
     }
 
     /**

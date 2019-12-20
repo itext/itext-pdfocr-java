@@ -289,7 +289,7 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param name layer's name
      */
-    public final void setTextLayerName(String name) {
+    public final void setTextLayerName(final String name) {
         textLayerName = name;
     }
 
@@ -336,7 +336,7 @@ public class PdfRenderer implements IPdfRenderer {
      * Set path to font to be used in pdf document.
      * (if it isn't set default font will be used)
      *
-     * @param path
+     * @param path Path
      */
     public void setFontPath(final String path) {
         fontPath = path;
@@ -481,7 +481,7 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private void doOCRForImage(final File inputImage,
                                final PdfDocument pdfDocument,
-                               final PdfFont defaultFont) throws OCRException, IOException {
+                               final PdfFont defaultFont) throws OCRException {
         if (!validateImageFormat(inputImage)) {
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(
@@ -562,6 +562,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @param inputImage input file
      * @return list of ImageData objects (in case of multipage tiff)
      * @throws OCRException OCRException
+     * @throws IOException IOException
      */
     private List<ImageData> getImageData(final File inputImage)
             throws OCRException, IOException {

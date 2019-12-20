@@ -6,7 +6,6 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -15,24 +14,31 @@ import org.junit.experimental.categories.Category;
 public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Test
-    public void testTextFromBMP() {
-        String path = testImagesDirectory + "example_01.BMP";
-        String expectedOutput = "This is\ntest\na\nfor\nmessage\nScanner\nOCR\nTest";
+    public void compareBMP() throws IOException, InterruptedException {
+        String filename = "example_01";
+        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        File file = new File(path);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".BMP", resultPdfPath);
 
-        String realOutputHocr = getTextFromPdf(file);
-        Assert.assertEquals(expectedOutput, realOutputHocr);
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
     }
 
     @Test
-    public void testTextFromJFIF() {
-        String path = testImagesDirectory + "example_02.JFIF";
-        String expectedOutput = "This is\ntest\na\nfor\nmessage\nScanner\nOCR\nTest";
+    public void compareJFIF() throws IOException, InterruptedException {
+        String filename = "example_02";
+        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
-        File file = new File(path);
-        String realOutputHocr = getTextFromPdf(file);
-        Assert.assertEquals(expectedOutput, realOutputHocr);
+        doOcrAndSaveToPath(testImagesDirectory + filename + ".JFIF", resultPdfPath);
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
     }
 
     @Test
