@@ -497,6 +497,9 @@ public class PdfRenderer implements IPdfRenderer {
                 if (!data.isEmpty()) {
                     for (int page = 0; page < imageDataList.size(); ++page) {
                         ImageData imageData = imageDataList.get(page);
+                        if (imageData == null) {
+                            throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                        }
                         Rectangle size = UtilService
                                 .calculatePageSize(imageData, getScaleMode(),
                                         getPageSize());
@@ -550,8 +553,7 @@ public class PdfRenderer implements IPdfRenderer {
         LOGGER.info("Added image page to canvas");
 
         canvas.beginLayer(textLayer);
-        addTextToCanvas(imageData == null
-                        ? size.getHeight() : imageData.getHeight(),
+        addTextToCanvas(imageData.getHeight(),
                         pageText, canvas, defaultFont);
         canvas.endLayer();
     }
@@ -614,8 +616,6 @@ public class PdfRenderer implements IPdfRenderer {
             imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
             imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
             canvas.addImage(imageData, newSize, false);
-        } else {
-            throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
         }
     }
 

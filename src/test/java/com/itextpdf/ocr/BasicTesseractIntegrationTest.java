@@ -8,6 +8,7 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -310,6 +311,56 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             Assert.assertEquals(OCRException.CANNOT_READ_INPUT_IMAGE,
                     e.getMessage());
         }
+    }
+
+    @Test
+    public void testImageWithoutText() throws IOException {
+        String filePath = testImagesDirectory + "pantone_blue.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(filePath);
+
+        IOcrReader tesseractReader = new TesseractExecutableReader(
+                getTesseractDirectory());
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(new PdfWriter(pdfPath));
+
+        Assert.assertNotNull(doc);
+
+        ImageData imageData = null;
+        try {
+            imageData = ImageDataFactory.create(file.getAbsolutePath());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        if (imageData != null) {
+            float imageWidth = UtilService.getPoints(imageData.getWidth());
+            float imageHeight = UtilService.getPoints(imageData.getHeight());
+            float realWidth = doc.getFirstPage().getPageSize().getWidth();
+            float realHeight = doc.getFirstPage().getPageSize().getHeight();
+
+            Assert.assertEquals(imageWidth, realWidth, delta);
+            Assert.assertEquals(imageHeight, realHeight, delta);
+        }
+
+        if (!doc.isClosed()) {
+            doc.close();
+        }
+
+        doc.close();
+
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+
+        ExtractionStrategy strategy = new ExtractionStrategy("Text Layer");
+        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
+
+        processor.processPageContent(pdfDocument.getFirstPage());
+
+        Assert.assertEquals("", strategy.getResultantText());
+        deleteFile(pdfPath);
     }
 
     /**

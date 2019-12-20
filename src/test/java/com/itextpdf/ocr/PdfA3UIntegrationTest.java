@@ -316,6 +316,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                         new File(testImagesDirectory
                                 + filename + ".jpg")));
 
+        Assert.assertEquals(tesseractExecutableReader, pdfRenderer.getOcrReader());
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
                 true, getCMYKPdfOutputIntent());
         Assert.assertNotNull(doc);
