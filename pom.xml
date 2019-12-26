@@ -80,6 +80,11 @@
       <version>${itext.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>net.sourceforge.tess4j</groupId>
+      <artifactId>tess4j</artifactId>
+      <version>4.4.0</version>
+    </dependency>
   </dependencies>
 
   <build>

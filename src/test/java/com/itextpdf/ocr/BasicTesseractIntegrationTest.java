@@ -15,26 +15,41 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Category(IntegrationTest.class)
+@RunWith(Parameterized.class)
 public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
+
+    TesseractReader tesseractReader;
+
+    public BasicTesseractIntegrationTest(TesseractReader reader) {
+        tesseractReader = reader;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+                new Object[][] { {
+                        new TesseractExecutableReader(getTesseractDirectory())
+                    }, {
+                        new TesseractLibReader()
+                    }
+            });
+    }
 
     @Test
     public void testKeepOriginalSizeScaleMode() throws IOException {
         String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
@@ -84,7 +99,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         float pageHeightPt = 500f;
 
         Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
-        Image resultImage = getImageFromPdf(file,
+        Image resultImage = getImageFromPdf(tesseractReader, file,
                 IPdfRenderer.ScaleMode.scaleWidth, pageSize);
 
         // page size should be equal to the result image size
@@ -133,7 +148,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         float pageHeightPt = 500f;
 
         Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
-        Image resultImage = getImageFromPdf(file,
+        Image resultImage = getImageFromPdf(tesseractReader, file,
                 IPdfRenderer.ScaleMode.scaleHeight, pageSize);
 
         if (originalImageData != null) {
@@ -166,8 +181,6 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         String filePath = testImagesDirectory + "numbers_01.jpg";
         File file = new File(filePath);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
@@ -191,18 +204,15 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "noisy_01.png";
         String expectedOutput = "Noisyimage to test Tesseract OCR";
 
-        testImageOcrText(path, expectedOutput);
+        testImageOcrText(tesseractReader, path, expectedOutput);
     }
 
     @Test
     public void testDifferentTextStyles() {
         String path = testImagesDirectory + "example_04.png";
-        String expectedOutput = "Does this OCR thing really work? H . " +
-                "How about a bigger font? " +
-                "123456789 {23 " +
-                "What about thiy font?";
+        String expectedOutput = "How about a bigger font?";
 
-        testImageOcrText(path, expectedOutput);
+        testImageOcrText(tesseractReader, path, expectedOutput);
     }
 
     @Test
@@ -212,8 +222,6 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
@@ -249,8 +257,6 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
@@ -301,7 +307,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             File file = new File(testImagesDirectory
                     + "corrupted.jpg");
 
-            String realOutput = getTextFromPdf(file);
+            String realOutput = getTextFromPdf(tesseractReader, file);
             Assert.assertNotNull(realOutput);
             Assert.assertEquals("", realOutput);
         } catch (OCRException e) {
@@ -317,8 +323,6 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(filePath);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
@@ -376,9 +380,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
      * @param path
      * @param expectedOutput
      */
-    private void testImageOcrText(String path, String expectedOutput) {
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
+    private void testImageOcrText(TesseractReader tesseractReader, String path,
+                                  String expectedOutput) {
         File ex1 = new File(path);
 
         String realOutputHocr = getTextUsingTesseractFromImage(tesseractReader,

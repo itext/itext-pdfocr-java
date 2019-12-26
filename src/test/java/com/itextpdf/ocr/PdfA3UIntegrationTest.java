@@ -13,15 +13,36 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @Category(IntegrationTest.class)
+@RunWith(Parameterized.class)
 public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
+
+    TesseractReader tesseractReader;
+
+    public PdfA3UIntegrationTest(TesseractReader reader) {
+        tesseractReader = reader;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+                new Object[][] { {
+                        new TesseractExecutableReader(getTesseractDirectory())
+                    }, {
+                        new TesseractLibReader()
+                    }
+                });
+    }
 
     @Test
     public void testPdfA3uWithoutIntentException() throws IOException {
@@ -30,12 +51,12 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         try {
             File file = new File(path);
 
-            IOcrReader tesseractReader = new TesseractExecutableReader(getTesseractDirectory());
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
 
-            pdfRenderer.doPdfOcr(getPdfWriter());
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
         } catch (OCRException e) {
+            deleteFile(pdfPath);
             Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL, e.getMessage());
         }
     }
@@ -47,14 +68,14 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         try {
             File file = new File(path);
-            IOcrReader tesseractReader = new TesseractExecutableReader(
-                    getTesseractDirectory());
+
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
 
-            pdfRenderer.doPdfOcr(getPdfWriter(),
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
                     true, null);
         } catch (OCRException e) {
+            deleteFile(pdfPath);
             Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL,
                     e.getMessage());
         }
@@ -67,8 +88,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
@@ -94,14 +113,16 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         try {
             File file = new File(path);
-            IOcrReader tesseractReader = new TesseractExecutableReader(
-                    getTesseractDirectory());
+
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file), DeviceCmyk.BLACK);
 
-            pdfRenderer.doPdfOcr(getPdfWriter(),
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
                     true, getRGBPdfOutputIntent());
+            Assert.assertNotNull(doc);
+            doc.close();
         } catch (com.itextpdf.kernel.PdfException e) {
+            deleteFile(pdfPath);
             Assert.assertEquals(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT, e.getMessage());
         }
     }
@@ -113,8 +134,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
@@ -136,7 +155,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(fontName.contains("Cairo-Regular"));
         Assert.assertTrue(font.isEmbedded());
 
-        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -147,8 +165,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(imgPath);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setFontPath(freeSansFontPath);
@@ -174,7 +190,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(font.isEmbedded());
         Assert.assertEquals(freeSansFontPath, pdfRenderer.getFontPath());
 
-        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -185,8 +200,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         pdfRenderer.setFontPath(path);
@@ -210,7 +223,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(fontName.contains("Cairo-Regular"));
         Assert.assertTrue(font.isEmbedded());
 
-        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -221,20 +233,19 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         try{
             File file = new File(path);
-            IOcrReader tesseractReader = new TesseractExecutableReader(
-                    getTesseractDirectory());
+
             PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
             pdfRenderer.setFontPath(path);
             pdfRenderer.setDefaultFontPath(path);
 
-            pdfRenderer.doPdfOcr(getPdfWriter(),
+            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
                     true, getCMYKPdfOutputIntent());
+
+            Assert.assertNotNull(doc);
+            doc.close();
         } catch (com.itextpdf.io.IOException | IOException e) {
-            String expectedMsg = MessageFormat
-                    .format(OCRException.TypeOfFont1IsNotRecognized,
-                            path);
-            Assert.assertEquals(expectedMsg, e.getMessage());
+            deleteFile(pdfPath);
         }
     }
 
@@ -245,8 +256,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
@@ -264,7 +273,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 pdfDocument.getDocumentInfo().getTitle());
         Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
                 pdfDocument.getReader().getPdfAConformanceLevel());
-        pdfDocument.close();
+
         deleteFile(pdfPath);
     }
 
@@ -275,8 +284,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
@@ -298,7 +305,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
                 pdfDocument.getReader().getPdfAConformanceLevel());
 
-        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -309,14 +315,12 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + "_a3u.pdf";
         String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
 
-        TesseractExecutableReader tesseractExecutableReader = new TesseractExecutableReader(
-                getTesseractDirectory());
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractExecutableReader,
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(
                         new File(testImagesDirectory
                                 + filename + ".jpg")));
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
-        Assert.assertEquals(tesseractExecutableReader, pdfRenderer.getOcrReader());
+
+        Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
                 true, getCMYKPdfOutputIntent());
         Assert.assertNotNull(doc);
@@ -335,17 +339,15 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + "_a3u.pdf";
         String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
 
-        TesseractExecutableReader tesseractExecutableReader = new TesseractExecutableReader(
-                getTesseractDirectory());
-        tesseractExecutableReader.setPathToTessData(langTessDataDirectory);
-        tesseractExecutableReader.setLanguages(Collections.singletonList("spa"));
+        tesseractReader.setPageSegMode(3);
+        tesseractReader.setPathToTessData(langTessDataDirectory);
+        tesseractReader.setLanguages(Collections.singletonList("spa"));
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractExecutableReader,
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(
                         new File(testImagesDirectory + filename
                                 + ".jpg")));
         pdfRenderer.setTextColor(DeviceRgb.BLACK);
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
                 true, getRGBPdfOutputIntent());

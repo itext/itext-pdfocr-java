@@ -8,24 +8,40 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @Category(IntegrationTest.class)
+@RunWith(Parameterized.class)
 public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
+
+    TesseractReader tesseractReader;
+
+    public PdfLayersIntegrationTest(TesseractReader reader) {
+        tesseractReader = reader;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+                new Object[][] { {
+                        new TesseractExecutableReader(getTesseractDirectory())
+                    }, {
+                        new TesseractLibReader()
+                    }
+                });
+    }
 
     @Test
     public void testPdfLayersWithDefaultNames() throws IOException {
         String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
         pdfRenderer.setInputImages(Collections.singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
@@ -45,11 +61,9 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testPdfLayersWithCustomNames() throws IOException {
-        String path = testImagesDirectory + "numbers_02.jpg";
+        String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
         pdfRenderer.setInputImages(Collections.singletonList(file));
 
@@ -84,8 +98,6 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
@@ -122,8 +134,6 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         String pdfPath = testPdfDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
@@ -159,14 +169,12 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
 
         List<File> files = Arrays.asList(
-                new File(testImagesDirectory + "example_01.BMP"),
-                new File(testImagesDirectory + "example_02.JFIF"),
+                new File(testImagesDirectory + "german_01.jpg"),
+                new File(testImagesDirectory + "noisy_01.png"),
                 new File(testImagesDirectory + "numbers_01.jpg"),
                 new File(testImagesDirectory + "example_04.png")
         );
 
-        IOcrReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, files);
         pdfRenderer.setImageLayerName("image");
         pdfRenderer.setTextLayerName("text");
@@ -196,30 +204,5 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(4, pdfRenderer.getInputImages().size());
 
         deleteFile(pdfPath);
-    }
-
-    @Test
-    public void testInputInvalidImage() throws IOException {
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
-
-        File file1 = new File(testImagesDirectory + "example.txt");
-        File file2 = new File(testImagesDirectory
-                + "example_05_corrupted.bmp");
-        File file3 = new File(testImagesDirectory
-                + "numbers_02.jpg");
-        try {
-            IOcrReader tesseractReader = new TesseractExecutableReader(
-                    getTesseractDirectory());
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Arrays.asList(file3, file1, file2, file3));
-
-            pdfRenderer.doPdfOcr(getPdfWriter());
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormat
-                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
-                            "txt");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-        }
     }
 }

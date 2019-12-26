@@ -1,13 +1,11 @@
 package com.itextpdf.ocr;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +26,10 @@ import org.slf4j.LoggerFactory;
  * Please note that It's assumed that "tesseract" is already
  * installed in the system
  */
-public class TesseractExecutableReader implements IOcrReader {
+public class TesseractExecutableReader extends TesseractReader {
 
     /**
-     * TesseractReader logger.
+     * TesseractExecutableReader logger.
      */
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractExecutableReader.class);
@@ -54,16 +52,6 @@ public class TesseractExecutableReader implements IOcrReader {
     private String osType;
 
     /**
-     * List of languages required for ocr for provided images.
-     */
-    private List<String> languages = Collections.emptyList();
-
-    /**
-     * Path to directory with tess data.
-     */
-    private String tessDataDir;
-
-    /**
      * Path to the tesseract executable.
      * By default it's assumed that "tesseract" already exists in the PATH
      */
@@ -73,8 +61,8 @@ public class TesseractExecutableReader implements IOcrReader {
      * TesseractReader constructor.
      */
     public TesseractExecutableReader() {
-        pathToExecutable = "tesseract";
-        osType = identifyOSType();
+        setPathToExecutable("tesseract");
+        setOsType(identifyOSType());
     }
 
     /**
@@ -83,8 +71,8 @@ public class TesseractExecutableReader implements IOcrReader {
      * @param path String
      */
     public TesseractExecutableReader(final String path) {
-        pathToExecutable = path;
-        osType = identifyOSType();
+        setPathToExecutable(path);
+        setOsType(identifyOSType());
     }
 
     /**
@@ -95,12 +83,13 @@ public class TesseractExecutableReader implements IOcrReader {
      * @param languagesList List<String>
      * @param tessData      String
      */
-    public TesseractExecutableReader(final String path, final List<String> languagesList,
+    public TesseractExecutableReader(final String path,
+                                     final List<String> languagesList,
                                      final String tessData) {
-        pathToExecutable = path;
-        languages = Collections.unmodifiableList(languagesList);
-        tessDataDir = tessData;
-        osType = identifyOSType();
+        setPathToExecutable(path);
+        setLanguages(Collections.unmodifiableList(languagesList));
+        setPathToTessData(tessData);
+        setOsType(identifyOSType());
     }
 
     /**
@@ -119,42 +108,6 @@ public class TesseractExecutableReader implements IOcrReader {
      */
     public final String getOsType() {
         return osType;
-    }
-
-    /**
-     * Set list of languages required for provided images.
-     *
-     * @param requiredLanguages List<String>
-     */
-    public final void setLanguages(final List<String> requiredLanguages) {
-        languages = Collections.unmodifiableList(requiredLanguages);
-    }
-
-    /**
-     * Get list of languages required for provided images.
-     *
-     * @return List<String>
-     */
-    public final List<String> getLanguages() {
-        return new ArrayList<>(languages);
-    }
-
-    /**
-     * Set path to directory with tess data.
-     *
-     * @param tessData String
-     */
-    public final void setPathToTessData(final String tessData) {
-        tessDataDir = tessData;
-    }
-
-    /**
-     * Get path to directory with tess data.
-     *
-     * @return String
-     */
-    public final String getPathToTessData() {
-        return tessDataDir;
     }
 
     /**
@@ -177,70 +130,13 @@ public class TesseractExecutableReader implements IOcrReader {
     }
 
     /**
-     * Reads data from input stream and returns retrieved data
-     * in the following format:
-     *
-     * List<TextInfo> where each list TextInfo element contains word
-     * or line and its 4 coordinates(bbox).
-     *
-     * @param is InputStream
-     * @return List<TextInfo>
-     */
-    public final List<TextInfo> readDataFromInput(final InputStream is) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Reads data from the provided input image file and returns retrieved
-     * data in the following format:
-     * List<Map.Entry<String, List<Float>>> where each list element
-     * Map.Entry<String, List<Float>> contains word or line as a key
-     * and its 4 coordinates(bbox) as a values.
-     *
-     * @param input File
-     * @return List<TextInfo>
-     */
-    public final List<TextInfo> readDataFromInput(final File input) {
-        List<TextInfo> words = new ArrayList<>();
-        try {
-            // String tempDir = System.getProperty("java.io.tmpdir");
-            String extension = ".hocr";
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                                               extension);
-
-            // filename without extension
-            String fileName = tmpFile.getAbsolutePath()
-                    .substring(0, tmpFile.getAbsolutePath().indexOf(extension));
-            LOGGER.info("Temp path: " + tmpFile.toString());
-            doTesseractOcr(input.getAbsolutePath(), fileName);
-            if (tmpFile.exists()) {
-                words = UtilService.parseHocrFile(tmpFile);
-
-                LOGGER.info(words.size() + " word(s) were read");
-            } else {
-                LOGGER.error("Error occurred. File wasn't created "
-                        + tmpFile.getAbsolutePath());
-            }
-
-            if (!tmpFile.delete()) {
-                LOGGER.error("File " + tmpFile.getAbsolutePath()
-                        + " cannot be deleted");
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error occurred:" + e.getLocalizedMessage());
-        }
-
-        return words;
-    }
-
-    /**
      * Perform tesseract OCR.
      *
-     * @param inputPath  - path to the file with input image
-     * @param outputPath String
+     * @param inputImage - input image file
+     * @param outputFile - output file
      */
-    public final void doTesseractOcr(final String inputPath,
-            final String outputPath) {
+    public void doTesseractOcr(final File inputImage,
+            final File outputFile) {
         // path to tesseract executable cannot be uninitialized
         if (pathToExecutable == null || pathToExecutable.isEmpty()) {
             throw new OCRException(
@@ -250,25 +146,45 @@ public class TesseractExecutableReader implements IOcrReader {
 
         command.add(addQuotes(pathToExecutable));
 
-        if (tessDataDir != null && !tessDataDir.isEmpty()) {
+        if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
             command.addAll(Arrays.asList(
-                    "--tessdata-dir", addQuotes(tessDataDir)
+                    "--tessdata-dir", addQuotes(getPathToTessData())
             ));
         }
 
-        command.addAll(Arrays.asList(
-                addQuotes(inputPath), addQuotes(outputPath)
-        ));
+        command.add(addQuotes(inputImage.getAbsolutePath()));
+        command.add(addQuotes(getOutputFile(outputFile)));
 
-        if (languages != null && !languages.isEmpty()) {
+        if (getPageSegMode() != null) {
             command.addAll(
-                    Arrays.asList("-l", String.join("+", languages)));
+                    Arrays.asList("--psm", getPageSegMode().toString()));
+        }
+
+        if (!getLanguages().isEmpty()) {
+            command.addAll(
+                    Arrays.asList("-l",
+                            String.join("+", getLanguages()))
+            );
         }
 
         command.add(PATH_TO_HOCR_SCRIPT);
         command.add(PATH_TO_QUIET_SCRIPT);
 
         UtilService.runCommand(command, isWindows());
+    }
+
+    /**
+     * Get name of the output temp file without extension
+     *
+     * @param outputFile File
+     * @return String
+     */
+    private String getOutputFile(final File outputFile) {
+        String extension = ".hocr";
+        String fileName = outputFile.getAbsolutePath()
+                .substring(0, outputFile.getAbsolutePath().indexOf(extension));
+        LOGGER.info("Temp path: " + outputFile.toString());
+        return fileName;
     }
 
     /**
@@ -289,7 +205,7 @@ public class TesseractExecutableReader implements IOcrReader {
      * @return boolean
      */
     private boolean isWindows() {
-        return osType.toLowerCase().contains("win");
+        return getOsType().toLowerCase().contains("win");
     }
 
     /**
