@@ -49,6 +49,7 @@ public class TesseractLibReader extends TesseractReader {
         try {
             result = tesseract.doOCR(inputImage);
         } catch (TesseractException e) {
+            LOGGER.error("OCR failed: " + e.getLocalizedMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
                     .setMessageParams("OCR failed");
         }
@@ -57,6 +58,7 @@ public class TesseractLibReader extends TesseractReader {
                 .newBufferedWriter(outputFile.toPath())) {
             writer.write(result);
         } catch (IOException e) {
+            LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
                     .setMessageParams("Cannot write to file "
                             + outputFile.getAbsolutePath());
