@@ -1,5 +1,8 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 import org.junit.Assert;
@@ -331,5 +334,66 @@ public class BasicTesseractExecutableIntegrationTest
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+    }
+
+    // TODO
+    @Test
+    public void testNotPdfA3uWithIntent() throws IOException {
+        String path = testImagesDirectory + "numbers_02.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(path);
+
+        TesseractReader tesseractReader = new TesseractExecutableReader(
+                getTesseractDirectory());
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        // PdfA3u should not be created as 'createdPdfA3u' flag is false
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+                false, getCMYKPdfOutputIntent());
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        Assert.assertNotEquals(PdfAConformanceLevel.PDF_A_3U,
+                pdfDocument.getReader().getPdfAConformanceLevel());
+
+        pdfDocument.close();
+        deleteFile(pdfPath);
+    }
+
+    // TODO
+    @Test
+    public void testPdfCustomMetadata() throws IOException {
+        String path = testImagesDirectory + "numbers_02.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(path);
+
+        TesseractReader tesseractReader = new TesseractExecutableReader(
+                getTesseractDirectory());
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        String locale = "nl-BE";
+        pdfRenderer.setPdfLang(locale);
+        String title = "Title";
+        pdfRenderer.setTitle(title);
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+                true, getCMYKPdfOutputIntent());
+
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        Assert.assertEquals(locale,
+                pdfDocument.getCatalog().getLang().toString());
+        Assert.assertEquals(title, pdfDocument.getDocumentInfo().getTitle());
+        Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
+                pdfDocument.getReader().getPdfAConformanceLevel());
+
+        deleteFile(pdfPath);
     }
 }

@@ -82,30 +82,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testNotPdfA3uWithIntent() throws IOException {
-        String path = testImagesDirectory + "numbers_02.jpg";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
-        File file = new File(path);
-
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-
-        // PdfA3u should not be created as 'createdPdfA3u' flag is false
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
-                false, getCMYKPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        Assert.assertNotEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
-
-        pdfDocument.close();
-        deleteFile(pdfPath);
-    }
-
-    @Test
     public void testIncompatibleOutputIntentAndFontColorSpaceException()
             throws IOException {
         String path = testImagesDirectory + "example_01.BMP";
@@ -271,37 +247,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 pdfDocument.getCatalog().getLang().toString());
         Assert.assertEquals("",
                 pdfDocument.getDocumentInfo().getTitle());
-        Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
-
-        deleteFile(pdfPath);
-    }
-
-    @Test
-    public void testPdfCustomMetadata() throws IOException {
-        String path = testImagesDirectory + "numbers_02.jpg";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
-        File file = new File(path);
-
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-
-        String locale = "nl-BE";
-        pdfRenderer.setPdfLang(locale);
-        String title = "Title";
-        pdfRenderer.setTitle(title);
-
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
-                true, getCMYKPdfOutputIntent());
-
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        Assert.assertEquals(locale,
-                pdfDocument.getCatalog().getLang().toString());
-        Assert.assertEquals(title, pdfDocument.getDocumentInfo().getTitle());
         Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
                 pdfDocument.getReader().getPdfAConformanceLevel());
 
