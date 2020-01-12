@@ -245,8 +245,9 @@ public interface IPdfRenderer {
      * otherwise PdfDocument will be created;
      *
      * @param pdfWriter provided pdfWriter
+     * @param createPdfA3u boolean
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      * @throws IOException if provided font or output intent is incorrect
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter) throws IOException;
+    PdfDocument doPdfOcr(PdfWriter pdfWriter, boolean createPdfA3u) throws IOException;
 }

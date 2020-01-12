@@ -1,6 +1,8 @@
 package com.itextpdf.ocr;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +10,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 
 /**
  * Tesseract reader class.
@@ -39,17 +43,6 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/"
             + "ocr/configs/hocr";
-
-    /**
-     * Path to quiet config script.
-     */
-    private static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/com/itextpdf/"
-            + "ocr/configs/quiet";
-
-    /**
-     * Type of current OS.
-     */
-    private String osType;
 
     /**
      * Path to the tesseract executable.
@@ -93,24 +86,6 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Set type of current OS.
-     *
-     * @param os String
-     */
-    public final void setOsType(final String os) {
-        osType = os;
-    }
-
-    /**
-     * Get type of current OS.
-     *
-     * @return String
-     */
-    public final String getOsType() {
-        return osType;
-    }
-
-    /**
      * Set path to tesseract executable.
      * By default it's assumed that "tesseract" already exists in the PATH
      *
@@ -137,6 +112,19 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     public void doTesseractOcr(final File inputImage,
             final File outputFile) {
+
+        String path = inputImage.getAbsolutePath();
+        try {
+            BufferedImage original = preprocess(inputImage.getAbsolutePath());
+            String output = "output.png";
+            ImageIO.write(original, "png", new File(output));
+            path = output;
+            original.flush();
+        } catch (IOException e) {
+            LOGGER.error("Error while preprocessing image: " +
+                    e.getLocalizedMessage());
+        }
+
         // path to tesseract executable cannot be uninitialized
         if (pathToExecutable == null || pathToExecutable.isEmpty()) {
             throw new OCRException(
@@ -148,11 +136,11 @@ public class TesseractExecutableReader extends TesseractReader {
 
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
             command.addAll(Arrays.asList(
-                    "--tessdata-dir", addQuotes(getPathToTessData())
+                    "--tessdata-dir", addQuotes(getTessData())
             ));
         }
 
-        command.add(addQuotes(inputImage.getAbsolutePath()));
+        command.add(addQuotes(path));
         command.add(addQuotes(getOutputFile(outputFile)));
 
         if (getPageSegMode() != null) {
@@ -185,27 +173,6 @@ public class TesseractExecutableReader extends TesseractReader {
                 .substring(0, outputFile.getAbsolutePath().indexOf(extension));
         LOGGER.info("Temp path: " + outputFile.toString());
         return fileName;
-    }
-
-    /**
-     * Check type of current OS and return it (mac, win, linux).
-     *
-     * @return String
-     */
-    private String identifyOSType() {
-        String os = System.getProperty("os.name");
-        LOGGER.info("Using System Property: " + os);
-        return os.toLowerCase();
-    }
-
-    /**
-     * Return 'true' if current OS is windows
-     * otherwise 'false'.
-     *
-     * @return boolean
-     */
-    private boolean isWindows() {
-        return getOsType().toLowerCase().contains("win");
     }
 
     /**

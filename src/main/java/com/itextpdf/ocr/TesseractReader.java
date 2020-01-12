@@ -1,17 +1,41 @@
 package com.itextpdf.ocr;
 
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+import com.sun.jna.ptr.PointerByReference;
+import net.sourceforge.lept4j.ILeptonica;
+import net.sourceforge.lept4j.Leptonica;
+import net.sourceforge.lept4j.Pix;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE;
+
 public abstract class TesseractReader implements IOcrReader {
+
+    /**
+     * Path to default tess data script.
+     */
+    public static final String PATH_TO_TESS_DATA = "src/main/resources/com/" +
+            "itextpdf/ocr/tessdata/";
+
+    /**
+     * Path to quiet config script.
+     */
+    public static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/com/itextpdf/"
+            + "ocr/configs/quiet";
 
     /**
      * TesseractReader logger.
@@ -33,6 +57,11 @@ public abstract class TesseractReader implements IOcrReader {
      * Page Segmentation Mode
      */
     private Integer pageSegMode;
+
+    /**
+     * Type of current OS.
+     */
+    private String osType;
 
     /**
      * Perform tesseract OCR.
@@ -97,6 +126,24 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
+     * Set type of current OS.
+     *
+     * @param os String
+     */
+    public final void setOsType(final String os) {
+        osType = os;
+    }
+
+    /**
+     * Get type of current OS.
+     *
+     * @return String
+     */
+    public final String getOsType() {
+        return osType;
+    }
+
+    /**
      * Reads data from input stream and returns retrieved data
      * in the following format:
      *
@@ -125,7 +172,6 @@ public abstract class TesseractReader implements IOcrReader {
         try {
             File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
                     ".hocr");
-
             doTesseractOcr(input, tmpFile);
             if (tmpFile.exists()) {
                 words = UtilService.parseHocrFile(tmpFile);
@@ -145,5 +191,121 @@ public abstract class TesseractReader implements IOcrReader {
         }
 
         return words;
+    }
+
+    /**
+     * Get path to provided tess data directory or return default one.
+     * @return String
+     */
+    String getTessData() {
+        if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
+            return getPathToTessData();
+        } else {
+            return PATH_TO_TESS_DATA;
+        }
+    }
+
+    public static BufferedImage preprocess(String inputPath)
+            throws IOException {
+        Leptonica instance = Leptonica.INSTANCE;
+        Pix pix = instance.pixRead(inputPath);
+
+        pix = instance.pixRemoveAlpha(pix);
+        int a = instance.pixGetDepth(pix);
+
+        if (a == 32) {
+            pix = instance.pixConvertRGBToGrayFast(pix);
+        } else {
+            pix = instance.pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
+        }
+
+        PointerByReference pointer = new PointerByReference();
+        instance.pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
+                null, pointer);
+        Pix thresholdPix = new Pix(pointer.getValue());
+        if (thresholdPix.w > 0 && thresholdPix.h > 0) {
+            pix = thresholdPix;
+        }
+
+        pix = instance.pixDeskew(pix, 0);
+
+        int format = getFormat(inputPath);
+
+        instance.pixWritePng("deskew.png", pix, format);
+        BufferedImage bi = convertPixToImage(pix, format);
+        PointerByReference pRef = new PointerByReference();
+        pRef.setValue(pix.getPointer());
+        instance.pixDestroy(pRef);
+        return bi;
+    }
+
+    /**
+     * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
+     *
+     * @param pix source pix
+     * @return BufferedImage output image
+     * @throws IOException
+     */
+    public static BufferedImage convertPixToImage(Pix pix, int format)
+            throws IOException {
+        PointerByReference pdata = new PointerByReference();
+        NativeSizeByReference psize = new NativeSizeByReference();
+
+        Leptonica instance = Leptonica.INSTANCE;
+
+        instance.pixWriteMem(pdata, psize, pix, format);
+        byte[] b = pdata.getValue().getByteArray(0,
+                psize.getValue().intValue());
+        InputStream in = new ByteArrayInputStream(b);
+        BufferedImage bi = ImageIO.read(in);
+        in.close();
+        instance.lept_free(pdata.getValue());
+        return bi;
+    }
+
+    public static int getFormat(String inputPath) {
+        String ext = FilenameUtils.getExtension(inputPath);
+        String formatName = "IFF_";
+        if (ext.toLowerCase().contains("jpg") ||
+                ext.toLowerCase().contains("jpeg") ||
+                ext.toLowerCase().contains("jfif")) {
+            formatName += "JFIF_JPEG";
+        } else {
+            formatName += ext.toUpperCase();
+        }
+
+        int format = 0;
+        Field field = null;
+        try {
+            field = ILeptonica.class.getField(formatName);
+            if (field.getType() == int.class) {
+                format = field.getInt(null);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            LOGGER.error(formatName + " does not exist: " +
+                    e.getLocalizedMessage());
+        }
+        return format;
+    }
+
+    /**
+     * Return 'true' if current OS is windows
+     * otherwise 'false'.
+     *
+     * @return boolean
+     */
+    public boolean isWindows() {
+        return getOsType().toLowerCase().contains("win");
+    }
+
+    /**
+     * Check type of current OS and return it (mac, win, linux).
+     *
+     * @return String
+     */
+    public String identifyOSType() {
+        String os = System.getProperty("os.name");
+        LOGGER.info("Using System Property: " + os);
+        return os.toLowerCase();
     }
 }

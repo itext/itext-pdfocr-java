@@ -389,12 +389,13 @@ public class PdfRenderer implements IPdfRenderer {
      * Perform OCR for the given list of input images using provided pdfWriter.
      *
      * @param pdfWriter PdfWriter
+     * @param createPdfA3u - should be false (true if output result should PdfADocument)
      * @return PdfDocument
      * @throws IOException if provided font is incorrect
      */
-    public final PdfDocument doPdfOcr(final PdfWriter pdfWriter)
+    public final PdfDocument doPdfOcr(final PdfWriter pdfWriter, boolean createPdfA3u)
             throws IOException {
-        return doPdfOcr(pdfWriter, false, null);
+        return doPdfOcr(pdfWriter, createPdfA3u, null);
     }
 
     /**
@@ -596,7 +597,7 @@ public class PdfRenderer implements IPdfRenderer {
                 images.add(imageData);
             } catch (com.itextpdf.io.IOException e) {
                 LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
-                        + "image " + e.getLocalizedMessage());
+                        + " image " + e.getLocalizedMessage());
                 throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
             }
         }

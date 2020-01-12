@@ -13,6 +13,7 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,35 +48,31 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testPdfA3uWithoutIntentException() throws IOException {
         String path = testImagesDirectory + "example_01.BMP";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString() + ".pdf";
         try {
             File file = new File(path);
 
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
 
-            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
+            pdfRenderer.doPdfOcr(getPdfWriter(), true);
         } catch (OCRException e) {
-            deleteFile(pdfPath);
-            Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL, e.getMessage());
+            Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL,
+                    e.getMessage());
         }
     }
 
     @Test
     public void testPdfA3uWithNullIntentException() throws IOException {
         String path = testImagesDirectory + "example_01.BMP";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
         try {
             File file = new File(path);
 
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file));
 
-            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+            pdfRenderer.doPdfOcr(getPdfWriter(),
                     true, null);
         } catch (OCRException e) {
-            deleteFile(pdfPath);
             Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL,
                     e.getMessage());
         }
@@ -85,20 +82,16 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public void testIncompatibleOutputIntentAndFontColorSpaceException()
             throws IOException {
         String path = testImagesDirectory + "example_01.BMP";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
+
         try {
             File file = new File(path);
 
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file), DeviceCmyk.BLACK);
 
-            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+            pdfRenderer.doPdfOcr(getPdfWriter(),
                     true, getRGBPdfOutputIntent());
-            Assert.assertNotNull(doc);
-            doc.close();
         } catch (com.itextpdf.kernel.PdfException e) {
-            deleteFile(pdfPath);
             Assert.assertEquals(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT, e.getMessage());
         }
     }
@@ -113,7 +106,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
                 true, getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
@@ -131,6 +124,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(fontName.contains("Cairo-Regular"));
         Assert.assertTrue(font.isEmbedded());
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -146,7 +140,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setFontPath(freeSansFontPath);
         pdfRenderer.setDefaultFontPath(imgPath);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
                 true, getCMYKPdfOutputIntent());
 
         Assert.assertNotNull(doc);
@@ -166,6 +160,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(font.isEmbedded());
         Assert.assertEquals(freeSansFontPath, pdfRenderer.getFontPath());
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -180,7 +175,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setFontPath(path);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
                 true, getCMYKPdfOutputIntent());
 
         Assert.assertNotNull(doc);
@@ -199,6 +194,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(fontName.contains("Cairo-Regular"));
         Assert.assertTrue(font.isEmbedded());
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -207,7 +203,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "numbers_01.jpg";
         String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
                 + ".pdf";
-        try{
+        try {
             File file = new File(path);
 
             PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
@@ -215,13 +211,14 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             pdfRenderer.setFontPath(path);
             pdfRenderer.setDefaultFontPath(path);
 
-            PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+            pdfRenderer.doPdfOcr(getPdfWriter(),
                     true, getCMYKPdfOutputIntent());
-
-            Assert.assertNotNull(doc);
-            doc.close();
         } catch (com.itextpdf.io.IOException | IOException e) {
-            deleteFile(pdfPath);
+            String expectedMsg = MessageFormat
+                    .format(com.itextpdf.io.IOException
+                                    .TypeOfFont1IsNotRecognized,
+                            path);
+            Assert.assertEquals(expectedMsg, e.getMessage());
         }
     }
 
@@ -235,7 +232,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
                 true, getRGBPdfOutputIntent());
 
         Assert.assertNotNull(doc);
@@ -250,6 +247,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
                 pdfDocument.getReader().getPdfAConformanceLevel());
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -266,7 +264,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                                 + filename + ".jpg")));
 
         Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
                 true, getCMYKPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
@@ -294,7 +292,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                                 + ".jpg")));
         pdfRenderer.setTextColor(DeviceRgb.BLACK);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(resultPdfPath),
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
                 true, getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
@@ -303,5 +301,61 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+    }
+
+    @Test
+    public void testNotPdfA3uWithIntent() throws IOException {
+        String path = testImagesDirectory + "numbers_02.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(path);
+
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        // PdfA3u should not be created as 'createdPdfA3u' flag is false
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
+                false, getCMYKPdfOutputIntent());
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        Assert.assertNotEquals(PdfAConformanceLevel.PDF_A_3U,
+                pdfDocument.getReader().getPdfAConformanceLevel());
+
+        pdfDocument.close();
+        deleteFile(pdfPath);
+    }
+
+    @Test
+    public void testPdfCustomMetadata() throws IOException {
+        String path = testImagesDirectory + "numbers_02.jpg";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(path);
+
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file));
+
+        String locale = "nl-BE";
+        pdfRenderer.setPdfLang(locale);
+        String title = "Title";
+        pdfRenderer.setTitle(title);
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
+                true, getCMYKPdfOutputIntent());
+
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        Assert.assertEquals(locale,
+                pdfDocument.getCatalog().getLang().toString());
+        Assert.assertEquals(title, pdfDocument.getDocumentInfo().getTitle());
+        Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
+                pdfDocument.getReader().getPdfAConformanceLevel());
+
+        pdfDocument.close();
+        deleteFile(pdfPath);
     }
 }

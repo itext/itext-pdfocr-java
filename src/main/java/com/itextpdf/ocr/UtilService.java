@@ -106,16 +106,14 @@ final class UtilService {
         // Using the jericho library to parse the HTML file
         Source source = new Source(inputFile);
 
-        // In order to place text behind the recognised text snippets
-        // we are interested in the bbox property
+        Pattern confPattern = Pattern.compile("x_wconf(\\s+\\d+)");
         Pattern bboxPattern = Pattern.compile("bbox(\\s+\\d+){4}");
-        // This pattern separates the coordinates of the bbox property
         Pattern bboxCoordinatePattern = Pattern
                 .compile("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
 
         Pattern pagePattern = Pattern.compile("page_(\\d+)");
 
-        String searchedTag = "ocrx_word"; // ocr_line // ocrx_word
+        String searchedTag = "ocrx_word";
 
         StartTag pageBlock = source.getNextStartTag(0, "class",
                 "ocr_page", false);
@@ -136,10 +134,13 @@ final class UtilService {
                     Element lineElement = ocrTag.getElement();
                     String valueTitle = lineElement
                             .getAttributeValue("title");
+                    Matcher confMatcher = confPattern.matcher(valueTitle);
+
+//                    int confidence = Integer
+//                            .parseInt(confMatcher.group(0).split(" ")[1]);
+//                    int min_confidence = 30;
                     Matcher bboxMatcher = bboxPattern.matcher(valueTitle);
                     if (bboxMatcher.find()) {
-                        // We found a tag of the ocr_line class containing
-                        // a bbox property
                         Matcher bboxCoordinateMatcher = bboxCoordinatePattern
                                 .matcher(bboxMatcher.group());
                         bboxCoordinateMatcher.find();
@@ -184,7 +185,7 @@ final class UtilService {
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;
         float dotsPerPointY = 1.0f;
-        if (imageData != null && imageData.getDpiX() > 0) {
+        if (imageData != null && imageData.getDpiX() > 0 && imageData.getDpiY() > 0) {
             dotsPerPointX = imageData.getDpiX() / POINTS_PER_INCH;
             dotsPerPointY = imageData.getDpiY() / POINTS_PER_INCH;
         }

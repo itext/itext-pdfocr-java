@@ -73,7 +73,7 @@ class AbstractIntegrationTest {
 
         pdfRenderer.setPageSize(pageSize);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
         Image image = null;
 
@@ -225,7 +225,7 @@ class AbstractIntegrationTest {
 
         PdfDocument doc = null;
         try {
-            doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
+            doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -290,7 +290,7 @@ class AbstractIntegrationTest {
      * @param baos
      * @return
      */
-    PdfWriter createPdfWriter(ByteArrayOutputStream baos) {
+    PdfWriter getPdfWriter(ByteArrayOutputStream baos) {
         return new PdfWriter(baos, new WriterProperties().addUAXmpMetadata());
     }
 
@@ -301,7 +301,7 @@ class AbstractIntegrationTest {
      * @return
      * @throws FileNotFoundException
      */
-    PdfWriter createPdfWriter(String pdfPath) throws FileNotFoundException {
+    PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
         return new PdfWriter(pdfPath,
                 new WriterProperties().addUAXmpMetadata());
     }
@@ -358,7 +358,6 @@ class AbstractIntegrationTest {
 
     static class ExtractionStrategy extends LocationTextExtractionStrategy {
         private com.itextpdf.kernel.colors.Color fillColor;
-        private com.itextpdf.kernel.colors.Color strokeColor;
         private String layerName;
         private PdfFont pdfFont;
 
@@ -373,14 +372,6 @@ class AbstractIntegrationTest {
 
         com.itextpdf.kernel.colors.Color getFillColor() {
             return fillColor;
-        }
-
-        void setStrokeColor(com.itextpdf.kernel.colors.Color color) {
-            strokeColor = color;
-        }
-
-        com.itextpdf.kernel.colors.Color getStrokeColor() {
-            return strokeColor;
         }
 
         void setPdfFont(PdfFont font) {
@@ -422,8 +413,6 @@ class AbstractIntegrationTest {
                     if (layerName.equals(name)) {
                         setFillColor(renderInfo.getGraphicsState()
                                 .getFillColor());
-                        setStrokeColor(renderInfo.getGraphicsState()
-                                .getStrokeColor());
                         setPdfFont(renderInfo.getGraphicsState().getFont());
                         super.eventOccurred(data, type);
                         break;
