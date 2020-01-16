@@ -127,16 +127,16 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
         String path = testImagesDirectory + "multipage.tiff";
         String pdfPath = testPdfDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
+        tesseractReader.setPreprocessingImages(false);
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(createPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), false);
 
         Assert.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
@@ -159,10 +159,11 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath,
                         "Image Layer", 5));
+        Assert.assertFalse(tesseractReader.isPreprocessingImages());
 
         deleteFile(pdfPath);
     }
-*/
+
     @Test
     public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {
         String pdfPath = testImagesDirectory + UUID.randomUUID().toString()

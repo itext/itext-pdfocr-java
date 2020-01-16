@@ -149,6 +149,18 @@ class AbstractIntegrationTest {
     }
 
     /**
+     * Retrieve text from the required page of given pdf document.
+     *
+     * @param file
+     * @return
+     */
+    String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
+                          String tessDataDir, List<String> languages) {
+        return getTextFromPdf(tesseractReader, file, page, tessDataDir,
+                languages, null);
+    }
+
+    /**
      * Retrieve text from specified page from given pdf document.
      *
      * @param file

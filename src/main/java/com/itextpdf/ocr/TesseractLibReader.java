@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -82,10 +81,13 @@ public class TesseractLibReader extends TesseractReader {
 
         String result = null;
         try {
-            BufferedImage preprocessed = preprocess(
-                    inputImage.getAbsolutePath());
-//            ImageIO.write(preprocessed, "jpg", new File("output.jpg"));
-            result = getTesseractInstance().doOCR(preprocessed);
+            if (isPreprocessingImages()) {
+                BufferedImage preprocessed = ImageUtil
+                        .preprocessImage(inputImage.getAbsolutePath());
+                result = getTesseractInstance().doOCR(preprocessed);
+            } else {
+                result = getTesseractInstance().doOCR(inputImage);
+            }
         } catch (TesseractException | IOException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)

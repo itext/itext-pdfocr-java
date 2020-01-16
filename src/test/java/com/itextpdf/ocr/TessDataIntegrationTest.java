@@ -141,10 +141,14 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void compareSpanishPNG() throws IOException, InterruptedException {
+        boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_spa_01";
         String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
                 langTessDataDirectory, Arrays.asList("spa", "spa_old"));
@@ -153,14 +157,19 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+        tesseractReader.setPreprocessingImages(preprocess);
     }
 
     @Test
     public void compareEngTextPNG() throws IOException, InterruptedException {
+        boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_eng_01";
         String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".png",
                 resultPdfPath, langTessDataDirectory,
@@ -170,6 +179,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+        tesseractReader.setPreprocessingImages(preprocess);
     }
 
     @Test

@@ -106,22 +106,4 @@ public class BasicTesseractExecutableIntegrationTest extends AbstractIntegration
             Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
         }
     }
-
-    @Test
-    public void compareJapanesePdf() throws IOException, InterruptedException {
-        String filename = "japanese_01";
-        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
-
-        TesseractReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
-        doOcrAndSaveToPath(tesseractReader,
-                testImagesDirectory + filename + ".png", resultPdfPath,
-                langTessDataDirectory, Arrays.asList("jpn"));
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-    }
 }

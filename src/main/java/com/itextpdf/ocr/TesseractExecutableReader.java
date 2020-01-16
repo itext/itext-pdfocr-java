@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,17 +114,7 @@ public class TesseractExecutableReader extends TesseractReader {
     public void doTesseractOcr(final File inputImage,
             final File outputFile) {
 
-        String path = inputImage.getAbsolutePath();
-        try {
-            BufferedImage original = preprocess(inputImage.getAbsolutePath());
-            String output = "output.png";
-            ImageIO.write(original, "png", new File(output));
-            path = output;
-            original.flush();
-        } catch (IOException e) {
-            LOGGER.error("Error while preprocessing image: " +
-                    e.getLocalizedMessage());
-        }
+        String path = preprocessImage(inputImage.getAbsolutePath());
 
         // path to tesseract executable cannot be uninitialized
         if (pathToExecutable == null || pathToExecutable.isEmpty()) {
@@ -183,5 +174,29 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private String addQuotes(final String value) {
         return "\"" + value + "\"";
+    }
+
+    /**
+     * Preprocess given image if it is needed
+     * @param path path to original input image
+     * @return path to output image
+     */
+    private String preprocessImage(String path) {
+        if (isPreprocessingImages()) {
+            try {
+                String extension = FilenameUtils.getExtension(path);
+                BufferedImage original = ImageUtil.preprocessImage(path);
+                File outputFile = File.createTempFile("output",
+                        "." + extension);
+                String output = outputFile.getAbsolutePath();
+                ImageIO.write(original, extension, outputFile);
+                path = output;
+                original.flush();
+            } catch (IOException e) {
+                LOGGER.error("Error while preprocessing image: " +
+                        e.getLocalizedMessage());
+            }
+        }
+        return path;
     }
 }
