@@ -51,17 +51,23 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testJFIFText() {
+    public void testJFIFText() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
-        String path = testImagesDirectory + "example_02.JFIF";
-        String expectedOutput = "This is test a for message Scanner OCR Test";
+        String filename = "example_02";
+        String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
         if ("executable".equals(parameter)) {
             tesseractReader.setPreprocessingImages(false);
         }
-        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
-        realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
-        Assert.assertEquals(expectedOutput, realOutputHocr.replaceAll("[‘]", ""));
+        doOcrAndSaveToPath(tesseractReader,
+                testImagesDirectory + filename + ".JFIF", resultPdfPath,
+                scriptTessDataDirectory, Collections.singletonList("Japanese"));
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
     }
 
