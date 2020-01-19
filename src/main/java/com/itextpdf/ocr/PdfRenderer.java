@@ -614,8 +614,6 @@ public class PdfRenderer implements IPdfRenderer {
     private void addImageToCanvas(ImageData imageData, final Rectangle imageSize,
                                   final PdfCanvas pdfCanvas) {
         if (imageData != null) {
-            imageData.setHeight(imageSize.getHeight() / UtilService.PX_TO_PT);
-            imageData.setWidth(imageSize.getWidth() / UtilService.PX_TO_PT);
             if (getScaleMode() == ScaleMode.keepOriginalSize) {
                 pdfCanvas.addImage(imageData, imageSize, false);
             } else {
@@ -737,10 +735,11 @@ public class PdfRenderer implements IPdfRenderer {
         float x = 0;
         float y = 0;
         if (scaleMode != ScaleMode.keepOriginalSize) {
-            if (imageSize.getHeight() > imageSize.getWidth()) {
-                x = (pageSize.getWidth() - imageSize.getWidth()) / 2;
-            } else {
+            if (imageSize.getHeight() < pageSize.getHeight()) {
                 y = (pageSize.getHeight() - imageSize.getHeight()) / 2;
+            }
+            if (imageSize.getWidth() < pageSize.getWidth()) {
+                x = (pageSize.getWidth() - imageSize.getWidth()) / 2;
             }
         }
         return Arrays.asList(x, y);
