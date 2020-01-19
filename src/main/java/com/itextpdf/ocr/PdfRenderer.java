@@ -551,7 +551,8 @@ public class PdfRenderer implements IPdfRenderer {
         LOGGER.info("Added image page to canvas");
 
         // how much the original image size changed
-        float multiplier = imageSize.getWidth()
+        float multiplier = imageData == null ?
+                1 : imageSize.getWidth()
                 / UtilService.getPoints(imageData.getWidth());
         canvas.beginLayer(textLayer);
         addTextToCanvas(imageSize, pageText, canvas, defaultFont, multiplier);
