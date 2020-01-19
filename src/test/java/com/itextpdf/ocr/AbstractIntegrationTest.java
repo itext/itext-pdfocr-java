@@ -50,8 +50,7 @@ class AbstractIntegrationTest {
     static float delta = 1e-4f;
 
     String getTesseractDirectory() {
-//        String tesseractDir = System.getProperty("tesseractDir");
-        String tesseractDir = "C:\\Program Files\\Tesseract-OCR";
+        String tesseractDir = System.getProperty("tesseractDir");
         String os = System.getProperty("os.name");
         return os.toLowerCase().contains("win") && tesseractDir != null
                 && !tesseractDir.isEmpty()
