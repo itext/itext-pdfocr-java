@@ -109,13 +109,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             float expectedImageWidth = originalImageWidth * resultPageHeight
                     / originalImageHeight;
 
-            Assert.assertEquals(resultPageWidth, expectedImageWidth, delta);
+            Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
             Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
 
-            Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
-
-            Assert.assertEquals(resultImageHeight, resultPageHeight, delta);
-            Assert.assertEquals(resultImageWidth, expectedImageWidth, delta);
+            Assert.assertEquals(resultPageHeight, resultImageHeight, delta);
+            Assert.assertEquals(expectedImageWidth, resultImageWidth, delta);
         }
     }
 
@@ -156,12 +154,10 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                     / originalImageWidth;
 
             Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
-            Assert.assertEquals(resultPageHeight, resultImageHeight, delta);
+            Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
 
             Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
-
-            Assert.assertEquals(resultImageHeight, expectedImageHeight, delta);
-            Assert.assertEquals(resultImageWidth, pageWidthPt, delta);
+            Assert.assertEquals(expectedImageHeight, resultImageHeight, delta);
         }
     }
 
