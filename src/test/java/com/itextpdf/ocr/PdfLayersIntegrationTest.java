@@ -214,14 +214,12 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Arrays.asList(file3, file1, file2, file3));
 
-            pdfRenderer.doPdfOcr(createPdfWriter(pdfPath));
+            pdfRenderer.doPdfOcr(getPdfWriter());
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
                     .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
                             "txt");
             Assert.assertEquals(expectedMsg, e.getMessage());
-        } finally {
-            deleteFile(pdfPath);
         }
     }
 }

@@ -50,7 +50,8 @@ class AbstractIntegrationTest {
     static float delta = 1e-4f;
 
     String getTesseractDirectory() {
-        String tesseractDir = System.getProperty("tesseractDir");
+//        String tesseractDir = System.getProperty("tesseractDir");
+        String tesseractDir = "C:\\Program Files\\Tesseract-OCR";
         String os = System.getProperty("os.name");
         return os.toLowerCase().contains("win") && tesseractDir != null
                 && !tesseractDir.isEmpty()
@@ -190,6 +191,7 @@ class AbstractIntegrationTest {
                 textExtractionStrategy);
         processor.processPageContent(pdfDocument.getPage(page));
 
+        pdfDocument.close();
         return textExtractionStrategy.getResultantText();
     }
 
@@ -216,6 +218,7 @@ class AbstractIntegrationTest {
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractExecutableReader,
                 Collections.singletonList(new File(imgPath)));
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);
         }

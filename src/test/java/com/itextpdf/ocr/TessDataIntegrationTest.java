@@ -264,21 +264,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void compareJapanesePdf() throws IOException, InterruptedException {
-        String filename = "japanese_01";
-        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
-
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".png", resultPdfPath,
-                langTessDataDirectory, Arrays.asList("jpn"));
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-    }
-
-    @Test
     public void testBengali() {
         String imgPath = testImagesDirectory + "bengali_01.jpeg";
         File file = new File(imgPath);
@@ -323,21 +308,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void compareGreekPdf() throws IOException, InterruptedException {
-        String filename = "greek_01";
-        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
-
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".jpg", resultPdfPath,
-                langTessDataDirectory, Arrays.asList("ell"));
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-    }
-
-    @Test
     public void testBengaliScript() {
         String imgPath = testImagesDirectory + "bengali_01.jpeg";
         File file = new File(imgPath);
@@ -353,21 +323,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList("Bengali")).startsWith(expected));
         Assert.assertFalse(getTextFromPdf(file, scriptTessDataDirectory,
                 Collections.singletonList("Bengali"), notoSansJPFontPath).startsWith(expected));
-    }
-
-    @Test
-    public void testJapaneseScript() throws IOException, InterruptedException {
-        String filename = "japanese_01";
-        String expectedPdfPath = testPdfDirectory + filename + "_script.pdf";
-        String resultPdfPath = testPdfDirectory + filename + "script__created.pdf";
-
-        doOcrAndSaveToPath(testImagesDirectory + filename + ".png", resultPdfPath,
-                scriptTessDataDirectory, Collections.singletonList("Japanese"));
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
     }
 
     @Test

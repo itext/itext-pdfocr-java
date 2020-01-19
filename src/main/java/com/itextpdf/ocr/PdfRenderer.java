@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,9 +77,9 @@ public class PdfRenderer implements IPdfRenderer {
     private Color textColor = DeviceCmyk.BLACK;
 
     /**
-     * Scale mode for input images: "keepOriginalSize" xby default.
+     * Scale mode for input images: "scaleToFit" by default.
      */
-    private ScaleMode scaleMode = ScaleMode.keepOriginalSize;
+    private ScaleMode scaleMode = ScaleMode.scaleToFit;
 
     /**
      * Size of the PDF document pages: "A4" by default.
@@ -497,26 +498,24 @@ public class PdfRenderer implements IPdfRenderer {
                 if (!data.isEmpty()) {
                     for (int page = 0; page < imageDataList.size(); ++page) {
                         ImageData imageData = imageDataList.get(page);
-                        Rectangle size = UtilService
-                                .calculatePageSize(imageData, getScaleMode(),
+                        Rectangle imageSize = UtilService
+                                .calculateImageSize(imageData, getScaleMode(),
                                         getPageSize());
 
                         LOGGER.info("Started parsing image "
                                 + inputImage.getName());
-                        PageSize newPageSize = new PageSize(size);
 
-                        addToCanvas(pdfDocument, defaultFont, newPageSize,
+                        addToCanvas(pdfDocument, defaultFont, imageSize,
                                     UtilService.getTextForPage(data,
                                             page + 1),
                                     imageData);
                     }
                 } else {
                     ImageData imageData = imageDataList.get(0);
-                    Rectangle size = UtilService
-                            .calculatePageSize(imageData, getScaleMode(),
+                    Rectangle imageSize = UtilService
+                            .calculateImageSize(imageData, getScaleMode(),
                                     getPageSize());
-                    PageSize newPageSize = new PageSize(size);
-                    addToCanvas(pdfDocument, defaultFont, newPageSize,
+                    addToCanvas(pdfDocument, defaultFont, imageSize,
                             new ArrayList<>(), imageData);
                 }
             } catch (IOException e) {
@@ -530,28 +529,32 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param pdfDocument PdfDocument
      * @param defaultFont PdfFont
-     * @param size PageSize
+     * @param imageSize PageSize
      * @param pageText List<TextInfo>
      * @param imageData ImageData
      */
     void addToCanvas(final PdfDocument pdfDocument, final PdfFont defaultFont,
-                     final PageSize size,
+                     final Rectangle imageSize,
                      final List<TextInfo> pageText, final ImageData imageData) {
-        PdfPage pdfPage = pdfDocument.addNewPage(size);
+        PageSize pageSize = new PageSize(
+                getScaleMode() == ScaleMode.keepOriginalSize ?
+                imageSize : getPageSize());
+        PdfPage pdfPage = pdfDocument.addNewPage(pageSize);
         PdfCanvas canvas = new PdfCanvas(pdfPage);
 
         PdfLayer imageLayer = new PdfLayer(getImageLayerName(), pdfDocument);
         PdfLayer textLayer = new PdfLayer(getTextLayerName(), pdfDocument);
 
         canvas.beginLayer(imageLayer);
-        addImageToCanvas(imageData, size, canvas);
+        addImageToCanvas(imageData, imageSize, canvas);
         canvas.endLayer();
         LOGGER.info("Added image page to canvas");
 
+        // how much the original image size changed
+        float multiplier = imageSize.getWidth()
+                / UtilService.getPoints(imageData.getWidth());
         canvas.beginLayer(textLayer);
-        addTextToCanvas(imageData == null
-                        ? size.getHeight() : imageData.getHeight(),
-                        pageText, canvas, defaultFont);
+        addTextToCanvas(imageSize, pageText, canvas, defaultFont, multiplier);
         canvas.endLayer();
     }
 
@@ -604,42 +607,57 @@ public class PdfRenderer implements IPdfRenderer {
      * Add image to canvas to background.
      *
      * @param imageData imageData
-     * @param newSize   PageSize
-     * @param canvas    pdfCanvas
+     * @param imageSize   PageSize
+     * @param pdfCanvas pdfCanvas
      */
-    private void addImageToCanvas(ImageData imageData, final PageSize newSize,
-                                  final PdfCanvas canvas) {
+    private void addImageToCanvas(ImageData imageData, final Rectangle imageSize,
+                                  final PdfCanvas pdfCanvas) {
         if (imageData != null) {
-            imageData.setHeight(newSize.getHeight() / UtilService.PX_TO_PT);
-            imageData.setWidth(newSize.getWidth() / UtilService.PX_TO_PT);
-            canvas.addImage(imageData, newSize, false);
+            imageData.setHeight(imageSize.getHeight() / UtilService.PX_TO_PT);
+            imageData.setWidth(imageSize.getWidth() / UtilService.PX_TO_PT);
+            if (getScaleMode() == ScaleMode.keepOriginalSize) {
+                pdfCanvas.addImage(imageData, imageSize, false);
+            } else {
+                List<Float> coordinates = calculateImageCoordinates(getPageSize(),
+                        imageSize, getScaleMode());
+                Rectangle rect = new Rectangle(coordinates.get(0),
+                        coordinates.get(1),
+                        imageSize.getWidth(), imageSize.getHeight());
+                pdfCanvas.addImage(imageData, rect, false);
+            }
         }
     }
 
     /**
      * Add retrieved text to canvas.
      *
-     * @param pageImagePixelHeight float
+     * @param imageSize calculated image size
      * @param data List<TextInfo>
      * @param pdfCanvas PdfCanvas
      * @param defaultFont PdfFont
+     * @param multiplier how image was scaled
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    private void addTextToCanvas(final float pageImagePixelHeight,
+    private void addTextToCanvas(final Rectangle imageSize,
                                  final List<TextInfo> data,
                                  final PdfCanvas pdfCanvas,
-                                 final PdfFont defaultFont) {
+                                 final PdfFont defaultFont,
+                                 final float multiplier) {
         if (data == null || data.isEmpty()) {
             pdfCanvas.beginText().setFontAndSize(defaultFont, 1);
             pdfCanvas.showText("").endText();
         } else {
+            List<Float> imageCoordinates = calculateImageCoordinates(
+                    getPageSize(), imageSize, getScaleMode());
+            float x = imageCoordinates.get(0);
+            float y = imageCoordinates.get(1);
             for (TextInfo item : data) {
                 String line = item.getText();
                 List<Float> coordinates = item.getCoordinates();
-                final Float left = coordinates.get(0);
-                final Float right = coordinates.get(2);
-                final Float top = coordinates.get(1);
-                final Float bottom = coordinates.get(3);
+                final Float left = coordinates.get(0) * multiplier;
+                final Float right = (coordinates.get(2) + 1) * multiplier - 1;
+                final Float top = coordinates.get(1) * multiplier;
+                final Float bottom = (coordinates.get(3) + 1) * multiplier - 1;
                 final float delta = 0.1f;
 
                 float bboxWidthPt = UtilService
@@ -654,11 +672,11 @@ public class PdfRenderer implements IPdfRenderer {
                     // logger.info("Setting font size " + fontSize);
 
                     float deltaX = UtilService.getPoints(left);
-                    float deltaY = UtilService
-                            .getPoints(pageImagePixelHeight - bottom);
+                    float deltaY = imageSize.getHeight() - UtilService
+                            .getPoints(bottom);
 
-                    Rectangle rectangle = new Rectangle(deltaX,
-                            deltaY + fontSize, bboxWidthPt * 1.5f,
+                    Rectangle rectangle = new Rectangle(deltaX + x,
+                            deltaY + fontSize + y, bboxWidthPt * 1.5f,
                             bboxHeightPt);
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
@@ -703,5 +721,27 @@ public class PdfRenderer implements IPdfRenderer {
         }
         float lineWidth = defaultFont.getWidth(line, fontSize);
         return fontSize;
+    }
+
+    /**
+     * Calculate image coordinates on the page
+     *
+     * @param pageSize size of the page
+     * @param imageSize calculates size of the image
+     * @return Pair<Float, Float> containing x and y coordinates
+     */
+    private List<Float> calculateImageCoordinates(Rectangle pageSize,
+                                                  Rectangle imageSize,
+                                                  ScaleMode scaleMode) {
+        float x = 0;
+        float y = 0;
+        if (scaleMode != ScaleMode.keepOriginalSize) {
+            if (imageSize.getHeight() > imageSize.getWidth()) {
+                x = (pageSize.getWidth() - imageSize.getWidth()) / 2;
+            } else {
+                y = (pageSize.getHeight() - imageSize.getHeight()) / 2;
+            }
+        }
+        return Arrays.asList(x, y);
     }
 }

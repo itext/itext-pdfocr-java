@@ -177,10 +177,9 @@ final class UtilService {
      * @param requiredSize Rectangle
      * @return Rectangle
      */
-    static Rectangle calculatePageSize(final ImageData imageData,
-            final IPdfRenderer.ScaleMode
-                    scaleMode,
-            final Rectangle requiredSize) {
+    static Rectangle calculateImageSize(final ImageData imageData,
+                                        final IPdfRenderer.ScaleMode scaleMode,
+                                        final Rectangle requiredSize) {
         // Adjust image size and dpi
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;
@@ -203,19 +202,26 @@ final class UtilService {
                         + size.getHeight() + ")");
                 return size;
             } else {
-                // scale image and add to canvas to background
+                Rectangle size = new Rectangle(requiredSize.getWidth(),
+                        requiredSize.getHeight());
+                // scale image according to the page size and scale mode
                 if (scaleMode == IPdfRenderer.ScaleMode.scaleHeight) {
                     float newHeight = imgHeightPt
                             * requiredSize.getWidth() / imgWidthPt;
-                    requiredSize.setHeight(newHeight);
+                    size.setHeight(newHeight);
                 } else if (scaleMode == IPdfRenderer.ScaleMode.scaleWidth) {
                     float newWidth = imgWidthPt
                             * requiredSize.getHeight() / imgHeightPt;
-                    requiredSize.setWidth(newWidth);
+                    size.setWidth(newWidth);
+                } else if (scaleMode == IPdfRenderer.ScaleMode.scaleToFit) {
+                    float ratio = Math.min(requiredSize.getWidth() / imgWidthPt,
+                            requiredSize.getHeight() / imgHeightPt);
+                    size.setWidth(imgWidthPt * ratio);
+                    size.setHeight(imgHeightPt * ratio);
                 }
-                LOGGER.info("Final size in points: (" + requiredSize.getWidth()
-                        + ", " + requiredSize.getHeight() + ")");
-                return requiredSize;
+                LOGGER.info("Final size in points: (" + size.getWidth()
+                        + ", " + size.getHeight() + ")");
+                return size;
             }
         } else {
             return requiredSize;

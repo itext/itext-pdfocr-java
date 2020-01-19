@@ -173,18 +173,17 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         IOcrReader tesseractReader = new TesseractExecutableReader(
                 getTesseractDirectory());
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file),
-                DeviceCmyk.BLACK, IPdfRenderer.ScaleMode.scaleToFit);
+                Collections.singletonList(file));
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
 
-        float realWidth = doc.getFirstPage().getPageSize().getWidth();
-        float realHeight = doc.getFirstPage().getPageSize().getHeight();
+        float realPageWidth = doc.getFirstPage().getPageSize().getWidth();
+        float realPageHeight = doc.getFirstPage().getPageSize().getHeight();
 
-        Assert.assertEquals(PageSize.A4.getWidth(), realWidth, delta);
-        Assert.assertEquals(PageSize.A4.getHeight(), realHeight, delta);
+        Assert.assertEquals(PageSize.A4.getWidth(), realPageWidth, delta);
+        Assert.assertEquals(PageSize.A4.getHeight(), realPageHeight, delta);
 
         if (!doc.isClosed()) {
             doc.close();
@@ -243,6 +242,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(fillColor, color);
         Assert.assertEquals(strokeColor, color);
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -279,6 +279,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(fillColor, color);
         Assert.assertEquals(strokeColor, color);
 
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
@@ -336,14 +337,23 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             e.printStackTrace();
         }
 
+        PageSize defaultPageSize = PageSize.A4;
+        Image resultImage = getImageFromPdf(file,
+                IPdfRenderer.ScaleMode.scaleToFit, defaultPageSize);
+
         if (imageData != null) {
             float imageWidth = UtilService.getPoints(imageData.getWidth());
             float imageHeight = UtilService.getPoints(imageData.getHeight());
+            float realImageWidth = resultImage.getImageWidth();
+            float realImageHeight = resultImage.getImageHeight();
+
             float realWidth = doc.getFirstPage().getPageSize().getWidth();
             float realHeight = doc.getFirstPage().getPageSize().getHeight();
 
-            Assert.assertEquals(imageWidth, realWidth, delta);
-            Assert.assertEquals(imageHeight, realHeight, delta);
+            Assert.assertEquals(imageWidth / imageHeight,
+                    realImageWidth / realImageHeight, delta);
+            Assert.assertEquals(defaultPageSize.getHeight(), realHeight, delta);
+            Assert.assertEquals(defaultPageSize.getWidth(), realWidth, delta);
         }
 
         if (!doc.isClosed()) {
@@ -360,6 +370,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         processor.processPageContent(pdfDocument.getFirstPage());
 
         Assert.assertEquals("", strategy.getResultantText());
+        pdfDocument.close();
         deleteFile(pdfPath);
     }
 
