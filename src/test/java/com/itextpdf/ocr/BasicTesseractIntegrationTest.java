@@ -161,13 +161,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             float expectedImageWidth = originalImageWidth * resultPageHeight
                     / originalImageHeight;
 
-            Assert.assertEquals(resultPageWidth, expectedImageWidth, delta);
+            Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
             Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
 
-            Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
-
-            Assert.assertEquals(resultImageHeight, resultPageHeight, delta);
-            Assert.assertEquals(resultImageWidth, expectedImageWidth, delta);
+//            Assert.assertEquals(resultPageHeight, resultImageHeight, delta);
+//            Assert.assertEquals(expectedImageWidth, resultImageWidth, delta);
         }
     }
 
@@ -208,12 +206,10 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                     / originalImageWidth;
 
             Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
-            Assert.assertEquals(resultPageHeight, resultImageHeight, delta);
+            Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
 
-            Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
-
-            Assert.assertEquals(resultImageHeight, expectedImageHeight, delta);
-            Assert.assertEquals(resultImageWidth, pageWidthPt, delta);
+//            Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
+//            Assert.assertEquals(expectedImageHeight, resultImageHeight, delta);
         }
     }
 
@@ -223,18 +219,17 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file),
-                DeviceCmyk.BLACK, IPdfRenderer.ScaleMode.scaleToFit);
+                Collections.singletonList(file));
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
 
         Assert.assertNotNull(doc);
 
-        float realWidth = doc.getFirstPage().getPageSize().getWidth();
-        float realHeight = doc.getFirstPage().getPageSize().getHeight();
+        float realPageWidth = doc.getFirstPage().getPageSize().getWidth();
+        float realPageHeight = doc.getFirstPage().getPageSize().getHeight();
 
-        Assert.assertEquals(PageSize.A4.getWidth(), realWidth, delta);
-        Assert.assertEquals(PageSize.A4.getHeight(), realHeight, delta);
+        Assert.assertEquals(PageSize.A4.getWidth(), realPageWidth, delta);
+        Assert.assertEquals(PageSize.A4.getHeight(), realPageHeight, delta);
 
         if (!doc.isClosed()) {
             doc.close();
@@ -330,14 +325,23 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             e.printStackTrace();
         }
 
+        PageSize defaultPageSize = PageSize.A4;
+        Image resultImage = getImageFromPdf(tesseractReader, file,
+                IPdfRenderer.ScaleMode.scaleToFit, defaultPageSize);
+
         if (imageData != null) {
             float imageWidth = UtilService.getPoints(imageData.getWidth());
             float imageHeight = UtilService.getPoints(imageData.getHeight());
+            float realImageWidth = resultImage.getImageWidth();
+            float realImageHeight = resultImage.getImageHeight();
+
             float realWidth = doc.getFirstPage().getPageSize().getWidth();
             float realHeight = doc.getFirstPage().getPageSize().getHeight();
 
-            Assert.assertEquals(imageWidth, realWidth, delta);
-            Assert.assertEquals(imageHeight, realHeight, delta);
+            Assert.assertEquals(imageWidth / imageHeight,
+                    realImageWidth / realImageHeight, delta);
+            Assert.assertEquals(defaultPageSize.getHeight(), realHeight, delta);
+            Assert.assertEquals(defaultPageSize.getWidth(), realWidth, delta);
         }
 
         if (!doc.isClosed()) {
