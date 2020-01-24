@@ -15,7 +15,8 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 
 /**
- * Tesseract reader class.
+ * Tesseract Executable Reader class.
+ * (extends Tesseract Reader class)
  *
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
@@ -42,8 +43,8 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Path to hocr config script.
      */
-    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/com/itextpdf/"
-            + "ocr/configs/hocr";
+    private static final String PATH_TO_HOCR_SCRIPT = "src/main/resources/"
+            + "com/itextpdf/ocr/configs/hocr";
 
     /**
      * Path to the tesseract executable.
@@ -153,7 +154,7 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Get name of the output temp file without extension
+     * Get name of the output temp file without extension.
      *
      * @param outputFile File
      * @return String
@@ -177,7 +178,8 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Preprocess given image if it is needed
+     * Preprocess given image if it is needed.
+     *
      * @param path path to original input image
      * @return path to output image
      */
@@ -193,8 +195,8 @@ public class TesseractExecutableReader extends TesseractReader {
                 path = output;
                 original.flush();
             } catch (IOException e) {
-                LOGGER.error("Error while preprocessing image: " +
-                        e.getLocalizedMessage());
+                LOGGER.error("Error while preprocessing image: "
+                        + e.getLocalizedMessage());
             }
         }
         return path;

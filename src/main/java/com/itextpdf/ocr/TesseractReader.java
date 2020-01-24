@@ -11,19 +11,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Tesseract reader class.
+ *
+ * This class provides possibilities to use features of "tesseract"
+ * (optical character recognition engine for various operating systems)
+ *
+ * This class provides possibility to perform OCR, read data from input files
+ * and return contained text in the described format
+ *
+ * This class provides possibilities to set type of current os,
+ * required languages for OCR for input images,
+ * set path to directory with tess data.
+ *
+ */
 public abstract class TesseractReader implements IOcrReader {
 
     /**
      * Path to default tess data script.
      */
-    public static final String PATH_TO_TESS_DATA = "src/main/resources/com/" +
-            "itextpdf/ocr/tessdata/";
+    public static final String PATH_TO_TESS_DATA = "src/main/resources/com/"
+            + "itextpdf/ocr/tessdata/";
 
     /**
      * Path to quiet config script.
      */
-    public static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/" +
-            "com/itextpdf/ocr/configs/quiet";
+    public static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/"
+            + "com/itextpdf/ocr/configs/quiet";
 
     /**
      * TesseractReader logger.
@@ -42,7 +56,7 @@ public abstract class TesseractReader implements IOcrReader {
     private String tessDataDir;
 
     /**
-     * Page Segmentation Mode
+     * Page Segmentation Mode.
      */
     private Integer pageSegMode;
 
@@ -63,8 +77,8 @@ public abstract class TesseractReader implements IOcrReader {
      * @param inputImage - input image file
      * @param outputFile - output file
      */
-    public abstract void doTesseractOcr(final File inputImage,
-                                        final File outputFile);
+    public abstract void doTesseractOcr(File inputImage,
+                                        File outputFile);
     /**
      * Set list of languages required for provided images.
      *
@@ -139,7 +153,7 @@ public abstract class TesseractReader implements IOcrReader {
 
 
     /**
-     * Set true if images need to be preprocessed, otherwise - false
+     * Set true if images need to be preprocessed, otherwise - false.
      *
      * @param preprocess boolean
      */

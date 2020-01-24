@@ -16,8 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
-import static net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE;
-
+/**
+ * Image Util class.
+ *
+ * Class provides tool for basic image preprocessing.
+ */
 public class ImageUtil {
 
     /**
@@ -26,11 +29,9 @@ public class ImageUtil {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ImageUtil.class);
 
-    public ImageUtil() {
-    }
-
     /**
-     * Perform default image preprocessing that includes the following actions:
+     * Performs default image preprocessing.
+     * It includes the following actions:
      *  - remove alpha channel
      *  - convert to grayscale
      *  - thresholding
@@ -38,9 +39,9 @@ public class ImageUtil {
      *
      * @param inputPath String
      * @return BufferedImage
-     * @throws IOException
+     * @throws IOException IOException
      */
-    public static BufferedImage preprocessImage(String inputPath)
+    public static BufferedImage preprocessImage(final String inputPath)
             throws IOException {
         Leptonica instance = Leptonica.INSTANCE;
         Pix pix = instance.pixRead(inputPath);
@@ -66,29 +67,30 @@ public class ImageUtil {
     }
 
     /**
-     * Convert Leptonica <code>Pix</code> to grayscale
+     * Convert Leptonica <code>Pix</code> to grayscale.
      *
      * @param pix source pix
      * @return Pix output pix
      */
-    public static Pix convertToGrayscale(Pix pix) {
+    public static Pix convertToGrayscale(final Pix pix) {
         Leptonica instance = Leptonica.INSTANCE;
         int depth = instance.pixGetDepth(pix);
 
         if (depth == 32) {
             return instance.pixConvertRGBToGrayFast(pix);
         } else {
-            return instance.pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
+            return instance.pixRemoveColormap(pix,
+                    net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
         }
     }
 
     /**
-     * Perform Leptonica Otsu adaptive image thresholding
+     * Perform Leptonica Otsu adaptive image thresholding.
      *
      * @param pix source pix
      * @return Pix output pix
      */
-    public static Pix otsuImageThresholding(Pix pix) {
+    public static Pix otsuImageThresholding(final Pix pix) {
         PointerByReference pointer = new PointerByReference();
         Leptonica.INSTANCE
                 .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
@@ -105,10 +107,12 @@ public class ImageUtil {
      * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
      *
      * @param pix source pix
+     * @param format int
      * @return BufferedImage output image
-     * @throws IOException
+     * @throws IOException IOException
      */
-    public static BufferedImage convertPixToImage(Pix pix, int format)
+    public static BufferedImage convertPixToImage(final Pix pix,
+                                                  final int format)
             throws IOException {
         PointerByReference pdata = new PointerByReference();
         NativeSizeByReference psize = new NativeSizeByReference();
@@ -126,17 +130,17 @@ public class ImageUtil {
     }
 
     /**
-     * Identify image format for Leptonica
+     * Identify image format for Leptonica.
      *
      * @param inputPath String
      * @return int
      */
-    private static int getFormat(String inputPath) {
+    private static int getFormat(final String inputPath) {
         String ext = FilenameUtils.getExtension(inputPath);
         String formatName = "IFF_";
-        if (ext.toLowerCase().contains("jpg") ||
-                ext.toLowerCase().contains("jpeg") ||
-                ext.toLowerCase().contains("jfif")) {
+        if (ext.toLowerCase().contains("jpg")
+                || ext.toLowerCase().contains("jpeg")
+                || ext.toLowerCase().contains("jfif")) {
             formatName += "JFIF_JPEG";
         } else {
             formatName += ext.toUpperCase();
@@ -150,8 +154,8 @@ public class ImageUtil {
                 format = field.getInt(null);
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error(formatName + " does not exist: " +
-                    e.getLocalizedMessage());
+            LOGGER.error(formatName + " does not exist: "
+                    + e.getLocalizedMessage());
         }
         return format;
     }

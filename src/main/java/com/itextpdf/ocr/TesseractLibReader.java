@@ -7,7 +7,6 @@ import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,6 +16,21 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Tesseract Library Reader class.
+ * (extends TesseractReader class)
+ *
+ * This class provides possibilities to use features of "tesseract"
+ * (optical character recognition engine for various operating systems)
+ *
+ * This class provides possibility to perform OCR, read data from input files
+ * and return contained text in the described format
+ *
+ * This class provides possibilities to set type of current os,
+ * required languages for OCR for input images,
+ * set path to directory with tess data.
+ *
+ */
 public class TesseractLibReader extends TesseractReader {
 
     /**
@@ -25,6 +39,10 @@ public class TesseractLibReader extends TesseractReader {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractLibReader.class);
 
+    /**
+     * Tesseract Instance.
+     * (depends on OS type)
+     */
     private ITesseract tesseractInstance;
 
     /**
@@ -36,7 +54,7 @@ public class TesseractLibReader extends TesseractReader {
     }
 
     /**
-     * Set tesseract instance depending on the OS type
+     * Set tesseract instance depending on the OS type.
      */
     public void setTesseractInstance() {
         if (isWindows()) {
@@ -47,7 +65,8 @@ public class TesseractLibReader extends TesseractReader {
     }
 
     /**
-     * Get tesseract instance
+     * Get tesseract instance depending on the OS type.
+     *
      * @return ITesseract
      */
     public ITesseract getTesseractInstance() {
@@ -124,8 +143,8 @@ public class TesseractLibReader extends TesseractReader {
         List<String> languages = getLanguages();
         if (languages.isEmpty()) {
             if (!new File(getTessData() + "eng" + suffix).exists()) {
-                LOGGER.error("eng" + suffix +
-                        " doesn't exist in provided directory");
+                LOGGER.error("eng" + suffix
+                        + " doesn't exist in provided directory");
                 throw new OCRException(OCRException.INCORRECT_LANGUAGE)
                         .setMessageParams("eng" + suffix, getTessData());
             }
@@ -133,8 +152,8 @@ public class TesseractLibReader extends TesseractReader {
             for (String lang : languages) {
                 if (!new File(getTessData() + lang + suffix)
                         .exists()) {
-                    LOGGER.error(lang + suffix +
-                            " doesn't exist in provided directory");
+                    LOGGER.error(lang + suffix
+                            + " doesn't exist in provided directory");
                     throw new OCRException(OCRException.INCORRECT_LANGUAGE)
                             .setMessageParams(lang + suffix, getTessData());
                 }

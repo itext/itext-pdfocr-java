@@ -42,12 +42,6 @@ final class UtilService {
     static final float PX_TO_PT = 3f / 4f;
 
     /**
-     * Simple UtilService constructor.
-     */
-    private UtilService() {
-    }
-
-    /**
      * Run given command in command line.
      *
      * @param command   List<String>
@@ -134,11 +128,7 @@ final class UtilService {
                     Element lineElement = ocrTag.getElement();
                     String valueTitle = lineElement
                             .getAttributeValue("title");
-                    Matcher confMatcher = confPattern.matcher(valueTitle);
 
-//                    int confidence = Integer
-//                            .parseInt(confMatcher.group(0).split(" ")[1]);
-//                    int min_confidence = 30;
                     Matcher bboxMatcher = bboxPattern.matcher(valueTitle);
                     if (bboxMatcher.find()) {
                         Matcher bboxCoordinateMatcher = bboxCoordinatePattern
@@ -148,8 +138,8 @@ final class UtilService {
                         List<Float> coordinates = IntStream
                                 .range(0, 4)
                                 .boxed()
-                                .map(i -> Float.parseFloat((
-                                        bboxCoordinateMatcher.group(i + 1))))
+                                .map(i -> Float.parseFloat(
+                                        bboxCoordinateMatcher.group(i + 1)))
                                 .collect(Collectors.toList());
 
                         String line = lineElement.getContent()
@@ -185,7 +175,8 @@ final class UtilService {
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;
         float dotsPerPointY = 1.0f;
-        if (imageData != null && imageData.getDpiX() > 0 && imageData.getDpiY() > 0) {
+        if (imageData != null && imageData.getDpiX() > 0
+                && imageData.getDpiY() > 0) {
             dotsPerPointX = imageData.getDpiX() / POINTS_PER_INCH;
             dotsPerPointY = imageData.getDpiY() / POINTS_PER_INCH;
         }
