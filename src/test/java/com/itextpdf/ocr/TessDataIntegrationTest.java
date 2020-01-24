@@ -52,36 +52,13 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void textJapaneseText() {
         String imgPath = testImagesDirectory + "japanese_01.png";
         File file = new File(imgPath);
-        String end = "⽂法";
-        String expected = "語\n⽇";
-
+        String end = "文法";
         String real = getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory,
-                Arrays.asList("jpn"), notoSansJPFontPath);
+                Arrays.asList("jpn"), kosugiFontPath);
         // correct result with specified japanese language
         Assert.assertTrue(real.endsWith(end));
-        Assert.assertTrue(real.contains(expected));
     }
-
-    /*@Test
-    public void compareJapaneseScript() throws IOException, InterruptedException {
-        boolean preprocess = tesseractReader.isPreprocessingImages();
-        String filename = "japanese_01";
-        String expectedPdfPath = testPdfDirectory + filename + "_script_" +
-                parameter + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_script_created.pdf";
-
-        tesseractReader.setPreprocessingImages(false);
-        doOcrAndSaveToPath(tesseractReader,
-                testImagesDirectory + filename + ".png", resultPdfPath,
-                scriptTessDataDirectory, Collections.singletonList("Japanese"));
-
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-        tesseractReader.setPreprocessingImages(preprocess);
-    }*/
 
     @Test
     public void testFrench() {
@@ -133,10 +110,43 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testJapaneseScript() {
+        String imgPath = testImagesDirectory + "japanese_01.png";
+        File file = new File(imgPath);
+        String end = "文法";
+        String start = "本";
+        String real = getTextFromPdf(tesseractReader, file,
+                scriptTessDataDirectory,
+                Arrays.asList("Japanese"), kosugiFontPath);
+        // correct result with specified japanese language
+        Assert.assertTrue(real.endsWith(end));
+        Assert.assertTrue(real.startsWith(start));
+    }
+
+    @Test
+    public void compareGreekPNG() throws IOException, InterruptedException {
+        String filename = "greek_02";
+        String expectedPdfPath = testPdfDirectory + filename + parameter +
+                ".pdf";
+        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
+
+        doOcrAndSaveToPath(tesseractReader,
+                testImagesDirectory + filename + ".png", resultPdfPath,
+                langTessDataDirectory, Arrays.asList("ell", "eng"),
+                notoSansFontPath);
+
+        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                testPdfDirectory, "diff_");
+
+        deleteFile(resultPdfPath);
+    }
+
+    @Test
     public void compareSpanishPNG() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_spa_01";
-        String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
+        String expectedPdfPath = testPdfDirectory + filename + parameter +
+                ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
         if ("executable".equals(parameter)) {
@@ -144,7 +154,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         }
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
-                langTessDataDirectory, Arrays.asList("spa", "spa_old"));
+                langTessDataDirectory, Arrays.asList("spa", "spa_old"),
+                cairoFontPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
@@ -157,7 +168,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void compareEngTextPNG() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_eng_01";
-        String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
+        String expectedPdfPath = testPdfDirectory + filename + parameter +
+                ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
         if ("executable".equals(parameter)) {
@@ -290,7 +302,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void compareMultiLangImage() throws IOException, InterruptedException {
+    public void compareMultiLangImage() throws IOException,
+            InterruptedException {
         String filename = "multilang";
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
@@ -440,7 +453,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 .startsWith(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory,
-                Collections.singletonList("ben"), notoSansJPFontPath)
+                Collections.singletonList("ben"), kosugiFontPath)
                 .startsWith(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory, new ArrayList<>())
@@ -456,25 +469,25 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory,
-                Arrays.asList("chi_sim", "chi_tra"), notoSansJPFontPath));
+                Arrays.asList("chi_sim", "chi_tra"), notoSansSCFontPath));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory,
-                Collections.singletonList("chi_sim"), notoSansJPFontPath));
+                Collections.singletonList("chi_sim"), notoSansSCFontPath));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory,
-                Collections.singletonList("chi_tra"), notoSansJPFontPath));
+                Collections.singletonList("chi_tra"), notoSansSCFontPath));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file, langTessDataDirectory,
-                Collections.singletonList("chi_sim")));
+                Collections.singletonList("chi_sim")), notoSansSCFontPath);
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file, langTessDataDirectory,
-                Collections.singletonList("chi_tra")));
+                Collections.singletonList("chi_tra")), notoSansSCFontPath);
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file, langTessDataDirectory,
-                Arrays.asList("chi_sim", "chi_tra")));
+                Arrays.asList("chi_sim", "chi_tra")), notoSansSCFontPath);
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 langTessDataDirectory, new ArrayList<>())
                 .contains(expected));
@@ -500,7 +513,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 .startsWith(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 scriptTessDataDirectory,
-                Collections.singletonList("Bengali"), notoSansJPFontPath)
+                Collections.singletonList("Bengali"), kosugiFontPath)
                 .startsWith(expected));
     }
 

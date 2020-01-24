@@ -41,7 +41,9 @@ class AbstractIntegrationTest {
     // path to font for hindi
     static String notoSansFontPath = testFontsDirectory + "NotoSans-Regular.ttf";
     // path to font for japanese
-    static String notoSansJPFontPath = testFontsDirectory + "NotoSansJP-Regular.otf";
+    static String kosugiFontPath = testFontsDirectory + "Kosugi-Regular.ttf";
+    // path to font for chinese
+    static String notoSansSCFontPath = testFontsDirectory + "NotoSansSC-Regular.otf";
     // path to font for arabic
     static String cairoFontPath = testFontsDirectory + "Cairo-Regular.ttf";
     // path to font for georgian
