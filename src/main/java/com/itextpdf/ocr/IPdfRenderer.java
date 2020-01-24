@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Interface for PDF Renderer classes.
- *
+ * <p>
  * The IPdfRenderer provides possibilities to set list of input images
  * to be used for OCR, to set scaling mode for images, color of text in output
  * PDF document,  set fixed size of the PDF document
@@ -32,7 +32,7 @@ public interface IPdfRenderer {
     enum ScaleMode {
         /**
          * keepOriginalSize (default value).
-         *
+         * <p>
          * the size of every page of
          * the output PDF document will match the size of the
          * corresponding input image
@@ -40,19 +40,19 @@ public interface IPdfRenderer {
         keepOriginalSize,
         /**
          * scaleWidth.
-         *
+         * <p>
          * Only width of the image will be proportionally scaled
          */
         scaleWidth,
         /**
          * scaleHeight.
-         *
+         * <p>
          * Only height of the image will be proportionally scaled
          */
         scaleHeight,
         /**
          * scaleToFit.
-         *
+         * <p>
          * the size of every page of the output PDF document
          * will match the values set using "setPdfSize()" method
          */
@@ -191,6 +191,7 @@ public interface IPdfRenderer {
 
     /**
      * Specify pdf natural language, and optionally locale.
+     *
      * @param lang String
      */
     void setPdfLang(String lang);
@@ -202,24 +203,24 @@ public interface IPdfRenderer {
 
     /**
      * Set pdf document title.
+     *
      * @param name String
      */
     void setTitle(String name);
 
     /**
-     *
      * @return pdf document title
      */
     String getTitle();
 
     /**
      * Set path to font to be used in pdf document.
+     *
      * @param name String
      */
     void setFontPath(String name);
 
     /**
-     *
      * @return path to font
      */
     String getFontPath();
@@ -230,8 +231,8 @@ public interface IPdfRenderer {
      * otherwise - PdfDocument;
      * - 'pdfOutputIntent' is required parameter if 'createPdfA3u' is true;
      *
-     * @param pdfWriter PdfWriter
-     * @param createPdfA3u boolean
+     * @param pdfWriter       PdfWriter
+     * @param createPdfA3u    boolean
      * @param pdfOutputIntent PdfOutputIntent
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      * @throws IOException if provided font or output intent is incorrect
@@ -244,7 +245,7 @@ public interface IPdfRenderer {
      * - if 'createPdfA3u' is true an exception will be thrown,
      * otherwise PdfDocument will be created;
      *
-     * @param pdfWriter provided pdfWriter
+     * @param pdfWriter    provided pdfWriter
      * @param createPdfA3u boolean
      * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object.
      * @throws IOException if provided font or output intent is incorrect

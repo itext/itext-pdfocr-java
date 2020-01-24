@@ -19,17 +19,16 @@ import java.util.List;
 /**
  * Tesseract Library Reader class.
  * (extends TesseractReader class)
- *
+ * <p>
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- *
+ * <p>
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- *
+ * <p>
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data.
- *
  */
 public class TesseractLibReader extends TesseractReader {
 
@@ -80,7 +79,7 @@ public class TesseractLibReader extends TesseractReader {
      * @param outputFile - output file
      */
     public void doTesseractOcr(final File inputImage,
-                               final File outputFile) {
+            final File outputFile) {
         getTesseractInstance().setDatapath(getTessData());
         getTesseractInstance()
                 .setConfigs(Collections.singletonList(PATH_TO_QUIET_SCRIPT));
@@ -115,16 +114,6 @@ public class TesseractLibReader extends TesseractReader {
 
         try (BufferedWriter writer = Files
                 .newBufferedWriter(outputFile.toPath())) {
-            writer.write(result);
-        } catch (IOException e) {
-            LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());
-            throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
-                    .setMessageParams("Cannot write to file "
-                            + outputFile.getAbsolutePath());
-        }
-
-        try (BufferedWriter writer = Files
-                .newBufferedWriter(Paths.get("res.hocr"))) {
             writer.write(result);
         } catch (IOException e) {
             LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());

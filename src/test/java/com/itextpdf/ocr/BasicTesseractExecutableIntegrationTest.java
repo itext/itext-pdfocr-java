@@ -75,19 +75,40 @@ public class BasicTesseractExecutableIntegrationTest extends AbstractIntegration
     @Test
     public void testIncorrectPathToTessData() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
-        TesseractReader tesseractReader = new TesseractExecutableReader(
-                getTesseractDirectory());
+        TesseractReader tesseractReader = new TesseractExecutableReader(getTesseractDirectory(),
+                Collections.singletonList("eng"), "");
+
         try {
-            getTextFromPdf(tesseractReader, file, "test/",
-                    Collections.singletonList("eng"));
+            Assert.assertEquals("", tesseractReader.getPathToTessData());
+            getTextFromPdf(tesseractReader, file);
         } catch (OCRException e) {
             Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
         }
 
         try {
-            getTextFromPdf(tesseractReader, file);
+            getTextFromPdf(tesseractReader, file, "/test",
+                    Collections.singletonList("eng"));
         } catch (OCRException e) {
             Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIncorrectPathToTesseractExecutable() {
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+
+        try {
+            getTextFromPdf(new TesseractExecutableReader(null), file);
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE,
+                    e.getMessage());
+        }
+
+        try {
+            getTextFromPdf(new TesseractExecutableReader(""), file);
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE,
+                    e.getMessage());
         }
     }
 

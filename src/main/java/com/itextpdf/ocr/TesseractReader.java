@@ -13,17 +13,16 @@ import java.util.UUID;
 
 /**
  * Tesseract reader class.
- *
+ * <p>
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- *
+ * <p>
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- *
+ * <p>
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data.
- *
  */
 public abstract class TesseractReader implements IOcrReader {
 
@@ -67,7 +66,7 @@ public abstract class TesseractReader implements IOcrReader {
 
     /**
      * "True" - if images need to be preprocessed, otherwise - false.
-     *  By default - true.
+     * By default - true.
      */
     private boolean preprocessingImages = true;
 
@@ -78,7 +77,8 @@ public abstract class TesseractReader implements IOcrReader {
      * @param outputFile - output file
      */
     public abstract void doTesseractOcr(File inputImage,
-                                        File outputFile);
+            File outputFile);
+
     /**
      * Set list of languages required for provided images.
      *
@@ -171,7 +171,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Reads data from input stream and returns retrieved data
      * in the following format:
-     *
+     * <p>
      * List<TextInfo> where each list TextInfo element contains word
      * or line and its 4 coordinates(bbox).
      *
@@ -220,6 +220,7 @@ public abstract class TesseractReader implements IOcrReader {
 
     /**
      * Get path to provided tess data directory or return default one.
+     *
      * @return String
      */
     String getTessData() {

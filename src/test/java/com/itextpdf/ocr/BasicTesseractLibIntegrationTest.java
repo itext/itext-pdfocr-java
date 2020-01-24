@@ -78,6 +78,18 @@ public class BasicTesseractLibIntegrationTest extends AbstractIntegrationTest {
     public void testIncorrectPathToTessData() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         TesseractReader tesseractReader = new TesseractLibReader();
+
+        try {
+            getTextFromPdf(tesseractReader, file, null,
+                    Collections.singletonList("eng"));
+        } catch (OCRException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.INCORRECT_LANGUAGE,
+                            "eng.traineddata", "test/");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+        }
+
+
         try {
             getTextFromPdf(tesseractReader, file, "test/",
                     Collections.singletonList("eng"));

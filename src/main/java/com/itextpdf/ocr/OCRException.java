@@ -2,7 +2,6 @@ package com.itextpdf.ocr;
 
 /**
  * Exception class for custom exceptions.
- *
  */
 public class OCRException extends com.itextpdf.io.IOException {
 

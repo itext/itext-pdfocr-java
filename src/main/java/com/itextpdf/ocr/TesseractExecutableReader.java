@@ -17,18 +17,18 @@ import javax.imageio.ImageIO;
 /**
  * Tesseract Executable Reader class.
  * (extends Tesseract Reader class)
- *
+ * <p>
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- *
+ * <p>
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- *
+ * <p>
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data and set path
  * to the tesseract executable
- *
+ * <p>
  * Please note that It's assumed that "tesseract" is already
  * installed in the system
  */
@@ -79,8 +79,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param tessData      String
      */
     public TesseractExecutableReader(final String path,
-                                     final List<String> languagesList,
-                                     final String tessData) {
+            final List<String> languagesList,
+            final String tessData) {
         setPathToExecutable(path);
         setLanguages(Collections.unmodifiableList(languagesList));
         setPathToTessData(tessData);

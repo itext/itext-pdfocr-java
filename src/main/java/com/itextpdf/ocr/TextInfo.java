@@ -31,11 +31,11 @@ class TextInfo {
      * TextInfo Constructor.
      *
      * @param newText        String
-     * @param newPageNumber        Integer
+     * @param newPageNumber  Integer
      * @param newCoordinates List<Integer>
      */
     TextInfo(final String newText, final Integer newPageNumber,
-             final List<Float> newCoordinates) {
+            final List<Float> newCoordinates) {
         text = newText;
         pageNumber = newPageNumber;
         coordinates = Collections.unmodifiableList(newCoordinates);

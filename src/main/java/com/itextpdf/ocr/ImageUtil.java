@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 
 /**
  * Image Util class.
- *
+ * <p>
  * Class provides tool for basic image preprocessing.
  */
 public class ImageUtil {
@@ -32,10 +32,10 @@ public class ImageUtil {
     /**
      * Performs default image preprocessing.
      * It includes the following actions:
-     *  - remove alpha channel
-     *  - convert to grayscale
-     *  - thresholding
-     *  - basic deskewing
+     * - remove alpha channel
+     * - convert to grayscale
+     * - thresholding
+     * - basic deskewing
      *
      * @param inputPath String
      * @return BufferedImage
@@ -94,7 +94,7 @@ public class ImageUtil {
         PointerByReference pointer = new PointerByReference();
         Leptonica.INSTANCE
                 .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
-                null, pointer);
+                        null, pointer);
         Pix thresholdPix = new Pix(pointer.getValue());
         if (thresholdPix.w > 0 && thresholdPix.h > 0) {
             return thresholdPix;
@@ -106,13 +106,13 @@ public class ImageUtil {
     /**
      * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
      *
-     * @param pix source pix
+     * @param pix    source pix
      * @param format int
      * @return BufferedImage output image
      * @throws IOException IOException
      */
     public static BufferedImage convertPixToImage(final Pix pix,
-                                                  final int format)
+            final int format)
             throws IOException {
         PointerByReference pdata = new PointerByReference();
         NativeSizeByReference psize = new NativeSizeByReference();

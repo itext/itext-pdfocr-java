@@ -2,6 +2,7 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.geom.Rectangle;
+
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.EndTag;
 import net.htmlparser.jericho.Source;
@@ -55,11 +56,11 @@ final class UtilService {
             LOGGER.info("Running command: "
                     + String.join(" ", command));
             if (isWindows) {
-                String cmd = String.join(" ", command);
-                process = Runtime.getRuntime().exec(cmd, null);
+                ProcessBuilder pb = new ProcessBuilder(command); //NOSONAR
+                process = pb.start();
             } else {
-                ProcessBuilder pb = new ProcessBuilder("bash", "-c",
-                        String.join(" ", command));
+                ProcessBuilder pb = new ProcessBuilder("bash", "-c", //NOSONAR
+                        String.join(" ", command)); //NOSONAR
                 pb.redirectErrorStream(true);
                 process = pb.start();
             }
@@ -169,8 +170,8 @@ final class UtilService {
      * @return Rectangle
      */
     static Rectangle calculateImageSize(final ImageData imageData,
-                                        final IPdfRenderer.ScaleMode scaleMode,
-                                        final Rectangle requiredSize) {
+            final IPdfRenderer.ScaleMode scaleMode,
+            final Rectangle requiredSize) {
         // Adjust image size and dpi
         // The resolution of a PDF file is 72pt per inch
         float dotsPerPointX = 1.0f;

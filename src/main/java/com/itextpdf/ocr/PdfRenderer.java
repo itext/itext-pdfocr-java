@@ -42,12 +42,12 @@ import java.util.List;
 
 /**
  * PDF Renderer class.
- *
+ * <p>
  * The IPdfRenderer provides possibilities to set list of input images
  * to be used for OCR, to set scaling mode for images, color of text in
  * the output PDF document, set fixed size of the PDF document
  * and to perform OCR using given images and return PDFDocument as result
- *
+ * <p>
  * PDFRenderer's ocr is based on the provided IOcrReader (e.g. tesseract).
  * This parameter is obligatory and it should be provided in constructor
  * or using setter
@@ -73,9 +73,9 @@ public class PdfRenderer implements IPdfRenderer {
 
     /**
      * CMYK color of the text in the output PDF document.
-     * "DeviceCmyk.BLACK" by default
+     * Text will be transparent by default
      */
-    private Color textColor = DeviceCmyk.BLACK;
+    private Color textColor = null;
 
     /**
      * Scale mode for input images: "scaleToFit" by default.
@@ -305,6 +305,7 @@ public class PdfRenderer implements IPdfRenderer {
 
     /**
      * Specify pdf natural language, and optionally locale.
+     *
      * @param lang String
      */
     public final void setPdfLang(final String lang) {
@@ -312,7 +313,6 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
-     *
      * @return pdf document lang
      */
     public final String getPdfLang() {
@@ -321,6 +321,7 @@ public class PdfRenderer implements IPdfRenderer {
 
     /**
      * Set pdf document title.
+     *
      * @param name String
      */
     public final void setTitle(final String name) {
@@ -389,14 +390,14 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Perform OCR for the given list of input images using provided pdfWriter.
      *
-     * @param pdfWriter PdfWriter
+     * @param pdfWriter    PdfWriter
      * @param createPdfA3u - should be false
      *                     (true if output result should PdfADocument)
      * @return PdfDocument
      * @throws IOException if provided font is incorrect
      */
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
-                                      final boolean createPdfA3u)
+            final boolean createPdfA3u)
             throws IOException {
         return doPdfOcr(pdfWriter, createPdfA3u, null);
     }
@@ -404,15 +405,15 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Perform OCR for the given list of input images using provided pdfWriter.
      *
-     * @param pdfWriter PdfWriter
-     * @param createPdfA3u - true if output result should PdfADocument
+     * @param pdfWriter       PdfWriter
+     * @param createPdfA3u    - true if output result should PdfADocument
      * @param pdfOutputIntent - required parameter only if createPdfA3u is true
      * @return PdfDocument PdfA3u document
      * @throws IOException if provided font or output intent is incorrect
      */
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
-                                      final boolean createPdfA3u,
-                                      final PdfOutputIntent pdfOutputIntent)
+            final boolean createPdfA3u,
+            final PdfOutputIntent pdfOutputIntent)
             throws IOException {
 
         LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
@@ -486,8 +487,8 @@ public class PdfRenderer implements IPdfRenderer {
      * @throws OCRException if input image cannot be read
      */
     private void doOCRForImage(final File inputImage,
-                               final PdfDocument pdfDocument,
-                               final PdfFont defaultFont) throws OCRException {
+            final PdfDocument pdfDocument,
+            final PdfFont defaultFont) throws OCRException {
         if (!validateImageFormat(inputImage)) {
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(
@@ -511,9 +512,9 @@ public class PdfRenderer implements IPdfRenderer {
                                 + inputImage.getName());
 
                         addToCanvas(pdfDocument, defaultFont, imageSize,
-                                    UtilService.getTextForPage(data,
-                                            page + 1),
-                                    imageData);
+                                UtilService.getTextForPage(data,
+                                        page + 1),
+                                imageData);
                     }
                 } else {
                     ImageData imageData = imageDataList.get(0);
@@ -534,13 +535,13 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param pdfDocument PdfDocument
      * @param defaultFont PdfFont
-     * @param imageSize PageSize
-     * @param pageText List<TextInfo>
-     * @param imageData ImageData
+     * @param imageSize   PageSize
+     * @param pageText    List<TextInfo>
+     * @param imageData   ImageData
      */
     void addToCanvas(final PdfDocument pdfDocument, final PdfFont defaultFont,
-                     final Rectangle imageSize,
-                     final List<TextInfo> pageText, final ImageData imageData) {
+            final Rectangle imageSize,
+            final List<TextInfo> pageText, final ImageData imageData) {
         Rectangle size = getScaleMode() == ScaleMode.keepOriginalSize
                 ? imageSize : getPageSize();
         PageSize pageSize = new PageSize(size);
@@ -570,7 +571,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @param inputImage input file
      * @return list of ImageData objects (in case of multipage tiff)
      * @throws OCRException OCRException
-     * @throws IOException IOException
+     * @throws IOException  IOException
      */
     private List<ImageData> getImageData(final File inputImage)
             throws OCRException, IOException {
@@ -617,8 +618,8 @@ public class PdfRenderer implements IPdfRenderer {
      * @param pdfCanvas pdfCanvas
      */
     private void addImageToCanvas(final ImageData imageData,
-                                  final Rectangle imageSize,
-                                  final PdfCanvas pdfCanvas) {
+            final Rectangle imageSize,
+            final PdfCanvas pdfCanvas) {
         if (imageData != null) {
             if (getScaleMode() == ScaleMode.keepOriginalSize) {
                 pdfCanvas.addImage(imageData, imageSize, false);
@@ -636,18 +637,18 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Add retrieved text to canvas.
      *
-     * @param imageSize calculated image size
-     * @param data List<TextInfo>
-     * @param pdfCanvas PdfCanvas
+     * @param imageSize   calculated image size
+     * @param data        List<TextInfo>
+     * @param pdfCanvas   PdfCanvas
      * @param defaultFont PdfFont
-     * @param multiplier how image was scaled
+     * @param multiplier  how image was scaled
      */
     @SuppressWarnings("checkstyle:magicnumber")
     private void addTextToCanvas(final Rectangle imageSize,
-                                 final List<TextInfo> data,
-                                 final PdfCanvas pdfCanvas,
-                                 final PdfFont defaultFont,
-                                 final float multiplier) {
+            final List<TextInfo> data,
+            final PdfCanvas pdfCanvas,
+            final PdfFont defaultFont,
+            final float multiplier) {
         if (data == null || data.isEmpty()) {
             pdfCanvas.beginText().setFontAndSize(defaultFont, 1);
             pdfCanvas.showText("").endText();
@@ -686,9 +687,13 @@ public class PdfRenderer implements IPdfRenderer {
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
                     Text text = new Text(line).setFont(defaultFont)
-                                        .setFontColor(getTextColor())
-                                        .setFontSize(fontSize)
+                            .setFontSize(fontSize)
                             .setBaseDirection(BaseDirection.LEFT_TO_RIGHT);
+                    if (getTextColor() != null) {
+                        text.setFontColor(getTextColor());
+                    } else {
+                        text.setOpacity(0.0f);
+                    }
                     canvas.add(new Paragraph(text));
                     canvas.close();
                 }
@@ -730,14 +735,14 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Calculate image coordinates on the page.
      *
-     * @param size size of the page
-     * @param imageSize calculates size of the image
+     * @param size          size of the page
+     * @param imageSize     calculates size of the image
      * @param pageScaleMode page scale mode
      * @return Pair<Float, Float> containing x and y coordinates
      */
     private List<Float> calculateImageCoordinates(final Rectangle size,
-                                                  final Rectangle imageSize,
-                                                  final ScaleMode pageScaleMode) {
+            final Rectangle imageSize,
+            final ScaleMode pageScaleMode) {
         float x = 0;
         float y = 0;
         if (pageScaleMode != ScaleMode.keepOriginalSize) {
@@ -745,7 +750,7 @@ public class PdfRenderer implements IPdfRenderer {
                 y = (size.getHeight() - imageSize.getHeight()) / 2;
             }
             if (imageSize.getWidth() < size.getWidth()) {
-                x = (size.getWidth() - size.getWidth()) / 2;
+                x = (size.getWidth() - imageSize.getWidth()) / 2;
             }
         }
         return Arrays.asList(x, y);

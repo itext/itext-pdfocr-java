@@ -8,6 +8,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
 import com.itextpdf.pdfa.PdfAConformanceException;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -52,7 +53,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             File file = new File(path);
 
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.singletonList(file));
+                    Collections.singletonList(file), DeviceCmyk.BLACK,
+                    ScaleMode.scaleToFit);
 
             pdfRenderer.doPdfOcr(getPdfWriter(), true);
         } catch (OCRException e) {
@@ -262,6 +264,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(
                         new File(testImagesDirectory
                                 + filename + ".jpg")));
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+        pdfRenderer.setOcrReader(tesseractReader);
 
         Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
@@ -291,6 +295,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                         new File(testImagesDirectory + filename
                                 + ".jpg")));
         pdfRenderer.setTextColor(DeviceRgb.BLACK);
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
                 true, getRGBPdfOutputIntent());
