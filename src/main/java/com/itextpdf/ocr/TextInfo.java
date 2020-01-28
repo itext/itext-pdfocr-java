@@ -34,7 +34,7 @@ public class TextInfo {
      * @param newPageNumber  Integer
      * @param newCoordinates List<Integer>
      */
-    TextInfo(final String newText, final Integer newPageNumber,
+    public TextInfo(final String newText, final Integer newPageNumber,
             final List<Float> newCoordinates) {
         text = newText;
         pageNumber = newPageNumber;

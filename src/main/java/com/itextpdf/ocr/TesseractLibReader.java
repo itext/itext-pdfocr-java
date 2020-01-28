@@ -131,7 +131,7 @@ public class TesseractLibReader extends TesseractReader {
         String suffix = ".traineddata";
         List<String> languages = getLanguages();
         if (languages.isEmpty()) {
-            if (!new File(getTessData() + "eng" + suffix).exists()) {
+            if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
                 LOGGER.error("eng" + suffix
                         + " doesn't exist in provided directory");
                 throw new OCRException(OCRException.INCORRECT_LANGUAGE)
@@ -139,7 +139,7 @@ public class TesseractLibReader extends TesseractReader {
             }
         } else {
             for (String lang : languages) {
-                if (!new File(getTessData() + lang + suffix)
+                if (!new File(getTessData() + File.separator + lang + suffix)
                         .exists()) {
                     LOGGER.error(lang + suffix
                             + " doesn't exist in provided directory");

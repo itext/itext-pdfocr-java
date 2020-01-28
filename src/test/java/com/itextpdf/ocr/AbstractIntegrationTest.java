@@ -29,9 +29,9 @@ class AbstractIntegrationTest {
     // directory with test files
     static String testDirectory = "src/test/resources/com/itextpdf/ocr/";
     // directory with trained data for tests
-    static String langTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/";
+    static String langTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata";
     // directory with trained data for tests
-    static String scriptTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/script/";
+    static String scriptTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata/script";
     // directory with test image files
     static String testImagesDirectory = testDirectory + "images/";
     // directory with fonts
