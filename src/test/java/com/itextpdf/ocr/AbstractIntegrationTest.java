@@ -237,7 +237,6 @@ class AbstractIntegrationTest {
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);
         }
-        pdfRenderer.setTextColor(DeviceCmyk.BLACK);
 
         PdfDocument doc = null;
         try {
