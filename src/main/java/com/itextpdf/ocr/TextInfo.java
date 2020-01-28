@@ -10,7 +10,7 @@ import java.util.List;
  * This class describes item of text info retrieved
  * from HOCR file after parsing
  */
-class TextInfo {
+public class TextInfo {
 
     /**
      * Contains word or line.
