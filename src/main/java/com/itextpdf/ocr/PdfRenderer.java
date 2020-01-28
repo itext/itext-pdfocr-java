@@ -350,7 +350,7 @@ public class PdfRenderer implements IPdfRenderer {
      */
     public String getFontPath() {
         return fontPath != null && !fontPath.isEmpty()
-                ? fontPath : defaultFontPath;
+                ? fontPath : getDefaultFontPath();
     }
 
     /**
@@ -390,43 +390,34 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Perform OCR for the given list of input images using provided pdfWriter.
      *
-     * @param pdfWriter    PdfWriter
-     * @param createPdfA3u - should be false
-     *                     (true if output result should PdfADocument)
+     * @param pdfWriter PdfWriter
      * @return PdfDocument
      * @throws IOException if provided font is incorrect
      */
-    public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
-            final boolean createPdfA3u)
+    public final PdfDocument doPdfOcr(final PdfWriter pdfWriter)
             throws IOException {
-        return doPdfOcr(pdfWriter, createPdfA3u, null);
+        return doPdfOcr(pdfWriter, null);
     }
 
     /**
      * Perform OCR for the given list of input images using provided pdfWriter.
+     * PDF/A-3u document will be created if pdfOutputIntent is not null
      *
-     * @param pdfWriter       PdfWriter
-     * @param createPdfA3u    - true if output result should PdfADocument
-     * @param pdfOutputIntent - required parameter only if createPdfA3u is true
-     * @return PdfDocument PdfA3u document
+     * @param pdfWriter PdfWriter
+     * @param pdfOutputIntent PdfOutputIntent
+     * @return PDF/A-3u document if pdfOutputIntent is not null
      * @throws IOException if provided font or output intent is incorrect
      */
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
-            final boolean createPdfA3u,
             final PdfOutputIntent pdfOutputIntent)
             throws IOException {
 
         LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
 
         PdfDocument pdfDocument;
-        if (createPdfA3u) {
-            if (pdfOutputIntent != null) {
-                pdfDocument = new PdfADocument(pdfWriter,
-                        PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
-            } else {
-                throw new OCRException(OCRException
-                        .OUTPUT_INTENT_CANNOT_BE_NULL);
-            }
+        if (pdfOutputIntent != null) {
+            pdfDocument = new PdfADocument(pdfWriter,
+                    PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
         } else {
             pdfDocument = new PdfDocument(pdfWriter);
         }

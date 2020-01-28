@@ -63,7 +63,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Color color = DeviceCmyk.MAGENTA;
         pdfRenderer.setTextColor(color);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -91,7 +91,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
 
@@ -221,7 +221,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
 
@@ -269,8 +269,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         Color color = DeviceCmyk.CYAN;
         pdfRenderer.setTextColor(color);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -314,7 +313,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file));
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(new PdfWriter(pdfPath), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(new PdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
 
@@ -374,7 +373,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Arrays.asList(file3, file1, file2, file3));
 
-            pdfRenderer.doPdfOcr(getPdfWriter(), false);
+            pdfRenderer.doPdfOcr(getPdfWriter());
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
                     .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,

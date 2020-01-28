@@ -76,7 +76,7 @@ class AbstractIntegrationTest {
 
         pdfRenderer.setPageSize(pageSize);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), false);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Image image = null;
 
@@ -240,7 +240,7 @@ class AbstractIntegrationTest {
 
         PdfDocument doc = null;
         try {
-            doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), false);
+            doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
         } catch (IOException e) {
             e.printStackTrace();
         }

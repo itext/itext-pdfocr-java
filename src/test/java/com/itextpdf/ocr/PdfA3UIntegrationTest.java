@@ -47,37 +47,24 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testPdfA3uWithoutIntentException() throws IOException {
-        String path = testImagesDirectory + "example_01.BMP";
-        try {
-            File file = new File(path);
+    public void testPdfA3uWithNullIntent() throws IOException {
+        String imgPath = testImagesDirectory + "numbers_01.jpg";
+        File file = new File(imgPath);
+        String expected = "619121";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
 
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.singletonList(file), DeviceCmyk.BLACK,
-                    ScaleMode.scaleToFit);
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(file), DeviceCmyk.BLACK,
+                ScaleMode.scaleToFit);
 
-            pdfRenderer.doPdfOcr(getPdfWriter(), true);
-        } catch (OCRException e) {
-            Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL,
-                    e.getMessage());
-        }
-    }
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), null);
+        doc.close();
 
-    @Test
-    public void testPdfA3uWithNullIntentException() throws IOException {
-        String path = testImagesDirectory + "example_01.BMP";
-        try {
-            File file = new File(path);
+        String result = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
+        Assert.assertEquals(expected, result);
 
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.singletonList(file));
-
-            pdfRenderer.doPdfOcr(getPdfWriter(),
-                    true, null);
-        } catch (OCRException e) {
-            Assert.assertEquals(OCRException.OUTPUT_INTENT_CANNOT_BE_NULL,
-                    e.getMessage());
-        }
+        deleteFile(pdfPath);
     }
 
     @Test
@@ -91,8 +78,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.singletonList(file), DeviceCmyk.BLACK);
 
-            pdfRenderer.doPdfOcr(getPdfWriter(),
-                    true, getRGBPdfOutputIntent());
+            pdfRenderer.doPdfOcr(getPdfWriter(), getRGBPdfOutputIntent());
         } catch (com.itextpdf.kernel.PdfException e) {
             Assert.assertEquals(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT, e.getMessage());
         }
@@ -108,8 +94,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                true, getRGBPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
 
@@ -142,8 +127,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setFontPath(freeSansFontPath);
         pdfRenderer.setDefaultFontPath(imgPath);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                true, getCMYKPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -177,8 +161,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList(file));
         pdfRenderer.setFontPath(path);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                true, getCMYKPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -213,8 +196,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             pdfRenderer.setFontPath(path);
             pdfRenderer.setDefaultFontPath(path);
 
-            pdfRenderer.doPdfOcr(getPdfWriter(),
-                    true, getCMYKPdfOutputIntent());
+            pdfRenderer.doPdfOcr(getPdfWriter(), getCMYKPdfOutputIntent());
         } catch (com.itextpdf.io.IOException | IOException e) {
             String expectedMsg = MessageFormat
                     .format(com.itextpdf.io.IOException
@@ -234,8 +216,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(file), DeviceRgb.BLACK);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                true, getRGBPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getRGBPdfOutputIntent());
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -268,8 +249,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setOcrReader(tesseractReader);
 
         Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
-                true, getCMYKPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath), getCMYKPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
 
@@ -298,7 +278,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
-                true, getRGBPdfOutputIntent());
+                getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
         doc.close();
 
@@ -306,30 +286,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
-    }
-
-    @Test
-    public void testNotPdfA3uWithIntent() throws IOException {
-        String path = testImagesDirectory + "numbers_02.jpg";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
-        File file = new File(path);
-
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
-
-        // PdfA3u should not be created as 'createdPdfA3u' flag is false
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                false, getCMYKPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        Assert.assertNotEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
-
-        pdfDocument.close();
-        deleteFile(pdfPath);
     }
 
     @Test
@@ -347,8 +303,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String title = "Title";
         pdfRenderer.setTitle(title);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath),
-                true, getCMYKPdfOutputIntent());
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
 
         Assert.assertNotNull(doc);
         doc.close();
