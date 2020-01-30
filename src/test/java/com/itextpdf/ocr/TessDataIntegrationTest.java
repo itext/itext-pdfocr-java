@@ -111,7 +111,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testJapaneseScript() {
-        String tessDataPath = tesseractReader.getPathToTessData();
         String imgPath = testImagesDirectory + "japanese_01.png";
         File file = new File(imgPath);
         String end = "文法";
@@ -124,7 +123,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(real.endsWith(end));
         Assert.assertTrue(real.startsWith(start));
 
-        tesseractReader.setPathToTessData(tessDataPath);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -462,7 +461,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testBengaliScript() {
-        String tessDataPath = tesseractReader.getPathToTessData();
         String imgPath = testImagesDirectory + "bengali_01.jpeg";
         File file = new File(imgPath);
         String expected = "ইংরজে";
@@ -482,12 +480,11 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList("Bengali"), kosugiFontPath)
                 .startsWith(expected));
 
-        tesseractReader.setPathToTessData(tessDataPath);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
     public void testGeorgianTextWithScript() {
-        String tessDataPath = tesseractReader.getPathToTessData();
         String imgPath = testImagesDirectory + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence
@@ -508,6 +505,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.singletonList("Japanese"))
                 .contains(expected));
 
-        tesseractReader.setPathToTessData(tessDataPath);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 }

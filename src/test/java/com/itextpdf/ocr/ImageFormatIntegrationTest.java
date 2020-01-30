@@ -56,7 +56,6 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testJFIFText() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
-        String tessDataPath = tesseractReader.getPathToTessData();
         String filename = "example_02";
         String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
@@ -74,7 +73,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
-        tesseractReader.setPathToTessData(tessDataPath);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
