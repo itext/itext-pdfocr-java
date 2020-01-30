@@ -133,6 +133,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
+        tesseractReader.setPathToTessData(getTessDataDirectory());
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
                 Arrays.asList("ell", "eng"),
@@ -410,12 +411,11 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void testBengali() {
         String imgPath = testImagesDirectory + "bengali_01.jpeg";
         File file = new File(imgPath);
-        String expected = "ইংরজে";
+        String expected = "ইংরজে\nশখো";
 
         // correct result with specified spanish language
-        Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("ben"), freeSansFontPath)
-                .startsWith(expected));
+        Assert.assertEquals(getTextFromPdf(tesseractReader, file,
+                Collections.singletonList("ben"), freeSansFontPath), expected);
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order

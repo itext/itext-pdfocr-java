@@ -77,7 +77,7 @@ public class ImageUtil {
         int depth = instance.pixGetDepth(pix);
 
         if (depth == 32) {
-            return instance.pixConvertRGBToGrayFast(pix);
+            return instance.pixConvertRGBToLuminance(pix);
         } else {
             return instance.pixRemoveColormap(pix,
                     net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
