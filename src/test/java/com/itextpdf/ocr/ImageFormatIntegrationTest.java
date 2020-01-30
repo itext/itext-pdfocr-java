@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -32,9 +31,12 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory()), "executable"
+                        new TesseractExecutableReader(getTesseractDirectory(),
+                                getTessDataDirectory()),
+                        "executable"
                     }, {
-                        new TesseractLibReader(), "lib"
+                        new TesseractLibReader(getTessDataDirectory()),
+                        "lib"
                     }
                 });
     }
@@ -45,14 +47,16 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedOutput = "for message Scanner OCR Test";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
-                langTessDataDirectory, Collections.singletonList("eng"));
+                Collections.singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
-        Assert.assertTrue(realOutputHocr.replaceAll("[‘]", "").contains((expectedOutput)));
+        Assert.assertTrue(realOutputHocr.replaceAll("[‘]", "")
+                .contains((expectedOutput)));
     }
 
     @Test
     public void testJFIFText() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
+        String tessDataPath = tesseractReader.getPathToTessData();
         String filename = "example_02";
         String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
@@ -60,15 +64,17 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         if ("executable".equals(parameter)) {
             tesseractReader.setPreprocessingImages(false);
         }
+        tesseractReader.setPathToTessData(scriptTessDataDirectory);
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".JFIF", resultPdfPath,
-                scriptTessDataDirectory, Collections.singletonList("Japanese"));
+                Collections.singletonList("Japanese"));
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
+        tesseractReader.setPathToTessData(tessDataPath);
     }
 
     @Test
@@ -88,7 +94,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
-                langTessDataDirectory, Collections.singletonList("eng"));
+                Collections.singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("\n", " ");
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
         tesseractReader.setPreprocessingImages(preprocess);
@@ -104,7 +110,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 5,
-                langTessDataDirectory, Collections.singletonList("eng"));
+                Collections.singletonList("eng"));
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);

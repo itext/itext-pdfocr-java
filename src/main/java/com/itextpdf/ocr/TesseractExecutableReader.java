@@ -53,37 +53,41 @@ public class TesseractExecutableReader extends TesseractReader {
     private String pathToExecutable;
 
     /**
-     * TesseractReader constructor.
+     * TesseractExecutableReader constructor with path to tess data directory.
      */
-    public TesseractExecutableReader() {
+    public TesseractExecutableReader(String tessDataPath) {
         setPathToExecutable("tesseract");
         setOsType(identifyOSType());
+        setPathToTessData(tessDataPath);
     }
 
     /**
-     * TesseractReader constructor with path to executable.
+     * TesseractExecutableReader constructor with path to executable and
+     * path to tess data directory.
      *
-     * @param path String
+     * @param executablePath path to tesseract executable
      */
-    public TesseractExecutableReader(final String path) {
-        setPathToExecutable(path);
+    public TesseractExecutableReader(final String executablePath,
+            final String tessDataPath) {
+        setPathToExecutable(executablePath);
         setOsType(identifyOSType());
+        setPathToTessData(tessDataPath);
     }
 
     /**
-     * TesseractReader constructor with path to executable,
-     * list of languages and path to tessData directory.
+     * TesseractExecutableReader constructor with path to executable,
+     * list of languages and path to tess data directory.
      *
      * @param path          String
      * @param languagesList List<String>
-     * @param tessData      String
+     * @param tessDataPath  String
      */
     public TesseractExecutableReader(final String path,
-            final List<String> languagesList,
-            final String tessData) {
+            final String tessDataPath,
+            final List<String> languagesList) {
         setPathToExecutable(path);
         setLanguages(Collections.unmodifiableList(languagesList));
-        setPathToTessData(tessData);
+        setPathToTessData(tessDataPath);
         setOsType(identifyOSType());
     }
 
@@ -141,6 +145,7 @@ public class TesseractExecutableReader extends TesseractReader {
         }
 
         if (!getLanguages().isEmpty()) {
+            validateLanguages();
             command.addAll(
                     Arrays.asList("-l",
                             String.join("+", getLanguages()))

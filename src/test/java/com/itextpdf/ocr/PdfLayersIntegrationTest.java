@@ -7,8 +7,11 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,9 +32,10 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory())
+                        new TesseractExecutableReader(getTesseractDirectory(),
+                                getTessDataDirectory())
                     }, {
-                        new TesseractLibReader()
+                        new TesseractLibReader(getTessDataDirectory())
                     }
                 });
     }

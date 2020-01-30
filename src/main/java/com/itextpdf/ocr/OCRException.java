@@ -18,6 +18,8 @@ public class OCRException extends com.itextpdf.io.IOException {
             + "failed. {0}";
     public static final String CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE =
             "Cannot find path to tesseract executable.";
+    public static final String CANNOT_FIND_PATH_TO_TESSDATA = "Cannot find path to tess "
+            + "data directory";
 
     public OCRException(String msg) {
         super(msg);

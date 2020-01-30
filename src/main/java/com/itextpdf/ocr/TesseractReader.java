@@ -1,8 +1,5 @@
 package com.itextpdf.ocr;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract reader class.
@@ -25,12 +24,6 @@ import java.util.UUID;
  * set path to directory with tess data.
  */
 public abstract class TesseractReader implements IOcrReader {
-
-    /**
-     * Path to default tess data script.
-     */
-    public static final String PATH_TO_TESS_DATA = "src/main/resources/com/"
-            + "itextpdf/ocr/tessdata/";
 
     /**
      * Path to quiet config script.
@@ -227,7 +220,7 @@ public abstract class TesseractReader implements IOcrReader {
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
             return getPathToTessData();
         } else {
-            return PATH_TO_TESS_DATA;
+            throw new OCRException(OCRException.CANNOT_FIND_PATH_TO_TESSDATA);
         }
     }
 
@@ -250,5 +243,32 @@ public abstract class TesseractReader implements IOcrReader {
         String os = System.getProperty("os.name");
         LOGGER.info("Using System Property: " + os);
         return os.toLowerCase();
+    }
+
+    /**
+     * Validate provided languages and
+     * check if they exist in provided tess data directory.
+     */
+    public void validateLanguages() {
+        String suffix = ".traineddata";
+        List<String> languages = getLanguages();
+        if (languages.isEmpty()) {
+            if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
+                LOGGER.error("eng" + suffix
+                        + " doesn't exist in provided directory");
+                throw new OCRException(OCRException.INCORRECT_LANGUAGE)
+                        .setMessageParams("eng" + suffix, getTessData());
+            }
+        } else {
+            for (String lang : languages) {
+                if (!new File(getTessData() + File.separator + lang + suffix)
+                        .exists()) {
+                    LOGGER.error(lang + suffix
+                            + " doesn't exist in provided directory");
+                    throw new OCRException(OCRException.INCORRECT_LANGUAGE)
+                            .setMessageParams(lang + suffix, getTessData());
+                }
+            }
+        }
     }
 }

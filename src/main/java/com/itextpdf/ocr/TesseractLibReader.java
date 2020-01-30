@@ -1,20 +1,18 @@
 package com.itextpdf.ocr;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Tesseract Library Reader class.
@@ -45,11 +43,27 @@ public class TesseractLibReader extends TesseractReader {
     private ITesseract tesseractInstance;
 
     /**
-     * TesseractReader constructor.
+     * TesseractLibReader constructor with path to tess data directory.
      */
-    public TesseractLibReader() {
+    public TesseractLibReader(String tessDataPath) {
         setOsType(identifyOSType());
         setTesseractInstance();
+        setPathToTessData(tessDataPath);
+    }
+
+    /**
+     * TesseractLibReader constructor with path to tess data directory,
+     * list of languages and path to tess data directory.
+     *
+     * @param languagesList List<String>
+     * @param tessDataPath  String
+     */
+    public TesseractLibReader(final String tessDataPath,
+            final List<String> languagesList) {
+        setOsType(identifyOSType());
+        setTesseractInstance();
+        setPathToTessData(tessDataPath);
+        setLanguages(Collections.unmodifiableList(languagesList));
     }
 
     /**
@@ -120,33 +134,6 @@ public class TesseractLibReader extends TesseractReader {
             throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
                     .setMessageParams("Cannot write to file "
                             + outputFile.getAbsolutePath());
-        }
-    }
-
-    /**
-     * Validate provided languages and
-     * check if they exist in provided tess data directory.
-     */
-    private void validateLanguages() {
-        String suffix = ".traineddata";
-        List<String> languages = getLanguages();
-        if (languages.isEmpty()) {
-            if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
-                LOGGER.error("eng" + suffix
-                        + " doesn't exist in provided directory");
-                throw new OCRException(OCRException.INCORRECT_LANGUAGE)
-                        .setMessageParams("eng" + suffix, getTessData());
-            }
-        } else {
-            for (String lang : languages) {
-                if (!new File(getTessData() + File.separator + lang + suffix)
-                        .exists()) {
-                    LOGGER.error(lang + suffix
-                            + " doesn't exist in provided directory");
-                    throw new OCRException(OCRException.INCORRECT_LANGUAGE)
-                            .setMessageParams(lang + suffix, getTessData());
-                }
-            }
         }
     }
 }

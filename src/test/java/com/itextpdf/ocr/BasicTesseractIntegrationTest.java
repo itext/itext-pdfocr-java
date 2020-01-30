@@ -12,20 +12,22 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.annotations.type.IntegrationTest;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Category(IntegrationTest.class)
 @RunWith(Parameterized.class)
@@ -43,9 +45,12 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory()), "executable"
+                        new TesseractExecutableReader(getTesseractDirectory(),
+                                getTessDataDirectory()),
+                        "executable"
                     }, {
-                        new TesseractLibReader(), "lib"
+                        new TesseractLibReader(getTessDataDirectory()),
+                        "lib"
                     }
             });
     }
@@ -378,6 +383,41 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             String expectedMsg = MessageFormat
                     .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
                             "txt");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIncorrectPathToTessData() {
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+
+        try {
+            tesseractReader.setPathToTessData(null);
+            getTextFromPdf(tesseractReader, file, Collections.singletonList("eng"));
+        } catch (OCRException e) {
+            Assert.assertEquals(OCRException.CANNOT_FIND_PATH_TO_TESSDATA, e.getMessage());
+            tesseractReader.setPathToTessData(getTessDataDirectory());
+        }
+
+        try {
+            tesseractReader.setPathToTessData("test/");
+            getTextFromPdf(tesseractReader, file, Collections.singletonList("eng"));
+        } catch (OCRException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.INCORRECT_LANGUAGE,
+                            "eng.traineddata",
+                            "test/");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+            tesseractReader.setPathToTessData(getTessDataDirectory());
+        }
+
+        try {
+            getTextFromPdf(tesseractReader, file);
+        } catch (OCRException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.INCORRECT_LANGUAGE,
+                            "eng.traineddata",
+                            langTessDataDirectory);
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
     }

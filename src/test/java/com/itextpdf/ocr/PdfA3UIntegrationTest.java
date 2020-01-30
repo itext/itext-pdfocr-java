@@ -39,9 +39,10 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory())
+                        new TesseractExecutableReader(getTesseractDirectory(),
+                                getTessDataDirectory())
                     }, {
-                        new TesseractLibReader()
+                        new TesseractLibReader(getTessDataDirectory())
                     }
                 });
     }
