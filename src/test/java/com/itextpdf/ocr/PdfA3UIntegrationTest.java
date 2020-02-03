@@ -109,7 +109,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
-        Assert.assertTrue(fontName.contains("Cairo-Regular"));
+        Assert.assertTrue(fontName.contains("LiberationSans"));
         Assert.assertTrue(font.isEmbedded());
 
         pdfDocument.close();
@@ -177,7 +177,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
-        Assert.assertTrue(fontName.contains("Cairo-Regular"));
+        Assert.assertTrue(fontName.contains("LiberationSans"));
         Assert.assertTrue(font.isEmbedded());
 
         pdfDocument.close();

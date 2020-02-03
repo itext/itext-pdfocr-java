@@ -108,7 +108,7 @@ final class UtilService {
 
         Pattern pagePattern = Pattern.compile("page_(\\d+)");
 
-        String searchedTag = "ocrx_word";
+         String searchedTag = "ocr_line";
 
         StartTag pageBlock = source.getNextStartTag(0, "class",
                 "ocr_page", false);

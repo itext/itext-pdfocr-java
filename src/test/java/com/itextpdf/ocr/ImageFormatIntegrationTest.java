@@ -44,13 +44,13 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testBMPText() {
         String path = testImagesDirectory + "example_01.BMP";
-        String expectedOutput = "for message Scanner OCR Test";
+        String expectedOutput = "message for OCR Scanner Test";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
-        Assert.assertTrue(realOutputHocr.replaceAll("[‘]", "")
-                .contains((expectedOutput)));
+        realOutputHocr = realOutputHocr.replaceAll("[‘]", "");
+        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
     }
 
     @Test
@@ -63,17 +63,14 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         if ("executable".equals(parameter)) {
             tesseractReader.setPreprocessingImages(false);
         }
-        tesseractReader.setPathToTessData(scriptTessDataDirectory);
         doOcrAndSaveToPath(tesseractReader,
-                testImagesDirectory + filename + ".JFIF", resultPdfPath,
-                Collections.singletonList("Japanese"));
+                testImagesDirectory + filename + ".JFIF", resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
-        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -87,23 +84,19 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testBigTiffWithoutPreprocessing() {
-        boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "example_03_10MB.tiff";
-        String expectedOutput = "Tagged File Format Image";
+        String expectedOutput = "File Format";
 
-        tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.singletonList("eng"));
-        realOutputHocr = realOutputHocr.replaceAll("\n", " ");
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-        tesseractReader.setPreprocessingImages(preprocess);
     }
 
     @Test
     public void testInputMultipagesTIFF() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
-        String expectedOutput = "Multipage\nTIFF\nExample\n5\nPage";
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
 
         File file = new File(path);
 

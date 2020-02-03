@@ -157,7 +157,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
         // Text layer should contain all text
         // Image layer shouldn't contain any text
-        String expectedOutput = "Multipage\nTIFF\nExample\n5\nPage";
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
         Assert.assertEquals(expectedOutput,
                 getTextFromPdfLayer(pdfPath, "Text Layer", 5));
         Assert.assertEquals("",

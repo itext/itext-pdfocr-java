@@ -61,10 +61,10 @@ public class PdfRenderer implements IPdfRenderer {
             .getLogger(PdfRenderer.class);
 
     /**
-     * Path to default font file (Cairo-Regular).
+     * Path to default font file (LiberationSans-Regular).
      */
     private String defaultFontPath = "src/main/resources/com/"
-            + "itextpdf/ocr/fonts/Cairo-Regular.ttf";
+            + "itextpdf/ocr/fonts/LiberationSans-Regular.ttf";
 
     /**
      * List of Files with input images.
@@ -673,7 +673,7 @@ public class PdfRenderer implements IPdfRenderer {
                             .getPoints(bottom);
 
                     Rectangle rectangle = new Rectangle(deltaX + x,
-                            deltaY + fontSize + y, bboxWidthPt * 1.5f,
+                            deltaY + y, bboxWidthPt * 1.5f,
                             bboxHeightPt);
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
@@ -712,7 +712,7 @@ public class PdfRenderer implements IPdfRenderer {
 
         while (!textScaled) {
             float lineWidth = defaultFont.getWidth(line, fontSize);
-            if (Math.abs(lineWidth - bboxWidthPt) < 1) {
+            if (Math.abs(lineWidth - bboxWidthPt) < 2) {
                 textScaled = true;
             } else if (lineWidth < bboxWidthPt) {
                 fontSize += fontSizeDelta;
