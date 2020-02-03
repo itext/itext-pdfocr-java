@@ -22,6 +22,7 @@ public class BasicTesseractExecutableIntegrationTest extends AbstractIntegration
                 getTessDataDirectory());
 
         tesseractReader.setPathToExecutable(getTesseractDirectory());
+        tesseractReader.setPathToHocrScript(getPathToHocrScript());
         getTextFromPdf(tesseractReader, file, Collections.singletonList("spa"));
         try {
             getTextFromPdf(tesseractReader, file, Arrays.asList("spa", "spa_new", "spa_old"));
@@ -78,14 +79,14 @@ public class BasicTesseractExecutableIntegrationTest extends AbstractIntegration
         Assert.assertEquals(getTesseractDirectory(),
                 tesseractReader.getPathToExecutable());
 
-        Assert.assertEquals(getTessDataDirectory(),
-                 tesseractReader.getPathToTessData());
+        Assert.assertEquals(getPathToHocrScript(),
+                 tesseractReader.getPathToHocrScript());
     }
 
     @Test
     public void testIncorrectPathToTessData() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
-        TesseractReader tesseractReader = new TesseractExecutableReader(getTesseractDirectory(),
+        TesseractExecutableReader tesseractReader = new TesseractExecutableReader(getTesseractDirectory(),
                 "", Collections.singletonList("eng"));
 
         try {

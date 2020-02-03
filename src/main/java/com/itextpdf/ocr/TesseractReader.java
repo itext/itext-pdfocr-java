@@ -26,12 +26,6 @@ import org.slf4j.LoggerFactory;
 public abstract class TesseractReader implements IOcrReader {
 
     /**
-     * Path to quiet config script.
-     */
-    public static final String PATH_TO_QUIET_SCRIPT = "src/main/resources/"
-            + "com/itextpdf/ocr/configs/quiet";
-
-    /**
      * TesseractReader logger.
      */
     private static final Logger LOGGER = LoggerFactory

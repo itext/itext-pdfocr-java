@@ -37,6 +37,8 @@ class AbstractIntegrationTest {
 
     // directory with test files
     static String testDirectory = "src/test/resources/com/itextpdf/ocr/";
+    // path to hocr script for tesseract executable
+    static String pathToHocrScript = "src/test/resources/com/itextpdf/ocr/hocr";
     // directory with trained data for tests
     static String langTessDataDirectory = "src/test/resources/com/itextpdf/ocr/tessdata";
     // directory with trained data for tests
@@ -71,6 +73,10 @@ class AbstractIntegrationTest {
 
     static String getTessDataDirectory() {
         return langTessDataDirectory;
+    }
+
+    static String getPathToHocrScript() {
+        return pathToHocrScript;
     }
 
     /**

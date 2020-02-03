@@ -96,8 +96,6 @@ public class TesseractLibReader extends TesseractReader {
             final File outputFile) {
         getTesseractInstance().setDatapath(getTessData());
         getTesseractInstance()
-                .setConfigs(Collections.singletonList(PATH_TO_QUIET_SCRIPT));
-        getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr", "1");
 
         if (!getLanguages().isEmpty()) {
