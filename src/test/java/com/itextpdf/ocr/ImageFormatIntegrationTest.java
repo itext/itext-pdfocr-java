@@ -1,6 +1,7 @@
 package com.itextpdf.ocr;
 
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
@@ -63,14 +64,16 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         if ("executable".equals(parameter)) {
             tesseractReader.setPreprocessingImages(false);
         }
+        tesseractReader.setTextPositioning(TextPositioning.byWords);
         doOcrAndSaveToPath(tesseractReader,
-                testImagesDirectory + filename + ".JFIF", resultPdfPath);
+                testImagesDirectory + filename + ".JFIF", resultPdfPath, cairoFontPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
+        tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 
     @Test
@@ -129,6 +132,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + ".pdf";
         String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
 
+        tesseractReader.setTextPositioning(TextPositioning.byWords);
         doOcrAndSaveToPath(tesseractReader,
                 testImagesDirectory + filename + ".jpg",
                 resultPdfPath);
@@ -137,5 +141,6 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+        tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 }

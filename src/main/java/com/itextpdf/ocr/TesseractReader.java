@@ -58,6 +58,11 @@ public abstract class TesseractReader implements IOcrReader {
     private boolean preprocessingImages = true;
 
     /**
+     * Default text positioning is by lines.
+     */
+    private TextPositioning textPositioning = TextPositioning.byLines;
+
+    /**
      * Perform tesseract OCR.
      *
      * @param inputImage - input image file
@@ -138,7 +143,6 @@ public abstract class TesseractReader implements IOcrReader {
         return osType;
     }
 
-
     /**
      * Set true if images need to be preprocessed, otherwise - false.
      *
@@ -153,6 +157,22 @@ public abstract class TesseractReader implements IOcrReader {
      */
     public final boolean isPreprocessingImages() {
         return preprocessingImages;
+    }
+
+    /**
+     * Set text positioning (by lines or by words).
+     *
+     * @param positioning TextPositioning
+     */
+    public final void setTextPositioning(final TextPositioning positioning) {
+        textPositioning = positioning;
+    }
+
+    /**
+     * @return text positioning
+     */
+    public final TextPositioning getTextPositioning() {
+        return textPositioning;
     }
 
     /**
@@ -186,9 +206,11 @@ public abstract class TesseractReader implements IOcrReader {
                     ".hocr");
             doTesseractOcr(input, tmpFile);
             if (tmpFile.exists()) {
-                words = UtilService.parseHocrFile(tmpFile);
+                words = UtilService.parseHocrFile(tmpFile, getTextPositioning());
 
-                LOGGER.info(words.size() + " word(s) were read");
+                LOGGER.info(words.size()
+                        + (TextPositioning.byLines.equals(getTextPositioning()) ? " line(s)" : " word(s)")
+                        + " were read");
             } else {
                 LOGGER.error("Error occurred. File wasn't created "
                         + tmpFile.getAbsolutePath());

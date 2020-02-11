@@ -8,6 +8,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
 import com.itextpdf.pdfa.PdfAConformanceException;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -249,6 +250,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
         pdfRenderer.setOcrReader(tesseractReader);
 
+        tesseractReader.setTextPositioning(TextPositioning.byWords);
         Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath), getCMYKPdfOutputIntent());
         Assert.assertNotNull(doc);
@@ -258,6 +260,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 testPdfDirectory, "diff_");
 
         deleteFile(resultPdfPath);
+        Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
+        tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 
     @Test
@@ -267,7 +271,6 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testPdfDirectory + filename + "_a3u.pdf";
         String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
 
-        tesseractReader.setPageSegMode(3);
         tesseractReader.setPathToTessData(langTessDataDirectory);
         tesseractReader.setLanguages(Collections.singletonList("spa"));
 

@@ -655,7 +655,7 @@ public class PdfRenderer implements IPdfRenderer {
                 final Float right = (coordinates.get(2) + 1) * multiplier - 1;
                 final Float top = coordinates.get(1) * multiplier;
                 final Float bottom = (coordinates.get(3) + 1) * multiplier - 1;
-                final float delta = 0.1f;
+                final float delta = 0.05f;
 
                 float bboxWidthPt = UtilService
                         .getPoints(right - left);
@@ -673,7 +673,7 @@ public class PdfRenderer implements IPdfRenderer {
                             .getPoints(bottom);
 
                     Rectangle rectangle = new Rectangle(deltaX + x,
-                            deltaY + y, bboxWidthPt * 1.5f,
+                            deltaY + fontSize / 2 + y, bboxWidthPt * 1.5f,
                             bboxHeightPt);
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
@@ -710,14 +710,16 @@ public class PdfRenderer implements IPdfRenderer {
         float fontSize = bboxHeightPt;
         boolean textScaled = false;
 
+        float lineWidth = defaultFont.getWidth(line, fontSize);
+        boolean increaseSize = lineWidth < bboxWidthPt;
         while (!textScaled) {
-            float lineWidth = defaultFont.getWidth(line, fontSize);
-            if (Math.abs(lineWidth - bboxWidthPt) < 2) {
+            lineWidth = defaultFont.getWidth(line, fontSize);
+            if (Math.abs(lineWidth - bboxWidthPt) < 1) {
                 textScaled = true;
             } else if (lineWidth < bboxWidthPt) {
-                fontSize += fontSizeDelta;
+                fontSize += fontSizeDelta * (increaseSize ? 1f : 0.5f);
             } else {
-                fontSize -= fontSizeDelta;
+                fontSize -= fontSizeDelta * (increaseSize ? 0.5f : 1f);
             }
         }
         return fontSize;

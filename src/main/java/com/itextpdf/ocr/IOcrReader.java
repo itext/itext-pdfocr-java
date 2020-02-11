@@ -13,6 +13,28 @@ import java.util.List;
 public interface IOcrReader {
 
     /**
+     * Enum describing possible types of text positioning.
+     *
+     *
+     * <li>{@link #byLines}</li>
+     * <li>{@link #byWords}</li>
+     */
+    enum TextPositioning {
+        /**
+         * byLines (default value).
+         * <p>
+         * text will be located by lines retrieved from hocr file
+         */
+        byLines,
+        /**
+         * byWords.
+         * <p>
+         * text will be located by words retrieved from hocr file
+         */
+        byWords
+    }
+
+    /**
      * Reads data from the provided input image file and returns retrieved data
      * in the following format:
      * <p>

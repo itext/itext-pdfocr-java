@@ -2,13 +2,7 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.geom.Rectangle;
-
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.EndTag;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.itextpdf.ocr.IOcrReader.TextPositioning;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +12,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.EndTag;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class.
@@ -90,11 +90,13 @@ final class UtilService {
      * word or line as a key and its 4 coordinates(bbox) as a values
      *
      * @param inputFile File
+     * @param textPositioning TextPositioning
      * @return List<TextInfo>
      * @throws IOException IOException
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    static List<TextInfo> parseHocrFile(final File inputFile)
+    static List<TextInfo> parseHocrFile(final File inputFile,
+            final TextPositioning textPositioning)
             throws IOException {
         List<TextInfo> textData = new ArrayList<>();
 
@@ -108,7 +110,8 @@ final class UtilService {
 
         Pattern pagePattern = Pattern.compile("page_(\\d+)");
 
-         String searchedTag = "ocr_line";
+         String searchedTag = TextPositioning.byLines.equals(textPositioning)
+                 ? "ocr_line" : "ocrx_word";
 
         StartTag pageBlock = source.getNextStartTag(0, "class",
                 "ocr_page", false);

@@ -1,6 +1,7 @@
 package com.itextpdf.ocr;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDictionary;
@@ -82,10 +83,12 @@ class AbstractIntegrationTest {
     /**
      * Retrieve image from given pdf document.
      *
+     * @param tesseractReader
      * @param file
      * @param scaleMode
      * @param pageSize
      * @return
+     * @throws IOException
      */
     Image getImageFromPdf(TesseractReader tesseractReader,
                           File file, IPdfRenderer.ScaleMode scaleMode,
@@ -121,8 +124,11 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from specified page from given pdf document.
      *
+     * @param tesseractReader
      * @param file
      * @param page
+     * @param languages
+     * @param fontPath
      * @return
      */
     String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
@@ -148,7 +154,10 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from the first page of given pdf document setting font.
      *
+     * @param tesseractReader
      * @param file
+     * @param languages
+     * @param fontPath
      * @return
      */
     String getTextFromPdf(TesseractReader tesseractReader, File file,
@@ -159,7 +168,9 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from the first page of given pdf document.
      *
+     * @param tesseractReader
      * @param file
+     * @param languages
      * @return
      */
     String getTextFromPdf(TesseractReader tesseractReader, File file,
@@ -170,7 +181,10 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from the required page of given pdf document.
      *
+     * @param tesseractReader
      * @param file
+     * @param page
+     * @param languages
      * @return
      */
     String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
@@ -181,6 +195,7 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from specified page from given pdf document.
      *
+     * @param tesseractReader
      * @param file
      * @param page
      * @return
@@ -193,6 +208,7 @@ class AbstractIntegrationTest {
     /**
      * Retrieve text from the first page of given pdf document.
      *
+     * @param tesseractReader
      * @param file
      * @return
      */
@@ -229,11 +245,16 @@ class AbstractIntegrationTest {
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
      *
+     * @param tesseractReader
      * @param imgPath
      * @param pdfPath
+     * @param languages
+     * @param fontPath
+     * @param color
      */
     void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-                            String pdfPath, List<String> languages, String fontPath) {
+                            String pdfPath, List<String> languages, String fontPath,
+                            Color color) {
         if (languages != null) {
             tesseractReader.setLanguages(languages);
         }
@@ -243,6 +264,9 @@ class AbstractIntegrationTest {
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);
+        }
+        if (color != null) {
+            pdfRenderer.setTextColor(color);
         }
 
         PdfDocument doc = null;
@@ -266,15 +290,65 @@ class AbstractIntegrationTest {
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
-     * (Method uses default font path)
      *
+     * @param tesseractReader
      * @param imgPath
      * @param pdfPath
+     * @param languages
+     * @param color
+     */
+    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
+            String pdfPath, List<String> languages, Color color) {
+        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+                languages, null, color);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result pdf document to "pdfPath".
+     * (Text will be invisible)
+     *
+     * @param tesseractReader
+     * @param imgPath
+     * @param pdfPath
+     * @param languages
+     * @param fontPath
+     */
+    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
+            String pdfPath, List<String> languages, String fontPath) {
+        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+                languages, fontPath, null);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result pdf document to "pdfPath".
+     *
+     * @param tesseractReader
+     * @param imgPath
+     * @param pdfPath
+     * @param fontPath
+     */
+    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
+            String pdfPath, String fontPath) {
+        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+                null, fontPath, null);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result pdf document to "pdfPath".
+     *   (Method uses default font path)
+     *
+     * @param tesseractReader
+     * @param imgPath
+     * @param pdfPath
+     * @param languages
      */
     void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
                             String pdfPath, List<String> languages) {
         doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
-                languages, null);
+                languages, null, null);
     }
 
     /**
@@ -282,12 +356,14 @@ class AbstractIntegrationTest {
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
      *
+     * @param tesseractReader
      * @param imgPath
      * @param pdfPath
      */
     void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
                             String pdfPath) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath, null, null);
+        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath, null,
+                null, null);
     }
 
     /**
