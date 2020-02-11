@@ -86,6 +86,15 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testTextFromTIF() {
+        String path = testImagesDirectory + "numbers_01.tif";
+        String expectedOutput = "619121";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
     public void testBigTiffWithoutPreprocessing() {
         String path = testImagesDirectory + "example_03_10MB.tiff";
         String expectedOutput = "File Format";

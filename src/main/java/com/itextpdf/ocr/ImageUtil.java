@@ -43,8 +43,13 @@ public class ImageUtil {
      */
     public static BufferedImage preprocessImage(final String inputPath)
             throws IOException {
+        String extension = FilenameUtils.getExtension(inputPath);
         Leptonica instance = Leptonica.INSTANCE;
+        // read image
         Pix pix = instance.pixRead(inputPath);
+        if (pix == null && extension.toLowerCase().contains("tif")) {
+            pix = instance.pixReadTiff(inputPath, 0);
+        }
 
         pix = instance.pixRemoveAlpha(pix);
 
@@ -54,15 +59,17 @@ public class ImageUtil {
 
         pix = instance.pixDeskew(pix, 0);
 
-        int format = getFormat(inputPath);
+        int format = getFormat(extension);
 
         instance.pixWritePng("deskew.png", pix, format);
         BufferedImage bi = convertPixToImage(pix, format);
 
         // destroying
-        PointerByReference pRef = new PointerByReference();
-        pRef.setValue(pix.getPointer());
-        instance.pixDestroy(pRef);
+        if (pix != null) {
+            PointerByReference pRef = new PointerByReference();
+            pRef.setValue(pix.getPointer());
+            instance.pixDestroy(pRef);
+        }
         return bi;
     }
 
@@ -74,13 +81,17 @@ public class ImageUtil {
      */
     public static Pix convertToGrayscale(final Pix pix) {
         Leptonica instance = Leptonica.INSTANCE;
-        int depth = instance.pixGetDepth(pix);
+        if (pix != null) {
+            int depth = instance.pixGetDepth(pix);
 
-        if (depth == 32) {
-            return instance.pixConvertRGBToLuminance(pix);
+            if (depth == 32) {
+                return instance.pixConvertRGBToLuminance(pix);
+            } else {
+                return instance.pixRemoveColormap(pix,
+                        net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
+            }
         } else {
-            return instance.pixRemoveColormap(pix,
-                    net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
+            return pix;
         }
     }
 
@@ -91,13 +102,17 @@ public class ImageUtil {
      * @return Pix output pix
      */
     public static Pix otsuImageThresholding(final Pix pix) {
-        PointerByReference pointer = new PointerByReference();
-        Leptonica.INSTANCE
-                .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
-                        null, pointer);
-        Pix thresholdPix = new Pix(pointer.getValue());
-        if (thresholdPix.w > 0 && thresholdPix.h > 0) {
-            return thresholdPix;
+        if (pix != null) {
+            PointerByReference pointer = new PointerByReference();
+            Leptonica.INSTANCE
+                    .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
+                            null, pointer);
+            Pix thresholdPix = new Pix(pointer.getValue());
+            if (thresholdPix.w > 0 && thresholdPix.h > 0) {
+                return thresholdPix;
+            } else {
+                return pix;
+            }
         } else {
             return pix;
         }
@@ -114,34 +129,39 @@ public class ImageUtil {
     public static BufferedImage convertPixToImage(final Pix pix,
             final int format)
             throws IOException {
-        PointerByReference pdata = new PointerByReference();
-        NativeSizeByReference psize = new NativeSizeByReference();
+        if (pix != null) {
+            PointerByReference pdata = new PointerByReference();
+            NativeSizeByReference psize = new NativeSizeByReference();
 
-        Leptonica instance = Leptonica.INSTANCE;
+            Leptonica instance = Leptonica.INSTANCE;
 
-        instance.pixWriteMem(pdata, psize, pix, format);
-        byte[] b = pdata.getValue().getByteArray(0,
-                psize.getValue().intValue());
-        InputStream in = new ByteArrayInputStream(b);
-        BufferedImage bi = ImageIO.read(in);
-        in.close();
-        instance.lept_free(pdata.getValue());
-        return bi;
+            instance.pixWriteMem(pdata, psize, pix, format);
+            byte[] b = pdata.getValue().getByteArray(0,
+                    psize.getValue().intValue());
+            InputStream in = new ByteArrayInputStream(b);
+            BufferedImage bi = ImageIO.read(in);
+            in.close();
+            instance.lept_free(pdata.getValue());
+            return bi;
+        } else {
+            return null;
+        }
     }
 
     /**
      * Identify image format for Leptonica.
      *
-     * @param inputPath String
+     * @param ext String
      * @return int
      */
-    private static int getFormat(final String inputPath) {
-        String ext = FilenameUtils.getExtension(inputPath);
+    private static int getFormat(final String ext) {
         String formatName = "IFF_";
         if (ext.toLowerCase().contains("jpg")
                 || ext.toLowerCase().contains("jpeg")
                 || ext.toLowerCase().contains("jfif")) {
             formatName += "JFIF_JPEG";
+        } else if (ext.toLowerCase().contains("tif")) {
+            formatName += "TIFF";
         } else {
             formatName += ext.toUpperCase();
         }

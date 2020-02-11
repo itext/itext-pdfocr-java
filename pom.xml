@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
     <version>7.1.11-SNAPSHOT</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <artifactId>ocr</artifactId>
@@ -14,7 +16,8 @@
 
   <name>pdfOCR</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from
-    provided images and adds it to PDF.</description>
+    provided images and adds it to PDF.
+  </description>
 
   <properties>
     <itext.version>${project.parent.version}</itext.version>
@@ -174,7 +177,8 @@
               </execution>
             </executions>
             <configuration>
-              <textOutputFile>${project.build.directory}/clirr-report.txt</textOutputFile>
+              <textOutputFile>${project.build.directory}/clirr-report.txt
+              </textOutputFile>
               <linkXRef>false</linkXRef>
               <failOnError>false</failOnError>
               <skip>true</skip>

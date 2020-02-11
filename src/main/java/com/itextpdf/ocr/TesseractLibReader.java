@@ -111,12 +111,15 @@ public class TesseractLibReader extends TesseractReader {
 
         String result = null;
         try {
+            BufferedImage preprocessed = null;
             if (isPreprocessingImages()) {
-                BufferedImage preprocessed = ImageUtil
+                preprocessed = ImageUtil
                         .preprocessImage(inputImage.getAbsolutePath());
-                result = getTesseractInstance().doOCR(preprocessed);
-            } else {
+            }
+            if (preprocessed == null || !isPreprocessingImages()) {
                 result = getTesseractInstance().doOCR(inputImage);
+            } else {
+                result = getTesseractInstance().doOCR(preprocessed);
             }
         } catch (TesseractException | IOException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());

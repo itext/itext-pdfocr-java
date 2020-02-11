@@ -282,12 +282,14 @@ public class TesseractExecutableReader extends TesseractReader {
             try {
                 String extension = FilenameUtils.getExtension(path);
                 BufferedImage original = ImageUtil.preprocessImage(path);
-                File outputFile = File.createTempFile("output",
-                        "." + extension);
-                String output = outputFile.getAbsolutePath();
-                ImageIO.write(original, extension, outputFile);
-                path = output;
-                original.flush();
+                if (original != null) {
+                    File outputFile = File.createTempFile("output",
+                            "." + extension);
+                    String output = outputFile.getAbsolutePath();
+                    ImageIO.write(original, extension, outputFile);
+                    path = output;
+                    original.flush();
+                }
             } catch (IOException e) {
                 LOGGER.error("Error while preprocessing image: "
                         + e.getLocalizedMessage());
