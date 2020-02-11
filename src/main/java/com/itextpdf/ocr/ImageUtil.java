@@ -158,8 +158,14 @@ public class ImageUtil {
         String formatName = "IFF_";
         if (ext.toLowerCase().contains("jpg")
                 || ext.toLowerCase().contains("jpeg")
+                || ext.toLowerCase().contains("jpe")
                 || ext.toLowerCase().contains("jfif")) {
             formatName += "JFIF_JPEG";
+        } else if (ext.toLowerCase().contains("pbm")
+                || ext.toLowerCase().contains("pgm")
+                || ext.toLowerCase().contains("pnm")
+                || ext.toLowerCase().contains("ppm")) {
+            formatName += "PNM";
         } else if (ext.toLowerCase().contains("tif")) {
             formatName += "TIFF";
         } else {

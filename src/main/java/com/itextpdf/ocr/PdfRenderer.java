@@ -4,22 +4,22 @@ import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.image.TiffImageData;
+import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
+import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfString;
 import com.itextpdf.kernel.pdf.PdfViewerPreferences;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.PdfString;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
-import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.layout.Canvas;
@@ -27,10 +27,8 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.BaseDirection;
 import com.itextpdf.pdfa.PdfADocument;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,6 +37,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.imageio.ImageIO;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PDF Renderer class.
@@ -592,9 +594,18 @@ public class PdfRenderer implements IPdfRenderer {
                         .create(inputImage.getAbsolutePath());
                 images.add(imageData);
             } catch (com.itextpdf.io.IOException e) {
-                LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
-                        + " image " + e.getLocalizedMessage());
-                throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                try {
+                    BufferedImage bufferedImage = ImageUtil
+                            .preprocessImage(inputImage.getAbsolutePath());
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(bufferedImage, "png", baos);
+                    ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+                    images.add(imageData);
+                } catch (com.itextpdf.io.IOException | IOException | IllegalArgumentException ex) {
+                    LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
+                            + " image " + e.getLocalizedMessage());
+                    throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                }
             }
         }
 

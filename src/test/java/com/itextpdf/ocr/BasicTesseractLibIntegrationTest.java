@@ -69,4 +69,34 @@ public class BasicTesseractLibIntegrationTest extends AbstractIntegrationTest {
             tesseractReader.setPathToTessData(getTessDataDirectory());
         }
     }
+
+    @Test
+    public void testTextFromJPE() {
+        String path = testImagesDirectory + "numbers_01.jpe";
+        String expectedOutput = "619121";
+
+        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void testTextFromPBM() {
+        String path = testImagesDirectory + "numbers_01.pbm";
+        String expectedOutput = "619121";
+
+        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void testTextFromPGM() {
+        String path = testImagesDirectory + "numbers_01.pgm";
+        String expectedOutput = "619121";
+
+        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
 }

@@ -76,6 +76,18 @@ public interface IPdfRenderer {
          */
         pnm,
         /**
+         * PGM file format.
+         */
+        pgm,
+        /**
+         * PPM file format.
+         */
+        ppm,
+        /**
+         * PBM file format.
+         */
+        pbm,
+        /**
          * TIFF file format.
          */
         tiff,
