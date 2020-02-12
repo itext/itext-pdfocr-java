@@ -1,20 +1,23 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.source.ByteArrayOutputStream;
+
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
 
 /**
  * Image Util class.
@@ -30,12 +33,41 @@ public class ImageUtil {
             .getLogger(ImageUtil.class);
 
     /**
-     * Performs default image preprocessing.
-     * It includes the following actions:
-     * - remove alpha channel
-     * - convert to grayscale
-     * - thresholding
-     * - basic deskewing
+     * Performs basic image preprocessing using buffered image (if provided).
+     *
+     * @param inputPath String
+     * @param bufferedImage BufferedImage
+     * @return BufferedImage
+     * @throws IOException IOException
+     */
+    public static BufferedImage preprocessImage(final String inputPath,
+            final BufferedImage bufferedImage)
+            throws IOException {
+        String extension = getExtension(inputPath);
+
+        Leptonica instance = Leptonica.INSTANCE;
+        // read image
+        Pix pix = null;
+        if (bufferedImage != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+
+            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
+            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
+            pix = instance.pixReadMem(byteBuffer, nativeSize);
+        } else {
+            pix = instance.pixRead(inputPath);
+            if (pix == null && extension.toLowerCase().contains("tif")) {
+                pix = instance.pixReadTiff(inputPath, 0);
+            }
+        }
+
+        int format = getFormat(extension);
+        return preprocessPixToBufferedImage(pix, format);
+    }
+
+    /**
+     * Performs basic image preprocessing.
      *
      * @param inputPath String
      * @return BufferedImage
@@ -43,14 +75,25 @@ public class ImageUtil {
      */
     public static BufferedImage preprocessImage(final String inputPath)
             throws IOException {
-        String extension = FilenameUtils.getExtension(inputPath);
-        Leptonica instance = Leptonica.INSTANCE;
-        // read image
-        Pix pix = instance.pixRead(inputPath);
-        if (pix == null && extension.toLowerCase().contains("tif")) {
-            pix = instance.pixReadTiff(inputPath, 0);
-        }
+        return preprocessImage(inputPath, null);
+    }
 
+    /**
+     * Performs default image preprocessing.
+     * It includes the following actions:
+     * - remove alpha channel
+     * - convert to grayscale
+     * - thresholding
+     * - basic deskewing
+     *
+     * @param pix
+     * @param format
+     * @return
+     * @throws IOException
+     */
+    private static BufferedImage preprocessPixToBufferedImage(Pix pix,
+            final int format) throws IOException {
+        Leptonica instance = Leptonica.INSTANCE;
         pix = instance.pixRemoveAlpha(pix);
 
         pix = convertToGrayscale(pix);
@@ -58,8 +101,6 @@ public class ImageUtil {
         pix = otsuImageThresholding(pix);
 
         pix = instance.pixDeskew(pix, 0);
-
-        int format = getFormat(extension);
 
         instance.pixWritePng("deskew.png", pix, format);
         BufferedImage bi = convertPixToImage(pix, format);
@@ -149,6 +190,29 @@ public class ImageUtil {
     }
 
     /**
+     * Get file extension for later usage.
+     *
+     * @param path
+     * @return
+     */
+    public static String getExtension(String path) {
+        String extension = FilenameUtils.getExtension(path);
+        if (extension.toLowerCase().contains("jpg")
+                || extension.toLowerCase().contains("jpeg")
+                || extension.toLowerCase().contains("jpe")
+                || extension.toLowerCase().contains("jfif")) {
+            return "jpeg";
+        } else if (extension.toLowerCase().contains("pbm")
+                || extension.toLowerCase().contains("pgm")
+                || extension.toLowerCase().contains("pnm")
+                || extension.toLowerCase().contains("ppm")) {
+            return "pnm";
+        } else {
+            return extension;
+        }
+    }
+
+    /**
      * Identify image format for Leptonica.
      *
      * @param ext String
@@ -161,11 +225,6 @@ public class ImageUtil {
                 || ext.toLowerCase().contains("jpe")
                 || ext.toLowerCase().contains("jfif")) {
             formatName += "JFIF_JPEG";
-        } else if (ext.toLowerCase().contains("pbm")
-                || ext.toLowerCase().contains("pgm")
-                || ext.toLowerCase().contains("pnm")
-                || ext.toLowerCase().contains("ppm")) {
-            formatName += "PNM";
         } else if (ext.toLowerCase().contains("tif")) {
             formatName += "TIFF";
         } else {

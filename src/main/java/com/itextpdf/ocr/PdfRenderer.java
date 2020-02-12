@@ -595,8 +595,7 @@ public class PdfRenderer implements IPdfRenderer {
                 images.add(imageData);
             } catch (com.itextpdf.io.IOException e) {
                 try {
-                    BufferedImage bufferedImage = ImageUtil
-                            .preprocessImage(inputImage.getAbsolutePath());
+                    BufferedImage bufferedImage = ImageIO.read(inputImage);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ImageIO.write(bufferedImage, "png", baos);
                     ImageData imageData = ImageDataFactory.create(baos.toByteArray());

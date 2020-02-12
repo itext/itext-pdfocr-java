@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import javax.imageio.ImageIO;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
@@ -112,9 +113,23 @@ public class TesseractLibReader extends TesseractReader {
         String result = null;
         try {
             BufferedImage preprocessed = null;
+            // preprocess if required
             if (isPreprocessingImages()) {
-                preprocessed = ImageUtil
-                        .preprocessImage(inputImage.getAbsolutePath());
+                BufferedImage original = null;
+                try {
+                    original = ImageIO.read(inputImage);
+                    if (original != null) {
+                        preprocessed = ImageUtil
+                                .preprocessImage(inputImage.getAbsolutePath(), original);
+                    } else {
+                        preprocessed = ImageUtil
+                                .preprocessImage(inputImage.getAbsolutePath());
+                    }
+                } catch (IOException e) {
+                    LOGGER.info("Cannot read from file: " + e.getLocalizedMessage());
+                    preprocessed = ImageUtil
+                            .preprocessImage(inputImage.getAbsolutePath());
+                }
             }
             if (preprocessed == null || !isPreprocessingImages()) {
                 result = getTesseractInstance().doOCR(inputImage);

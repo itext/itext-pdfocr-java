@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.imageio.ImageIO;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,15 +279,30 @@ public class TesseractExecutableReader extends TesseractReader {
     private String preprocessImage(String path) {
         if (isPreprocessingImages()) {
             try {
-                String extension = FilenameUtils.getExtension(path);
-                BufferedImage original = ImageUtil.preprocessImage(path);
-                if (original != null) {
+                String extension = ImageUtil.getExtension(path);
+                BufferedImage original = null;
+                BufferedImage preprocessed = null;
+                try {
+                    original = ImageIO.read(new File(path));
+                    if (original != null) {
+                        preprocessed = ImageUtil.preprocessImage(path, original);
+                    } else {
+                        preprocessed = ImageUtil.preprocessImage(path);
+                    }
+                } catch (IOException e) {
+                    LOGGER.info("Cannot read from file: " + e.getLocalizedMessage());
+                    preprocessed = ImageUtil.preprocessImage(path);
+                }
+                if (preprocessed != null) {
                     File outputFile = File.createTempFile("output",
                             "." + extension);
                     String output = outputFile.getAbsolutePath();
-                    ImageIO.write(original, extension, outputFile);
+                    ImageIO.write(preprocessed, extension, outputFile);
                     path = output;
-                    original.flush();
+                    preprocessed.flush();
+                    if (original != null) {
+                        original.flush();
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.error("Error while preprocessing image: "
