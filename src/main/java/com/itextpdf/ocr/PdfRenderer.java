@@ -26,17 +26,22 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.BaseDirection;
+import com.itextpdf.ocr.IOcrReader.OutputFormat;
 import com.itextpdf.pdfa.PdfADocument;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -390,6 +395,28 @@ public class PdfRenderer implements IPdfRenderer {
     }
 
     /**
+     * Perform OCR for the given list of input images and
+     * save output to a text file with provided path.
+     *
+     * @param absolutePath String
+     * @return PdfDocument
+     * @throws IOException if provided font is incorrect
+     */
+    public void doPdfOcr(String absolutePath) {
+        LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
+
+        // map contains image files as keys and retrieved text data as values
+        StringBuilder content = new StringBuilder();
+        for (File inputImage : getInputImages()) {
+            content.append(doOCRForImages(inputImage, OutputFormat.txt));
+            content.append("\n");
+        }
+
+        // write to file
+        writeToTextFile(absolutePath, content.toString());
+    }
+
+    /**
      * Perform OCR for the given list of input images using provided pdfWriter.
      *
      * @param pdfWriter PdfWriter
@@ -413,9 +440,31 @@ public class PdfRenderer implements IPdfRenderer {
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent)
             throws IOException {
+        LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
 
-        LOGGER.info("Starting ocr for " + inputImages.size() + " image(s)");
+        // map contains image files as keys and retrieved text data as values
+        Map<File, List<TextInfo>> imagesTextData = new HashMap<>();
+        for (File inputImage : getInputImages()) {
+            imagesTextData.put(inputImage, doOCRForImages(inputImage));
+        }
 
+        // create PdfDocument
+        return createPdfDocument(pdfWriter, pdfOutputIntent, imagesTextData);
+    }
+
+    /**
+     * Create a pdf document using provided properties,
+     * add images with parsed text.
+     *
+     * @param pdfWriter PdfWriter
+     * @param pdfOutputIntent PdfOutputIntent
+     * @param imagesTextData Map<File, List<TextInfo>>
+     * @return PdfDocument
+     * @throws IOException
+     */
+    private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
+            final PdfOutputIntent pdfOutputIntent,
+            final Map<File, List<TextInfo>> imagesTextData) throws IOException {
         PdfDocument pdfDocument;
         if (pdfOutputIntent != null) {
             pdfDocument = new PdfADocument(pdfWriter,
@@ -431,7 +480,7 @@ public class PdfRenderer implements IPdfRenderer {
         PdfDocumentInfo info = pdfDocument.getDocumentInfo();
         info.setTitle(getTitle());
 
-        LOGGER.info("Current scale mode: " + getScaleMode());
+        // create PdfFont
         PdfFont defaultFont = null;
         try {
             defaultFont = PdfFontFactory.createFont(getFontPath(),
@@ -442,12 +491,70 @@ public class PdfRenderer implements IPdfRenderer {
             defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
                     PdfEncodings.IDENTITY_H, true);
         }
-
-        for (File inputImage : inputImages) {
-            doOCRForImage(inputImage, pdfDocument, defaultFont);
-        }
+        LOGGER.info("Current scale mode: " + getScaleMode());
+        addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont);
 
         return pdfDocument;
+    }
+
+    /**
+     * Write parsed data to text file using provided path.
+     *
+     * @param path String
+     * @param data String
+     */
+    private void writeToTextFile(final String path,
+            final String data) {
+        try {
+            File file = new File(path);
+            boolean created = file.createNewFile();
+            if (!created) {
+                LOGGER.error("File " + path + " cannot be created");
+            }
+            Writer targetFileWriter = new FileWriter(file);
+            targetFileWriter.write(data);
+            targetFileWriter.close();
+        } catch (IOException e) {
+            LOGGER.error("Error occurred during writing to file " + path);
+        }
+    }
+
+    /**
+     * Validate image format and perform OCR specifying output format.
+     *
+     * @param inputImage File
+     * @param outputFormat OutputFormat
+     * @return String
+     */
+    private String doOCRForImages(final File inputImage,
+            final OutputFormat outputFormat) {
+        String data = null;
+        if (!validateImageFormat(inputImage)) {
+            throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
+                    .setMessageParams(
+                            FilenameUtils.getExtension(inputImage.getName()));
+        } else {
+            data = ocrReader.readDataFromInput(inputImage, outputFormat);
+        }
+        return data;
+    }
+
+    /**
+     * Validate image format and perform OCR using hOCR output format.
+     *
+     * @param inputImage File
+     * @return List<TextInfo>
+     */
+    private List<TextInfo> doOCRForImages(final File inputImage) {
+        List<TextInfo> data;
+        if (!validateImageFormat(inputImage)) {
+            throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
+                    .setMessageParams(
+                            FilenameUtils.getExtension(inputImage.getName()));
+        } else {
+            data = new ArrayList<>(ocrReader.readDataFromInput(inputImage));
+        }
+        return data;
     }
 
     /**
@@ -474,26 +581,22 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Perform OCR for input image.
      *
-     * @param inputImage  input file
+     * @param imagesTextData  Map<File, List<TextInfo>> - map that contains input image
+     *                        files as keys, and text data as value for each image
      * @param pdfDocument output pdf document
      * @param defaultFont default font
      * @throws OCRException if input image cannot be read
      */
-    private void doOCRForImage(final File inputImage,
+    private void addDataToPdfDocument(final Map<File, List<TextInfo>> imagesTextData,
             final PdfDocument pdfDocument,
             final PdfFont defaultFont) throws OCRException {
-        if (!validateImageFormat(inputImage)) {
-            throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
-                    .setMessageParams(
-                            FilenameUtils.getExtension(inputImage.getName()));
-        } else {
+        for (File inputImage : imagesTextData.keySet()) {
             try {
                 List<ImageData> imageDataList = getImageData(inputImage);
                 LOGGER.info(inputImage.toString() + " image contains "
                         + imageDataList.size() + " page(s)");
 
-                List<TextInfo> data = ocrReader.readDataFromInput(inputImage);
-
+                List<TextInfo> data = imagesTextData.get(inputImage);
                 if (!data.isEmpty()) {
                     for (int page = 0; page < imageDataList.size(); ++page) {
                         ImageData imageData = imageDataList.get(page);
@@ -518,7 +621,7 @@ public class PdfRenderer implements IPdfRenderer {
                             new ArrayList<>(), imageData);
                 }
             } catch (IOException e) {
-                LOGGER.error("Error occurred:" + e.getLocalizedMessage());
+                LOGGER.error("Error occurred: " + e.getLocalizedMessage());
             }
         }
     }

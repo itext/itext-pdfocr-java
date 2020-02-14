@@ -256,4 +256,12 @@ public interface IPdfRenderer {
      * @throws IOException if provided font or output intent is incorrect
      */
     PdfDocument doPdfOcr(PdfWriter pdfWriter) throws IOException;
+
+    /**
+     * Perform OCR using provided pdfWriter.
+     *
+     * @param path path to text file to be created
+     * @throws IOException
+     */
+    void doPdfOcr(String path) throws IOException;
 }

@@ -67,9 +67,10 @@ public abstract class TesseractReader implements IOcrReader {
      *
      * @param inputImage - input image file
      * @param outputFile - output file
+     * @param outputFormat - output format
      */
     public abstract void doTesseractOcr(File inputImage,
-            File outputFile);
+            File outputFile, OutputFormat outputFormat);
 
     /**
      * Set list of languages required for provided images.
@@ -185,8 +186,40 @@ public abstract class TesseractReader implements IOcrReader {
      * @param is InputStream
      * @return List<TextInfo>
      */
-    public final List<TextInfo> readDataFromInput(final InputStream is) {
+    public final List<TextInfo> readDataFromInput(final InputStream is,
+            final OutputFormat outputFormat) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Reads data from the provided input image file and returns retrieved
+     * data as a string.
+     *
+     * @param input File
+     * @return List<TextInfo>
+     */
+    public final String readDataFromInput(final File input,
+            final OutputFormat outputFormat) {
+        String data = null;
+        try {
+            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),"");
+            doTesseractOcr(input, tmpFile, OutputFormat.txt);
+            if (tmpFile.exists()) {
+                data = UtilService.readTxtFile(tmpFile);
+            } else {
+                LOGGER.error("Error occurred. File wasn't created "
+                        + tmpFile.getAbsolutePath());
+            }
+
+            if (!tmpFile.delete()) {
+                LOGGER.error("File " + tmpFile.getAbsolutePath()
+                        + " cannot be deleted");
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error occurred: " + e.getLocalizedMessage());
+        }
+
+        return data;
     }
 
     /**
@@ -200,15 +233,15 @@ public abstract class TesseractReader implements IOcrReader {
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final File input) {
-        List<TextInfo> words = new ArrayList<>();
+        List<TextInfo> textData = new ArrayList<>();
         try {
             File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
                     ".hocr");
-            doTesseractOcr(input, tmpFile);
+            doTesseractOcr(input, tmpFile, OutputFormat.hocr);
             if (tmpFile.exists()) {
-                words = UtilService.parseHocrFile(tmpFile, getTextPositioning());
+                textData = UtilService.parseHocrFile(tmpFile, getTextPositioning());
 
-                LOGGER.info(words.size()
+                LOGGER.info(textData.size()
                         + (TextPositioning.byLines.equals(getTextPositioning()) ? " line(s)" : " word(s)")
                         + " were read");
             } else {
@@ -221,10 +254,10 @@ public abstract class TesseractReader implements IOcrReader {
                         + " cannot be deleted");
             }
         } catch (IOException e) {
-            LOGGER.error("Error occurred:" + e.getLocalizedMessage());
+            LOGGER.error("Error occurred: " + e.getLocalizedMessage());
         }
 
-        return words;
+        return textData;
     }
 
     /**

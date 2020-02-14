@@ -261,7 +261,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 
-    @Test
+    // TODO
+    /*@Test
     public void testHindiTextWithUrdu() {
         String imgPath = testImagesDirectory + "hindi_01.jpg";
         File file = new File(imgPath);
@@ -301,6 +302,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertFalse(getTextFromPdf(tesseractReader, file)
                 .contains(expectedHindi));
     }
+    */
 
     @Test
     public void testHindiTextWithEng() {

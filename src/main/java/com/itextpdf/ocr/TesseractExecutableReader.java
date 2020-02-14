@@ -148,25 +148,37 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param outputFile - output file
      */
     public void doTesseractOcr(final File inputImage,
-            final File outputFile) {
+            final File outputFile, final OutputFormat outputFormat) {
         List<String> command = new ArrayList<>();
 
         // path to tesseract executable
         addPathToExecutable(command);
         // path to tess data
         addTessData(command);
-        // preprocess input file and add it
-        addInputFile(command, inputImage);
+        // preprocess input file if needed and add it
+        String imagePath = preprocessImage(inputImage.getAbsolutePath());
+        addInputFile(command, imagePath);
         // output file
         addOutputFile(command, outputFile);
         // page segmentation mode
         addPageSegMode(command);
         // required languages
         addLanguages(command);
-        // path to hocr script
-        addPathToHocrScript(command);
+        if (outputFormat.equals(OutputFormat.hocr)) {
+            // path to hocr script
+            addPathToHocrScript(command);
+        }
 
-        UtilService.runCommand(command, isWindows());
+        try {
+            UtilService.runCommand(command, isWindows());
+        } catch (OCRException e) {
+            throw new OCRException(e.getMessage());
+        } finally {
+            if (imagePath != null && isPreprocessingImages()
+                    && !inputImage.getAbsolutePath().equals(imagePath)) {
+                UtilService.deleteFile(new File(imagePath));
+            }
+        }
     }
 
     /**
@@ -238,11 +250,10 @@ public class TesseractExecutableReader extends TesseractReader {
      * Preprocess input image (if needed) and add path to this file
      *
      * @param command List<String>
-     * @param image   input file
+     * @param imagePath path to file
      */
-    private void addInputFile(List<String> command, final File image) {
-        String path = preprocessImage(image.getAbsolutePath());
-        command.add(addQuotes(path));
+    private void addInputFile(List<String> command, final String imagePath) {
+        command.add(addQuotes(imagePath));
     }
 
     /**
@@ -277,38 +288,16 @@ public class TesseractExecutableReader extends TesseractReader {
      * @return path to output image
      */
     private String preprocessImage(String path) {
+        String tmpFilePath = path;
         if (isPreprocessingImages()) {
             try {
-                String extension = ImageUtil.getExtension(path);
-                BufferedImage original = null;
-                BufferedImage preprocessed = null;
-                try {
-                    original = ImageIO.read(new File(path));
-                    if (original != null) {
-                        preprocessed = ImageUtil.preprocessImage(path, original);
-                    } else {
-                        preprocessed = ImageUtil.preprocessImage(path);
-                    }
-                } catch (IOException e) {
-                    LOGGER.info("Cannot read from file: " + e.getLocalizedMessage());
-                    preprocessed = ImageUtil.preprocessImage(path);
-                }
-                if (preprocessed != null) {
-                    File outputFile = File.createTempFile("output",
-                            "." + extension);
-                    String output = outputFile.getAbsolutePath();
-                    ImageIO.write(preprocessed, extension, outputFile);
-                    path = output;
-                    preprocessed.flush();
-                    if (original != null) {
-                        original.flush();
-                    }
-                }
+                tmpFilePath = ImageUtil
+                        .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
             } catch (IOException e) {
                 LOGGER.error("Error while preprocessing image: "
                         + e.getLocalizedMessage());
             }
         }
-        return path;
+        return tmpFilePath;
     }
 }

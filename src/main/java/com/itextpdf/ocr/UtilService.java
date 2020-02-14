@@ -6,6 +6,7 @@ import com.itextpdf.ocr.IOcrReader.TextPositioning;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,6 +17,7 @@ import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.EndTag;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +166,22 @@ final class UtilService {
     }
 
     /**
+     * Read text file to string.
+     *
+     * @param txtFile File
+     * @return String
+     */
+    static String readTxtFile(final File txtFile) {
+        String content = null;
+        try {
+            content = FileUtils.readFileToString(txtFile, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.error("Cannot read file " + txtFile.getAbsolutePath());
+        }
+        return content;
+    }
+
+    /**
      * Calculate the size of the PDF document page
      * should transform pixels to points and according to image resolution.
      *
@@ -246,5 +264,19 @@ final class UtilService {
         return data.stream()
                 .filter(item -> item.getPageNumber().equals(page))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Delete file using provided path.
+     *
+     * @param file File
+     */
+    static void deleteFile(File file) {
+        if (file != null && file.exists()) {
+            boolean deleted = file.delete();
+            if (!deleted) {
+                LOGGER.warn("File " + file.getAbsolutePath() + " was not deleted");
+            }
+        }
     }
 }

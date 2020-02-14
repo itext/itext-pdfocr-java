@@ -1,13 +1,11 @@
 package com.itextpdf.ocr;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
-import javax.imageio.ImageIO;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
@@ -92,12 +90,15 @@ public class TesseractLibReader extends TesseractReader {
      *
      * @param inputImage - input image file
      * @param outputFile - output file
+     * @param outputFormat - output format
      */
-    public void doTesseractOcr(final File inputImage,
-            final File outputFile) {
+    public void doTesseractOcr(File inputImage,
+            final File outputFile, final OutputFormat outputFormat) {
         getTesseractInstance().setDatapath(getTessData());
-        getTesseractInstance()
-                .setTessVariable("tessedit_create_hocr", "1");
+        if (outputFormat.equals(OutputFormat.hocr)) {
+            getTesseractInstance()
+                    .setTessVariable("tessedit_create_hocr", "1");
+        }
 
         if (!getLanguages().isEmpty()) {
             getTesseractInstance()
@@ -111,45 +112,40 @@ public class TesseractLibReader extends TesseractReader {
         validateLanguages();
 
         String result = null;
+        File tmpFile = null;
         try {
-            BufferedImage preprocessed = null;
             // preprocess if required
             if (isPreprocessingImages()) {
-                BufferedImage original = null;
-                try {
-                    original = ImageIO.read(inputImage);
-                    if (original != null) {
-                        preprocessed = ImageUtil
-                                .preprocessImage(inputImage.getAbsolutePath(), original);
-                    } else {
-                        preprocessed = ImageUtil
-                                .preprocessImage(inputImage.getAbsolutePath());
-                    }
-                } catch (IOException e) {
-                    LOGGER.info("Cannot read from file: " + e.getLocalizedMessage());
-                    preprocessed = ImageUtil
-                            .preprocessImage(inputImage.getAbsolutePath());
-                }
+                tmpFile = ImageUtil.preprocessImage(inputImage);
             }
-            if (preprocessed == null || !isPreprocessingImages()) {
+            // perform OCR
+            if (tmpFile == null || !isPreprocessingImages()) {
                 result = getTesseractInstance().doOCR(inputImage);
             } else {
-                result = getTesseractInstance().doOCR(preprocessed);
+                result = getTesseractInstance().doOCR(tmpFile);
             }
-        } catch (TesseractException | IOException e) {
+        } catch (TesseractException | java.io.IOException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
                     .setMessageParams("OCR failed");
+        } finally {
+            if (tmpFile != null) {
+                UtilService.deleteFile(tmpFile);
+            }
         }
 
-        try (BufferedWriter writer = Files
-                .newBufferedWriter(outputFile.toPath())) {
-            writer.write(result);
-        } catch (IOException e) {
-            LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());
-            throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
-                    .setMessageParams("Cannot write to file "
-                            + outputFile.getAbsolutePath());
+        if (result != null) {
+            try (BufferedWriter writer = Files
+                    .newBufferedWriter(outputFile.toPath())) {
+                writer.write(result);
+            } catch (IOException e) {
+                LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());
+                throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
+                        .setMessageParams("Cannot write to file "
+                                + outputFile.getAbsolutePath());
+            }
+        } else {
+            LOGGER.warn("OCR result is NULL for " + inputImage.getAbsolutePath());
         }
     }
 }
