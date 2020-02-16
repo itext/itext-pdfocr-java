@@ -171,36 +171,6 @@ public class ImageUtil {
     }
 
     /**
-     * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
-     *
-     * @param pix    source pix
-     * @param format int
-     * @return BufferedImage output image
-     * @throws IOException IOException
-     */
-    public static BufferedImage convertPixToImage(final Pix pix,
-            final int format)
-            throws IOException {
-        if (pix != null) {
-            PointerByReference pdata = new PointerByReference();
-            NativeSizeByReference psize = new NativeSizeByReference();
-
-            Leptonica instance = Leptonica.INSTANCE;
-
-            instance.pixWriteMem(pdata, psize, pix, format);
-            byte[] b = pdata.getValue().getByteArray(0,
-                    psize.getValue().intValue());
-            InputStream in = new ByteArrayInputStream(b);
-            BufferedImage bi = ImageIO.read(in);
-            in.close();
-            instance.lept_free(pdata.getValue());
-            return bi;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Get file extension for later usage.
      *
      * @param path

@@ -507,13 +507,9 @@ public class PdfRenderer implements IPdfRenderer {
             final String data) {
         try {
             File file = new File(path);
-            boolean created = file.createNewFile();
-            if (!created) {
-                LOGGER.error("File " + path + " cannot be created");
-            }
-            Writer targetFileWriter = new FileWriter(file);
-            targetFileWriter.write(data);
-            targetFileWriter.close();
+            Writer fileWriter = new FileWriter(file);
+            fileWriter.write(data);
+            fileWriter.close();
         } catch (IOException e) {
             LOGGER.error("Error occurred during writing to file " + path);
         }

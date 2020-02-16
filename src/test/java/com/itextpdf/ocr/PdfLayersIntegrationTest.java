@@ -134,7 +134,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
         String path = testImagesDirectory + "multipage.tiff";
-        String pdfPath = testPdfDirectory + UUID.randomUUID().toString() + ".pdf";
+        String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
         tesseractReader.setPreprocessingImages(false);

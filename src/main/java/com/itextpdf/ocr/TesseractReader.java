@@ -202,7 +202,7 @@ public abstract class TesseractReader implements IOcrReader {
             final OutputFormat outputFormat) {
         String data = null;
         try {
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),"");
+            File tmpFile = File.createTempFile(UUID.randomUUID().toString(), ".txt");
             doTesseractOcr(input, tmpFile, OutputFormat.txt);
             if (tmpFile.exists()) {
                 data = UtilService.readTxtFile(tmpFile);

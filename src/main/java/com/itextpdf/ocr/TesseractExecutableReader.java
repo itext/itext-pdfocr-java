@@ -1,15 +1,13 @@
 package com.itextpdf.ocr;
 
-import java.awt.image.BufferedImage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.imageio.ImageIO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract Executable Reader class.
@@ -159,7 +157,7 @@ public class TesseractExecutableReader extends TesseractReader {
         String imagePath = preprocessImage(inputImage.getAbsolutePath());
         addInputFile(command, imagePath);
         // output file
-        addOutputFile(command, outputFile);
+        addOutputFile(command, outputFile, outputFormat);
         // page segmentation mode
         addPageSegMode(command);
         // required languages
@@ -261,13 +259,14 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command    List<String>
      * @param outputFile output file
+     * @param outputFormat output format
      */
-    private void addOutputFile(List<String> command, final File outputFile) {
-        String extension = ".hocr";
+    private void addOutputFile(List<String> command, final File outputFile,
+                               final OutputFormat outputFormat) {
+        String extension = outputFormat.equals(OutputFormat.hocr) ? ".hocr" : ".txt";
         String fileName = outputFile.getAbsolutePath()
                 .substring(0, outputFile.getAbsolutePath().indexOf(extension));
         LOGGER.info("Temp path: " + outputFile.toString());
-
         command.add(addQuotes(fileName));
     }
 
@@ -293,7 +292,7 @@ public class TesseractExecutableReader extends TesseractReader {
             try {
                 tmpFilePath = ImageUtil
                         .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOGGER.error("Error while preprocessing image: "
                         + e.getLocalizedMessage());
             }

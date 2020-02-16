@@ -293,8 +293,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testCorruptedImageAndCatchException() {
         try {
             File file = new File(testImagesDirectory
@@ -307,7 +306,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             Assert.assertEquals(OCRException.TESSERACT_FAILED,
                     e.getMessage());
         }
-    }*/
+    }
 
     @Test
     public void testImageWithoutText() throws IOException {
@@ -421,6 +420,17 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                             langTessDataDirectory);
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
+    }
+
+    @Test
+    public void testSimpleTextOutput() {
+        String imgPath = testImagesDirectory + "numbers_01.jpg";
+        String outputPath = testDocumentsDirectory + "output.txt";
+        String expectedOutput = "619121";
+
+        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath, outputPath);
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        deleteFile(outputPath);
     }
 
     /**

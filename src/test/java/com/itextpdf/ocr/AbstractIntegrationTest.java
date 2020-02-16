@@ -49,7 +49,7 @@ class AbstractIntegrationTest {
     // directory with fonts
     static String testFontsDirectory = testDirectory + "fonts/";
     // directory with fonts
-    static String testPdfDirectory = testDirectory + "documents/";
+    static String testDocumentsDirectory = testDirectory + "documents/";
 
     // path to font for hindi
     static String notoSansFontPath = testFontsDirectory + "NotoSans-Regular.ttf";
@@ -138,7 +138,7 @@ class AbstractIntegrationTest {
         try {
             pdfPath = File.createTempFile(UUID.randomUUID().toString(),
                     ".pdf").getAbsolutePath();
-            doOcrAndSaveToPath(tesseractReader, file.getAbsolutePath(),
+            doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
                     pdfPath, languages, fontPath);
             result = getTextFromPdfLayer(pdfPath, "Text Layer",
                     page);
@@ -241,6 +241,62 @@ class AbstractIntegrationTest {
     }
 
     /**
+     * Perform OCR using provided path to image (imgPath),
+     * save to file and get text from file.
+     *
+     * @param tesseractReader
+     * @param input
+     * @param output
+     * @param languages
+     * @return
+     */
+    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input, String output,
+                          List<String> languages) {
+        doOcrAndSaveToTextFile(tesseractReader, input, output, languages);
+        return getTextFromTextFile(new File(output));
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath),
+     * save to file and get text from file.
+     *
+     * @param tesseractReader
+     * @param input
+     * @param output
+     * @return
+     */
+    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input, String output) {
+        doOcrAndSaveToTextFile(tesseractReader, input, output, null);
+        return getTextFromTextFile(new File(output));
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result to text file.
+     *
+     * @param tesseractReader
+     * @param imgPath
+     * @param txtPath
+     * @param languages
+     */
+    void doOcrAndSaveToTextFile(TesseractReader tesseractReader, String imgPath,
+                               String txtPath, List<String> languages) {
+        if (languages != null) {
+            tesseractReader.setLanguages(languages);
+        }
+
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.singletonList(new File(imgPath)));
+
+        pdfRenderer.doPdfOcr(txtPath);
+
+        if (languages != null) {
+            Assert.assertEquals(languages.size(),
+                    tesseractReader.getLanguages().size());
+        }
+    }
+
+    /**
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
@@ -252,9 +308,9 @@ class AbstractIntegrationTest {
      * @param fontPath
      * @param color
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-                            String pdfPath, List<String> languages, String fontPath,
-                            Color color) {
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath, List<String> languages, String fontPath,
+                               Color color) {
         if (languages != null) {
             tesseractReader.setLanguages(languages);
         }
@@ -297,9 +353,9 @@ class AbstractIntegrationTest {
      * @param languages
      * @param color
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-            String pdfPath, List<String> languages, Color color) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath, List<String> languages, Color color) {
+        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, null, color);
     }
 
@@ -314,9 +370,9 @@ class AbstractIntegrationTest {
      * @param languages
      * @param fontPath
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-            String pdfPath, List<String> languages, String fontPath) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath, List<String> languages, String fontPath) {
+        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, fontPath, null);
     }
 
@@ -329,9 +385,9 @@ class AbstractIntegrationTest {
      * @param pdfPath
      * @param fontPath
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-            String pdfPath, String fontPath) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath, String fontPath) {
+        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 null, fontPath, null);
     }
 
@@ -345,9 +401,9 @@ class AbstractIntegrationTest {
      * @param pdfPath
      * @param languages
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-                            String pdfPath, List<String> languages) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath,
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath, List<String> languages) {
+        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, null, null);
     }
 
@@ -360,10 +416,20 @@ class AbstractIntegrationTest {
      * @param imgPath
      * @param pdfPath
      */
-    void doOcrAndSaveToPath(TesseractReader tesseractReader, String imgPath,
-                            String pdfPath) {
-        doOcrAndSaveToPath(tesseractReader, imgPath, pdfPath, null,
+    void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+                               String pdfPath) {
+        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath, null,
                 null, null);
+    }
+
+    /**
+     * Retrieve text from given txt file.
+     *
+     * @param file
+     * @return
+     */
+    String getTextFromTextFile(File file) {
+        return UtilService.readTxtFile(file);
     }
 
     /**
@@ -372,12 +438,7 @@ class AbstractIntegrationTest {
      * @param filePath
      */
     void deleteFile(String filePath) {
-        if (filePath != null & !filePath.isEmpty()) {
-            File file = new File(filePath);
-            if (file.exists()) {
-                file.delete();
-            }
-        }
+        UtilService.deleteFile(new File(filePath));
     }
 
     /**

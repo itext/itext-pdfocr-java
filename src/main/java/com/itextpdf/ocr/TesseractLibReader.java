@@ -116,7 +116,11 @@ public class TesseractLibReader extends TesseractReader {
         try {
             // preprocess if required
             if (isPreprocessingImages()) {
-                tmpFile = ImageUtil.preprocessImage(inputImage);
+                try {
+                    tmpFile = ImageUtil.preprocessImage(inputImage);
+                } catch (Exception e) {
+                    LOGGER.warn("Error while preprocessing image: " + inputImage.getAbsolutePath());
+                }
             }
             // perform OCR
             if (tmpFile == null || !isPreprocessingImages()) {
@@ -124,10 +128,9 @@ public class TesseractLibReader extends TesseractReader {
             } else {
                 result = getTesseractInstance().doOCR(tmpFile);
             }
-        } catch (TesseractException | java.io.IOException e) {
+        } catch (TesseractException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());
-            throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
-                    .setMessageParams("OCR failed");
+            throw new OCRException(OCRException.TESSERACT_FAILED);
         } finally {
             if (tmpFile != null) {
                 UtilService.deleteFile(tmpFile);

@@ -240,8 +240,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException,
             InterruptedException {
         String filename = "numbers_01";
-        String expectedPdfPath = testPdfDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
+        String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_a3u_created.pdf";
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.singletonList(
@@ -257,7 +257,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         doc.close();
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
+                testDocumentsDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
@@ -268,8 +268,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     public void comparePdfA3uRGBSpanishJPG()
             throws IOException, InterruptedException {
         String filename = "spanish_01";
-        String expectedPdfPath = testPdfDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_a3u_created.pdf";
+        String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_a3u_created.pdf";
 
         tesseractReader.setPathToTessData(langTessDataDirectory);
         tesseractReader.setLanguages(Collections.singletonList("spa"));
@@ -287,7 +287,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         doc.close();
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
+                testDocumentsDirectory, "diff_");
 
         deleteFile(resultPdfPath);
     }

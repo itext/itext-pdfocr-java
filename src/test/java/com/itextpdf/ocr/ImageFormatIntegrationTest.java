@@ -58,18 +58,18 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     public void testJFIFText() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "example_02";
-        String expectedPdfPath = testPdfDirectory + filename + parameter + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
+        String expectedPdfPath = testDocumentsDirectory + filename + parameter + ".pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
         if ("executable".equals(parameter)) {
             tesseractReader.setPreprocessingImages(false);
         }
         tesseractReader.setTextPositioning(TextPositioning.byWords);
-        doOcrAndSaveToPath(tesseractReader,
+        doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".JFIF", resultPdfPath, cairoFontPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
+                testDocumentsDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         tesseractReader.setPreprocessingImages(preprocess);
@@ -118,7 +118,6 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "numbers_01.pgm";
         String expectedOutput = "619121";
 
-        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
@@ -128,7 +127,6 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "numbers_01.pbm";
         String expectedOutput = "619121";
 
-        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
@@ -193,16 +191,16 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void compareNumbersJPG() throws IOException, InterruptedException {
         String filename = "numbers_01";
-        String expectedPdfPath = testPdfDirectory + filename + ".pdf";
-        String resultPdfPath = testPdfDirectory + filename + "_created.pdf";
+        String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
         tesseractReader.setTextPositioning(TextPositioning.byWords);
-        doOcrAndSaveToPath(tesseractReader,
+        doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".jpg",
                 resultPdfPath);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testPdfDirectory, "diff_");
+                testDocumentsDirectory, "diff_");
 
         deleteFile(resultPdfPath);
         tesseractReader.setTextPositioning(TextPositioning.byLines);
