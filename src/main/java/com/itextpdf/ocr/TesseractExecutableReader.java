@@ -1,5 +1,6 @@
 package com.itextpdf.ocr;
 
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +171,7 @@ public class TesseractExecutableReader extends TesseractReader {
         try {
             UtilService.runCommand(command, isWindows());
         } catch (OCRException e) {
+            LOGGER.warn("Exception: " + e.getLocalizedMessage());
             throw new OCRException(e.getMessage());
         } finally {
             if (imagePath != null && isPreprocessingImages()
@@ -292,7 +294,7 @@ public class TesseractExecutableReader extends TesseractReader {
             try {
                 tmpFilePath = ImageUtil
                         .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
-            } catch (Exception e) {
+            } catch (IOException | NullPointerException e) {
                 LOGGER.error("Error while preprocessing image: "
                         + e.getLocalizedMessage());
             }

@@ -409,7 +409,6 @@ public class PdfRenderer implements IPdfRenderer {
         StringBuilder content = new StringBuilder();
         for (File inputImage : getInputImages()) {
             content.append(doOCRForImages(inputImage, OutputFormat.txt));
-            content.append("\n");
         }
 
         // write to file
@@ -505,13 +504,12 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private void writeToTextFile(final String path,
             final String data) {
-        try {
-            File file = new File(path);
-            Writer fileWriter = new FileWriter(file);
+        File file = new File(path);;
+        try (Writer fileWriter = new FileWriter(file)) {
             fileWriter.write(data);
-            fileWriter.close();
         } catch (IOException e) {
-            LOGGER.error("Error occurred during writing to file " + path);
+            LOGGER.error("Error occurred during writing to " + path + " file: "
+                    + e.getLocalizedMessage());
         }
     }
 

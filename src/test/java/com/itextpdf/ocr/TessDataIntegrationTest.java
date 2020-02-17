@@ -183,106 +183,115 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void textGreekOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "greek_01.jpg";
-        String outputPath = testDocumentsDirectory + "output.txt";
         String expected = "ΟΜΟΛΟΓΙΑ";
 
-        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("ell"));
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
+                Collections.singletonList("ell"));
         // correct result with specified greek language
-        Assert.assertTrue(realOutputHocr.contains(expected));
-        deleteFile(outputPath);
+        Assert.assertTrue(result.contains(expected));
     }
 
     @Test
     public void textJapaneseOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "japanese_01.png";
-        String outputPath = testDocumentsDirectory + "output.txt";
         String expected = "日 本 語文法";
 
-        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("jpn"));
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
+                Collections.singletonList("jpn"));
 
-        realOutputHocr = realOutputHocr.replaceAll("[\f\n]", "");
+        result = result.replaceAll("[\f\n]", "");
         // correct result with specified japanese language
-        Assert.assertTrue(realOutputHocr.contains(expected));
-        deleteFile(outputPath);
+        Assert.assertTrue(result.contains(expected));
     }
 
     @Test
     public void testFrenchOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "french_01.png";
-        String outputPath = testDocumentsDirectory + "output.txt";
         String expectedFr = "RESTEZ\nCALME\nPARLEZ EN\nFRANÇAIS";
 
-        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("fra"));
-        realOutputHocr = realOutputHocr.replaceAll("(?:\\n\\f?\\n)+", "");
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
+                Collections.singletonList("fra"));
+        result = result.replaceAll("(?:\\n\\f?\\n)+", "");
         // correct result with specified spanish language
-        Assert.assertTrue(realOutputHocr.trim().endsWith(expectedFr));
+        Assert.assertTrue(result.trim().endsWith(expectedFr));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("eng")).endsWith(expectedFr));
+                Collections.singletonList("eng")).endsWith(expectedFr));
         Assert.assertNotEquals(expectedFr,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        outputPath, Collections.singletonList("spa")));
+                        Collections.singletonList("spa")));
         Assert.assertNotEquals(expectedFr,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        outputPath, new ArrayList<>()));
-
-        deleteFile(outputPath);
+                        new ArrayList<>()));
     }
 
     @Test
     public void testGeorgianOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "georgian_02.png";
-        String outputPath = testDocumentsDirectory + "output.txt";
         // First sentence
-        String expected = "გამარჯობა\n(gamarjoba)\nhello";
+        String expected = "გამარჯობა (gamarjoba) hello ";
 
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
+                Arrays.asList("kat", "eng"));
+        result = result.replaceAll("\f", "");
+        result = result.replaceAll("\\n+", " ");
         // correct result with specified georgian+eng language
-        Assert.assertEquals(expected,
-                getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        outputPath, Arrays.asList("kat", "eng")));
+        Assert.assertEquals(expected, result);
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        outputPath, Collections.singletonList("kat")));
+                        Collections.singletonList("kat")));
         Assert.assertNotEquals(expected,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        outputPath, Collections.singletonList("eng")));
+                        Collections.singletonList("eng")));
         Assert.assertFalse(getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, new ArrayList<>()).contains(expected));
-
-        deleteFile(outputPath);
+                new ArrayList<>()).contains(expected));
     }
 
     @Test
     public void testArabicOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "arabic_02.png";
-        String outputPath = testDocumentsDirectory + "output.txt";
         // First sentence
         String expected = "اللغة العربية";
 
-        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("ara"));
-        realOutputHocr = realOutputHocr.replaceAll("(?:\\n\\f?\\n)+", "");
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
+                Collections.singletonList("ara"));
+        result = result.replaceAll("[\n\f]", "");
         // correct result with specified arabic language
-        Assert.assertEquals(expected, realOutputHocr);
+        Assert.assertEquals(expected, result);
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("eng")));
+                Collections.singletonList("eng")));
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, Collections.singletonList("spa")));
+                Collections.singletonList("spa")));
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                outputPath, new ArrayList<>()));
+                new ArrayList<>()));
+    }
 
-        deleteFile(outputPath);
+    @Test
+    public void testGermanAndCompareTxtFiles() {
+        String imgPath = testImagesDirectory + "german_01.jpg";
+        String expectedTxt = testDocumentsDirectory + "german_01" + parameter + ".txt";
+
+        boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
+                Collections.singletonList("deu"));
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testMultipageTiffAndCompareTxtFiles() {
+        String imgPath = testImagesDirectory + "multipage.tiff";
+        String expectedTxt = testDocumentsDirectory + "multipage_" + parameter + ".txt";
+
+        boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
+                Collections.singletonList("eng"));
+        Assert.assertTrue(result);
     }
 
     @Test

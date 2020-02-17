@@ -1,18 +1,12 @@
 package com.itextpdf.ocr;
 
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.UUID;
-import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
-import net.sourceforge.lept4j.Leptonica1;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.lept4j.Pixa;
 import org.apache.commons.io.FilenameUtils;
@@ -49,20 +43,21 @@ public class ImageUtil {
         if (extension.toLowerCase().contains("tif")) {
             return preprocessTiffImage(inputFile);
         } else {
+            Leptonica instance = Leptonica.INSTANCE;
             // read image
-            Pix pix = Leptonica1.pixRead(inputFile.getAbsolutePath());
+            Pix pix = instance.pixRead(inputFile.getAbsolutePath());
             // preprocess image
             pix = preprocessPix(pix);
 
             // save preprocessed file
             File tmpFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
-            Leptonica1.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
+            instance.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
 
             // destroying
             if (pix != null) {
                 PointerByReference pRef = new PointerByReference();
                 pRef.setValue(pix.getPointer());
-                Leptonica1.pixDestroy(pRef);
+                instance.pixDestroy(pRef);
             }
             return tmpFile;
         }
@@ -79,17 +74,18 @@ public class ImageUtil {
      */
     public static File preprocessTiffImage(final File inputFile)
             throws IOException {
+        Leptonica instance = Leptonica.INSTANCE;
         // read image
-        Pixa pixa = Leptonica1.pixaReadMultipageTiff(inputFile.getAbsolutePath());
+        Pixa pixa = instance.pixaReadMultipageTiff(inputFile.getAbsolutePath());
         int size = pixa.n;
-        Pixa newpixa = Leptonica1.pixaCreate(size);
+        Pixa newpixa = instance.pixaCreate(size);
 
         // preprocess images
         for (int i = 0; i < size; ++i) {
-            Pix pix = Leptonica1.pixaGetPix(pixa, i, 1);
+            Pix pix = instance.pixaGetPix(pixa, i, 1);
             // pix format IFF_TIFF = 4
             pix = preprocessPix(pix);
-            int error = Leptonica1.pixaAddPix(newpixa, pix, 1);
+            int error = instance.pixaAddPix(newpixa, pix, 1);
             // if there was any error, preprocessing will be stopped
             if (error == 1) {
                 LOGGER.warn("Cannot preprocess file " + inputFile.getAbsolutePath());
@@ -100,7 +96,7 @@ public class ImageUtil {
         String extension = getExtension(inputFile.getAbsolutePath());
         File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
                 "." + extension);
-        Leptonica1.pixaWriteMultipageTiff(tmpFile.getAbsolutePath(), newpixa);
+        instance.pixaWriteMultipageTiff(tmpFile.getAbsolutePath(), newpixa);
         return tmpFile;
     }
 
@@ -139,8 +135,7 @@ public class ImageUtil {
             if (depth == 32) {
                 return instance.pixConvertRGBToLuminance(pix);
             } else {
-                return instance.pixRemoveColormap(pix,
-                        net.sourceforge.lept4j.ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
+                return instance.pixRemoveColormap(pix, instance.REMOVE_CMAP_TO_GRAYSCALE);
             }
         } else {
             return pix;

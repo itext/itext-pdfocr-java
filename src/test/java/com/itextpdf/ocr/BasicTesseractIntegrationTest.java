@@ -425,12 +425,10 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testSimpleTextOutput() {
         String imgPath = testImagesDirectory + "numbers_01.jpg";
-        String outputPath = testDocumentsDirectory + "output.txt";
         String expectedOutput = "619121";
 
-        String realOutputHocr = getOCRedTextFromTextFile(tesseractReader, imgPath, outputPath);
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-        deleteFile(outputPath);
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
+        Assert.assertTrue(result.contains(expectedOutput));
     }
 
     /**

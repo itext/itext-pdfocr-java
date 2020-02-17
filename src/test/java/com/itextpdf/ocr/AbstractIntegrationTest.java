@@ -23,9 +23,11 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -246,14 +248,25 @@ class AbstractIntegrationTest {
      *
      * @param tesseractReader
      * @param input
-     * @param output
      * @param languages
      * @return
      */
-    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input, String output,
-                          List<String> languages) {
-        doOcrAndSaveToTextFile(tesseractReader, input, output, languages);
-        return getTextFromTextFile(new File(output));
+    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input,
+            List<String> languages) {
+        String result = null;
+        String txtPath = null;
+        try {
+            txtPath = File.createTempFile(UUID.randomUUID().toString(),
+                    ".txt").getAbsolutePath();
+            doOcrAndSaveToTextFile(tesseractReader, input, txtPath, languages);
+            result = getTextFromTextFile(new File(txtPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            deleteFile(txtPath);
+        }
+
+        return result;
     }
 
     /**
@@ -262,12 +275,10 @@ class AbstractIntegrationTest {
      *
      * @param tesseractReader
      * @param input
-     * @param output
      * @return
      */
-    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input, String output) {
-        doOcrAndSaveToTextFile(tesseractReader, input, output, null);
-        return getTextFromTextFile(new File(output));
+    String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input) {
+        return getOCRedTextFromTextFile(tesseractReader, input, null);
     }
 
     /**
@@ -441,6 +452,65 @@ class AbstractIntegrationTest {
         UtilService.deleteFile(new File(filePath));
     }
 
+    /**
+     * Do OCR for given image and compare result etxt file with expected one.
+     *
+     * @param tesseractReader
+     * @param imgPath
+     * @param expectedPath
+     * @param languages
+     * @return
+     */
+    boolean doOcrAndCompareTxtFiles(TesseractReader tesseractReader, String imgPath,
+            String expectedPath, List<String> languages) {
+        boolean result = false;
+        File resutTxtFile = null;
+        try {
+            resutTxtFile = File.createTempFile(UUID.randomUUID().toString(), ".txt");
+            doOcrAndSaveToTextFile(tesseractReader, imgPath, resutTxtFile.getAbsolutePath(), languages);
+            result = compareTxtFiles(expectedPath, resutTxtFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            assert resutTxtFile != null;
+            deleteFile(resutTxtFile.getAbsolutePath());
+        }
+
+        return result;
+    }
+
+    /**
+     * Compare two text files using provided paths.
+     *
+     * @param expectedFilePath
+     * @param resultFilePath
+     * @return
+     */
+    boolean compareTxtFiles(String expectedFilePath, String resultFilePath) {
+        boolean areEqual = true;
+        try (BufferedReader reader1 = new BufferedReader(new FileReader(expectedFilePath));
+            BufferedReader reader2 = new BufferedReader(new FileReader(resultFilePath))) {
+
+            String line1 = reader1.readLine();
+            String line2 = reader2.readLine();
+            while (line1 != null || line2 != null) {
+                if (line1 == null || line2 == null) {
+                    areEqual = false;
+                    break;
+                } else if (!line1.equals(line2)) {
+                    areEqual = false;
+                    break;
+                }
+                line1 = reader1.readLine();
+                line2 = reader2.readLine();
+            }
+        } catch (IOException e) {
+            areEqual = false;
+            e.printStackTrace();
+        }
+
+        return areEqual;
+    }
     /**
      * Create pdfWriter using provided ByteArrayOutputStream.
      *

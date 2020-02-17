@@ -30,11 +30,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>net.sourceforge.lept4j</groupId>
-      <artifactId>lept4j</artifactId>
-      <version>1.13.0</version>
-    </dependency>
-    <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>itext-licensekey</artifactId>
       <version>${licensekey.version}</version>
@@ -73,7 +68,16 @@
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>net.sourceforge.lept4j</groupId>
+          <artifactId>lept4j</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.lept4j</groupId>
+      <artifactId>lept4j</artifactId>
+      <version>1.13.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

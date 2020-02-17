@@ -176,7 +176,8 @@ final class UtilService {
         try {
             content = FileUtils.readFileToString(txtFile, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.error("Cannot read file " + txtFile.getAbsolutePath());
+            LOGGER.error("Cannot read file " + txtFile.getAbsolutePath()
+                    + " with error " + e.getLocalizedMessage());
         }
         return content;
     }

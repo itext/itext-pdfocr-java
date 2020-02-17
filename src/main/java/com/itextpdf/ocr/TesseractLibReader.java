@@ -95,10 +95,9 @@ public class TesseractLibReader extends TesseractReader {
     public void doTesseractOcr(File inputImage,
             final File outputFile, final OutputFormat outputFormat) {
         getTesseractInstance().setDatapath(getTessData());
-        if (outputFormat.equals(OutputFormat.hocr)) {
-            getTesseractInstance()
-                    .setTessVariable("tessedit_create_hocr", "1");
-        }
+        getTesseractInstance()
+                .setTessVariable("tessedit_create_hocr",
+                        outputFormat.equals(OutputFormat.hocr) ? "1" : "0");
 
         if (!getLanguages().isEmpty()) {
             getTesseractInstance()
@@ -118,8 +117,9 @@ public class TesseractLibReader extends TesseractReader {
             if (isPreprocessingImages()) {
                 try {
                     tmpFile = ImageUtil.preprocessImage(inputImage);
-                } catch (Exception e) {
-                    LOGGER.warn("Error while preprocessing image: " + inputImage.getAbsolutePath());
+                } catch (IOException | NullPointerException e) {
+                    LOGGER.warn("Cannot preprocess image: " + inputImage.getAbsolutePath()
+                            + " with error " + e.getLocalizedMessage());
                 }
             }
             // perform OCR
