@@ -6,11 +6,15 @@ import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -605,5 +609,77 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Arrays.asList("Japanese"), kosugiFontPath));
 
         tesseractReader.setPathToTessData(getTessDataDirectory());
+    }
+
+    @Test
+    public void testCustomUserWords() {
+        String imgPath = testImagesDirectory + "wierdwords.png";
+        String expectedOutput = "he23llo qwetyrtyqpwe-rty";
+
+        tesseractReader.setLanguages(Collections.singletonList("eng"));
+        tesseractReader.setUserWords("eng", Arrays.asList("he23llo", "qwetyrtyqpwe-rty"));
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
+        Assert.assertTrue(result.trim().contains(expectedOutput));
+
+        Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
+                tesseractReader.getUserWordsFilePath());
+        tesseractReader.setUserWords("eng", new ArrayList<>());
+    }
+
+    @Test
+    public void testCustomUserWordsWIthSeveralLanguages() {
+        String imgPath = testImagesDirectory + "wierdwords.png";
+        String expectedOutput = "he23llo qwetyrtyqpwe-rty";
+
+        tesseractReader.setLanguages(Arrays.asList("eng", "deu"));
+        tesseractReader.setUserWords("deu", Arrays.asList("he23llo", "qwetyrtyqpwe-rty"));
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
+        Assert.assertTrue(result.trim().contains(expectedOutput));
+
+        Assert.assertEquals(getTessDataDirectory() + File.separator + "deu.user-words",
+                tesseractReader.getUserWordsFilePath());
+        tesseractReader.setUserWords("eng", new ArrayList<>());
+    }
+
+    @Test
+    public void testUserWordsSmallImage() throws FileNotFoundException {
+        String imgPath = testImagesDirectory + "small.jpg";
+        String userWords = testDocumentsDirectory + "userwords.txt";
+
+        List<String> expectedOutput = Arrays.asList("2", "Item(s)", "included", "36,000",
+                "48,000", "4,000", "CHANGE");
+
+        tesseractReader.setLanguages(Collections.singletonList("eng"));
+        tesseractReader.setUserWords("eng", new FileInputStream(new File(userWords)));
+        String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
+
+        for (String word : expectedOutput) {
+            Assert.assertTrue(result.contains(word));
+        }
+        Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
+                tesseractReader.getUserWordsFilePath());
+        tesseractReader.setUserWords("eng", new ArrayList<>());
+    }
+
+    @Test
+    public void testIncorrectLanguageForUserWords() {
+        try {
+            tesseractReader.setUserWords("eng1", Arrays.asList("word1", "word2"));
+        } catch (OCRException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                            "eng1");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+        }
+
+        try {
+            String userWords = testDocumentsDirectory + "userwords.txt";
+            tesseractReader.setUserWords("test", new FileInputStream(new File(userWords)));
+        } catch (OCRException | FileNotFoundException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                            "test");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+        }
     }
 }

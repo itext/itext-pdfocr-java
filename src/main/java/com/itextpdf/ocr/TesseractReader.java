@@ -1,6 +1,9 @@
 package com.itextpdf.ocr;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,6 +27,12 @@ import org.slf4j.LoggerFactory;
  * set path to directory with tess data.
  */
 public abstract class TesseractReader implements IOcrReader {
+
+    /**
+     * Default suffix for user-word file.
+     * (e.g. name: 'eng.user-words')
+     */
+    public static final String DEFAULT_USER_WORDS_SUFFIX = "user-words";
 
     /**
      * TesseractReader logger.
@@ -61,6 +70,12 @@ public abstract class TesseractReader implements IOcrReader {
      * Default text positioning is by lines.
      */
     private TextPositioning textPositioning = TextPositioning.byLines;
+
+    /**
+     * Path to the file containing user words.
+     * Each word should on new line , file should end with a newline.
+     */
+    private String userWordsFile = null;
 
     /**
      * Perform tesseract OCR.
@@ -261,6 +276,73 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
+     * Using provided list of words there will be created temporary file
+     * containing words (one per line) which ends with a new line character.
+     * Train data for provided language should exist in specified tess data directory.
+     *
+     * @param language String
+     * @param userWords List<String>
+     */
+    public void setUserWords(String language, List<String> userWords) {
+        if (userWords == null || userWords.isEmpty()) {
+            userWordsFile = null;
+        } else {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                for (String word : userWords) {
+                    baos.write(word.getBytes());
+                    baos.write(System.getProperty("line.separator").getBytes());
+                }
+                InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
+                baos.close();
+                setUserWords(language, inputStream);
+            } catch (IOException e) {
+                LOGGER.warn("Cannot use custom user words: " + e.getLocalizedMessage());
+            }
+        }
+    }
+
+    /**
+     * Using provided input stream there will be created temporary file (with name 'language.user-words')
+     * containing words (one per line) which ends with a new line character.
+     * Train data for provided language should exist in specified tess data directory.
+     *
+     * @param language String
+     * @param inputStream InputStream
+     */
+    public void setUserWords(String language, InputStream inputStream) {
+        String userWordsFileName = getTessData() + File.separator
+                + language + "." + DEFAULT_USER_WORDS_SUFFIX;
+        if (!getLanguages().contains(language)) {
+            throw new OCRException(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
+                    .setMessageParams(language);
+        }
+        validateLanguages(Collections.singletonList(language));
+        try (FileOutputStream outputStream = new FileOutputStream(new File(userWordsFileName))) {
+            int read;
+            byte[] bytes = new byte[1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            userWordsFile = userWordsFileName;
+        } catch (IOException e) {
+            userWordsFile = null;
+            LOGGER.warn("Cannot use custom user words: " + e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Return path to the user words file if exists, otherwise null.
+     *
+     * @return String
+     */
+    public final String getUserWordsFilePath() {
+        return userWordsFile;
+    }
+
+    /**
      * Get path to provided tess data directory or return default one.
      *
      * @return String
@@ -298,9 +380,8 @@ public abstract class TesseractReader implements IOcrReader {
      * Validate provided languages and
      * check if they exist in provided tess data directory.
      */
-    public void validateLanguages() {
+    public void validateLanguages(List<String> languages) {
         String suffix = ".traineddata";
-        List<String> languages = getLanguages();
         if (languages.isEmpty()) {
             if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
                 LOGGER.error("eng" + suffix

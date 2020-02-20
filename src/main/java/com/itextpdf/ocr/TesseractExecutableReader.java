@@ -161,6 +161,8 @@ public class TesseractExecutableReader extends TesseractReader {
         addOutputFile(command, outputFile, outputFormat);
         // page segmentation mode
         addPageSegMode(command);
+        // add user words if needed
+        addUserWords(command);
         // required languages
         addLanguages(command);
         if (outputFormat.equals(OutputFormat.hocr)) {
@@ -177,6 +179,9 @@ public class TesseractExecutableReader extends TesseractReader {
             if (imagePath != null && isPreprocessingImages()
                     && !inputImage.getAbsolutePath().equals(imagePath)) {
                 UtilService.deleteFile(new File(imagePath));
+            }
+            if (getUserWordsFilePath() != null) {
+                UtilService.deleteFile(new File(getUserWordsFilePath()));
             }
         }
     }
@@ -211,6 +216,18 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
+     * Add path to user-words file for tesseract executable.
+     *
+     * @param command List<String>
+     */
+    private void addUserWords(List<String> command) {
+        if (getUserWordsFilePath() != null && !getUserWordsFilePath().isEmpty()) {
+            command.addAll(Arrays.asList("--user-words",
+                    addQuotes(getUserWordsFilePath())));
+        }
+    }
+
+    /**
      * Add path to tess data.
      *
      * @param command List<String>
@@ -240,7 +257,7 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addLanguages(List<String> command) {
         if (!getLanguages().isEmpty()) {
-            validateLanguages();
+            validateLanguages(getLanguages());
             command.addAll(Arrays.asList("-l",
                     String.join("+", getLanguages())));
         }

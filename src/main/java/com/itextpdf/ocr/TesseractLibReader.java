@@ -98,6 +98,12 @@ public class TesseractLibReader extends TesseractReader {
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
                         outputFormat.equals(OutputFormat.hocr) ? "1" : "0");
+        if (getUserWordsFilePath() != null) {
+            getTesseractInstance().setTessVariable("load_system_dawg", "0");
+            getTesseractInstance().setTessVariable("load_freq_dawg", "0");
+            getTesseractInstance().setTessVariable("user_words_suffix",
+                    DEFAULT_USER_WORDS_SUFFIX);
+        }
 
         if (!getLanguages().isEmpty()) {
             getTesseractInstance()
@@ -108,7 +114,7 @@ public class TesseractLibReader extends TesseractReader {
                     .setPageSegMode(getPageSegMode());
         }
 
-        validateLanguages();
+        validateLanguages(getLanguages());
 
         String result = null;
         File tmpFile = null;
@@ -149,6 +155,10 @@ public class TesseractLibReader extends TesseractReader {
             }
         } else {
             LOGGER.warn("OCR result is NULL for " + inputImage.getAbsolutePath());
+        }
+
+        if (getUserWordsFilePath() != null) {
+            UtilService.deleteFile(new File(getUserWordsFilePath()));
         }
     }
 }
