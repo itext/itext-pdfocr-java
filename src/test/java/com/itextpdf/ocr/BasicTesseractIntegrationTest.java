@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -43,7 +42,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
+        return Arrays.<Object[]>asList(
                 new Object[][] { {
                         new TesseractExecutableReader(getTesseractDirectory(),
                                 getTessDataDirectory()),
@@ -63,7 +62,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
         Color color = DeviceCmyk.MAGENTA;
         pdfRenderer.setTextColor(color);
@@ -93,7 +92,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
@@ -224,7 +223,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
@@ -269,7 +268,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
         Color color = DeviceCmyk.CYAN;
         pdfRenderer.setTextColor(color);
@@ -286,25 +285,12 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         processor.processPageContent(pdfDocument.getFirstPage());
 
-        Color fillColor = strategy.getFillColor();
-        Assert.assertEquals(color, fillColor);
-
-        pdfDocument.close();
-        deleteFile(pdfPath);
-    }
-
-    @Test
-    public void testCorruptedImageAndCatchException() {
         try {
-            File file = new File(testImagesDirectory
-                    + "corrupted.jpg");
-
-            String realOutput = getTextFromPdf(tesseractReader, file);
-            Assert.assertNotNull(realOutput);
-            Assert.assertEquals("", realOutput);
-        } catch (OCRException e) {
-            Assert.assertEquals(OCRException.TESSERACT_FAILED,
-                    e.getMessage());
+            Color fillColor = strategy.getFillColor();
+            Assert.assertEquals(color, fillColor);
+        } finally {
+            pdfDocument.close();
+            deleteFile(pdfPath);
         }
     }
 
@@ -316,7 +302,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(filePath);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
 
         PdfDocument doc = pdfRenderer.doPdfOcr(new PdfWriter(pdfPath));
 
@@ -376,7 +362,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         try {
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Arrays.asList(file3, file1, file2, file3));
+                    Arrays.<File>asList(file3, file1, file2, file3));
 
             pdfRenderer.doPdfOcr(getPdfWriter());
         } catch (OCRException e) {
@@ -393,7 +379,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         try {
             tesseractReader.setPathToTessData(null);
-            getTextFromPdf(tesseractReader, file, Collections.singletonList("eng"));
+            getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
         } catch (OCRException e) {
             Assert.assertEquals(OCRException.CANNOT_FIND_PATH_TO_TESSDATA, e.getMessage());
             tesseractReader.setPathToTessData(getTessDataDirectory());
@@ -401,16 +387,16 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         try {
             tesseractReader.setPathToTessData("test/");
-            getTextFromPdf(tesseractReader, file, Collections.singletonList("eng"));
+            getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
                     .format(OCRException.INCORRECT_LANGUAGE,
                             "eng.traineddata",
                             "test/");
             Assert.assertEquals(expectedMsg, e.getMessage());
-            tesseractReader.setPathToTessData(getTessDataDirectory());
         }
 
+        tesseractReader.setPathToTessData(getTessDataDirectory());
         try {
             getTextFromPdf(tesseractReader, file);
         } catch (OCRException e) {
@@ -420,6 +406,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                             langTessDataDirectory);
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -459,13 +446,16 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         List<TextInfo> data = tesseractReader.readDataFromInput(file);
         List<TextInfo> pageText = UtilService.getTextForPage(data, page);
 
-        if (!pageText.isEmpty()) {
+        if (pageText.size() > 0) {
             Assert.assertEquals(4,
                     pageText.get(0).getCoordinates().size());
         }
 
-        return pageText.stream()
-                .map(TextInfo::getText)
-                .collect(Collectors.joining(" "));
+        StringBuilder stringBuilder = new StringBuilder();
+        for (TextInfo text : pageText) {
+            stringBuilder.append(text.getText());
+            stringBuilder.append(" ");
+        }
+        return stringBuilder.toString().trim();
     }
 }

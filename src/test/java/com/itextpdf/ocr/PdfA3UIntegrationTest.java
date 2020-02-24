@@ -38,7 +38,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
+        return Arrays.<Object[]>asList(
                 new Object[][] { {
                         new TesseractExecutableReader(getTesseractDirectory(),
                                 getTessDataDirectory())
@@ -57,7 +57,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file), DeviceCmyk.BLACK,
+                Collections.<File>singletonList(file), DeviceCmyk.BLACK,
                 ScaleMode.scaleToFit);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), null);
@@ -78,7 +78,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             File file = new File(path);
 
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.singletonList(file), DeviceCmyk.BLACK);
+                    Collections.<File>singletonList(file), DeviceCmyk.BLACK);
 
             pdfRenderer.doPdfOcr(getPdfWriter(), getRGBPdfOutputIntent());
         } catch (com.itextpdf.kernel.PdfException e) {
@@ -94,7 +94,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file), DeviceRgb.BLACK);
+                Collections.<File>singletonList(file), DeviceRgb.BLACK);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getRGBPdfOutputIntent());
         Assert.assertNotNull(doc);
@@ -125,7 +125,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         pdfRenderer.setFontPath(freeSansFontPath);
         pdfRenderer.setDefaultFontPath(imgPath);
 
@@ -160,7 +160,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         pdfRenderer.setFontPath(path);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
@@ -194,7 +194,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             File file = new File(path);
 
             PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.singletonList(file));
+                    Collections.<File>singletonList(file));
             pdfRenderer.setFontPath(path);
             pdfRenderer.setDefaultFontPath(path);
 
@@ -216,7 +216,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file), DeviceRgb.BLACK);
+                Collections.<File>singletonList(file), DeviceRgb.BLACK);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getRGBPdfOutputIntent());
 
@@ -244,7 +244,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = testDocumentsDirectory + filename + "_a3u_created.pdf";
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(
+                Collections.<File>singletonList(
                         new File(testImagesDirectory
                                 + filename + ".jpg")));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
@@ -272,10 +272,10 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = testDocumentsDirectory + filename + "_a3u_created.pdf";
 
         tesseractReader.setPathToTessData(langTessDataDirectory);
-        tesseractReader.setLanguages(Collections.singletonList("spa"));
+        tesseractReader.setLanguages(Collections.<String>singletonList("spa"));
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(
+                Collections.<File>singletonList(
                         new File(testImagesDirectory + filename
                                 + ".jpg")));
         pdfRenderer.setTextColor(DeviceRgb.BLACK);
@@ -300,7 +300,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
 
         String locale = "nl-BE";
         pdfRenderer.setPdfLang(locale);

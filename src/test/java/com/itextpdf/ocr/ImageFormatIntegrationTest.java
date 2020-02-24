@@ -30,7 +30,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
+        return Arrays.<Object[]>asList(
                 new Object[][] { {
                         new TesseractExecutableReader(getTesseractDirectory(),
                                 getTessDataDirectory()),
@@ -48,7 +48,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedOutput = "message for OCR Scanner Test";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
-                Collections.singletonList("eng"));
+                Collections.<String>singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
         realOutputHocr = realOutputHocr.replaceAll("[‘]", "");
         Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
@@ -137,7 +137,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedOutput = "File Format";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
-                Collections.singletonList("eng"));
+                Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
@@ -151,7 +151,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 5,
-                Collections.singletonList("eng"));
+                Collections.<String>singletonList("eng"));
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
@@ -167,7 +167,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 3,
-                Collections.singletonList("eng"));
+                Collections.<String>singletonList("eng"));
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);

@@ -35,7 +35,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
+        return Arrays.<Object[]>asList(
                 new Object[][] { {
                         new TesseractExecutableReader(getTesseractDirectory(),
                                 getTessDataDirectory()),
@@ -58,7 +58,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTextPositioning(TextPositioning.byLines);
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
-                Arrays.asList("ell", "eng"),
+                Arrays.<String>asList("ell", "eng"),
                 notoSansFontPath, DeviceCmyk.BLACK);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
@@ -74,7 +74,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "ΟΜΟΛΟΓΙΑ";
 
         String real = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("ell"), notoSansFontPath);
+                Arrays.<String>asList("ell"), notoSansFontPath);
         // correct result with specified greek language
         Assert.assertTrue(real.contains(expected));
     }
@@ -87,7 +87,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified japanese language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.asList("jpn"), kosugiFontPath));
+                Arrays.<String>asList("jpn"), kosugiFontPath));
     }
 
     @Test
@@ -98,16 +98,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("fra")).endsWith(expectedFr));
+                Collections.<String>singletonList("fra")).endsWith(expectedFr));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getTextFromPdf(tesseractReader,file,
-                Collections.singletonList("eng")).endsWith(expectedFr));
+                Collections.<String>singletonList("eng")).endsWith(expectedFr));
         Assert.assertNotEquals(expectedFr,
-                getTextFromPdf(tesseractReader,file, Collections.singletonList("spa")));
+                getTextFromPdf(tesseractReader,file, Collections.<String>singletonList("spa")));
         Assert.assertNotEquals(expectedFr,
-                getTextFromPdf(tesseractReader,file, new ArrayList<>()));
+                getTextFromPdf(tesseractReader,file, new ArrayList<String>()));
     }
 
     @Test
@@ -120,17 +120,17 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // correct result with specified georgian+eng language
         Assert.assertEquals(expected,
                 getTextFromPdf(tesseractReader, file,
-                        Arrays.asList("kat", "eng"), freeSansFontPath));
+                        Arrays.<String>asList("kat", "eng"), freeSansFontPath));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file,
-                        Collections.singletonList("kat")));
+                        Collections.<String>singletonList("kat")));
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file,
-                        Collections.singletonList("eng")));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<>())
+                        Collections.<String>singletonList("eng")));
+        Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<String>())
                 .contains(expected));
     }
 
@@ -150,7 +150,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTextPositioning(TextPositioning.byWords);
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
-                Arrays.asList("spa", "spa_old"),  DeviceCmyk.BLACK);
+                Arrays.<String>asList("spa", "spa_old"),  DeviceCmyk.BLACK);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testDocumentsDirectory, "diff_");
@@ -175,7 +175,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png",
                 resultPdfPath,
-                Arrays.asList("eng"), DeviceCmyk.MAGENTA);
+                Arrays.<String>asList("eng"), DeviceCmyk.MAGENTA);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testDocumentsDirectory, "diff_");
@@ -190,7 +190,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "ΟΜΟΛΟΓΙΑ";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("ell"));
+                Collections.<String>singletonList("ell"));
         // correct result with specified greek language
         Assert.assertTrue(result.contains(expected));
     }
@@ -201,7 +201,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "日 本 語文法";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("jpn"));
+                Collections.<String>singletonList("jpn"));
 
         result = result.replaceAll("[\f\n]", "");
         // correct result with specified japanese language
@@ -214,7 +214,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expectedFr = "RESTEZ\nCALME\nPARLEZ EN\nFRANÇAIS";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("fra"));
+                Collections.<String>singletonList("fra"));
         result = result.replaceAll("(?:\\n\\f?\\n)+", "");
         // correct result with specified spanish language
         Assert.assertTrue(result.trim().endsWith(expectedFr));
@@ -222,13 +222,13 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("eng")).endsWith(expectedFr));
+                Collections.<String>singletonList("eng")).endsWith(expectedFr));
         Assert.assertNotEquals(expectedFr,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        Collections.singletonList("spa")));
+                        Collections.<String>singletonList("spa")));
         Assert.assertNotEquals(expectedFr,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        new ArrayList<>()));
+                        new ArrayList<String>()));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "გამარჯობა (gamarjoba) hello ";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Arrays.asList("kat", "eng"));
+                Arrays.<String>asList("kat", "eng"));
         result = result.replaceAll("\f", "");
         result = result.replaceAll("\\n+", " ");
         // correct result with specified georgian+eng language
@@ -248,12 +248,12 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        Collections.singletonList("kat")));
+                        Collections.<String>singletonList("kat")));
         Assert.assertNotEquals(expected,
                 getOCRedTextFromTextFile(tesseractReader, imgPath,
-                        Collections.singletonList("eng")));
+                        Collections.<String>singletonList("eng")));
         Assert.assertFalse(getOCRedTextFromTextFile(tesseractReader, imgPath,
-                new ArrayList<>()).contains(expected));
+                new ArrayList<String>()).contains(expected));
     }
 
     @Test
@@ -263,7 +263,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "اللغة العربية";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("ara"));
+                Collections.<String>singletonList("ara"));
         result = result.replaceAll("[\n\f]", "");
         // correct result with specified arabic language
         Assert.assertEquals(expected, result);
@@ -271,11 +271,11 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("eng")));
+                Collections.<String>singletonList("eng")));
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                Collections.singletonList("spa")));
+                Collections.<String>singletonList("spa")));
         Assert.assertNotEquals(expected, getOCRedTextFromTextFile(tesseractReader, imgPath,
-                new ArrayList<>()));
+                new ArrayList<String>()));
     }
 
     @Test
@@ -284,7 +284,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expectedTxt = testDocumentsDirectory + "german_01" + parameter + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
-                Collections.singletonList("deu"));
+                Collections.<String>singletonList("deu"));
         Assert.assertTrue(result);
     }
 
@@ -294,7 +294,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expectedTxt = testDocumentsDirectory + "multipage_" + parameter + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
-                Collections.singletonList("eng"));
+                Collections.<String>singletonList("eng"));
         Assert.assertTrue(result);
     }
 
@@ -306,16 +306,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified spanish language
         Assert.assertEquals(expectedGerman,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("deu")));
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("deu")));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expectedGerman,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("eng")));
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng")));
         Assert.assertNotEquals(expectedGerman,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("fra")));
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("fra")));
         Assert.assertNotEquals(expectedGerman,
-                getTextFromPdf(tesseractReader, file, new ArrayList<>()));
+                getTextFromPdf(tesseractReader, file, new ArrayList<String>()));
     }
 
     @Test
@@ -325,16 +325,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "الحية. والضحك؛ والحب\nlive, laugh, love";
 
         String result = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("ara", "eng"), cairoFontPath);
+                Arrays.<String>asList("ara", "eng"), cairoFontPath);
         // correct result with specified arabic+english languages
         Assert.assertEquals(expected, result.replaceAll("[?]", ""));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("eng"), cairoFontPath));
+                Collections.<String>singletonList("eng"), cairoFontPath));
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, new ArrayList<>(), cairoFontPath));
+                getTextFromPdf(tesseractReader, file, new ArrayList<String>(), cairoFontPath));
     }
 
     @Test
@@ -346,16 +346,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified arabic language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("ara"), cairoFontPath));
+                Collections.<String>singletonList("ara"), cairoFontPath));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("eng"), cairoFontPath));
+                Collections.<String>singletonList("eng"), cairoFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("spa"), cairoFontPath));
+                Collections.<String>singletonList("spa"), cairoFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<>(), cairoFontPath));
+                new ArrayList<String>(), cairoFontPath));
     }
 
     @Test
@@ -369,7 +369,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPathToTessData(getTessDataDirectory());
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
-                Arrays.asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
+                Arrays.<String>asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testDocumentsDirectory, "diff_");
@@ -409,13 +409,13 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         // or languages were specified in the wrong order
         // with different fonts
         Assert.assertTrue(getTextFromPdf(tesseractReader ,file,
-                Collections.singletonList("hin"), notoSansFontPath)
+                Collections.<String>singletonList("hin"), notoSansFontPath)
                 .contains(expectedHindi));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("hin"))
+                Collections.<String>singletonList("hin"))
                 .contains(expectedHindi));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("eng"))
+                Collections.<String>singletonList("eng"))
                 .contains(expectedHindi));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file)
                 .contains(expectedHindi));
@@ -433,19 +433,19 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified arabic+english languages
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.asList("hin", "eng"), notoSansFontPath));
+                Arrays.<String>asList("hin", "eng"), notoSansFontPath));
 
         // incorrect result without specified english language
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("hin"), notoSansFontPath));
+                Collections.<String>singletonList("hin"), notoSansFontPath));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("eng"), notoSansFontPath));
+                Collections.<String>singletonList("eng"), notoSansFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<>(), notoSansFontPath));
+                new ArrayList<String>(), notoSansFontPath));
     }
 
     @Test
@@ -457,21 +457,21 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified georgian+eng language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("kat"), freeSansFontPath)
+                Collections.<String>singletonList("kat"), freeSansFontPath)
                 .startsWith(expected));
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Arrays.asList("kat", "kat_old"), freeSansFontPath)
+                Arrays.<String>asList("kat", "kat_old"), freeSansFontPath)
                 .startsWith(expected));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("kat")).contains(expected));
+                Collections.<String>singletonList("kat")).contains(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("eng"))
+                Collections.<String>singletonList("eng"))
                 .contains(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                new ArrayList<>())
+                new ArrayList<String>())
                 .contains(expected));
     }
 
@@ -484,16 +484,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTextPositioning(TextPositioning.byWords);
         // correct result with specified spanish language
         Assert.assertEquals(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("ben"), freeSansFontPath), expected);
+                Collections.<String>singletonList("ben"), freeSansFontPath), expected);
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("ben")));
+                Collections.<String>singletonList("ben")));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("ben"), kosugiFontPath));
+                Collections.<String>singletonList("ben"), kosugiFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<>()));
+                new ArrayList<String>()));
         tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 
@@ -505,24 +505,24 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.asList("chi_sim", "chi_tra"), notoSansSCFontPath));
+                Arrays.<String>asList("chi_sim", "chi_tra"), notoSansSCFontPath));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("chi_sim"), notoSansSCFontPath));
+                Collections.<String>singletonList("chi_sim"), notoSansSCFontPath));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("chi_tra"), notoSansSCFontPath));
+                Collections.<String>singletonList("chi_tra"), notoSansSCFontPath));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("chi_sim")),
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_sim")),
                 notoSansSCFontPath);
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("chi_tra")),
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_tra")),
                 notoSansSCFontPath);
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Arrays.asList("chi_sim", "chi_tra")),
+                getTextFromPdf(tesseractReader, file, Arrays.<String>asList("chi_sim", "chi_tra")),
                 notoSansSCFontPath);
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<>())
+        Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<String>())
                 .contains(expected));
     }
 
@@ -534,18 +534,18 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // correct result with specified spanish language
         Assert.assertEquals(expectedSpanish,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("spa")));
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("spa")));
         Assert.assertEquals(expectedSpanish,
-                getTextFromPdf(tesseractReader, file, Arrays.asList("spa", "eng")));
+                getTextFromPdf(tesseractReader, file, Arrays.<String>asList("spa", "eng")));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expectedSpanish,
-                getTextFromPdf(tesseractReader, file, Collections.singletonList("eng")));
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng")));
         Assert.assertNotEquals(expectedSpanish,
-                getTextFromPdf(tesseractReader, file, new ArrayList<>()));
+                getTextFromPdf(tesseractReader, file, new ArrayList<String>()));
         Assert.assertNotEquals(expectedSpanish,
-                getTextFromPdf(tesseractReader, file, Arrays.asList("eng", "spa")));
+                getTextFromPdf(tesseractReader, file, Arrays.<String>asList("eng", "spa")));
     }
 
     @Test
@@ -557,16 +557,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPathToTessData(scriptTessDataDirectory);
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Bengali"), freeSansFontPath)
+                Collections.<String>singletonList("Bengali"), freeSansFontPath)
                 .startsWith(expected));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Bengali"))
+                Collections.<String>singletonList("Bengali"))
                 .startsWith(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Bengali"), kosugiFontPath)
+                Collections.<String>singletonList("Bengali"), kosugiFontPath)
                 .startsWith(expected));
 
         tesseractReader.setPathToTessData(getTessDataDirectory());
@@ -582,16 +582,16 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPathToTessData(scriptTessDataDirectory);
         // correct result with specified georgian+eng language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Georgian"), freeSansFontPath)
+                Collections.<String>singletonList("Georgian"), freeSansFontPath)
                 .startsWith(expected));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Georgian"))
+                Collections.<String>singletonList("Georgian"))
                 .contains(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.singletonList("Japanese"))
+                Collections.<String>singletonList("Japanese"))
                 .contains(expected));
 
         tesseractReader.setPathToTessData(getTessDataDirectory());
@@ -606,7 +606,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPathToTessData(scriptTessDataDirectory);
         // correct result with specified japanese language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.asList("Japanese"), kosugiFontPath));
+                Arrays.<String>asList("Japanese"), kosugiFontPath));
 
         tesseractReader.setPathToTessData(getTessDataDirectory());
     }
@@ -616,14 +616,14 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "wierdwords.png";
         String expectedOutput = "he23llo qwetyrtyqpwe-rty";
 
-        tesseractReader.setLanguages(Collections.singletonList("eng"));
-        tesseractReader.setUserWords("eng", Arrays.asList("he23llo", "qwetyrtyqpwe-rty"));
+        tesseractReader.setLanguages(Collections.<String>singletonList("eng"));
+        tesseractReader.setUserWords("eng", Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty"));
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.trim().contains(expectedOutput));
 
         Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
                 tesseractReader.getUserWordsFilePath());
-        tesseractReader.setUserWords("eng", new ArrayList<>());
+        tesseractReader.setUserWords("eng", new ArrayList<String>());
     }
 
     @Test
@@ -631,14 +631,14 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "wierdwords.png";
         String expectedOutput = "he23llo qwetyrtyqpwe-rty";
 
-        tesseractReader.setLanguages(Arrays.asList("eng", "deu"));
-        tesseractReader.setUserWords("deu", Arrays.asList("he23llo", "qwetyrtyqpwe-rty"));
+        tesseractReader.setLanguages(Arrays.<String>asList("eng", "deu"));
+        tesseractReader.setUserWords("deu", Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty"));
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.trim().contains(expectedOutput));
 
         Assert.assertEquals(getTessDataDirectory() + File.separator + "deu.user-words",
                 tesseractReader.getUserWordsFilePath());
-        tesseractReader.setUserWords("eng", new ArrayList<>());
+        tesseractReader.setUserWords("eng", new ArrayList<String>());
     }
 
     @Test
@@ -646,10 +646,10 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "small.jpg";
         String userWords = testDocumentsDirectory + "userwords.txt";
 
-        List<String> expectedOutput = Arrays.asList("2", "Item(s)", "included", "36,000",
+        List<String> expectedOutput = Arrays.<String>asList("2", "Item(s)", "included", "36,000",
                 "48,000", "4,000", "CHANGE");
 
-        tesseractReader.setLanguages(Collections.singletonList("eng"));
+        tesseractReader.setLanguages(Collections.<String>singletonList("eng"));
         tesseractReader.setUserWords("eng", new FileInputStream(new File(userWords)));
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
 
@@ -658,13 +658,13 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         }
         Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
                 tesseractReader.getUserWordsFilePath());
-        tesseractReader.setUserWords("eng", new ArrayList<>());
+        tesseractReader.setUserWords("eng", new ArrayList<String>());
     }
 
     @Test
     public void testIncorrectLanguageForUserWords() {
         try {
-            tesseractReader.setUserWords("eng1", Arrays.asList("word1", "word2"));
+            tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
                     .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,

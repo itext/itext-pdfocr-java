@@ -1,9 +1,11 @@
 package com.itextpdf.ocr;
 
-import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import net.sourceforge.tess4j.ITesseract;
@@ -62,7 +64,7 @@ public class TesseractLibReader extends TesseractReader {
         setOsType(identifyOSType());
         setTesseractInstance();
         setPathToTessData(tessDataPath);
-        setLanguages(Collections.unmodifiableList(languagesList));
+        setLanguages(Collections.<String>unmodifiableList(languagesList));
     }
 
     /**
@@ -105,7 +107,7 @@ public class TesseractLibReader extends TesseractReader {
                     DEFAULT_USER_WORDS_SUFFIX);
         }
 
-        if (!getLanguages().isEmpty()) {
+        if (getLanguages().size() > 0) {
             getTesseractInstance()
                     .setLanguage(String.join("+", getLanguages()));
         }
@@ -125,7 +127,7 @@ public class TesseractLibReader extends TesseractReader {
                     tmpFile = ImageUtil.preprocessImage(inputImage);
                 } catch (IOException | NullPointerException e) {
                     LOGGER.warn("Cannot preprocess image: " + inputImage.getAbsolutePath()
-                            + " with error " + e.getLocalizedMessage());
+                            + " with error " + e.getMessage());
                 }
             }
             // perform OCR
@@ -135,7 +137,7 @@ public class TesseractLibReader extends TesseractReader {
                 result = getTesseractInstance().doOCR(tmpFile);
             }
         } catch (TesseractException e) {
-            LOGGER.error("OCR failed: " + e.getLocalizedMessage());
+            LOGGER.error("OCR failed: " + e.getMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED);
         } finally {
             if (tmpFile != null) {
@@ -144,11 +146,12 @@ public class TesseractLibReader extends TesseractReader {
         }
 
         if (result != null) {
-            try (BufferedWriter writer = Files
-                    .newBufferedWriter(outputFile.toPath())) {
+            try (Writer writer = new OutputStreamWriter(
+                    new FileOutputStream(outputFile.getAbsolutePath()),
+                    StandardCharsets.UTF_8)) {
                 writer.write(result);
             } catch (IOException e) {
-                LOGGER.error("Cannot write to file: " + e.getLocalizedMessage());
+                LOGGER.error("Cannot write to file: " + e.getMessage());
                 throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
                         .setMessageParams("Cannot write to file "
                                 + outputFile.getAbsolutePath());

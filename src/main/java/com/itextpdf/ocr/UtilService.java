@@ -7,17 +7,13 @@ import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.EndTag;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
-import org.apache.commons.io.FileUtils;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +59,11 @@ final class UtilService {
             } else {
                 ProcessBuilder pb = new ProcessBuilder("bash", "-c", //NOSONAR
                         String.join(" ", command)); //NOSONAR
-                pb.redirectErrorStream(true);
                 process = pb.start();
             }
+            boolean cmdSucceeded = process.waitFor(3 * 60 * 60 * 1000,
+                    java.util.concurrent.TimeUnit.MILLISECONDS);
 
-            int exitVal = process.waitFor();
-
-            boolean cmdSucceeded = exitVal == 0;
             if (!cmdSucceeded) {
                 LOGGER.error("Error occurred during running command: "
                         + String.join(" ", command));
@@ -81,7 +75,7 @@ final class UtilService {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            LOGGER.error("Error occurred:" + e.getLocalizedMessage());
+            LOGGER.error("Error occurred:" + e.getMessage());
         }
     }
 
@@ -100,68 +94,39 @@ final class UtilService {
     static List<TextInfo> parseHocrFile(final File inputFile,
             final TextPositioning textPositioning)
             throws IOException {
-        List<TextInfo> textData = new ArrayList<>();
+        List<TextInfo> textData = new ArrayList<TextInfo>();
 
-        // Using the jericho library to parse the HTML file
-        Source source = new Source(inputFile);
+        Document doc = org.jsoup.Jsoup.parse(inputFile.getAbsoluteFile(), String.valueOf(StandardCharsets.UTF_8));
+        Elements pages = doc.getElementsByClass("ocr_page");
 
-        Pattern confPattern = Pattern.compile("x_wconf(\\s+\\d+)");
         Pattern bboxPattern = Pattern.compile("bbox(\\s+\\d+){4}");
         Pattern bboxCoordinatePattern = Pattern
                 .compile("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
+        String searchedClass = TextPositioning.byLines.equals(textPositioning)
+                ? "ocr_line" : "ocrx_word";
+        for (org.jsoup.nodes.Element page : pages) {
+            String[] pageNum = page.id().split("page_");
+            int pageNumber = Integer.parseInt(pageNum[pageNum.length - 1]);
+            Elements objects = page.getElementsByClass(searchedClass);
+            for (org.jsoup.nodes.Element obj : objects) {
+                String value = obj.attr("title");
+                Matcher bboxMatcher = bboxPattern.matcher(value);
+                if (bboxMatcher.find()) {
+                    Matcher bboxCoordinateMatcher = bboxCoordinatePattern
+                            .matcher(bboxMatcher.group());
+                    if (bboxCoordinateMatcher.find()) {
+                        List<Float> coordinates = new ArrayList<>();
+                        for (int i = 0; i < 4; i++) {
+                            coordinates.add(Float
+                                    .parseFloat(bboxCoordinateMatcher.group(i + 1)));
+                        }
 
-        Pattern pagePattern = Pattern.compile("page_(\\d+)");
-
-         String searchedTag = TextPositioning.byLines.equals(textPositioning)
-                 ? "ocr_line" : "ocrx_word";
-
-        StartTag pageBlock = source.getNextStartTag(0, "class",
-                "ocr_page", false);
-        while (pageBlock != null) {
-            Element pageElement = pageBlock.getElement();
-            String valueId = pageElement.getAttributeValue("id");
-            Matcher pageMatcher = pagePattern.matcher(valueId);
-            if (pageMatcher.find()) {
-                String matchedPageString = pageMatcher.group()
-                        .split("page_")[1];
-                int matchedPage = Integer.parseInt(matchedPageString);
-                EndTag pageBlockEnd = pageElement.getEndTag();
-                StartTag ocrTag = source.getNextStartTag(pageBlock.getBegin(),
-                        "class", searchedTag, false);
-
-                while (ocrTag != null
-                        && ocrTag.getBegin() < pageBlockEnd.getEnd()) {
-                    Element lineElement = ocrTag.getElement();
-                    String valueTitle = lineElement
-                            .getAttributeValue("title");
-
-                    Matcher bboxMatcher = bboxPattern.matcher(valueTitle);
-                    if (bboxMatcher.find()) {
-                        Matcher bboxCoordinateMatcher = bboxCoordinatePattern
-                                .matcher(bboxMatcher.group());
-                        bboxCoordinateMatcher.find();
-
-                        List<Float> coordinates = IntStream
-                                .range(0, 4)
-                                .boxed()
-                                .map(i -> Float.parseFloat(
-                                        bboxCoordinateMatcher.group(i + 1)))
-                                .collect(Collectors.toList());
-
-                        String line = lineElement.getContent()
-                                .getTextExtractor().toString();
-
-                        textData.add(new TextInfo(line, matchedPage,
+                        textData.add(new TextInfo(obj.text(), pageNumber,
                                 coordinates));
                     }
-                    ocrTag = source.getNextStartTag(ocrTag.getEnd(),
-                            "class", searchedTag, false);
                 }
             }
-            pageBlock = source.getNextStartTag(pageBlock.getEnd(),
-                    "class", "ocr_page", false);
         }
-
         return textData;
     }
 
@@ -174,10 +139,10 @@ final class UtilService {
     static String readTxtFile(final File txtFile) {
         String content = null;
         try {
-            content = FileUtils.readFileToString(txtFile, StandardCharsets.UTF_8);
+            content = new String (Files.readAllBytes(txtFile.toPath()));
         } catch (IOException e) {
             LOGGER.error("Cannot read file " + txtFile.getAbsolutePath()
-                    + " with error " + e.getLocalizedMessage());
+                    + " with error " + e.getMessage());
         }
         return content;
     }
@@ -262,9 +227,13 @@ final class UtilService {
      */
     static List<TextInfo> getTextForPage(final List<TextInfo> data,
             final Integer page) {
-        return data.stream()
-                .filter(item -> item.getPageNumber().equals(page))
-                .collect(Collectors.toList());
+        List<TextInfo> result = new ArrayList<>();
+        for (TextInfo item : data) {
+            if (item.getPageNumber().equals(page)) {
+                result.add(item);
+            }
+        }
+        return result;
     }
 
     /**
@@ -274,8 +243,9 @@ final class UtilService {
      */
     static void deleteFile(File file) {
         if (file != null && file.exists()) {
-            boolean deleted = file.delete();
-            if (!deleted) {
+            boolean deleted = true;
+            deleted = file.delete();
+            if (!deleted || !file.exists()) {
                 LOGGER.warn("File " + file.getAbsolutePath() + " was not deleted");
             }
         }

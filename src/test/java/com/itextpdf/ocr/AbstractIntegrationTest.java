@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -96,7 +97,7 @@ class AbstractIntegrationTest {
                           File file, IPdfRenderer.ScaleMode scaleMode,
                           Rectangle pageSize) throws IOException {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file), scaleMode);
+                Collections.<File>singletonList(file), scaleMode);
 
         pdfRenderer.setPageSize(pageSize);
 
@@ -111,7 +112,8 @@ class AbstractIntegrationTest {
                     .getAsDictionary(PdfName.Resources);
             PdfDictionary pageXObjects = pageResources
                     .getAsDictionary(PdfName.XObject);
-            PdfName imgRef = pageXObjects.keySet().iterator().next();
+            List<PdfName> pdfNames = new ArrayList<PdfName>(pageXObjects.keySet());
+            PdfName imgRef = pdfNames.get(0);
             PdfStream imgStream = pageXObjects.getAsStream(imgRef);
 
             PdfImageXObject imgObject = new PdfImageXObject(imgStream);
@@ -297,7 +299,7 @@ class AbstractIntegrationTest {
         }
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(new File(imgPath)));
+                Collections.<File>singletonList(new File(imgPath)));
 
         pdfRenderer.doPdfOcr(txtPath);
 
@@ -327,7 +329,7 @@ class AbstractIntegrationTest {
         }
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(new File(imgPath)));
+                Collections.<File>singletonList(new File(imgPath)));
         pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);

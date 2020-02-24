@@ -9,7 +9,6 @@ import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.lept4j.Pixa;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,20 +171,25 @@ public class ImageUtil {
      * @return
      */
     public static String getExtension(String path) {
-        String extension = FilenameUtils.getExtension(path);
-        if (extension.toLowerCase().contains("jpg")
-                || extension.toLowerCase().contains("jpeg")
-                || extension.toLowerCase().contains("jpe")
-                || extension.toLowerCase().contains("jfif")) {
-            return "jpeg";
-        } else if (extension.toLowerCase().contains("pbm")
-                || extension.toLowerCase().contains("pgm")
-                || extension.toLowerCase().contains("pnm")
-                || extension.toLowerCase().contains("ppm")) {
-            return "pnm";
-        } else {
-            return extension;
+        int index = path.lastIndexOf('.');
+        if (index > 0) {
+            String extension = new String(path.toCharArray(), index + 1,
+                    path.length() - index - 1);
+            if (extension.toLowerCase().contains("jpg")
+                    || extension.toLowerCase().contains("jpeg")
+                    || extension.toLowerCase().contains("jpe")
+                    || extension.toLowerCase().contains("jfif")) {
+                return "jpeg";
+            } else if (extension.toLowerCase().contains("pbm")
+                    || extension.toLowerCase().contains("pgm")
+                    || extension.toLowerCase().contains("pnm")
+                    || extension.toLowerCase().contains("ppm")) {
+                return "pnm";
+            } else {
+                return extension;
+            }
         }
+        return "";
     }
 
     /**
@@ -216,7 +220,7 @@ public class ImageUtil {
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LOGGER.error(formatName + " does not exist: "
-                    + e.getLocalizedMessage());
+                    + e.getMessage());
         }
         return format;
     }

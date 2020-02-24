@@ -38,7 +38,7 @@ public class TextInfo {
             final List<Float> newCoordinates) {
         text = newText;
         pageNumber = newPageNumber;
-        coordinates = Collections.unmodifiableList(newCoordinates);
+        coordinates = Collections.<Float>unmodifiableList(newCoordinates);
     }
 
     /**
@@ -83,7 +83,7 @@ public class TextInfo {
      * @return List<Float>
      */
     public List<Float> getCoordinates() {
-        return new ArrayList<>(coordinates);
+        return new ArrayList<Float>(coordinates);
     }
 
     /**
@@ -92,6 +92,6 @@ public class TextInfo {
      * @param newCoordinates List<Float>
      */
     public void setCoordinates(final List<Float> newCoordinates) {
-        coordinates = Collections.unmodifiableList(newCoordinates);
+        coordinates = Collections.<Float>unmodifiableList(newCoordinates);
     }
 }

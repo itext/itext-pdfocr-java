@@ -3,9 +3,12 @@ package com.itextpdf.ocr;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +46,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * List of languages required for ocr for provided images.
      */
-    private List<String> languages = Collections.emptyList();
+    private List<String> languages = Collections.<String>emptyList();
 
     /**
      * Path to directory with tess data.
@@ -93,7 +96,7 @@ public abstract class TesseractReader implements IOcrReader {
      * @param requiredLanguages List<String>
      */
     public final void setLanguages(final List<String> requiredLanguages) {
-        languages = Collections.unmodifiableList(requiredLanguages);
+        languages = Collections.<String>unmodifiableList(requiredLanguages);
     }
 
     /**
@@ -102,7 +105,7 @@ public abstract class TesseractReader implements IOcrReader {
      * @return List<String>
      */
     public final List<String> getLanguages() {
-        return new ArrayList<>(languages);
+        return new ArrayList<String>(languages);
     }
 
     /**
@@ -217,7 +220,7 @@ public abstract class TesseractReader implements IOcrReader {
             final OutputFormat outputFormat) {
         String data = null;
         try {
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(), ".txt");
+            File tmpFile = getTmpFile("txt");
             doTesseractOcr(input, tmpFile, OutputFormat.txt);
             if (tmpFile.exists()) {
                 data = UtilService.readTxtFile(tmpFile);
@@ -226,12 +229,9 @@ public abstract class TesseractReader implements IOcrReader {
                         + tmpFile.getAbsolutePath());
             }
 
-            if (!tmpFile.delete()) {
-                LOGGER.error("File " + tmpFile.getAbsolutePath()
-                        + " cannot be deleted");
-            }
+            UtilService.deleteFile(tmpFile);
         } catch (IOException e) {
-            LOGGER.error("Error occurred: " + e.getLocalizedMessage());
+            LOGGER.error("Error occurred: " + e.getMessage());
         }
 
         return data;
@@ -248,10 +248,9 @@ public abstract class TesseractReader implements IOcrReader {
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final File input) {
-        List<TextInfo> textData = new ArrayList<>();
+        List<TextInfo> textData = new ArrayList<TextInfo>();
         try {
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                    ".hocr");
+            File tmpFile = getTmpFile("hocr");
             doTesseractOcr(input, tmpFile, OutputFormat.hocr);
             if (tmpFile.exists()) {
                 textData = UtilService.parseHocrFile(tmpFile, getTextPositioning());
@@ -264,12 +263,9 @@ public abstract class TesseractReader implements IOcrReader {
                         + tmpFile.getAbsolutePath());
             }
 
-            if (!tmpFile.delete()) {
-                LOGGER.error("File " + tmpFile.getAbsolutePath()
-                        + " cannot be deleted");
-            }
+            UtilService.deleteFile(tmpFile);
         } catch (IOException e) {
-            LOGGER.error("Error occurred: " + e.getLocalizedMessage());
+            LOGGER.error("Error occurred: " + e.getMessage());
         }
 
         return textData;
@@ -284,20 +280,22 @@ public abstract class TesseractReader implements IOcrReader {
      * @param userWords List<String>
      */
     public void setUserWords(String language, List<String> userWords) {
-        if (userWords == null || userWords.isEmpty()) {
+        if (userWords == null || userWords.size() == 0) {
             userWordsFile = null;
         } else {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 for (String word : userWords) {
-                    baos.write(word.getBytes());
-                    baos.write(System.getProperty("line.separator").getBytes());
+                    byte[] bytesWord = word.getBytes();
+                    baos.write(bytesWord, 0, bytesWord.length);
+                    byte[] bytesSeparator = System.getProperty("line.separator").getBytes();
+                    baos.write(bytesSeparator, 0, bytesSeparator.length);
                 }
                 InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
                 baos.close();
                 setUserWords(language, inputStream);
             } catch (IOException e) {
-                LOGGER.warn("Cannot use custom user words: " + e.getLocalizedMessage());
+                LOGGER.warn("Cannot use custom user words: " + e.getMessage());
             }
         }
     }
@@ -317,19 +315,18 @@ public abstract class TesseractReader implements IOcrReader {
             throw new OCRException(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
                     .setMessageParams(language);
         }
-        validateLanguages(Collections.singletonList(language));
-        try (FileOutputStream outputStream = new FileOutputStream(new File(userWordsFileName))) {
-            int read;
-            byte[] bytes = new byte[1024];
-
-            while ((read = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
+        validateLanguages(Collections.<String>singletonList(language));
+        try (OutputStreamWriter writer = new FileWriter(userWordsFileName)) {
+            Reader reader = new InputStreamReader(inputStream);
+            int data;
+            while ((data = reader.read()) != -1) {
+                writer.write(data);
             }
-            outputStream.write(System.getProperty("line.separator").getBytes());
+            writer.write(System.getProperty("line.separator"));
             userWordsFile = userWordsFileName;
-        } catch (IOException e) {
+        } catch (Exception e) {
             userWordsFile = null;
-            LOGGER.warn("Cannot use custom user words: " + e.getLocalizedMessage());
+            LOGGER.warn("Cannot use custom user words: " + e.getMessage());
         }
     }
 
@@ -382,7 +379,7 @@ public abstract class TesseractReader implements IOcrReader {
      */
     public void validateLanguages(List<String> languages) {
         String suffix = ".traineddata";
-        if (languages.isEmpty()) {
+        if (languages.size() == 0) {
             if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
                 LOGGER.error("eng" + suffix
                         + " doesn't exist in provided directory");
@@ -400,5 +397,24 @@ public abstract class TesseractReader implements IOcrReader {
                 }
             }
         }
+    }
+
+    /**
+     * Create temporary file in system temp directory
+     *
+     * @param extension
+     * @return
+     * @throws IOException
+     */
+    private File getTmpFile(String extension) throws IOException {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String tmpFileName = tempDir + UUID.randomUUID().toString() + "." + extension;
+        File tmpFile = new File(tmpFileName);
+        boolean created = true;
+        created = tmpFile.createNewFile();
+        if (!created || !tmpFile.exists()) {
+            LOGGER.warn("Cannot create tmp file");
+        }
+        return tmpFile;
     }
 }

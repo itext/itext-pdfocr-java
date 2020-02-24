@@ -30,7 +30,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
+        return Arrays.<Object[]>asList(
                 new Object[][] { {
                         new TesseractExecutableReader(getTesseractDirectory(),
                                 getTessDataDirectory())
@@ -46,7 +46,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        pdfRenderer.setInputImages(Collections.singletonList(file));
+        pdfRenderer.setInputImages(Collections.<File>singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
         Assert.assertNotNull(doc);
@@ -68,7 +68,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        pdfRenderer.setInputImages(Collections.singletonList(file));
+        pdfRenderer.setInputImages(Collections.<File>singletonList(file));
 
         pdfRenderer.setImageLayerName("name image 1");
         pdfRenderer.setTextLayerName("name text 1");
@@ -102,7 +102,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
@@ -139,7 +139,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setPreprocessingImages(false);
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.singletonList(file));
+                Collections.<File>singletonList(file));
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);

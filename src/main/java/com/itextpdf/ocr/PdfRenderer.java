@@ -31,11 +31,12 @@ import com.itextpdf.pdfa.PdfADocument;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.imaging.ImageFormats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * List of Files with input images.
      */
-    private List<File> inputImages = Collections.emptyList();
+    private List<File> inputImages = Collections.<File>emptyList();
 
     /**
      * CMYK color of the text in the output PDF document.
@@ -147,7 +148,7 @@ public class PdfRenderer implements IPdfRenderer {
      */
     public PdfRenderer(final IOcrReader reader, final List<File> images) {
         ocrReader = reader;
-        inputImages = Collections.unmodifiableList(images);
+        inputImages = Collections.<File>unmodifiableList(images);
     }
 
     /**
@@ -161,7 +162,7 @@ public class PdfRenderer implements IPdfRenderer {
     public PdfRenderer(final IOcrReader reader, final List<File> images,
             final ScaleMode mode) {
         ocrReader = reader;
-        inputImages = Collections.unmodifiableList(images);
+        inputImages = Collections.<File>unmodifiableList(images);
         scaleMode = mode;
     }
 
@@ -176,7 +177,7 @@ public class PdfRenderer implements IPdfRenderer {
     public PdfRenderer(final IOcrReader reader, final List<File> images,
             final Color newColor) {
         ocrReader = reader;
-        inputImages = Collections.unmodifiableList(images);
+        inputImages = Collections.<File>unmodifiableList(images);
         textColor = newColor;
         scaleMode = ScaleMode.keepOriginalSize;
     }
@@ -194,7 +195,7 @@ public class PdfRenderer implements IPdfRenderer {
             final Color newColor, final ScaleMode mode) {
         ocrReader = reader;
         textColor = newColor;
-        inputImages = Collections.unmodifiableList(images);
+        inputImages = Collections.<File>unmodifiableList(images);
         scaleMode = mode;
     }
 
@@ -204,7 +205,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @param images List<File>
      */
     public void setInputImages(final List<File> images) {
-        inputImages = Collections.unmodifiableList(images);
+        inputImages = Collections.<File>unmodifiableList(images);
     }
 
     /**
@@ -213,7 +214,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @return List<File>
      */
     public final List<File> getInputImages() {
-        return new ArrayList<>(inputImages);
+        return new ArrayList<File>(inputImages);
     }
 
     /**
@@ -442,7 +443,7 @@ public class PdfRenderer implements IPdfRenderer {
         LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
-        Map<File, List<TextInfo>> imagesTextData = new HashMap<>();
+        Map<File, List<TextInfo>> imagesTextData = new HashMap<File, List<TextInfo>>();
         for (File inputImage : getInputImages()) {
             imagesTextData.put(inputImage, doOCRForImages(inputImage));
         }
@@ -504,12 +505,12 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private void writeToTextFile(final String path,
             final String data) {
-        File file = new File(path);;
-        try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write(data);
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(path),
+                StandardCharsets.UTF_8)) {
+            writer.write(data);
         } catch (IOException e) {
             LOGGER.error("Error occurred during writing to " + path + " file: "
-                    + e.getLocalizedMessage());
+                    + e.getMessage());
         }
     }
 
@@ -524,9 +525,16 @@ public class PdfRenderer implements IPdfRenderer {
             final OutputFormat outputFormat) {
         String data = null;
         if (!validateImageFormat(inputImage)) {
+            String extension = "incorrect extension";
+            int index = inputImage.getAbsolutePath().lastIndexOf('.');
+            if (index > 0) {
+                extension = new String(inputImage
+                        .getAbsolutePath().toCharArray(),
+                        index + 1, inputImage
+                        .getAbsolutePath().length() - index - 1);
+            }
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
-                    .setMessageParams(
-                            FilenameUtils.getExtension(inputImage.getName()));
+                    .setMessageParams(extension);
         } else {
             data = ocrReader.readDataFromInput(inputImage, outputFormat);
         }
@@ -542,11 +550,18 @@ public class PdfRenderer implements IPdfRenderer {
     private List<TextInfo> doOCRForImages(final File inputImage) {
         List<TextInfo> data;
         if (!validateImageFormat(inputImage)) {
+            String extension = "incorrect extension";
+            int index = inputImage.getAbsolutePath().lastIndexOf('.');
+            if (index > 0) {
+                extension = new String(inputImage
+                        .getAbsolutePath().toCharArray(),
+                        index + 1, inputImage
+                        .getAbsolutePath().length() - index - 1);
+            }
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
-                    .setMessageParams(
-                            FilenameUtils.getExtension(inputImage.getName()));
+                    .setMessageParams(extension);
         } else {
-            data = new ArrayList<>(ocrReader.readDataFromInput(inputImage));
+            data = new ArrayList<TextInfo>(ocrReader.readDataFromInput(inputImage));
         }
         return data;
     }
@@ -559,16 +574,23 @@ public class PdfRenderer implements IPdfRenderer {
      * @return true if image format is valid, false - if not
      */
     private boolean validateImageFormat(final File image) {
-        String ext = FilenameUtils.getExtension(image.getName());
-
-        boolean isValid = true;
-        try {
-            ImageFormat.valueOf(ext.toLowerCase());
-        } catch (IllegalArgumentException ex) {
-            isValid = false;
-            LOGGER.error("Image format is invalid: " + ext);
+        boolean isValid = false;
+        String extension = "incorrect extension";
+        int index = image.getAbsolutePath().lastIndexOf('.');
+        if (index > 0) {
+            extension = new String(image.getAbsolutePath().toCharArray(),
+                    index + 1,
+                    image.getAbsolutePath().length() - index - 1);
+            for (ImageFormat imageFormat : ImageFormat.class.getEnumConstants()) {
+                if (imageFormat.name().equals(extension.toLowerCase())) {
+                    isValid = true;
+                    break;
+                }
+            }
+            if (!isValid) {
+                LOGGER.error("Image format is invalid: " + extension);
+            }
         }
-
         return isValid;
     }
 
@@ -584,14 +606,15 @@ public class PdfRenderer implements IPdfRenderer {
     private void addDataToPdfDocument(final Map<File, List<TextInfo>> imagesTextData,
             final PdfDocument pdfDocument,
             final PdfFont defaultFont) throws OCRException {
-        for (File inputImage : imagesTextData.keySet()) {
+        for (Map.Entry<File, List<TextInfo>> entry : imagesTextData.entrySet()) {
             try {
+                File inputImage = entry.getKey();
                 List<ImageData> imageDataList = getImageData(inputImage);
                 LOGGER.info(inputImage.toString() + " image contains "
                         + imageDataList.size() + " page(s)");
 
-                List<TextInfo> data = imagesTextData.get(inputImage);
-                if (!data.isEmpty()) {
+                List<TextInfo> data = entry.getValue();
+                if (data.size() > 0) {
                     for (int page = 0; page < imageDataList.size(); ++page) {
                         ImageData imageData = imageDataList.get(page);
                         Rectangle imageSize = UtilService
@@ -612,10 +635,10 @@ public class PdfRenderer implements IPdfRenderer {
                             .calculateImageSize(imageData, getScaleMode(),
                                     getPageSize());
                     addToCanvas(pdfDocument, defaultFont, imageSize,
-                            new ArrayList<>(), imageData);
+                            new ArrayList<TextInfo>(), imageData);
                 }
             } catch (IOException e) {
-                LOGGER.error("Error occurred: " + e.getLocalizedMessage());
+                LOGGER.error("Error occurred: " + e.getMessage());
             }
         }
     }
@@ -665,46 +688,56 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private List<ImageData> getImageData(final File inputImage)
             throws OCRException, IOException {
-        List<ImageData> images = new ArrayList<>();
+        List<ImageData> images = new ArrayList<ImageData>();
 
-        String ext = FilenameUtils.getExtension(inputImage.getName());
+        String ext = "";
+        int index = inputImage.getAbsolutePath().lastIndexOf('.');
+        if (index > 0) {
+            ext = new String(inputImage.getAbsolutePath().toCharArray(),
+                    index + 1,
+                    inputImage.getAbsolutePath().length() - index - 1);
 
-        if ("tiff".equals(ext.toLowerCase())
-                || "tif".equals(ext.toLowerCase())) {
-            Path tiffFile = Paths.get(inputImage.getPath());
+            if ("tiff".equals(ext.toLowerCase())
+                    || "tif".equals(ext.toLowerCase())) {
+                RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
+                        new RandomAccessSourceFactory()
+                                .createBestSource(inputImage.getAbsolutePath()));
+                int tiffPages = TiffImageData.getNumberOfPages(raf);
 
-            RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
-                    new RandomAccessSourceFactory()
-                            .createBestSource(tiffFile.toString()));
-            int tiffPages = TiffImageData.getNumberOfPages(raf);
-
-            for (int page = 0; page < tiffPages; page++) {
-                ImageData imageData = ImageDataFactory
-                        .createTiff(tiffFile.toUri().toURL(),
-                                true, page + 1, true);
-                images.add(imageData);
-            }
-            raf.close();
-        } else {
-            try {
-                ImageData imageData = ImageDataFactory
-                        .create(inputImage.getAbsolutePath());
-                images.add(imageData);
-            } catch (com.itextpdf.io.IOException e) {
-                try {
-                    BufferedImage bufferedImage = ImageIO.read(inputImage);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ImageIO.write(bufferedImage, "png", baos);
-                    ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+                for (int page = 0; page < tiffPages; page++) {
+                    byte[] bytes = Files.readAllBytes(inputImage.toPath());
+                    ImageData imageData = ImageDataFactory
+                            .createTiff(bytes,
+                                    true, page + 1, true);
                     images.add(imageData);
-                } catch (com.itextpdf.io.IOException | IOException | IllegalArgumentException ex) {
-                    LOGGER.error("Cannot parse " + inputImage.getAbsolutePath()
-                            + " image " + e.getLocalizedMessage());
-                    throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                }
+                raf.close();
+            } else {
+                try {
+                    ImageData imageData = ImageDataFactory
+                            .create(inputImage.getAbsolutePath());
+                    images.add(imageData);
+                } catch (com.itextpdf.io.IOException e) {
+                    String exception = "Cannot open " + inputImage.getAbsolutePath()
+                            + " image, converting to png: " + e.getMessage();
+                    LOGGER.warn(exception);
+                    try {
+                        BufferedImage bufferedImage = ImageIO.read(inputImage.getAbsoluteFile());
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                        ImageIO.write(bufferedImage, String.valueOf(ImageFormats.PNG), baos);
+                        ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+                        images.add(imageData);
+                    } catch (com.itextpdf.io.IOException | IOException
+                            | IllegalArgumentException ex) {
+                        exception = "Cannot parse " + inputImage.getAbsolutePath()
+                                + " image " + ex.getMessage();
+                        LOGGER.error(exception);
+                        throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                    }
                 }
             }
         }
-
         return images;
     }
 
@@ -747,7 +780,7 @@ public class PdfRenderer implements IPdfRenderer {
             final PdfCanvas pdfCanvas,
             final PdfFont defaultFont,
             final float multiplier) {
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.size() == 0) {
             pdfCanvas.beginText().setFontAndSize(defaultFont, 1);
             pdfCanvas.showText("").endText();
         } else {
@@ -758,10 +791,10 @@ public class PdfRenderer implements IPdfRenderer {
             for (TextInfo item : data) {
                 String line = item.getText();
                 List<Float> coordinates = item.getCoordinates();
-                final Float left = coordinates.get(0) * multiplier;
-                final Float right = (coordinates.get(2) + 1) * multiplier - 1;
-                final Float top = coordinates.get(1) * multiplier;
-                final Float bottom = (coordinates.get(3) + 1) * multiplier - 1;
+                final float left = coordinates.get(0) * multiplier;
+                final float right = (coordinates.get(2) + 1) * multiplier - 1;
+                final float top = coordinates.get(1) * multiplier;
+                final float bottom = (coordinates.get(3) + 1) * multiplier - 1;
                 final float delta = 0.05f;
 
                 float bboxWidthPt = UtilService
@@ -853,6 +886,6 @@ public class PdfRenderer implements IPdfRenderer {
                 x = (size.getWidth() - imageSize.getWidth()) / 2;
             }
         }
-        return Arrays.asList(x, y);
+        return Arrays.<Float>asList(x, y);
     }
 }

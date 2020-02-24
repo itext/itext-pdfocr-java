@@ -1,14 +1,12 @@
 package com.itextpdf.ocr;
 
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract Executable Reader class.
@@ -88,7 +86,7 @@ public class TesseractExecutableReader extends TesseractReader {
             final String tessDataPath,
             final List<String> languagesList) {
         setPathToExecutable(path);
-        setLanguages(Collections.unmodifiableList(languagesList));
+        setLanguages(Collections.<String>unmodifiableList(languagesList));
         setPathToTessData(tessDataPath);
         setOsType(identifyOSType());
     }
@@ -148,7 +146,7 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     public void doTesseractOcr(final File inputImage,
             final File outputFile, final OutputFormat outputFormat) {
-        List<String> command = new ArrayList<>();
+        List<String> command = new ArrayList<String>();
 
         // path to tesseract executable
         addPathToExecutable(command);
@@ -173,7 +171,7 @@ public class TesseractExecutableReader extends TesseractReader {
         try {
             UtilService.runCommand(command, isWindows());
         } catch (OCRException e) {
-            LOGGER.warn("Exception: " + e.getLocalizedMessage());
+            LOGGER.error("Running tesseract executable failed: " + e);
             throw new OCRException(e.getMessage());
         } finally {
             if (imagePath != null && isPreprocessingImages()
@@ -222,8 +220,8 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addUserWords(List<String> command) {
         if (getUserWordsFilePath() != null && !getUserWordsFilePath().isEmpty()) {
-            command.addAll(Arrays.asList("--user-words",
-                    addQuotes(getUserWordsFilePath())));
+            command.add("--user-words");
+            command.add(addQuotes(getUserWordsFilePath()));
         }
     }
 
@@ -234,8 +232,8 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addTessData(List<String> command) {
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
-            command.addAll(Arrays.asList("--tessdata-dir",
-                    addQuotes(getTessData())));
+            command.add("--tessdata-dir");
+            command.add(addQuotes(getTessData()));
         }
     }
 
@@ -246,7 +244,8 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addPageSegMode(List<String> command) {
         if (getPageSegMode() != null) {
-            command.addAll(Arrays.asList("--psm", getPageSegMode().toString()));
+            command.add("--psm");
+            command.add(String.valueOf(getPageSegMode()));
         }
     }
 
@@ -256,10 +255,10 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      */
     private void addLanguages(List<String> command) {
-        if (!getLanguages().isEmpty()) {
+        if (getLanguages().size() > 0) {
             validateLanguages(getLanguages());
-            command.addAll(Arrays.asList("-l",
-                    String.join("+", getLanguages())));
+            command.add("-l");
+            command.add(String.join("+", getLanguages()));
         }
     }
 
@@ -283,8 +282,8 @@ public class TesseractExecutableReader extends TesseractReader {
     private void addOutputFile(List<String> command, final File outputFile,
                                final OutputFormat outputFormat) {
         String extension = outputFormat.equals(OutputFormat.hocr) ? ".hocr" : ".txt";
-        String fileName = outputFile.getAbsolutePath()
-                .substring(0, outputFile.getAbsolutePath().indexOf(extension));
+        String fileName = new String(outputFile.getAbsolutePath().toCharArray(),
+                0, outputFile.getAbsolutePath().indexOf(extension));
         LOGGER.info("Temp path: " + outputFile.toString());
         command.add(addQuotes(fileName));
     }
@@ -313,7 +312,7 @@ public class TesseractExecutableReader extends TesseractReader {
                         .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
             } catch (IOException | NullPointerException e) {
                 LOGGER.error("Error while preprocessing image: "
-                        + e.getLocalizedMessage());
+                        + e.getMessage());
             }
         }
         return tmpFilePath;
