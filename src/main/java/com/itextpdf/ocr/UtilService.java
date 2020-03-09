@@ -59,6 +59,7 @@ final class UtilService {
             } else {
                 ProcessBuilder pb = new ProcessBuilder("bash", "-c", //NOSONAR
                         String.join(" ", command)); //NOSONAR
+                pb.redirectErrorStream(true);
                 process = pb.start();
             }
             boolean cmdSucceeded = process.waitFor(3 * 60 * 60 * 1000,
@@ -245,7 +246,7 @@ final class UtilService {
         if (file != null && file.exists()) {
             boolean deleted = true;
             deleted = file.delete();
-            if (!deleted || !file.exists()) {
+            if (!deleted || file.exists()) {
                 LOGGER.warn("File " + file.getAbsolutePath() + " was not deleted");
             }
         }

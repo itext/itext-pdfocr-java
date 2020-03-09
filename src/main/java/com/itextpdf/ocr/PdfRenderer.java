@@ -71,8 +71,7 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Path to default font file (LiberationSans-Regular).
      */
-    private String defaultFontPath = "src/main/resources/com/"
-            + "itextpdf/ocr/fonts/LiberationSans-Regular.ttf";
+    private String defaultFontPath = "com/itextpdf/ocr/fonts/LiberationSans-Regular.ttf";
 
     /**
      * List of Files with input images.
@@ -365,7 +364,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @return path to default font
      */
     public String getDefaultFontPath() {
-        return defaultFontPath;
+        return getClass().getClassLoader().getResource(defaultFontPath).toString();
     }
 
     /**
@@ -401,7 +400,6 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param absolutePath String
      * @return PdfDocument
-     * @throws IOException if provided font is incorrect
      */
     public void doPdfOcr(String absolutePath) {
         LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
@@ -421,10 +419,10 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param pdfWriter PdfWriter
      * @return PdfDocument
-     * @throws IOException if provided font is incorrect
+     * @throws OCRException if provided font is incorrect
      */
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter)
-            throws IOException {
+            throws OCRException {
         return doPdfOcr(pdfWriter, null);
     }
 
@@ -435,11 +433,11 @@ public class PdfRenderer implements IPdfRenderer {
      * @param pdfWriter PdfWriter
      * @param pdfOutputIntent PdfOutputIntent
      * @return PDF/A-3u document if pdfOutputIntent is not null
-     * @throws IOException if provided font or output intent is incorrect
+     * @throws OCRException if provided font or output intent is incorrect
      */
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent)
-            throws IOException {
+            throws OCRException {
         LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
@@ -460,11 +458,11 @@ public class PdfRenderer implements IPdfRenderer {
      * @param pdfOutputIntent PdfOutputIntent
      * @param imagesTextData Map<File, List<TextInfo>>
      * @return PdfDocument
-     * @throws IOException
+     * @throws OCRException
      */
     private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent,
-            final Map<File, List<TextInfo>> imagesTextData) throws IOException {
+            final Map<File, List<TextInfo>> imagesTextData) throws OCRException {
         PdfDocument pdfDocument;
         if (pdfOutputIntent != null) {
             pdfDocument = new PdfADocument(pdfWriter,
@@ -488,8 +486,14 @@ public class PdfRenderer implements IPdfRenderer {
         } catch (com.itextpdf.io.IOException | IOException e) {
             LOGGER.error("Error occurred when setting default font: "
                     + e.getMessage());
-            defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
-                    PdfEncodings.IDENTITY_H, true);
+            try {
+                defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
+                        PdfEncodings.IDENTITY_H, true);
+            } catch (com.itextpdf.io.IOException | IOException | NullPointerException ex) {
+                LOGGER.error("Error occurred when setting default font: "
+                        + e.getMessage());
+                throw new OCRException(OCRException.CANNOT_READ_FONT);
+            }
         }
         LOGGER.info("Current scale mode: " + getScaleMode());
         addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont);

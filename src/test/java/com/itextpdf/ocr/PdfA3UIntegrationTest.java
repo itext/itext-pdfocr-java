@@ -15,7 +15,6 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -188,8 +187,7 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testInvalidFontTwice() {
         String path = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
+
         try {
             File file = new File(path);
 
@@ -199,12 +197,8 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             pdfRenderer.setDefaultFontPath(path);
 
             pdfRenderer.doPdfOcr(getPdfWriter(), getCMYKPdfOutputIntent());
-        } catch (com.itextpdf.io.IOException | IOException e) {
-            String expectedMsg = MessageFormat
-                    .format(com.itextpdf.io.IOException
-                                    .TypeOfFont1IsNotRecognized,
-                            path);
-            Assert.assertEquals(expectedMsg, e.getMessage());
+        } catch (OCRException | IOException e) {
+            Assert.assertEquals(OCRException.CANNOT_READ_FONT, e.getMessage());
         }
     }
 
