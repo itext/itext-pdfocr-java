@@ -312,8 +312,9 @@ public abstract class TesseractReader implements IOcrReader {
         String userWordsFileName = getTessData() + File.separator
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;
         if (!getLanguages().contains(language)) {
-            throw new OCRException(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
-                    .setMessageParams(language);
+            List<String> languages = getLanguages();
+            languages.add(language);
+            setLanguages(languages);
         }
         validateLanguages(Collections.<String>singletonList(language));
         try (OutputStreamWriter writer = new FileWriter(userWordsFileName)) {
