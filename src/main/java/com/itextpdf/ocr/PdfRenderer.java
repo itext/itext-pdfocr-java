@@ -364,7 +364,8 @@ public class PdfRenderer implements IPdfRenderer {
      * @return path to default font
      */
     public String getDefaultFontPath() {
-        return getClass().getClassLoader().getResource(defaultFontPath).toString();
+        return Thread.currentThread().getContextClassLoader()
+                .getResource(defaultFontPath).toString();
     }
 
     /**
