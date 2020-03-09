@@ -40,7 +40,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -442,7 +442,7 @@ public class PdfRenderer implements IPdfRenderer {
         LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
-        Map<File, List<TextInfo>> imagesTextData = new HashMap<File, List<TextInfo>>();
+        Map<File, List<TextInfo>> imagesTextData = new LinkedHashMap<File, List<TextInfo>>();
         for (File inputImage : getInputImages()) {
             imagesTextData.put(inputImage, doOCRForImages(inputImage));
         }

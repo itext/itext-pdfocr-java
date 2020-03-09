@@ -248,6 +248,7 @@ public abstract class TesseractReader implements IOcrReader {
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final File input) {
+        LOGGER.info("Reading Data From Input");
         List<TextInfo> textData = new ArrayList<TextInfo>();
         try {
             File tmpFile = getTmpFile("hocr");
@@ -309,7 +310,8 @@ public abstract class TesseractReader implements IOcrReader {
      * @param inputStream InputStream
      */
     public void setUserWords(String language, InputStream inputStream) {
-        String userWordsFileName = getTessData() + File.separator
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String userWordsFileName = tempDir + File.separator
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;
         if (!getLanguages().contains(language)) {
             List<String> languages = getLanguages();
@@ -408,8 +410,14 @@ public abstract class TesseractReader implements IOcrReader {
      * @throws IOException
      */
     private File getTmpFile(String extension) throws IOException {
+        LOGGER.info("Creating temp file...");
         String tempDir = System.getProperty("java.io.tmpdir");
+        LOGGER.info("Tmp dir: " + tempDir);
+        if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
+            tempDir = tempDir + System.getProperty("file.separator");
+        }
         String tmpFileName = tempDir + UUID.randomUUID().toString() + "." + extension;
+        LOGGER.info("trying to create file: " + tmpFileName);
         File tmpFile = new File(tmpFileName);
         boolean created = true;
         created = tmpFile.createNewFile();

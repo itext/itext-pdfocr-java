@@ -168,8 +168,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
-    // TODO
-   /* @Test
+    @Test
     public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {
         String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
                 + ".pdf";
@@ -211,5 +210,4 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
         deleteFile(pdfPath);
     }
-    */
 }

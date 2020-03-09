@@ -379,14 +379,13 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTextPositioning(TextPositioning.byLines);
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testHindiTextWithUrdu() {
         String imgPath = testImagesDirectory + "hindi_01.jpg";
         File file = new File(imgPath);
 
         String expectedHindi = "हिन्दुस्तानी";
-        String expectedUrdu = "ہروتالی";
+        String expectedUrdu = "ہنروتالی";
 
         // correct result with specified arabic+urdu languages
         // but because of specified font only hindi will be displayed
@@ -420,7 +419,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertFalse(getTextFromPdf(tesseractReader, file)
                 .contains(expectedHindi));
     }
-    */
 
     @Test
     public void testHindiTextWithEng() {
@@ -621,7 +619,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.trim().contains(expectedOutput));
 
-        Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
+        Assert.assertEquals(System.getProperty("java.io.tmpdir") + File.separator
+                        + "eng.user-words",
                 tesseractReader.getUserWordsFilePath());
         tesseractReader.setUserWords("eng", new ArrayList<String>());
         tesseractReader.setLanguages(new ArrayList<>());
@@ -637,7 +636,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.trim().contains(expectedOutput));
 
-        Assert.assertEquals(getTessDataDirectory() + File.separator + "deu.user-words",
+        Assert.assertEquals(System.getProperty("java.io.tmpdir") + File.separator
+                        + "deu.user-words",
                 tesseractReader.getUserWordsFilePath());
         tesseractReader.setUserWords("eng", new ArrayList<String>());
         tesseractReader.setLanguages(new ArrayList<>());
@@ -657,7 +657,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         for (String word : expectedOutput) {
             Assert.assertTrue(result.contains(word));
         }
-        Assert.assertEquals(getTessDataDirectory() + File.separator + "eng.user-words",
+        Assert.assertEquals(System.getProperty("java.io.tmpdir")
+                        + File.separator + "eng.user-words",
                 tesseractReader.getUserWordsFilePath());
         Assert.assertEquals(1, tesseractReader.getLanguages().size());
         Assert.assertEquals("eng", tesseractReader.getLanguages().get(0));

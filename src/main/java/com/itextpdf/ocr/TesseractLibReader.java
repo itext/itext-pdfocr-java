@@ -105,6 +105,8 @@ public class TesseractLibReader extends TesseractReader {
             getTesseractInstance().setTessVariable("load_freq_dawg", "0");
             getTesseractInstance().setTessVariable("user_words_suffix",
                     DEFAULT_USER_WORDS_SUFFIX);
+            getTesseractInstance().setTessVariable("user_words_file",
+                    getUserWordsFilePath());
         }
 
         if (getLanguages().size() > 0) {
