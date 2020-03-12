@@ -1,5 +1,6 @@
 package com.itextpdf.ocr;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,12 +9,21 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import net.sourceforge.lept4j.Leptonica;
+import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
+import org.apache.commons.imaging.ImageFormats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+
+import static com.itextpdf.ocr.ImageUtil.preprocessTiffImage;
 
 /**
  * Tesseract Library Reader class.
@@ -122,20 +132,50 @@ public class TesseractLibReader extends TesseractReader {
 
         String result = null;
         File tmpFile = null;
+        BufferedImage img = null;
         try {
             LOGGER.info("Preprocessing image " + inputImage.getAbsolutePath() + ": " + isPreprocessingImages());
             // preprocess if required
             if (isPreprocessingImages()) {
                 try {
-                    tmpFile = ImageUtil.preprocessImage(inputImage);
+                    String extension = ImageUtil.getExtension(inputImage.getAbsolutePath());
+                    if (extension.toLowerCase().contains("tif")) {
+                        tmpFile = ImageUtil.preprocessTiffImage(inputImage);
+                    } else {
+                        int format = ImageUtil.getFormat(extension);
+                        Pix resultPix = ImageUtil.preprocessImageToPix(inputImage);
+                        tmpFile = File.createTempFile(UUID.randomUUID().toString(),
+                                ".png");
+                        LOGGER.info("Creating tmp preprocessed file "
+                                + tmpFile.getAbsolutePath());
+                        try {
+                            img = ImageUtil.convertPixToImage(resultPix, format);
+                            if (img != null) {
+                                tmpFile = null;
+                                LOGGER.info("Saved BufferedImage");
+                            } else {
+                                Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
+                                LOGGER.info("Saved Pix");
+                            }
+                        } catch (IOException e) {
+                            LOGGER.warn("Cannot convert pix to "
+                                    + "buffered image after converting: "
+                                    + e.getMessage());
+                            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
+                            LOGGER.info("Saved Pix");
+                        }
+                        ImageUtil.destroyPix(resultPix);
+                    }
                 } catch (IOException | NullPointerException e) {
                     LOGGER.warn("Cannot preprocess image: " + inputImage.getAbsolutePath()
                             + " with error " + e.getMessage());
                 }
             }
             // perform OCR
-            if (tmpFile == null || !isPreprocessingImages()) {
+            if ((img == null && tmpFile == null) || !isPreprocessingImages()) {
                 result = getTesseractInstance().doOCR(inputImage);
+            } else if (img != null) {
+                result = getTesseractInstance().doOCR(img);
             } else {
                 result = getTesseractInstance().doOCR(tmpFile);
             }

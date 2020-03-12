@@ -304,9 +304,9 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expectedGerman = "Das Geheimnis\ndes Könnens\nliegt im Wollen.";
 
+        String res = getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("deu"));
         // correct result with specified spanish language
-        Assert.assertEquals(expectedGerman,
-                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("deu")));
+        Assert.assertEquals(expectedGerman, res);
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
@@ -385,7 +385,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
 
         String expectedHindi = "हिन्दुस्तानी";
-        String expectedUrdu = "ہنروتالی";
+        String expectedUrdu = "ہروتالی";
 
         // correct result with specified arabic+urdu languages
         // but because of specified font only hindi will be displayed

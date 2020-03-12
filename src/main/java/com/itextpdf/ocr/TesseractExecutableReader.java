@@ -1,12 +1,19 @@
 package com.itextpdf.ocr;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import net.sourceforge.lept4j.Leptonica;
+import net.sourceforge.lept4j.Pix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 
 /**
  * Tesseract Executable Reader class.
@@ -309,8 +316,38 @@ public class TesseractExecutableReader extends TesseractReader {
         LOGGER.info("Preprocessing image " + path + ": " + isPreprocessingImages());
         if (isPreprocessingImages()) {
             try {
-                tmpFilePath = ImageUtil
-                        .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
+//                tmpFilePath = ImageUtil
+//                        .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
+                String extension = ImageUtil.getExtension(tmpFilePath);
+                File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
+                        "." + extension);
+                if (extension.toLowerCase().contains("tif")) {
+                    tmpFile = ImageUtil.preprocessTiffImage(new File(tmpFilePath));
+                } else {
+                    int format = ImageUtil.getFormat(extension);
+                    Pix resultPix = ImageUtil.preprocessImageToPix(new File(tmpFilePath));
+
+                    LOGGER.info("Creating tmp preprocessed file "
+                            + tmpFile.getAbsolutePath());
+                    try {
+                        BufferedImage img = ImageUtil.convertPixToImage(resultPix, format);
+                        if (img != null) {
+                            ImageIO.write(img, extension, tmpFile);
+                            LOGGER.info("Saved BufferedImage");
+                        } else {
+                            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
+                            LOGGER.info("Saved Pix");
+                        }
+                    } catch (IOException e) {
+                        LOGGER.warn("Cannot convert pix to "
+                                + "buffered image after converting: "
+                                + e.getMessage());
+                        Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
+                        LOGGER.info("Saved Pix");
+                    }
+                    ImageUtil.destroyPix(resultPix);
+                }
+                tmpFilePath = tmpFile.getAbsolutePath();
             } catch (IOException | NullPointerException e) {
                 LOGGER.error("Error while preprocessing image: "
                         + e.getMessage());
