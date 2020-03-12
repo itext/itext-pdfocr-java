@@ -104,14 +104,25 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     // TODO
-    /*@Test
+    @Test
     public void testTextFromPPM() {
         String path = testImagesDirectory + "numbers_01.ppm";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertEquals(realOutputHocr, expectedOutput);
-    }*/
+    }
+
+    @Test
+    public void testTextFromPPMWithoutPreprocessing() {
+        String path = testImagesDirectory + "numbers_01.ppm";
+        String expectedOutput = "619121";
+
+        tesseractReader.setPreprocessingImages(false);
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertEquals(realOutputHocr, expectedOutput);
+        tesseractReader.setPreprocessingImages(true);
+    }
 
     @Test
     public void testTextFromPGM() {

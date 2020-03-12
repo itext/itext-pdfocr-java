@@ -1,14 +1,18 @@
 package com.itextpdf.ocr;
 
 import com.sun.jna.ptr.PointerByReference;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.lept4j.Pixa;
+import net.sourceforge.lept4j.util.LeptUtils;
+import org.apache.commons.imaging.ImageFormats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +54,17 @@ public class ImageUtil {
 
             // save preprocessed file
             File tmpFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
-            instance.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
+            LOGGER.info("Creating tmp preprocessed file " + tmpFile.getAbsolutePath());
+            try {
+                BufferedImage img = LeptUtils.convertPixToImage(pix);
+                ImageIO.write(img, String.valueOf(ImageFormats.PNG), tmpFile);
+                LOGGER.info("Saved BufferedImage");
+            } catch (IOException e) {
+                LOGGER.warn("Cannot convert pix to buffered image after converting: "
+                        + e.getMessage());
+                instance.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
+                LOGGER.info("Saved Pix");
+            }
 
             // destroying
             if (pix != null) {

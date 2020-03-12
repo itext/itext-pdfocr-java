@@ -415,14 +415,11 @@ public abstract class TesseractReader implements IOcrReader {
      * @throws IOException
      */
     private File getTmpFile(String extension) throws IOException {
-        LOGGER.info("Creating temp file...");
         String tempDir = System.getProperty("java.io.tmpdir");
-        LOGGER.info("Tmp dir: " + tempDir);
         if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
             tempDir = tempDir + System.getProperty("file.separator");
         }
         String tmpFileName = tempDir + UUID.randomUUID().toString() + "." + extension;
-        LOGGER.info("trying to create file: " + tmpFileName);
         File tmpFile = new File(tmpFileName);
         boolean created = true;
         created = tmpFile.createNewFile();

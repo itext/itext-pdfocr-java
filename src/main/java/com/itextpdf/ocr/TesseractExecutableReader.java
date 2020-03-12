@@ -306,6 +306,7 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private String preprocessImage(String path) {
         String tmpFilePath = path;
+        LOGGER.info("Preprocessing image " + path + ": " + isPreprocessingImages());
         if (isPreprocessingImages()) {
             try {
                 tmpFilePath = ImageUtil

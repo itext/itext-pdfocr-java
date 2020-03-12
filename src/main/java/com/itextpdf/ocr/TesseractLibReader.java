@@ -123,6 +123,7 @@ public class TesseractLibReader extends TesseractReader {
         String result = null;
         File tmpFile = null;
         try {
+            LOGGER.info("Preprocessing image " + inputImage.getAbsolutePath() + ": " + isPreprocessingImages());
             // preprocess if required
             if (isPreprocessingImages()) {
                 try {
