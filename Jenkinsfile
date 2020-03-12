@@ -71,9 +71,10 @@ pipeline {
                         timeout time: 5, unit: 'MINUTES'
                     }
                     steps {
-                        withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
+                        withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                             sh 'mvn --threads 2C --no-transfer-progress clean dependency:purge-local-repository ' +
-                                    '-Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false'
+                                    '-Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false ' + 
+                                    "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
                         script {
                             try {sh "rm -rf ${env.WORKSPACE.replace('\\','/')}/downloads"} catch (Exception ignored) {}
@@ -105,7 +106,7 @@ pipeline {
                                                 "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository " +
                                                 "-Dpackaging=pom -Dfile=${pomPath} -DpomFile=${pomPath}"
                                     }
-                                    def pomFiles = findFiles glob: 'downloads/**/*.pom'
+                                    def pomFiles = findFiles glob: '**/*.pom'
                                     pomFiles.each { pomFile ->
                                         if (pomFile.name != "main.pom") {
                                             pomPath = pomFile.path.replace "\\", "/"
@@ -131,8 +132,9 @@ pipeline {
                         timeout time: 10, unit: 'MINUTES'
                     }
                     steps {
-                        withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
-                            sh 'mvn --threads 2C --no-transfer-progress package -Dmaven.test.skip=true'
+                        withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
+                            sh 'mvn --threads 2C --no-transfer-progress package -Dmaven.test.skip=true ' +
+                                "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
                     }
                 }
@@ -151,9 +153,10 @@ pipeline {
                 timeout time: 1, unit: 'HOURS'
             }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     sh 'mvn --no-transfer-progress verify --activate-profiles qa ' +
-                            '-Dpmd.analysisCache=true -DassemblyAnalyzerEnabled=false'
+                            '-Dpmd.analysisCache=true -DassemblyAnalyzerEnabled=false' + 
+                            "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                 }
                 recordIssues tools: [
                         checkStyle(),
@@ -168,14 +171,15 @@ pipeline {
                 timeout time: 30, unit: 'MINUTES'
             }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     withSonarQubeEnv('Sonar') {
                         sh 'mvn --no-transfer-progress --activate-profiles test ' +
                                 '-DgsExec="${gsExec}" -DcompareExec="${compareExec}" ' +
                                 '-DtesseractDir="${tesseractDir}" ' +
                                 '-Dmaven.main.skip=true -Dmaven.test.failure.ignore=false ' +
                                 'org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report ' +
-                                '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' +
+                                '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' + 
+                                "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository " +
                                 'sonar:sonar ' + sonarBranchName + ' ' + sonarBranchTarget
                     }
                 }
@@ -200,13 +204,14 @@ pipeline {
                 }
             }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     script {
                         def server = Artifactory.server 'itext-artifactory'
                         def rtMaven = Artifactory.newMavenBuild()
                         rtMaven.deployer server: server, releaseRepo: 'releases', snapshotRepo: 'snapshot'
                         rtMaven.tool = 'M3'
-                        def buildInfo = rtMaven.run pom: 'pom.xml', goals: '--threads 2C --no-transfer-progress install --activate-profiles artifactory'
+                        def buildInfo = rtMaven.run pom: 'pom.xml', goals: '--threads 2C --no-transfer-progress install --activate-profiles artifactory ' +
+                            "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository".toString()
                         server.publishBuildInfo buildInfo
                     }
                 }
