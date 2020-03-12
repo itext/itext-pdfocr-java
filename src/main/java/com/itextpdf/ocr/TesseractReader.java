@@ -314,9 +314,14 @@ public abstract class TesseractReader implements IOcrReader {
         String userWordsFileName = tempDir + File.separator
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;
         if (!getLanguages().contains(language)) {
-            List<String> languages = getLanguages();
-            languages.add(language);
-            setLanguages(languages);
+            if ("eng".equals(language.toLowerCase())) {
+                List<String> languages = getLanguages();
+                languages.add(language);
+                setLanguages(languages);
+            } else {
+                throw new OCRException(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
+                        .setMessageParams(language);
+            }
         }
         validateLanguages(Collections.<String>singletonList(language));
         try (OutputStreamWriter writer = new FileWriter(userWordsFileName)) {

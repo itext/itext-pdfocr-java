@@ -614,7 +614,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "wierdwords.png";
         String expectedOutput = "he23llo qwetyrtyqpwe-rty";
 
-        tesseractReader.setLanguages(Collections.<String>singletonList("eng"));
         tesseractReader.setUserWords("eng", Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty"));
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.trim().contains(expectedOutput));
@@ -667,13 +666,29 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testUserWordsLanguageNotInList() {
+        String userWords = testDocumentsDirectory + "userwords.txt";
+
+        try {
+            tesseractReader.setUserWords("spa", new FileInputStream(new File(userWords)));
+        } catch (OCRException | FileNotFoundException e) {
+            String expectedMsg = MessageFormat
+                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                            "spa");
+            Assert.assertEquals(expectedMsg, e.getMessage());
+            tesseractReader.setLanguages(new ArrayList<>());
+        }
+        tesseractReader.setLanguages(new ArrayList<>());
+    }
+
+    @Test
     public void testIncorrectLanguageForUserWords() {
         try {
             tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
-                    .format(OCRException.INCORRECT_LANGUAGE,
-                            "eng1.traineddata", tesseractReader.getTessData());
+                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                            "eng1");
             Assert.assertEquals(expectedMsg, e.getMessage());
             tesseractReader.setLanguages(new ArrayList<>());
         }
@@ -683,8 +698,8 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
             tesseractReader.setUserWords("test", new FileInputStream(new File(userWords)));
         } catch (OCRException | FileNotFoundException e) {
             String expectedMsg = MessageFormat
-                    .format(OCRException.INCORRECT_LANGUAGE,
-                            "test.traineddata", tesseractReader.getTessData());
+                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                            "test");
             Assert.assertEquals(expectedMsg, e.getMessage());
             tesseractReader.setLanguages(new ArrayList<>());
         }

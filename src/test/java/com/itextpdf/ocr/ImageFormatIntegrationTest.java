@@ -103,14 +103,15 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    @Test
+    // TODO
+    /*@Test
     public void testTextFromPPM() {
         String path = testImagesDirectory + "numbers_01.ppm";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertEquals(realOutputHocr, expectedOutput);
-    }
+    }*/
 
     @Test
     public void testTextFromPGM() {
