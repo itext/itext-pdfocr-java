@@ -131,61 +131,21 @@ public class TesseractLibReader extends TesseractReader {
         validateLanguages(getLanguages());
 
         String result = null;
-        File tmpFile = null;
-        BufferedImage img = null;
         try {
-            LOGGER.info("Preprocessing image " + inputImage.getAbsolutePath() + ": " + isPreprocessingImages());
+            BufferedImage preprocessed = null;
             // preprocess if required
             if (isPreprocessingImages()) {
-                try {
-                    String extension = ImageUtil.getExtension(inputImage.getAbsolutePath());
-                    if (extension.toLowerCase().contains("tif")) {
-                        tmpFile = ImageUtil.preprocessTiffImage(inputImage);
-                    } else {
-                        int format = ImageUtil.getFormat(extension);
-                        Pix resultPix = ImageUtil.preprocessImageToPix(inputImage);
-                        tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                                ".png");
-                        LOGGER.info("Creating tmp preprocessed file "
-                                + tmpFile.getAbsolutePath());
-                        try {
-                            img = ImageUtil.convertPixToImage(resultPix, format);
-                            if (img != null) {
-                                tmpFile = null;
-                                LOGGER.info("Saved BufferedImage");
-                            } else {
-                                Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
-                                LOGGER.info("Saved Pix");
-                            }
-                        } catch (IOException e) {
-                            LOGGER.warn("Cannot convert pix to "
-                                    + "buffered image after converting: "
-                                    + e.getMessage());
-                            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
-                            LOGGER.info("Saved Pix");
-                        }
-                        ImageUtil.destroyPix(resultPix);
-                    }
-                } catch (IOException | NullPointerException e) {
-                    LOGGER.warn("Cannot preprocess image: " + inputImage.getAbsolutePath()
-                            + " with error " + e.getMessage());
-                }
+                preprocessed = ImageUtil.preprocessImageToBI(inputImage);
             }
-            // perform OCR
-            if ((img == null && tmpFile == null) || !isPreprocessingImages()) {
+            if (preprocessed == null || !isPreprocessingImages()) {
                 result = getTesseractInstance().doOCR(inputImage);
-            } else if (img != null) {
-                result = getTesseractInstance().doOCR(img);
             } else {
-                result = getTesseractInstance().doOCR(tmpFile);
+                result = getTesseractInstance().doOCR(preprocessed);
             }
-        } catch (TesseractException e) {
-            LOGGER.error("OCR failed: " + e.getMessage());
-            throw new OCRException(OCRException.TESSERACT_FAILED);
-        } finally {
-            if (tmpFile != null) {
-                UtilService.deleteFile(tmpFile);
-            }
+        } catch (TesseractException | IOException e) {
+            LOGGER.error("OCR failed: " + e.getLocalizedMessage());
+            throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
+                    .setMessageParams("OCR failed");
         }
 
         if (result != null) {

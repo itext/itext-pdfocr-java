@@ -312,47 +312,24 @@ public class TesseractExecutableReader extends TesseractReader {
      * @return path to output image
      */
     private String preprocessImage(String path) {
-        String tmpFilePath = path;
-        LOGGER.info("Preprocessing image " + path + ": " + isPreprocessingImages());
         if (isPreprocessingImages()) {
             try {
-//                tmpFilePath = ImageUtil
-//                        .preprocessImage(new File(tmpFilePath)).getAbsolutePath();
-                String extension = ImageUtil.getExtension(tmpFilePath);
-                File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                        "." + extension);
-                if (extension.toLowerCase().contains("tif")) {
-                    tmpFile = ImageUtil.preprocessTiffImage(new File(tmpFilePath));
-                } else {
-                    int format = ImageUtil.getFormat(extension);
-                    Pix resultPix = ImageUtil.preprocessImageToPix(new File(tmpFilePath));
+                String extension = ImageUtil.getExtension(path);
+                BufferedImage preprocessed = ImageUtil.preprocessImageToBI(new File(path));
 
-                    LOGGER.info("Creating tmp preprocessed file "
-                            + tmpFile.getAbsolutePath());
-                    try {
-                        BufferedImage img = ImageUtil.convertPixToImage(resultPix, format);
-                        if (img != null) {
-                            ImageIO.write(img, extension, tmpFile);
-                            LOGGER.info("Saved BufferedImage");
-                        } else {
-                            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
-                            LOGGER.info("Saved Pix");
-                        }
-                    } catch (IOException e) {
-                        LOGGER.warn("Cannot convert pix to "
-                                + "buffered image after converting: "
-                                + e.getMessage());
-                        Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), resultPix, format);
-                        LOGGER.info("Saved Pix");
-                    }
-                    ImageUtil.destroyPix(resultPix);
+                if (preprocessed != null) {
+                    File outputFile = File.createTempFile("output",
+                            "." + extension);
+                    String output = outputFile.getAbsolutePath();
+                    ImageIO.write(preprocessed, extension, outputFile);
+                    path = output;
+                    preprocessed.flush();
                 }
-                tmpFilePath = tmpFile.getAbsolutePath();
-            } catch (IOException | NullPointerException e) {
+            } catch (IOException e) {
                 LOGGER.error("Error while preprocessing image: "
-                        + e.getMessage());
+                        + e.getLocalizedMessage());
             }
         }
-        return tmpFilePath;
+        return path;
     }
 }

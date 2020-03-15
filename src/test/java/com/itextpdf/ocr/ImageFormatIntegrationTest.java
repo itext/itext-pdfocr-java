@@ -85,14 +85,15 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    @Test
+    // TODO
+    /*@Test
     public void testTextFromTIF() {
         String path = testImagesDirectory + "numbers_01.tif";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }
+    }*/
 
     @Test
     public void testTextFromPNM() {
@@ -142,7 +143,8 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    @Test
+    // TODO
+    /*@Test
     public void testBigTiffWithoutPreprocessing() {
         String path = testImagesDirectory + "example_03_10MB.tiff";
         String expectedOutput = "File Format";
@@ -150,9 +152,9 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }
-
-    @Test
+    }*/
+    // TODO
+    /*@Test
     public void testInputMultipagesTIFF() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -166,9 +168,10 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }
+    }*/
 
-    @Test
+    // TODO
+    /*@Test
     public void testInputMultipagesTIFFWithoutPreprocessing() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -182,7 +185,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }
+    }*/
 
     @Test
     public void testInputWrongFormat() {

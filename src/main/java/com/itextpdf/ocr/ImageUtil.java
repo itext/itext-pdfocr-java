@@ -86,6 +86,26 @@ public class ImageUtil {
         return pix;
     }
 
+    public static BufferedImage preprocessImageToBI(final File inputFile)
+            throws IOException {
+        String extension = getExtension(inputFile.getAbsolutePath());
+        int format = getFormat(extension);
+
+        // read image
+        Pix pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
+        // preprocess image
+        pix = preprocessPix(pix);
+
+        BufferedImage bi = convertPixToImage(pix, format);
+
+        // destroying
+        if (pix != null) {
+            PointerByReference pRef = new PointerByReference();
+            pRef.setValue(pix.getPointer());
+            Leptonica.INSTANCE.pixDestroy(pRef);
+        }
+        return bi;
+    }
 
     public static void destroyPix(Pix pix) {
         if (pix != null) {
@@ -94,6 +114,7 @@ public class ImageUtil {
             Leptonica.INSTANCE.pixDestroy(pRef);
         }
     }
+
     /**
      * Performs basic image preprocessing using buffered image (if provided).
      * Preprocessed image file will be saved in temporary directory
