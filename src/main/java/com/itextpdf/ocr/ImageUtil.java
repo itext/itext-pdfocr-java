@@ -1,13 +1,18 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
@@ -42,77 +47,62 @@ public class ImageUtil {
      */
     public static File preprocessImage(final File inputFile)
             throws IOException {
-        String extension = getExtension(inputFile.getAbsolutePath());
-        int format = getFormat(extension);
-
-        if (extension.toLowerCase().contains("tif")) {
-            return preprocessTiffImage(inputFile);
-        } else {
-            Leptonica instance = Leptonica.INSTANCE;
-            // read image
-            Pix pix = instance.pixRead(inputFile.getAbsolutePath());
-            // preprocess image
-            pix = preprocessPix(pix);
-
-            // save preprocessed file
-            File tmpFile = saveImgToTempFile(pix, format);
-
-            // destroying
-            if (pix != null) {
-                PointerByReference pRef = new PointerByReference();
-                pRef.setValue(pix.getPointer());
-                instance.pixDestroy(pRef);
-            }
-            return tmpFile;
-        }
-    }
-
-    public static Pix preprocessImageToPix(final File inputFile)
-            throws IOException {
-        String extension = getExtension(inputFile.getAbsolutePath());
-        int format = getFormat(extension);
-
         // read image
-        Pix pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-        // preprocess image
-        pix = preprocessPix(pix);
+        Pix pix = readPix(inputFile);
 
-        // destroying
-        /*if (pix != null) {
-            PointerByReference pRef = new PointerByReference();
-            pRef.setValue(pix.getPointer());
-            instance.pixDestroy(pRef);
-        }*/
-        return pix;
-    }
-
-    public static BufferedImage preprocessImageToBI(final File inputFile)
-            throws IOException {
         String extension = getExtension(inputFile.getAbsolutePath());
         int format = getFormat(extension);
 
-        // read image
-        Pix pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
         // preprocess image
         pix = preprocessPix(pix);
 
         BufferedImage bi = convertPixToImage(pix, format);
 
+        // save preprocessed file
+        File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
+                ".png");
+        Leptonica.INSTANCE.pixWritePng( tmpFile.getAbsolutePath(), pix, format);
+
         // destroying
         if (pix != null) {
             PointerByReference pRef = new PointerByReference();
             pRef.setValue(pix.getPointer());
             Leptonica.INSTANCE.pixDestroy(pRef);
         }
-        return bi;
+        return tmpFile;
     }
 
-    public static void destroyPix(Pix pix) {
-        if (pix != null) {
-            PointerByReference pRef = new PointerByReference();
-            pRef.setValue(pix.getPointer());
-            Leptonica.INSTANCE.pixDestroy(pRef);
+    public static Pix readPix(final File inputFile) {
+        Pix pix = null;
+        try {
+            BufferedImage bufferedImage = ImageIO.read(inputFile);
+            if (bufferedImage != null) {
+                pix = convertBufferedImageToPix(bufferedImage);
+            } else {
+                LOGGER.info("Reading pix from file");
+                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Reading pix from file: " + e.getMessage());
+            pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
         }
+
+        return pix;
+    }
+
+    public static Pix convertBufferedImageToPix(final BufferedImage bufferedImage) throws IOException {
+        Pix pix = null;
+        if (bufferedImage != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+
+            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
+            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
+            pix = Leptonica.INSTANCE.pixReadMem(byteBuffer, nativeSize);
+            LOGGER.info("Reading BI from file and converted to pix");
+        }
+
+        return pix;
     }
 
     /**
@@ -204,6 +194,7 @@ public class ImageUtil {
         pix = convertToGrayscale(pix);
         pix = otsuImageThresholding(pix);
         pix = instance.pixDeskew(pix, 0);
+        // pix = instance.pixScale(pix, 2, 2);
         return pix;
     }
 
@@ -311,6 +302,17 @@ public class ImageUtil {
                     + e.getMessage());
         }
         return format;
+    }
+
+    public static boolean isTiffImage(File inputImage) {
+        int index = inputImage.getAbsolutePath().lastIndexOf('.');
+        if (index > 0) {
+            String extension = new String(inputImage.getAbsolutePath().toCharArray(),
+                    index + 1,
+                    inputImage.getAbsolutePath().length() - index - 1);
+            return extension.toLowerCase().contains("tif");
+        }
+        return false;
     }
 
     /**

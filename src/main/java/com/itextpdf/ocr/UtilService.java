@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,12 +104,15 @@ final class UtilService {
         Pattern bboxPattern = Pattern.compile("bbox(\\s+\\d+){4}");
         Pattern bboxCoordinatePattern = Pattern
                 .compile("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
-        String searchedClass = TextPositioning.byLines.equals(textPositioning)
-                ? "ocr_line" : "ocrx_word";
+        List<String> searchedClasses = TextPositioning.byLines.equals(textPositioning)
+                ? Arrays.asList("ocr_line", "ocr_caption") : Arrays.asList("ocrx_word");
         for (org.jsoup.nodes.Element page : pages) {
             String[] pageNum = page.id().split("page_");
             int pageNumber = Integer.parseInt(pageNum[pageNum.length - 1]);
-            Elements objects = page.getElementsByClass(searchedClass);
+            Elements objects = new Elements();
+            for (String searchedClass : searchedClasses) {
+                objects.addAll(page.getElementsByClass(searchedClass));
+            }
             for (org.jsoup.nodes.Element obj : objects) {
                 String value = obj.attr("title");
                 Matcher bboxMatcher = bboxPattern.matcher(value);

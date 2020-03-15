@@ -160,7 +160,7 @@ public class TesseractExecutableReader extends TesseractReader {
         // path to tess data
         addTessData(command);
         // preprocess input file if needed and add it
-        String imagePath = preprocessImage(inputImage.getAbsolutePath());
+        String imagePath = preprocessImage(inputImage);
         addInputFile(command, imagePath);
         // output file
         addOutputFile(command, outputFile, outputFormat);
@@ -308,22 +308,17 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Preprocess given image if it is needed.
      *
-     * @param path path to original input image
+     * @param inputImage original input image
      * @return path to output image
      */
-    private String preprocessImage(String path) {
+    private String preprocessImage(File inputImage) {
+        String path = inputImage.getAbsolutePath();
         if (isPreprocessingImages()) {
             try {
-                String extension = ImageUtil.getExtension(path);
-                BufferedImage preprocessed = ImageUtil.preprocessImageToBI(new File(path));
-
-                if (preprocessed != null) {
-                    File outputFile = File.createTempFile("output",
-                            "." + extension);
-                    String output = outputFile.getAbsolutePath();
-                    ImageIO.write(preprocessed, extension, outputFile);
-                    path = output;
-                    preprocessed.flush();
+                File tmpFile = ImageUtil.isTiffImage(inputImage)
+                        ? ImageUtil.preprocessTiffImage(inputImage) : ImageUtil.preprocessImage(inputImage);
+                if (tmpFile != null) {
+                    path = tmpFile.getAbsolutePath();
                 }
             } catch (IOException e) {
                 LOGGER.error("Error while preprocessing image: "

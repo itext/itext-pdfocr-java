@@ -130,23 +130,7 @@ public class TesseractLibReader extends TesseractReader {
 
         validateLanguages(getLanguages());
 
-        String result = null;
-        try {
-            BufferedImage preprocessed = null;
-            // preprocess if required
-            if (isPreprocessingImages()) {
-                preprocessed = ImageUtil.preprocessImageToBI(inputImage);
-            }
-            if (preprocessed == null || !isPreprocessingImages()) {
-                result = getTesseractInstance().doOCR(inputImage);
-            } else {
-                result = getTesseractInstance().doOCR(preprocessed);
-            }
-        } catch (TesseractException | IOException e) {
-            LOGGER.error("OCR failed: " + e.getLocalizedMessage());
-            throw new OCRException(OCRException.TESSERACT_FAILED_WITH_REASON)
-                    .setMessageParams("OCR failed");
-        }
+        String result = getOCRResult(inputImage);
 
         if (result != null) {
             try (Writer writer = new OutputStreamWriter(
@@ -166,5 +150,29 @@ public class TesseractLibReader extends TesseractReader {
         if (getUserWordsFilePath() != null) {
             UtilService.deleteFile(new File(getUserWordsFilePath()));
         }
+    }
+
+    private String getOCRResult(File inputImage) {
+        String result = null;
+        try {
+            // preprocess if required
+            if (isPreprocessingImages()) {
+                File preprocessed = ImageUtil.isTiffImage(inputImage)
+                        ? ImageUtil.preprocessTiffImage(inputImage) : ImageUtil.preprocessImage(inputImage);
+
+                if (preprocessed == null) {
+                    result = getTesseractInstance().doOCR(inputImage);
+                } else {
+                    result = getTesseractInstance().doOCR(preprocessed);
+                }
+            } else {
+                result = getTesseractInstance().doOCR(inputImage);
+            }
+        } catch (TesseractException | IOException e) {
+            LOGGER.error("OCR failed: " + e.getLocalizedMessage());
+            throw new OCRException(OCRException.TESSERACT_FAILED);
+        }
+
+        return result;
     }
 }

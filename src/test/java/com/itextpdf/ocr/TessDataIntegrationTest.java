@@ -173,9 +173,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 ".pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
-        if ("executable".equals(parameter)) {
-            tesseractReader.setPreprocessingImages(false);
-        }
         try {
             doOcrAndSavePdfToPath(tesseractReader,
                     testImagesDirectory + filename + ".png",
@@ -294,8 +291,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(result);
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testMultipageTiffAndCompareTxtFiles() {
         String imgPath = testImagesDirectory + "multipage.tiff";
         String expectedTxt = testDocumentsDirectory + "multipage_" + parameter + ".txt";
@@ -303,7 +299,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(result);
-    }*/
+    }
 
     @Test
     public void testGermanWithTessData() {
@@ -394,7 +390,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
 
         String expectedHindi = "हिन्दुस्तानी";
-        String expectedUrdu = "ہروتالی";
+        String expectedUrdu = "ہنروتالی";
 
         // correct result with specified arabic+urdu languages
         // but because of specified font only hindi will be displayed

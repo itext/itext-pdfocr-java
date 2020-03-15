@@ -54,8 +54,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             });
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testFontColorInMultiPagePdf() throws IOException {
         String path = testImagesDirectory + "multipage.tiff";
         String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
@@ -85,7 +84,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
         pdfDocument.close();
         deleteFile(pdfPath);
-    }*/
+    }
 
     @Test
     public void testKeepOriginalSizeScaleMode() throws IOException {

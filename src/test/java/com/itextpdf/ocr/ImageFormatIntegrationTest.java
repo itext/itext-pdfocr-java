@@ -45,7 +45,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testBMPText() {
         String path = testImagesDirectory + "example_01.BMP";
-        String expectedOutput = "message for OCR Scanner Test";
+        String expectedOutput = "This is a test message for OCR Scanner Test";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
@@ -68,12 +68,14 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".JFIF", resultPdfPath, cairoFontPath);
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testDocumentsDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-        tesseractReader.setPreprocessingImages(preprocess);
-        tesseractReader.setTextPositioning(TextPositioning.byLines);
+        try {
+            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                    testDocumentsDirectory, "diff_");
+        } finally {
+            deleteFile(resultPdfPath);
+            tesseractReader.setPreprocessingImages(preprocess);
+            tesseractReader.setTextPositioning(TextPositioning.byLines);
+        }
     }
 
     @Test
@@ -85,15 +87,14 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testTextFromTIF() {
         String path = testImagesDirectory + "numbers_01.tif";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }*/
+    }
 
     @Test
     public void testTextFromPNM() {
@@ -104,9 +105,9 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    // TODO
     @Test
     public void testTextFromPPM() {
+
         String path = testImagesDirectory + "numbers_01.ppm";
         String expectedOutput = "619121";
 
@@ -143,18 +144,19 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testBigTiffWithoutPreprocessing() {
         String path = testImagesDirectory + "example_03_10MB.tiff";
-        String expectedOutput = "File Format";
+        String expectedOutput = "Tagged Image File Format";
 
+        tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
-    }*/
-    // TODO
-    /*@Test
+        tesseractReader.setPreprocessingImages(true);
+    }
+
+    @Test
     public void testInputMultipagesTIFF() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -168,10 +170,9 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }*/
+    }
 
-    // TODO
-    /*@Test
+    @Test
     public void testInputMultipagesTIFFWithoutPreprocessing() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -185,7 +186,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }*/
+    }
 
     @Test
     public void testInputWrongFormat() {
@@ -213,10 +214,12 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
                 testImagesDirectory + filename + ".jpg",
                 resultPdfPath);
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testDocumentsDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-        tesseractReader.setTextPositioning(TextPositioning.byLines);
+        try {
+            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                    testDocumentsDirectory, "diff_");
+        } finally {
+            deleteFile(resultPdfPath);
+            tesseractReader.setTextPositioning(TextPositioning.byLines);
+        }
     }
 }
