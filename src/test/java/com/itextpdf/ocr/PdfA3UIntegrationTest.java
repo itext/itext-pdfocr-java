@@ -237,25 +237,27 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_a3u_created.pdf";
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(
-                        new File(testImagesDirectory
-                                + filename + ".jpg")));
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
-        pdfRenderer.setOcrReader(tesseractReader);
+        try {
+            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(
+                            new File(testImagesDirectory
+                                    + filename + ".jpg")));
+            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+            pdfRenderer.setOcrReader(tesseractReader);
 
-        tesseractReader.setTextPositioning(TextPositioning.byWords);
-        Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath), getCMYKPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
+            tesseractReader.setTextPositioning(TextPositioning.byWords);
+            Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
+            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath), getCMYKPdfOutputIntent());
+            Assert.assertNotNull(doc);
+            doc.close();
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testDocumentsDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
-        Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
-        tesseractReader.setTextPositioning(TextPositioning.byLines);
+            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                    testDocumentsDirectory, "diff_");
+        } finally {
+            deleteFile(resultPdfPath);
+            Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
+            tesseractReader.setTextPositioning(TextPositioning.byLines);
+        }
     }
 
     @Test
@@ -268,22 +270,24 @@ public class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPathToTessData(langTessDataDirectory);
         tesseractReader.setLanguages(Collections.<String>singletonList("spa"));
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(
-                        new File(testImagesDirectory + filename
-                                + ".jpg")));
-        pdfRenderer.setTextColor(DeviceRgb.BLACK);
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+        try {
+            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(
+                            new File(testImagesDirectory + filename
+                                    + ".jpg")));
+            pdfRenderer.setTextColor(DeviceRgb.BLACK);
+            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
-                getRGBPdfOutputIntent());
-        Assert.assertNotNull(doc);
-        doc.close();
+            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
+                    getRGBPdfOutputIntent());
+            Assert.assertNotNull(doc);
+            doc.close();
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                testDocumentsDirectory, "diff_");
-
-        deleteFile(resultPdfPath);
+            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                    testDocumentsDirectory, "diff_");
+        } finally {
+            deleteFile(resultPdfPath);
+        }
     }
 
     @Test

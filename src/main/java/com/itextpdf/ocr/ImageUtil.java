@@ -43,7 +43,8 @@ public class ImageUtil {
      * @return List<BufferedImage>
      * @throws IOException IOException
      */
-    public static File preprocessImage(final File inputFile) throws IOException {
+    public static File preprocessImage(final File inputFile)
+            throws IOException {
         String extension = getExtension(inputFile.getAbsolutePath());
         int format = getFormat(extension);
 
@@ -56,12 +57,10 @@ public class ImageUtil {
             // preprocess image
             pix = preprocessPix(pix);
 
-            BufferedImage bi = convertPixToImage(pix, format);
-
             // save preprocessed file
             File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
                     ".png");
-            Leptonica.INSTANCE.pixWritePng( tmpFile.getAbsolutePath(), pix, format);
+            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
 
             // destroying
             if (pix != null) {
@@ -215,16 +214,17 @@ public class ImageUtil {
     }
 
     /**
-     * Return true if provided image has 'tiff' or 'tif' extension, otherwise - false
+     * Return true if provided image has 'tiff'
+     * or 'tif' extension, otherwise - false.
      *
      * @param inputImage File
      * @return boolean
      */
-    public static boolean isTiffImage(File inputImage) {
+    public static boolean isTiffImage(final File inputImage) {
         int index = inputImage.getAbsolutePath().lastIndexOf('.');
         if (index > 0) {
-            String extension = new String(inputImage.getAbsolutePath().toCharArray(),
-                    index + 1,
+            String extension = new String(
+                    inputImage.getAbsolutePath().toCharArray(), index + 1,
                     inputImage.getAbsolutePath().length() - index - 1);
             return extension.toLowerCase().contains("tif");
         }
@@ -238,7 +238,8 @@ public class ImageUtil {
      * @return Pix
      * @throws IOException if it's not possible to convert
      */
-    public static Pix convertBufferedImageToPix(final BufferedImage bufferedImage)
+    public static Pix convertBufferedImageToPix(
+            final BufferedImage bufferedImage)
             throws IOException {
         Pix pix = null;
         if (bufferedImage != null) {

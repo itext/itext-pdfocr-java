@@ -243,10 +243,12 @@ public interface IPdfRenderer {
      *
      * @param pdfWriter PdfWriter
      * @param pdfOutputIntent PdfOutputIntent
-     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object - PDF/A-3u document
+     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument}
+     *         object - PDF/A-3u document
      * @throws IOException if provided font or output intent is incorrect
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter, PdfOutputIntent pdfOutputIntent) throws IOException;
+    PdfDocument doPdfOcr(PdfWriter pdfWriter,
+            PdfOutputIntent pdfOutputIntent) throws IOException;
 
     /**
      * Perform OCR using provided pdfWriter.
@@ -261,7 +263,7 @@ public interface IPdfRenderer {
      * Perform OCR using provided pdfWriter.
      *
      * @param path path to text file to be created
-     * @throws IOException
+     * @throws IOException IOException
      */
     void doPdfOcr(String path) throws IOException;
 }

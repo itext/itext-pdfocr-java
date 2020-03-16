@@ -1,6 +1,5 @@
 package com.itextpdf.ocr;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,8 +15,6 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
 
 /**
  * Tesseract reader class.
@@ -213,8 +210,8 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Reads data from the provided input image file and returns retrieved
-     * data as a string.
+     * Reads data from the provided input image file and
+     * returns retrieved data as a string.
      *
      * @param input File
      * @return List<TextInfo>
@@ -241,8 +238,8 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Reads data from the provided input image file and returns retrieved
-     * data in the following format:
+     * Reads data from the provided input image file and returns
+     * retrieved data in the following format:
      * List<Map.Entry<String, List<Float>>> where each list element
      * Map.Entry<String, List<Float>> contains word or line as a key
      * and its 4 coordinates(bbox) as a values.
@@ -251,16 +248,17 @@ public abstract class TesseractReader implements IOcrReader {
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final File input) {
-        LOGGER.info("Reading Data From Input");
         List<TextInfo> textData = new ArrayList<TextInfo>();
         try {
             File tmpFile = getTmpFile("hocr");
             doTesseractOcr(input, tmpFile, OutputFormat.hocr);
             if (tmpFile.exists()) {
-                textData = UtilService.parseHocrFile(tmpFile, getTextPositioning());
+                textData = UtilService.parseHocrFile(tmpFile,
+                        getTextPositioning());
 
                 LOGGER.info(textData.size()
-                        + (TextPositioning.byLines.equals(getTextPositioning()) ? " line(s)" : " word(s)")
+                        + (TextPositioning.byLines.equals(getTextPositioning())
+                        ? " line(s)" : " word(s)")
                         + " were read");
             } else {
                 LOGGER.error("Error occurred. File wasn't created "
@@ -276,9 +274,10 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Using provided list of words there will be created temporary file
-     * containing words (one per line) which ends with a new line character.
-     * Train data for provided language should exist in specified tess data directory.
+     * Using provided list of words there will be created
+     * temporary file containing words (one per line) which
+     * ends with a new line character. Train data for provided language
+     * should exist in specified tess data directory.
      *
      * @param language String
      * @param userWords List<String>
@@ -292,10 +291,12 @@ public abstract class TesseractReader implements IOcrReader {
                 for (String word : userWords) {
                     byte[] bytesWord = word.getBytes();
                     baos.write(bytesWord, 0, bytesWord.length);
-                    byte[] bytesSeparator = System.getProperty("line.separator").getBytes();
+                    byte[] bytesSeparator = System
+                            .getProperty("line.separator").getBytes();
                     baos.write(bytesSeparator, 0, bytesSeparator.length);
                 }
-                InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
+                InputStream inputStream = new ByteArrayInputStream(
+                        baos.toByteArray());
                 baos.close();
                 setUserWords(language, inputStream);
             } catch (IOException e) {
@@ -305,14 +306,17 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Using provided input stream there will be created temporary file (with name 'language.user-words')
-     * containing words (one per line) which ends with a new line character.
-     * Train data for provided language should exist in specified tess data directory.
+     * Using provided input stream there will be created
+     * temporary file (with name 'language.user-words')
+     * containing words (one per line) which ends with
+     * a new line character. Train data for provided language
+     * should exist in specified tess data directory.
      *
      * @param language String
      * @param inputStream InputStream
      */
-    public void setUserWords(String language, InputStream inputStream) {
+    public void setUserWords(final String language,
+            final InputStream inputStream) {
         String tempDir = System.getProperty("java.io.tmpdir");
         String userWordsFileName = tempDir + File.separator
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;
@@ -322,12 +326,14 @@ public abstract class TesseractReader implements IOcrReader {
                 languages.add(language);
                 setLanguages(languages);
             } else {
-                throw new OCRException(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
+                throw new OCRException(
+                        OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
                         .setMessageParams(language);
             }
         }
         validateLanguages(Collections.<String>singletonList(language));
-        try (OutputStreamWriter writer = new FileWriter(userWordsFileName)) {
+        try (OutputStreamWriter writer =
+                new FileWriter(userWordsFileName)) {
             Reader reader = new InputStreamReader(inputStream);
             int data;
             while ((data = reader.read()) != -1) {
@@ -387,19 +393,22 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Validate provided languages and
      * check if they exist in provided tess data directory.
+     * @param languagesList List<String>
      */
-    public void validateLanguages(List<String> languages) {
+    public void validateLanguages(List<String> languagesList) {
         String suffix = ".traineddata";
-        if (languages.size() == 0) {
-            if (!new File(getTessData() + File.separator + "eng" + suffix).exists()) {
+        if (languagesList.size() == 0) {
+            if (!new File(getTessData()
+                    + File.separator + "eng" + suffix).exists()) {
                 LOGGER.error("eng" + suffix
                         + " doesn't exist in provided directory");
                 throw new OCRException(OCRException.INCORRECT_LANGUAGE)
                         .setMessageParams("eng" + suffix, getTessData());
             }
         } else {
-            for (String lang : languages) {
-                if (!new File(getTessData() + File.separator + lang + suffix)
+            for (String lang : languagesList) {
+                if (!new File(getTessData()
+                        + File.separator + lang + suffix)
                         .exists()) {
                     LOGGER.error(lang + suffix
                             + " doesn't exist in provided directory");
@@ -411,18 +420,19 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Create temporary file in system temp directory
+     * Create temporary file in system temp directory.
      *
-     * @param extension
-     * @return
-     * @throws IOException
+     * @param extension String
+     * @return File
+     * @throws IOException IOException
      */
-    private File getTmpFile(String extension) throws IOException {
+    private File getTmpFile(final String extension) throws IOException {
         String tempDir = System.getProperty("java.io.tmpdir");
         if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
             tempDir = tempDir + System.getProperty("file.separator");
         }
-        String tmpFileName = tempDir + UUID.randomUUID().toString() + "." + extension;
+        String tmpFileName = tempDir + UUID.randomUUID().toString()
+                + "." + extension;
         File tmpFile = new File(tmpFileName);
         boolean created = true;
         created = tmpFile.createNewFile();

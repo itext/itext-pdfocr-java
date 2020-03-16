@@ -37,8 +37,8 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Path to hocr config script.
      */
-    private static final String DEFAULT_PATH_TO_HOCR_SCRIPT = "src/main/resources/"
-            + "com/itextpdf/ocr/configs/hocr";
+    private static final String DEFAULT_PATH_TO_HOCR_SCRIPT = "src/main/"
+            + "resources/com/itextpdf/ocr/configs/hocr";
 
     /**
      * Path to the hocr script.
@@ -54,6 +54,8 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * TesseractExecutableReader constructor with path to tess data directory.
+     *
+     * @param tessDataPath String
      */
     public TesseractExecutableReader(String tessDataPath) {
         setPathToExecutable("tesseract");
@@ -65,7 +67,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * TesseractExecutableReader constructor with path to executable and
      * path to tess data directory.
      *
-     * @param executablePath path to tesseract executable
+     * @param executablePath String
+     * @param tessDataPath String
      */
     public TesseractExecutableReader(final String executablePath,
             final String tessDataPath) {
@@ -114,10 +117,10 @@ public class TesseractExecutableReader extends TesseractReader {
      * Set path to hocr script.
      * There will be used default path to hocr script if this is not set.
      *
-     * @param pathToHocrScript String
+     * @param pathToHocr String
      */
-    public final void setPathToHocrScript(String pathToHocrScript) {
-        this.pathToHocrScript = pathToHocrScript;
+    public final void setPathToHocrScript(final String pathToHocr) {
+        pathToHocrScript = pathToHocr;
     }
 
     /**
@@ -143,6 +146,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param inputImage - input image file
      * @param outputFile - output file
+     * @param outputFormat - output format
      */
     public void doTesseractOcr(final File inputImage,
             final File outputFile, final OutputFormat outputFormat) {
@@ -190,7 +194,7 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      * @throws OCRException if path to executable is not set
      */
-    private void addPathToExecutable(List<String> command)
+    private void addPathToExecutable(final List<String> command)
             throws OCRException {
         // path to tesseract executable cannot be uninitialized
         if (getPathToExecutable() == null
@@ -207,7 +211,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command List<String>
      */
-    private void addPathToHocrScript(List<String> command) {
+    private void addPathToHocrScript(final List<String> command) {
         if (getPathToHocrScript() != null
                 && !getPathToHocrScript().isEmpty()) {
             command.add(getPathToHocrScript());
@@ -221,7 +225,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command List<String>
      */
-    private void addUserWords(List<String> command) {
+    private void addUserWords(final List<String> command) {
         if (getUserWordsFilePath() != null
                 && !getUserWordsFilePath().isEmpty()) {
             command.add("--user-words");
@@ -234,7 +238,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command List<String>
      */
-    private void addTessData(List<String> command) {
+    private void addTessData(final List<String> command) {
         if (getPathToTessData() != null
                 && !getPathToTessData().isEmpty()) {
             command.add("--tessdata-dir");
@@ -247,7 +251,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command List<String>
      */
-    private void addPageSegMode(List<String> command) {
+    private void addPageSegMode(final List<String> command) {
         if (getPageSegMode() != null) {
             command.add("--psm");
             command.add(String.valueOf(getPageSegMode()));
@@ -259,7 +263,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param command List<String>
      */
-    private void addLanguages(List<String> command) {
+    private void addLanguages(final List<String> command) {
         if (getLanguages().size() > 0) {
             validateLanguages(getLanguages());
             command.add("-l");
@@ -273,7 +277,7 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      * @param imagePath path to file
      */
-    private void addInputFile(List<String> command,
+    private void addInputFile(final List<String> command,
             final String imagePath) {
         command.add(addQuotes(imagePath));
     }
@@ -285,8 +289,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param outputFile output file
      * @param outputFormat output format
      */
-    private void addOutputFile(List<String> command, final File outputFile,
-                               final OutputFormat outputFormat) {
+    private void addOutputFile(final List<String> command,
+            final File outputFile, final OutputFormat outputFormat) {
         String extension = outputFormat.equals(OutputFormat.hocr)
                 ? ".hocr" : ".txt";
         String fileName = new String(

@@ -402,7 +402,7 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param absolutePath String
      */
-    public void doPdfOcr(String absolutePath) {
+    public void doPdfOcr(final String absolutePath) {
         LOGGER.info("Starting ocr for " + getInputImages().size()
                 + " image(s)");
 
@@ -444,7 +444,8 @@ public class PdfRenderer implements IPdfRenderer {
                 + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
-        Map<File, List<TextInfo>> imagesTextData = new LinkedHashMap<File, List<TextInfo>>();
+        Map<File, List<TextInfo>> imagesTextData =
+                new LinkedHashMap<File, List<TextInfo>>();
         for (File inputImage : getInputImages()) {
             imagesTextData.put(inputImage,
                     doOCRForImages(inputImage));
@@ -462,7 +463,7 @@ public class PdfRenderer implements IPdfRenderer {
      * @param pdfOutputIntent PdfOutputIntent
      * @param imagesTextData Map<File, List<TextInfo>>
      * @return PdfDocument
-     * @throws OCRException
+     * @throws OCRException OCRException
      */
     private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent,
@@ -742,7 +743,8 @@ public class PdfRenderer implements IPdfRenderer {
                     try {
                         BufferedImage bufferedImage = ImageIO
                                 .read(inputImage.getAbsoluteFile());
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ByteArrayOutputStream baos =
+                                new ByteArrayOutputStream();
 
                         ImageIO.write(bufferedImage,
                                 String.valueOf(ImageFormats.PNG), baos);
@@ -818,7 +820,6 @@ public class PdfRenderer implements IPdfRenderer {
                 final float right = (coordinates.get(2) + 1) * multiplier - 1;
                 final float top = coordinates.get(1) * multiplier;
                 final float bottom = (coordinates.get(3) + 1) * multiplier - 1;
-                final float delta = 0.05f;
 
                 float bboxWidthPt = UtilService
                         .getPoints(right - left);
@@ -826,22 +827,23 @@ public class PdfRenderer implements IPdfRenderer {
                         .getPoints(bottom - top);
                 if (!line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0) {
                     // Scale the text width to fit the OCR bbox
-                    float fontSize = calculateFontSize(line, defaultFont,
-                            bboxWidthPt, bboxHeightPt, delta);
-
-                    // logger.info("Setting font size " + fontSize);
+                    float fontSize = calculateFontSize(line, defaultFont, bboxHeightPt);
+                    float lineWidth = defaultFont.getWidth(line, fontSize);
 
                     float deltaX = UtilService.getPoints(left);
                     float deltaY = imageSize.getHeight() - UtilService
                             .getPoints(bottom);
 
                     Rectangle rectangle = new Rectangle(deltaX + x,
-                            deltaY + fontSize / 2 + y, bboxWidthPt * 1.5f,
+                            deltaY + y, bboxWidthPt * 1.5f,
                             bboxHeightPt);
+
                     Canvas canvas = new Canvas(pdfCanvas,
                             pdfCanvas.getDocument(), rectangle);
-                    Text text = new Text(line).setFont(defaultFont)
+                    Text text = new Text(line)
+                            .setFont(defaultFont)
                             .setFontSize(fontSize)
+                            .setHorizontalScaling(bboxWidthPt / lineWidth)
                             .setBaseDirection(BaseDirection.LEFT_TO_RIGHT);
                     if (getTextColor() != null) {
                         text.setFontColor(getTextColor());
@@ -860,29 +862,26 @@ public class PdfRenderer implements IPdfRenderer {
      *
      * @param line          text line
      * @param defaultFont   default font
-     * @param bboxWidthPt   bbox width
      * @param bboxHeightPt  bbox height
-     * @param fontSizeDelta float
      * @return float
      */
     private float calculateFontSize(final String line,
             final PdfFont defaultFont,
-            final float bboxWidthPt,
-            final float bboxHeightPt,
-            final float fontSizeDelta) {
+            final float bboxHeightPt) {
         float fontSize = bboxHeightPt;
         boolean textScaled = false;
 
-        float lineWidth = defaultFont.getWidth(line, fontSize);
-        boolean increaseSize = lineWidth < bboxWidthPt;
+        float realTextSize;
         while (!textScaled) {
-            lineWidth = defaultFont.getWidth(line, fontSize);
-            if (Math.abs(lineWidth - bboxWidthPt) < 1) {
+            float ascent = defaultFont.getAscent(line, fontSize);
+            float descent = defaultFont.getDescent(line, fontSize);
+            realTextSize = ascent - descent;
+            if (realTextSize - bboxHeightPt <= 0.5) {
                 textScaled = true;
-            } else if (lineWidth < bboxWidthPt) {
-                fontSize += fontSizeDelta * (increaseSize ? 1f : 0.5f);
+            } else if (realTextSize - bboxHeightPt < 0.5) {
+                fontSize += 0.5f;
             } else {
-                fontSize -= fontSizeDelta * (increaseSize ? 0.5f : 1f);
+                fontSize -= 0.5f;
             }
         }
         return fontSize;
