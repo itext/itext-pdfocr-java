@@ -97,38 +97,40 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testTextFromPdfLayers() throws IOException {
         String path = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+        String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString()
                 + ".pdf";
         File file = new File(path);
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+        try {
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(file));
+            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
-        List<PdfLayer> layers = doc.getCatalog()
-                .getOCProperties(true).getLayers();
+            Assert.assertNotNull(doc);
+            List<PdfLayer> layers = doc.getCatalog()
+                    .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(2, layers.size());
-        Assert.assertEquals("Image Layer",
-                layers.get(0).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(0).isOn());
-        Assert.assertEquals("Text Layer",
-                layers.get(1).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(1).isOn());
+            Assert.assertEquals(2, layers.size());
+            Assert.assertEquals("Image Layer",
+                    layers.get(0).getPdfObject().get(PdfName.Name).toString());
+            Assert.assertTrue(layers.get(0).isOn());
+            Assert.assertEquals("Text Layer",
+                    layers.get(1).getPdfObject().get(PdfName.Name).toString());
+            Assert.assertTrue(layers.get(1).isOn());
 
-        doc.close();
+            doc.close();
 
-        // Text layer should contain all text
-        // Image layer shouldn't contain any text
-        String expectedOutput = "619121";
-        Assert.assertEquals(expectedOutput,
-                getTextFromPdfLayer(pdfPath, "Text Layer", 1));
-        Assert.assertEquals("",
-                getTextFromPdfLayer(pdfPath,
-                        "Image Layer", 1));
-
-        deleteFile(pdfPath);
+            // Text layer should contain all text
+            // Image layer shouldn't contain any text
+            String expectedOutput = "619121";
+            Assert.assertEquals(expectedOutput,
+                    getTextFromPdfLayer(pdfPath, "Text Layer", 1));
+            Assert.assertEquals("",
+                    getTextFromPdfLayer(pdfPath,
+                            "Image Layer", 1));
+        } finally {
+            deleteFile(pdfPath);
+        }
     }
 
     @Test

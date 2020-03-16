@@ -45,7 +45,8 @@ public interface IOcrReader {
         /**
          * hocr.
          * <p>
-         * Reader will produce XHTML output compliant with the hOCR specification.
+         * Reader will produce XHTML output compliant
+         * with the hOCR specification.
          * Output will be parsed and represented as List<TextInfo>
          */
         hocr,
@@ -90,5 +91,6 @@ public interface IOcrReader {
      * @param is InputStream
      * @return List<TextInfo>
      */
-    List<TextInfo> readDataFromInput(InputStream is, OutputFormat outputFormat);
+    List<TextInfo> readDataFromInput(InputStream is,
+            OutputFormat outputFormat);
 }

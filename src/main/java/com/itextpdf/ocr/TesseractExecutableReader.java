@@ -1,19 +1,12 @@
 package com.itextpdf.ocr;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-
-import net.sourceforge.lept4j.Leptonica;
-import net.sourceforge.lept4j.Pix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
 
 /**
  * Tesseract Executable Reader class.
@@ -197,9 +190,11 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      * @throws OCRException if path to executable is not set
      */
-    private void addPathToExecutable(List<String> command) throws OCRException {
+    private void addPathToExecutable(List<String> command)
+            throws OCRException {
         // path to tesseract executable cannot be uninitialized
-        if (getPathToExecutable() == null || getPathToExecutable().isEmpty()) {
+        if (getPathToExecutable() == null
+                || getPathToExecutable().isEmpty()) {
             throw new OCRException(
                     OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         } else {
@@ -213,7 +208,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      */
     private void addPathToHocrScript(List<String> command) {
-        if (getPathToHocrScript() != null && !getPathToHocrScript().isEmpty()) {
+        if (getPathToHocrScript() != null
+                && !getPathToHocrScript().isEmpty()) {
             command.add(getPathToHocrScript());
         } else {
             command.add(getDefaultPathToHocrScript());
@@ -226,7 +222,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      */
     private void addUserWords(List<String> command) {
-        if (getUserWordsFilePath() != null && !getUserWordsFilePath().isEmpty()) {
+        if (getUserWordsFilePath() != null
+                && !getUserWordsFilePath().isEmpty()) {
             command.add("--user-words");
             command.add(addQuotes(getUserWordsFilePath()));
         }
@@ -238,7 +235,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      */
     private void addTessData(List<String> command) {
-        if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
+        if (getPathToTessData() != null
+                && !getPathToTessData().isEmpty()) {
             command.add("--tessdata-dir");
             command.add(addQuotes(getTessData()));
         }
@@ -270,12 +268,13 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Preprocess input image (if needed) and add path to this file
+     * Preprocess input image (if needed) and add path to this file.
      *
      * @param command List<String>
      * @param imagePath path to file
      */
-    private void addInputFile(List<String> command, final String imagePath) {
+    private void addInputFile(List<String> command,
+            final String imagePath) {
         command.add(addQuotes(imagePath));
     }
 
@@ -288,9 +287,11 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addOutputFile(List<String> command, final File outputFile,
                                final OutputFormat outputFormat) {
-        String extension = outputFormat.equals(OutputFormat.hocr) ? ".hocr" : ".txt";
-        String fileName = new String(outputFile.getAbsolutePath().toCharArray(),
-                0, outputFile.getAbsolutePath().indexOf(extension));
+        String extension = outputFormat.equals(OutputFormat.hocr)
+                ? ".hocr" : ".txt";
+        String fileName = new String(
+                outputFile.getAbsolutePath().toCharArray(), 0,
+                outputFile.getAbsolutePath().indexOf(extension));
         LOGGER.info("Temp path: " + outputFile.toString());
         command.add(addQuotes(fileName));
     }
@@ -311,12 +312,11 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param inputImage original input image
      * @return path to output image
      */
-    private String preprocessImage(File inputImage) {
+    private String preprocessImage(final File inputImage) {
         String path = inputImage.getAbsolutePath();
         if (isPreprocessingImages()) {
             try {
-                File tmpFile = ImageUtil.isTiffImage(inputImage)
-                        ? ImageUtil.preprocessTiffImage(inputImage) : ImageUtil.preprocessImage(inputImage);
+                File tmpFile = ImageUtil.preprocessImage(inputImage);
                 if (tmpFile != null) {
                     path = tmpFile.getAbsolutePath();
                 }

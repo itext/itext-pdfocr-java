@@ -98,14 +98,16 @@ final class UtilService {
             throws IOException {
         List<TextInfo> textData = new ArrayList<TextInfo>();
 
-        Document doc = org.jsoup.Jsoup.parse(inputFile.getAbsoluteFile(), String.valueOf(StandardCharsets.UTF_8));
+        Document doc = org.jsoup.Jsoup.parse(inputFile.getAbsoluteFile(),
+                String.valueOf(StandardCharsets.UTF_8));
         Elements pages = doc.getElementsByClass("ocr_page");
 
         Pattern bboxPattern = Pattern.compile("bbox(\\s+\\d+){4}");
         Pattern bboxCoordinatePattern = Pattern
                 .compile("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
         List<String> searchedClasses = TextPositioning.byLines.equals(textPositioning)
-                ? Arrays.asList("ocr_line", "ocr_caption") : Arrays.asList("ocrx_word");
+                ? Arrays.asList("ocr_line", "ocr_caption")
+                : Arrays.asList("ocrx_word");
         for (org.jsoup.nodes.Element page : pages) {
             String[] pageNum = page.id().split("page_");
             int pageNumber = Integer.parseInt(pageNum[pageNum.length - 1]);
@@ -122,8 +124,8 @@ final class UtilService {
                     if (bboxCoordinateMatcher.find()) {
                         List<Float> coordinates = new ArrayList<>();
                         for (int i = 0; i < 4; i++) {
-                            coordinates.add(Float
-                                    .parseFloat(bboxCoordinateMatcher.group(i + 1)));
+                            String coord = bboxCoordinateMatcher.group(i + 1);
+                            coordinates.add(Float.parseFloat(coord));
                         }
 
                         textData.add(new TextInfo(obj.text(), pageNumber,
@@ -144,7 +146,8 @@ final class UtilService {
     static String readTxtFile(final File txtFile) {
         String content = null;
         try {
-            content = new String (Files.readAllBytes(txtFile.toPath()));
+            content = new String(
+                    Files.readAllBytes(txtFile.toPath()));
         } catch (IOException e) {
             LOGGER.error("Cannot read file " + txtFile.getAbsolutePath()
                     + " with error " + e.getMessage());
@@ -246,12 +249,13 @@ final class UtilService {
      *
      * @param file File
      */
-    static void deleteFile(File file) {
+    static void deleteFile(final File file) {
         if (file != null && file.exists()) {
             boolean deleted = true;
             deleted = file.delete();
             if (!deleted || file.exists()) {
-                LOGGER.warn("File " + file.getAbsolutePath() + " was not deleted");
+                LOGGER.warn("File " + file.getAbsolutePath()
+                        + " was not deleted");
             }
         }
     }

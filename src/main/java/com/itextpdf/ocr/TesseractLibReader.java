@@ -157,8 +157,7 @@ public class TesseractLibReader extends TesseractReader {
         try {
             // preprocess if required
             if (isPreprocessingImages()) {
-                File preprocessed = ImageUtil.isTiffImage(inputImage)
-                        ? ImageUtil.preprocessTiffImage(inputImage) : ImageUtil.preprocessImage(inputImage);
+                File preprocessed = ImageUtil.preprocessImage(inputImage);
 
                 if (preprocessed == null) {
                     result = getTesseractInstance().doOCR(inputImage);

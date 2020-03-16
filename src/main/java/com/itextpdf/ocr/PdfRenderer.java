@@ -71,7 +71,8 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Path to default font file (LiberationSans-Regular).
      */
-    private String defaultFontPath = "com/itextpdf/ocr/fonts/LiberationSans-Regular.ttf";
+    private String defaultFontPath = "com/itextpdf/ocr/"
+            + "fonts/LiberationSans-Regular.ttf";
 
     /**
      * List of Files with input images.
@@ -400,10 +401,10 @@ public class PdfRenderer implements IPdfRenderer {
      * save output to a text file with provided path.
      *
      * @param absolutePath String
-     * @return PdfDocument
      */
     public void doPdfOcr(String absolutePath) {
-        LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
+        LOGGER.info("Starting ocr for " + getInputImages().size()
+                + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
         StringBuilder content = new StringBuilder();
@@ -439,12 +440,14 @@ public class PdfRenderer implements IPdfRenderer {
     public final PdfDocument doPdfOcr(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent)
             throws OCRException {
-        LOGGER.info("Starting ocr for " + getInputImages().size() + " image(s)");
+        LOGGER.info("Starting ocr for " + getInputImages().size()
+                + " image(s)");
 
         // map contains image files as keys and retrieved text data as values
         Map<File, List<TextInfo>> imagesTextData = new LinkedHashMap<File, List<TextInfo>>();
         for (File inputImage : getInputImages()) {
-            imagesTextData.put(inputImage, doOCRForImages(inputImage));
+            imagesTextData.put(inputImage,
+                    doOCRForImages(inputImage));
         }
 
         // create PdfDocument
@@ -463,7 +466,8 @@ public class PdfRenderer implements IPdfRenderer {
      */
     private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent,
-            final Map<File, List<TextInfo>> imagesTextData) throws OCRException {
+            final Map<File, List<TextInfo>> imagesTextData)
+            throws OCRException {
         PdfDocument pdfDocument;
         if (pdfOutputIntent != null) {
             pdfDocument = new PdfADocument(pdfWriter,
@@ -490,7 +494,8 @@ public class PdfRenderer implements IPdfRenderer {
             try {
                 defaultFont = PdfFontFactory.createFont(getDefaultFontPath(),
                         PdfEncodings.IDENTITY_H, true);
-            } catch (com.itextpdf.io.IOException | IOException | NullPointerException ex) {
+            } catch (com.itextpdf.io.IOException
+                    | IOException | NullPointerException ex) {
                 LOGGER.error("Error occurred when setting default font: "
                         + e.getMessage());
                 throw new OCRException(OCRException.CANNOT_READ_FONT);
@@ -566,7 +571,8 @@ public class PdfRenderer implements IPdfRenderer {
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
         } else {
-            data = new ArrayList<TextInfo>(ocrReader.readDataFromInput(inputImage));
+            data = new ArrayList<TextInfo>(
+                    ocrReader.readDataFromInput(inputImage));
         }
         return data;
     }
@@ -586,7 +592,8 @@ public class PdfRenderer implements IPdfRenderer {
             extension = new String(image.getAbsolutePath().toCharArray(),
                     index + 1,
                     image.getAbsolutePath().length() - index - 1);
-            for (ImageFormat imageFormat : ImageFormat.class.getEnumConstants()) {
+            for (ImageFormat imageFormat
+                    : ImageFormat.class.getEnumConstants()) {
                 if (imageFormat.name().equals(extension.toLowerCase())) {
                     isValid = true;
                     break;
@@ -602,16 +609,20 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Perform OCR for input image.
      *
-     * @param imagesTextData  Map<File, List<TextInfo>> - map that contains input image
-     *                        files as keys, and text data as value for each image
+     * @param imagesTextData Map<File, List<TextInfo>> -
+     *                       map that contains input image
+     *                       files as keys, and text data
+     *                       as value for each image
      * @param pdfDocument output pdf document
      * @param defaultFont default font
      * @throws OCRException if input image cannot be read
      */
-    private void addDataToPdfDocument(final Map<File, List<TextInfo>> imagesTextData,
+    private void addDataToPdfDocument(
+            final Map<File, List<TextInfo>> imagesTextData,
             final PdfDocument pdfDocument,
             final PdfFont defaultFont) throws OCRException {
-        for (Map.Entry<File, List<TextInfo>> entry : imagesTextData.entrySet()) {
+        for (Map.Entry<File, List<TextInfo>> entry
+                : imagesTextData.entrySet()) {
             try {
                 File inputImage = entry.getKey();
                 List<ImageData> imageDataList = getImageData(inputImage);
@@ -660,10 +671,10 @@ public class PdfRenderer implements IPdfRenderer {
     void addToCanvas(final PdfDocument pdfDocument, final PdfFont defaultFont,
             final Rectangle imageSize,
             final List<TextInfo> pageText, final ImageData imageData) {
-        Rectangle size = getScaleMode() == ScaleMode.keepOriginalSize
+        Rectangle rectangleSize = getScaleMode() == ScaleMode.keepOriginalSize
                 ? imageSize : getPageSize();
-        PageSize pageSize = new PageSize(size);
-        PdfPage pdfPage = pdfDocument.addNewPage(pageSize);
+        PageSize size = new PageSize(rectangleSize);
+        PdfPage pdfPage = pdfDocument.addNewPage(size);
         PdfCanvas canvas = new PdfCanvas(pdfPage);
 
         PdfLayer imageLayer = new PdfLayer(getImageLayerName(), pdfDocument);
@@ -706,7 +717,8 @@ public class PdfRenderer implements IPdfRenderer {
                     || "tif".equals(ext.toLowerCase())) {
                 RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
                         new RandomAccessSourceFactory()
-                                .createBestSource(inputImage.getAbsolutePath()));
+                                .createBestSource(
+                                        inputImage.getAbsolutePath()));
                 int tiffPages = TiffImageData.getNumberOfPages(raf);
 
                 for (int page = 0; page < tiffPages; page++) {
@@ -723,22 +735,28 @@ public class PdfRenderer implements IPdfRenderer {
                             .create(inputImage.getAbsolutePath());
                     images.add(imageData);
                 } catch (com.itextpdf.io.IOException e) {
-                    String exception = "Cannot open " + inputImage.getAbsolutePath()
+                    String exception = "Cannot open "
+                            + inputImage.getAbsolutePath()
                             + " image, converting to png: " + e.getMessage();
                     LOGGER.warn(exception);
                     try {
-                        BufferedImage bufferedImage = ImageIO.read(inputImage.getAbsoluteFile());
+                        BufferedImage bufferedImage = ImageIO
+                                .read(inputImage.getAbsoluteFile());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                        ImageIO.write(bufferedImage, String.valueOf(ImageFormats.PNG), baos);
-                        ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+                        ImageIO.write(bufferedImage,
+                                String.valueOf(ImageFormats.PNG), baos);
+                        ImageData imageData = ImageDataFactory
+                                .create(baos.toByteArray());
                         images.add(imageData);
                     } catch (com.itextpdf.io.IOException | IOException
                             | IllegalArgumentException ex) {
-                        exception = "Cannot parse " + inputImage.getAbsolutePath()
+                        exception = "Cannot parse "
+                                + inputImage.getAbsolutePath()
                                 + " image " + ex.getMessage();
                         LOGGER.error(exception);
-                        throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+                        throw new OCRException(
+                                OCRException.CANNOT_READ_INPUT_IMAGE);
                     }
                 }
             }

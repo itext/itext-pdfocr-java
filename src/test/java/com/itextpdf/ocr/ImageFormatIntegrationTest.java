@@ -55,6 +55,17 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testBMPText02() {
+        String path = testImagesDirectory + "englishText.bmp";
+        String expectedOutput = "This is a test message for OCR Scanner Test BMPTest";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
+                Collections.<String>singletonList("eng"));
+        realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
+        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
+    }
+
+    @Test
     public void testJFIFText() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "example_02";
@@ -107,12 +118,21 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testTextFromPPM() {
-
         String path = testImagesDirectory + "numbers_01.ppm";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertEquals(realOutputHocr, expectedOutput);
+    }
+
+    @Test
+    public void testTextFromPPM02() {
+        String path = testImagesDirectory + "englishText.ppm";
+        String expectedOutput = "This is a test message for OCR Scanner Test PPMTest";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
+        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
     }
 
     @Test
@@ -136,12 +156,32 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testTextFromPGM02() {
+        String path = testImagesDirectory + "englishText.pgm";
+        String expectedOutput = "This is a test message for OCR Scanner Test PGMTest";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
+        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
+    }
+
+    @Test
     public void testTextFromPBM() {
         String path = testImagesDirectory + "numbers_01.pbm";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void testTextFromPBM02() {
+        String path = testImagesDirectory + "englishText.pbm";
+        String expectedOutput = "This is a test message for OCR Scanner Test PBMTest";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
+        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
     }
 
     @Test

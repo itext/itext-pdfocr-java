@@ -61,29 +61,32 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(file));
-        pdfRenderer.setTextLayerName("Text1");
-        Color color = DeviceCmyk.MAGENTA;
-        pdfRenderer.setTextColor(color);
+        try {
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(file));
+            pdfRenderer.setTextLayerName("Text1");
+            Color color = DeviceCmyk.MAGENTA;
+            pdfRenderer.setTextColor(color);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
-        doc.close();
+            Assert.assertNotNull(doc);
+            doc.close();
 
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+            PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
-        ExtractionStrategy strategy = new ExtractionStrategy("Text1");
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
+            ExtractionStrategy strategy = new ExtractionStrategy("Text1");
+            PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
 
-        processor.processPageContent(pdfDocument.getPage(1));
+            processor.processPageContent(pdfDocument.getPage(1));
 
-        Color fillColor = strategy.getFillColor();
-        Assert.assertEquals(fillColor, color);
+            Color fillColor = strategy.getFillColor();
+            Assert.assertEquals(fillColor, color);
 
-        pdfDocument.close();
-        deleteFile(pdfPath);
+            pdfDocument.close();
+        } finally {
+            deleteFile(pdfPath);
+        }
     }
 
     @Test

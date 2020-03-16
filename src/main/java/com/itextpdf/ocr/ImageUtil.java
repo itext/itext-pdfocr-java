@@ -1,11 +1,10 @@
 package com.itextpdf.ocr;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
+
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
-
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -19,7 +18,6 @@ import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.lept4j.Pixa;
-import org.apache.commons.imaging.ImageFormats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,33 +43,42 @@ public class ImageUtil {
      * @return List<BufferedImage>
      * @throws IOException IOException
      */
-    public static File preprocessImage(final File inputFile)
-            throws IOException {
-        // read image
-        Pix pix = readPix(inputFile);
-
+    public static File preprocessImage(final File inputFile) throws IOException {
         String extension = getExtension(inputFile.getAbsolutePath());
         int format = getFormat(extension);
 
-        // preprocess image
-        pix = preprocessPix(pix);
+        if (isTiffImage(inputFile)) {
+            return preprocessTiffImage(inputFile);
+        } else {
+            // read image
+            Pix pix = readPix(inputFile);
 
-        BufferedImage bi = convertPixToImage(pix, format);
+            // preprocess image
+            pix = preprocessPix(pix);
 
-        // save preprocessed file
-        File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                ".png");
-        Leptonica.INSTANCE.pixWritePng( tmpFile.getAbsolutePath(), pix, format);
+            BufferedImage bi = convertPixToImage(pix, format);
 
-        // destroying
-        if (pix != null) {
-            PointerByReference pRef = new PointerByReference();
-            pRef.setValue(pix.getPointer());
-            Leptonica.INSTANCE.pixDestroy(pRef);
+            // save preprocessed file
+            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
+                    ".png");
+            Leptonica.INSTANCE.pixWritePng( tmpFile.getAbsolutePath(), pix, format);
+
+            // destroying
+            if (pix != null) {
+                PointerByReference pRef = new PointerByReference();
+                pRef.setValue(pix.getPointer());
+                Leptonica.INSTANCE.pixDestroy(pRef);
+            }
+            return tmpFile;
         }
-        return tmpFile;
     }
 
+    /**
+     * Read Pix from file or convert from buffered image
+     *
+     * @param inputFile File
+     * @return Pix
+     */
     public static Pix readPix(final File inputFile) {
         Pix pix = null;
         try {
@@ -79,27 +86,11 @@ public class ImageUtil {
             if (bufferedImage != null) {
                 pix = convertBufferedImageToPix(bufferedImage);
             } else {
-                LOGGER.info("Reading pix from file");
                 pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
             }
         } catch (IOException e) {
             LOGGER.warn("Reading pix from file: " + e.getMessage());
             pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-        }
-
-        return pix;
-    }
-
-    public static Pix convertBufferedImageToPix(final BufferedImage bufferedImage) throws IOException {
-        Pix pix = null;
-        if (bufferedImage != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "png", baos);
-
-            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
-            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
-            pix = Leptonica.INSTANCE.pixReadMem(byteBuffer, nativeSize);
-            LOGGER.info("Reading BI from file and converted to pix");
         }
 
         return pix;
@@ -144,40 +135,6 @@ public class ImageUtil {
     }
 
     /**
-     * Save pix or pix converted to buffered image to temporary file
-     *
-     * @param pix Pix
-     * @param format int
-     * @return File
-     * @throws IOException if file wasn't created
-     */
-    public static File saveImgToTempFile(Pix pix, int format) throws IOException {
-        Leptonica instance = Leptonica.INSTANCE;
-
-        File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                ".png");
-        LOGGER.info("Creating tmp preprocessed file "
-                + tmpFile.getAbsolutePath());
-        try {
-            BufferedImage img = convertPixToImage(pix, format);
-            if (img != null) {
-                ImageIO.write(img, String.valueOf(ImageFormats.PNG), tmpFile);
-                LOGGER.info("Saved BufferedImage");
-            } else {
-                instance.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
-                LOGGER.info("Saved Pix");
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Cannot convert pix to "
-                    + "buffered image after converting: "
-                    + e.getMessage());
-            instance.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
-            LOGGER.info("Saved Pix");
-        }
-        return tmpFile;
-    }
-
-    /**
      * Performs default image preprocessing.
      * It includes the following actions:
      * - remove alpha channel
@@ -188,13 +145,12 @@ public class ImageUtil {
      * @param pix Pix
      * @return Pix
      */
-    private static Pix preprocessPix(Pix pix) {
+    public static Pix preprocessPix(Pix pix) {
         Leptonica instance = Leptonica.INSTANCE;
         pix = instance.pixRemoveAlpha(pix);
         pix = convertToGrayscale(pix);
         pix = otsuImageThresholding(pix);
         pix = instance.pixDeskew(pix, 0);
-        // pix = instance.pixScale(pix, 2, 2);
         return pix;
     }
 
@@ -252,58 +208,18 @@ public class ImageUtil {
     public static String getExtension(final String path) {
         int index = path.lastIndexOf('.');
         if (index > 0) {
-            String extension = new String(path.toCharArray(), index + 1,
+            return new String(path.toCharArray(), index + 1,
                     path.length() - index - 1);
-            if (extension.toLowerCase().contains("jpg")
-                    || extension.toLowerCase().contains("jpeg")
-                    || extension.toLowerCase().contains("jpe")
-                    || extension.toLowerCase().contains("jfif")) {
-                return "jpeg";
-            } else if (extension.toLowerCase().contains("pbm")
-                    || extension.toLowerCase().contains("pgm")
-                    || extension.toLowerCase().contains("pnm")
-                    || extension.toLowerCase().contains("ppm")) {
-                return "pnm";
-            } else {
-                return extension;
-            }
         }
         return "";
     }
 
     /**
-     * Identify image format for Leptonica.
+     * Return true if provided image has 'tiff' or 'tif' extension, otherwise - false
      *
-     * @param ext String
-     * @return int
+     * @param inputImage File
+     * @return boolean
      */
-    static int getFormat(final String ext) {
-        String formatName = "IFF_";
-        if (ext.toLowerCase().contains("jpg")
-                || ext.toLowerCase().contains("jpeg")
-                || ext.toLowerCase().contains("jpe")
-                || ext.toLowerCase().contains("jfif")) {
-            formatName += "JFIF_JPEG";
-        } else if (ext.toLowerCase().contains("tif")) {
-            formatName += "TIFF";
-        } else {
-            formatName += ext.toUpperCase();
-        }
-
-        int format = 0;
-        Field field = null;
-        try {
-            field = ILeptonica.class.getField(formatName);
-            if (field.getType() == int.class) {
-                format = field.getInt(null);
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error(formatName + " does not exist: "
-                    + e.getMessage());
-        }
-        return format;
-    }
-
     public static boolean isTiffImage(File inputImage) {
         int index = inputImage.getAbsolutePath().lastIndexOf('.');
         if (index > 0) {
@@ -313,6 +229,28 @@ public class ImageUtil {
             return extension.toLowerCase().contains("tif");
         }
         return false;
+    }
+
+    /**
+     * Converts <code>BufferedImage</code> to Leptonica <code>Pix</code>.
+     *
+     * @param bufferedImage BufferedImage
+     * @return Pix
+     * @throws IOException if it's not possible to convert
+     */
+    public static Pix convertBufferedImageToPix(final BufferedImage bufferedImage)
+            throws IOException {
+        Pix pix = null;
+        if (bufferedImage != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+
+            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
+            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
+            pix = Leptonica.INSTANCE.pixReadMem(byteBuffer, nativeSize);
+        }
+
+        return pix;
     }
 
     /**
@@ -343,5 +281,43 @@ public class ImageUtil {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Identify image format for Leptonica.
+     *
+     * @param ext String
+     * @return int
+     */
+    static int getFormat(final String ext) {
+        String formatName = "IFF_";
+        if (ext.toLowerCase().contains("jpg")
+                || ext.toLowerCase().contains("jpeg")
+                || ext.toLowerCase().contains("jpe")
+                || ext.toLowerCase().contains("jfif")) {
+            formatName += "JFIF_JPEG";
+        } else if (ext.toLowerCase().contains("pbm")
+                || ext.toLowerCase().contains("pgm")
+                || ext.toLowerCase().contains("pnm")
+                || ext.toLowerCase().contains("ppm")) {
+            formatName += "PNM";
+        } else if (ext.toLowerCase().contains("tif")) {
+            formatName += "TIFF";
+        } else {
+            formatName += ext.toUpperCase();
+        }
+
+        int format = 0;
+        Field field = null;
+        try {
+            field = ILeptonica.class.getField(formatName);
+            if (field.getType() == int.class) {
+                format = field.getInt(null);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            LOGGER.error(formatName + " does not exist: "
+                    + e.getMessage());
+        }
+        return format;
     }
 }
