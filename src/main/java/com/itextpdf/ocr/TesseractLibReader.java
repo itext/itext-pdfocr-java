@@ -155,27 +155,29 @@ public class TesseractLibReader extends TesseractReader {
     private String getOCRResult(final File inputImage) {
         String result = null;
         try {
+            File preprocessed = null;
             // preprocess if required
             if (isPreprocessingImages()) {
-                File preprocessed = ImageUtil.preprocessImage(inputImage);
-
-                if (preprocessed == null) {
-                    result = getTesseractInstance().doOCR(inputImage);
-                } else {
-                    result = getTesseractInstance().doOCR(preprocessed);
-                }
-            } else {
+                preprocessed = ImageUtil.preprocessImage(inputImage);
+            }
+            if (!isPreprocessingImages() || preprocessed == null) {
+                // try to open as buffered image if it's not a tiff image
                 BufferedImage bufferedImage = null;
-                try {
-                    bufferedImage = ImageIO.read(inputImage);
-                } catch (IOException ex) {
-                    LOGGER.warn("Cannot create a buffered image from the input image");
+                if (!ImageUtil.isTiffImage(inputImage)) {
+                    try {
+                        bufferedImage = ImageIO.read(inputImage);
+                    } catch (IOException ex) {
+                        LOGGER.warn("Cannot create a buffered image " +
+                                "from the input image: " + ex.getMessage());
+                    }
                 }
                 if (bufferedImage != null) {
                     result = getTesseractInstance().doOCR(bufferedImage);
                 } else {
                     result = getTesseractInstance().doOCR(inputImage);
                 }
+            } else {
+                result = getTesseractInstance().doOCR(preprocessed);
             }
         } catch (TesseractException | IOException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());

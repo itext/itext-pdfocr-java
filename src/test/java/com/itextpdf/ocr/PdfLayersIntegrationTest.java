@@ -133,43 +133,44 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
         String path = testImagesDirectory + "multipage.tiff";
         String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
 
-        tesseractReader.setPreprocessingImages(false);
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+        try {
+            tesseractReader.setPreprocessingImages(false);
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(file));
+            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
-        int numOfPages = doc.getNumberOfPages();
-        List<PdfLayer> layers = doc.getCatalog()
-                .getOCProperties(true).getLayers();
+            Assert.assertNotNull(doc);
+            int numOfPages = doc.getNumberOfPages();
+            List<PdfLayer> layers = doc.getCatalog()
+                    .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(numOfPages * 2, layers.size());
-        Assert.assertEquals("Image Layer",
-                layers.get(2).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals("Text Layer",
-                layers.get(3).getPdfObject().get(PdfName.Name).toString());
+            Assert.assertEquals(numOfPages * 2, layers.size());
+            Assert.assertEquals("Image Layer",
+                    layers.get(2).getPdfObject().get(PdfName.Name).toString());
+            Assert.assertEquals("Text Layer",
+                    layers.get(3).getPdfObject().get(PdfName.Name).toString());
 
-        doc.close();
+            doc.close();
 
-        // Text layer should contain all text
-        // Image layer shouldn't contain any text
-        String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
-        Assert.assertEquals(expectedOutput,
-                getTextFromPdfLayer(pdfPath, "Text Layer", 5));
-        Assert.assertEquals("",
-                getTextFromPdfLayer(pdfPath,
-                        "Image Layer", 5));
-        Assert.assertFalse(tesseractReader.isPreprocessingImages());
-
-        deleteFile(pdfPath);
-    }*/
+            // Text layer should contain all text
+            // Image layer shouldn't contain any text
+            String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
+            Assert.assertEquals(expectedOutput,
+                    getTextFromPdfLayer(pdfPath, "Text Layer", 5));
+            Assert.assertEquals("",
+                    getTextFromPdfLayer(pdfPath,
+                            "Image Layer", 5));
+            Assert.assertFalse(tesseractReader.isPreprocessingImages());
+        } finally {
+            deleteFile(pdfPath);
+        }
+    }
 
     @Test
     public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {

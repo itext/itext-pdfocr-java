@@ -1,5 +1,6 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -72,9 +73,9 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
-        tesseractReader.setTextPositioning(TextPositioning.byWords);
         doOcrAndSavePdfToPath(tesseractReader,
-                testImagesDirectory + filename + ".JFIF", resultPdfPath, cairoFontPath);
+                testImagesDirectory + filename + ".JFIF",
+                resultPdfPath, null, DeviceCmyk.MAGENTA);
 
         try {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
@@ -193,8 +194,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setPreprocessingImages(true);
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void testInputMultipagesTIFF() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -208,10 +208,9 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }*/
+    }
 
-    // TODO
-    /*@Test
+    @Test
     public void testInputMultipagesTIFFWithoutPreprocessing() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
@@ -225,7 +224,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(realOutputHocr);
         Assert.assertEquals(expectedOutput, realOutputHocr);
         tesseractReader.setPreprocessingImages(preprocess);
-    }*/
+    }
 
     @Test
     public void testInputWrongFormat() {
@@ -242,8 +241,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void compareNumbersJPG() throws IOException, InterruptedException {
         String filename = "numbers_01";
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
@@ -261,5 +259,5 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
             deleteFile(resultPdfPath);
             tesseractReader.setTextPositioning(TextPositioning.byLines);
         }
-    }*/
+    }
 }

@@ -26,27 +26,28 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.BaseDirection;
+import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.ocr.IOcrReader.OutputFormat;
 import com.itextpdf.pdfa.PdfADocument;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import javax.imageio.ImageIO;
 import org.apache.commons.imaging.ImageFormats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * PDF Renderer class.
@@ -691,7 +692,8 @@ public class PdfRenderer implements IPdfRenderer {
                 ? 1 : imageSize.getWidth()
                 / UtilService.getPoints(imageData.getWidth());
         canvas.beginLayer(textLayer);
-        addTextToCanvas(imageSize, pageText, canvas, defaultFont, multiplier);
+        addTextToCanvas(imageSize, pageText, canvas, defaultFont,
+                multiplier, pdfPage.getMediaBox());
         canvas.endLayer();
     }
 
@@ -804,7 +806,8 @@ public class PdfRenderer implements IPdfRenderer {
             final List<TextInfo> data,
             final PdfCanvas pdfCanvas,
             final PdfFont defaultFont,
-            final float multiplier) {
+            final float multiplier,
+            final Rectangle pageMediaBox) {
         if (data == null || data.size() == 0) {
             pdfCanvas.beginText().setFontAndSize(defaultFont, 1);
             pdfCanvas.showText("").endText();
@@ -834,23 +837,30 @@ public class PdfRenderer implements IPdfRenderer {
                     float deltaY = imageSize.getHeight() - UtilService
                             .getPoints(bottom);
 
-                    Rectangle rectangle = new Rectangle(deltaX + x,
-                            deltaY + y, bboxWidthPt * 1.5f,
-                            bboxHeightPt);
+                    float descent = defaultFont.getDescent(line, fontSize);
 
                     Canvas canvas = new Canvas(pdfCanvas,
-                            pdfCanvas.getDocument(), rectangle);
+                            pdfCanvas.getDocument(), pageMediaBox);
+
                     Text text = new Text(line)
-                            .setFont(defaultFont)
-                            .setFontSize(fontSize)
                             .setHorizontalScaling(bboxWidthPt / lineWidth)
                             .setBaseDirection(BaseDirection.LEFT_TO_RIGHT);
+
+                    Paragraph paragraph = new Paragraph(text)
+                            .setMargin(0)
+                            .setMultipliedLeading(1);
+                    paragraph.setFont(defaultFont)
+                            .setFontSize(fontSize);
+                    paragraph.setWidth(bboxWidthPt * 1.5f);
+
                     if (getTextColor() != null) {
-                        text.setFontColor(getTextColor());
+                        paragraph.setFontColor(getTextColor());
                     } else {
-                        text.setOpacity(0.0f);
+                        paragraph.setOpacity(0.0f);
                     }
-                    canvas.add(new Paragraph(text));
+
+                    canvas.showTextAligned(paragraph, deltaX + x,
+                            deltaY + y + descent, TextAlignment.LEFT);
                     canvas.close();
                 }
             }

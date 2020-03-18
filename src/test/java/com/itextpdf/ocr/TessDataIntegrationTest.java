@@ -47,29 +47,6 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 });
     }
 
-    // TODO
-    /*@Test
-    public void compareGreekPNG() throws IOException, InterruptedException {
-        String filename = "greek_02";
-        String expectedPdfPath = testDocumentsDirectory + filename + parameter +
-                ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
-
-        try {
-            tesseractReader.setPathToTessData(getTessDataDirectory());
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
-            doOcrAndSavePdfToPath(tesseractReader,
-                    testImagesDirectory + filename + ".png", resultPdfPath,
-                    Arrays.<String>asList("ell", "eng"),
-                    notoSansFontPath, DeviceCmyk.BLACK);
-
-            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    testDocumentsDirectory, "diff_");
-        } finally {
-            deleteFile(resultPdfPath);
-        }
-    }*/
-
     @Test
     public void textGreekText() {
         String imgPath = testImagesDirectory + "greek_01.jpg";
@@ -137,8 +114,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 .contains(expected));
     }
 
-    // TODO
-    /*@Test
+    @Test
     public void compareSpanishPNG() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_spa_01";
@@ -165,10 +141,9 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
             tesseractReader.setPreprocessingImages(preprocess);
             tesseractReader.setTextPositioning(TextPositioning.byLines);
         }
-    }*/
+    }
 
-    // TODO
-    /*@Test
+    @Test
     public void compareEngTextPNG() throws IOException, InterruptedException {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String filename = "scanned_eng_01";
@@ -188,7 +163,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
             deleteFile(resultPdfPath);
             tesseractReader.setPreprocessingImages(preprocess);
         }
-    }*/
+    }
 
     @Test
     public void textGreekOutputFromTxtFile() {
@@ -364,7 +339,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
                 new ArrayList<String>(), cairoFontPath));
     }
 
-    /*@Test
+    @Test
     public void compareMultiLangImage() throws IOException,
             InterruptedException {
         String filename = "multilang";
@@ -385,7 +360,7 @@ public class TessDataIntegrationTest extends AbstractIntegrationTest {
             Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
             tesseractReader.setTextPositioning(TextPositioning.byLines);
         }
-    }*/
+    }
 
     @Test
     public void testHindiTextWithUrdu() {

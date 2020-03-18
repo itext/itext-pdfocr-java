@@ -1,8 +1,11 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,4 +98,27 @@ public class BasicTesseractLibIntegrationTest extends AbstractIntegrationTest {
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
+
+    @Test
+    public void compareGreekPNG() throws IOException, InterruptedException {
+        String filename = "greek_02";
+        String expectedPdfPath = testDocumentsDirectory + filename + "lib.pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
+
+        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
+        try {
+            tesseractReader.setPathToTessData(getTessDataDirectory());
+            tesseractReader.setTextPositioning(IOcrReader.TextPositioning.byLines);
+            doOcrAndSavePdfToPath(tesseractReader,
+                    testImagesDirectory + filename + ".png", resultPdfPath,
+                    Arrays.<String>asList("ell", "eng"),
+                    notoSansFontPath, DeviceCmyk.BLACK);
+
+            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
+                    testDocumentsDirectory, "diff_");
+        } finally {
+            deleteFile(resultPdfPath);
+        }
+    }
+
 }
