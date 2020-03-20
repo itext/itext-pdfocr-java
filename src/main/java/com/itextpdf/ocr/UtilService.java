@@ -147,7 +147,8 @@ final class UtilService {
         String content = null;
         try {
             content = new String(
-                    Files.readAllBytes(txtFile.toPath()));
+                    Files.readAllBytes(txtFile.toPath()),
+                    StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("Cannot read file " + txtFile.getAbsolutePath()
                     + " with error " + e.getMessage());

@@ -55,22 +55,13 @@
       <version>2.6</version>
     </dependency>
     <dependency>
-      <groupId>net.sourceforge.lept4j</groupId>
-      <artifactId>lept4j</artifactId>
-      <version>1.13.0</version>
-    </dependency>
-    <dependency>
       <groupId>net.sourceforge.tess4j</groupId>
       <artifactId>tess4j</artifactId>
-      <version>4.4.1</version>
+      <version>4.5.1</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>net.sourceforge.lept4j</groupId>
-          <artifactId>lept4j</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
