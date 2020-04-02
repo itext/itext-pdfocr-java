@@ -231,6 +231,8 @@ public class TesseractExecutableReader extends TesseractReader {
                 && !getUserWordsFilePath().isEmpty()) {
             command.add("--user-words");
             command.add(addQuotes(getUserWordsFilePath()));
+            command.add("--oem");
+            command.add("0");
         }
     }
 

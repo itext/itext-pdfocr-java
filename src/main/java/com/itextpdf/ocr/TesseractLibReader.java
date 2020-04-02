@@ -109,6 +109,7 @@ public class TesseractLibReader extends TesseractReader {
                     DEFAULT_USER_WORDS_SUFFIX);
             getTesseractInstance().setTessVariable("user_words_file",
                     getUserWordsFilePath());
+            getTesseractInstance().setOcrEngineMode(0);
         }
 
         if (getLanguages().size() > 0) {
@@ -144,6 +145,8 @@ public class TesseractLibReader extends TesseractReader {
         if (getUserWordsFilePath() != null) {
             UtilService.deleteFile(new File(getUserWordsFilePath()));
         }
+        // setting default oem
+        getTesseractInstance().setOcrEngineMode(3);
     }
 
     /**
