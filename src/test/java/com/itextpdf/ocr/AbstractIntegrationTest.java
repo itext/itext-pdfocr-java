@@ -138,18 +138,18 @@ class AbstractIntegrationTest {
     String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
                           List<String> languages, String fontPath) {
         String result = null;
-        String pdfPath = null;
+        File pdf = null;
         try {
-            pdfPath = File.createTempFile(UUID.randomUUID().toString(),
-                    ".pdf").getAbsolutePath();
+            pdf = File.createTempFile(UUID.randomUUID().toString(),
+                    ".pdf");
             doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
-                    pdfPath, languages, fontPath);
-            result = getTextFromPdfLayer(pdfPath, "Text Layer",
+                    pdf.getAbsolutePath(), languages, fontPath);
+            result = getTextFromPdfLayer(pdf.getAbsolutePath(), "Text Layer",
                     page);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            deleteFile(pdfPath);
+            deleteFile(pdf);
         }
 
         return result;
@@ -256,16 +256,16 @@ class AbstractIntegrationTest {
     String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input,
             List<String> languages) {
         String result = null;
-        String txtPath = null;
+        File txt = null;
         try {
-            txtPath = File.createTempFile(UUID.randomUUID().toString(),
-                    ".txt").getAbsolutePath();
-            doOcrAndSaveToTextFile(tesseractReader, input, txtPath, languages);
-            result = getTextFromTextFile(new File(txtPath));
+            txt = File.createTempFile(UUID.randomUUID().toString(),
+                    ".txt");
+            doOcrAndSaveToTextFile(tesseractReader, input, txt.getAbsolutePath(), languages);
+            result = getTextFromTextFile(txt);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            deleteFile(txtPath);
+            deleteFile(txt);
         }
 
         return result;
@@ -454,6 +454,10 @@ class AbstractIntegrationTest {
         UtilService.deleteFile(new File(filePath));
     }
 
+    void deleteFile(File file) {
+        UtilService.deleteFile(file);
+    }
+
     /**
      * Do OCR for given image and compare result etxt file with expected one.
      *
@@ -475,7 +479,7 @@ class AbstractIntegrationTest {
             e.printStackTrace();
         } finally {
             assert resutTxtFile != null;
-            deleteFile(resutTxtFile.getAbsolutePath());
+            deleteFile(resutTxtFile);
         }
 
         return result;

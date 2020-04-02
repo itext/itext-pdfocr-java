@@ -151,28 +151,29 @@ public class TesseractExecutableReader extends TesseractReader {
     public void doTesseractOcr(final File inputImage,
             final File outputFile, final OutputFormat outputFormat) {
         List<String> command = new ArrayList<String>();
-
-        // path to tesseract executable
-        addPathToExecutable(command);
-        // path to tess data
-        addTessData(command);
-        // preprocess input file if needed and add it
-        String imagePath = preprocessImage(inputImage);
-        addInputFile(command, imagePath);
-        // output file
-        addOutputFile(command, outputFile, outputFormat);
-        // page segmentation mode
-        addPageSegMode(command);
-        // add user words if needed
-        addUserWords(command);
-        // required languages
-        addLanguages(command);
-        if (outputFormat.equals(OutputFormat.hocr)) {
-            // path to hocr script
-            addPathToHocrScript(command);
-        }
+        String imagePath = inputImage.getAbsolutePath();
 
         try {
+            // path to tesseract executable
+            addPathToExecutable(command);
+            // path to tess data
+            addTessData(command);
+            // preprocess input file if needed and add it
+            imagePath = preprocessImage(inputImage);
+            addInputFile(command, imagePath);
+            // output file
+            addOutputFile(command, outputFile, outputFormat);
+            // page segmentation mode
+            addPageSegMode(command);
+            // add user words if needed
+            addUserWords(command);
+            // required languages
+            addLanguages(command);
+            if (outputFormat.equals(OutputFormat.hocr)) {
+                // path to hocr script
+                addPathToHocrScript(command);
+            }
+
             UtilService.runCommand(command, isWindows());
         } catch (OCRException e) {
             LOGGER.error("Running tesseract executable failed: " + e);

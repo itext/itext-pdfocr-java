@@ -185,7 +185,7 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testBigTiffWithoutPreprocessing() {
         String path = testImagesDirectory + "example_03_10MB.tiff";
-        String expectedOutput = "Tagged Image File Format";
+        String expectedOutput = "Image File Format";
 
         tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),

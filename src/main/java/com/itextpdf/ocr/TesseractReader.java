@@ -221,15 +221,17 @@ public abstract class TesseractReader implements IOcrReader {
         String data = null;
         try {
             File tmpFile = getTmpFile("txt");
-            doTesseractOcr(input, tmpFile, OutputFormat.txt);
-            if (tmpFile.exists()) {
-                data = UtilService.readTxtFile(tmpFile);
-            } else {
-                LOGGER.error("Error occurred. File wasn't created "
-                        + tmpFile.getAbsolutePath());
+            try {
+                doTesseractOcr(input, tmpFile, OutputFormat.txt);
+                if (tmpFile.exists()) {
+                    data = UtilService.readTxtFile(tmpFile);
+                } else {
+                    LOGGER.error("Error occurred. File wasn't created "
+                            + tmpFile.getAbsolutePath());
+                }
+            } finally {
+                UtilService.deleteFile(tmpFile);
             }
-
-            UtilService.deleteFile(tmpFile);
         } catch (IOException e) {
             LOGGER.error("Error occurred: " + e.getMessage());
         }
@@ -251,21 +253,23 @@ public abstract class TesseractReader implements IOcrReader {
         List<TextInfo> textData = new ArrayList<TextInfo>();
         try {
             File tmpFile = getTmpFile("hocr");
-            doTesseractOcr(input, tmpFile, OutputFormat.hocr);
-            if (tmpFile.exists()) {
-                textData = UtilService.parseHocrFile(tmpFile,
-                        getTextPositioning());
+            try {
+                doTesseractOcr(input, tmpFile, OutputFormat.hocr);
+                if (tmpFile.exists()) {
+                    textData = UtilService.parseHocrFile(tmpFile,
+                            getTextPositioning());
 
-                LOGGER.info(textData.size()
-                        + (TextPositioning.byLines.equals(getTextPositioning())
-                        ? " line(s)" : " word(s)")
-                        + " were read");
-            } else {
-                LOGGER.error("Error occurred. File wasn't created "
-                        + tmpFile.getAbsolutePath());
+                    LOGGER.info(textData.size()
+                            + (TextPositioning.byLines.equals(getTextPositioning())
+                            ? " line(s)" : " word(s)")
+                            + " were read");
+                } else {
+                    LOGGER.error("Error occurred. File wasn't created "
+                            + tmpFile.getAbsolutePath());
+                }
+            } finally {
+                UtilService.deleteFile(tmpFile);
             }
-
-            UtilService.deleteFile(tmpFile);
         } catch (IOException e) {
             LOGGER.error("Error occurred: " + e.getMessage());
         }

@@ -154,8 +154,8 @@ public class TesseractLibReader extends TesseractReader {
      */
     private String getOCRResult(final File inputImage) {
         String result = null;
+        File preprocessed = null;
         try {
-            File preprocessed = null;
             // preprocess if required
             if (isPreprocessingImages()) {
                 preprocessed = ImageUtil.preprocessImage(inputImage);
@@ -182,6 +182,10 @@ public class TesseractLibReader extends TesseractReader {
         } catch (TesseractException | IOException e) {
             LOGGER.error("OCR failed: " + e.getLocalizedMessage());
             throw new OCRException(OCRException.TESSERACT_FAILED);
+        } finally {
+            if (preprocessed != null) {
+                UtilService.deleteFile(preprocessed);
+            }
         }
 
         return result;
