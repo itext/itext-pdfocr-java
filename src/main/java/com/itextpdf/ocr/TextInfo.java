@@ -23,21 +23,13 @@ public class TextInfo {
     private List<Float> coordinates;
 
     /**
-     * Number of page for given text.
-     */
-    private Integer pageNumber;
-
-    /**
      * TextInfo Constructor.
      *
-     * @param newText        String
-     * @param newPageNumber  Integer
+     * @param newText String
      * @param newCoordinates List<Integer>
      */
-    public TextInfo(final String newText, final Integer newPageNumber,
-            final List<Float> newCoordinates) {
+    public TextInfo(final String newText, final List<Float> newCoordinates) {
         text = newText;
-        pageNumber = newPageNumber;
         coordinates = Collections.<Float>unmodifiableList(newCoordinates);
     }
 
@@ -57,24 +49,6 @@ public class TextInfo {
      */
     public void setText(final String newText) {
         text = newText;
-    }
-
-    /**
-     * Page of the word/text.
-     *
-     * @return Integer
-     */
-    public Integer getPageNumber() {
-        return pageNumber;
-    }
-
-    /**
-     * Page of the word/text.
-     *
-     * @param newPage Integer
-     */
-    public void setPageNumber(final Integer newPage) {
-        pageNumber = newPage;
     }
 
     /**

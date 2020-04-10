@@ -1,43 +1,30 @@
-package com.itextpdf.ocr;
+package com.itextpdf.ocr.pdflayers;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
-import com.itextpdf.test.annotations.type.IntegrationTest;
+import com.itextpdf.ocr.AbstractIntegrationTest;
+import com.itextpdf.ocr.IPdfRenderer;
+import com.itextpdf.ocr.PdfRenderer;
+import com.itextpdf.ocr.TesseractReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@Category(IntegrationTest.class)
-@RunWith(Parameterized.class)
-public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
+public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     TesseractReader tesseractReader;
+    String parameter;
 
-    public PdfLayersIntegrationTest(TesseractReader reader) {
-        tesseractReader = reader;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.<Object[]>asList(
-                new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory(),
-                                getTessDataDirectory())
-                    }, {
-                        new TesseractLibReader(getTessDataDirectory())
-                    }
-                });
+    public PdfLayersIntegrationTest(String type) {
+        parameter = type;
+        tesseractReader = getTesseractReader(type);
     }
 
     @Test
@@ -135,6 +122,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
+        boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
         String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() + ".pdf";
         File file = new File(path);
@@ -158,8 +146,8 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
             doc.close();
 
-            // Text layer should contain all text
-            // Image layer shouldn't contain any text
+//             Text layer should contain all text
+//             Image layer shouldn't contain any text
             String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
             Assert.assertEquals(expectedOutput,
                     getTextFromPdfLayer(pdfPath, "Text Layer", 5));
@@ -169,6 +157,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
             Assert.assertFalse(tesseractReader.isPreprocessingImages());
         } finally {
             deleteFile(pdfPath);
+            tesseractReader.setPreprocessingImages(preprocess);
         }
     }
 
@@ -177,7 +166,7 @@ public class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
                 + ".pdf";
 
-        List<File> files = Arrays.asList(
+        List<File> files = Arrays.<File>asList(
                 new File(testImagesDirectory + "german_01.jpg"),
                 new File(testImagesDirectory + "noisy_01.png"),
                 new File(testImagesDirectory + "numbers_01.jpg"),

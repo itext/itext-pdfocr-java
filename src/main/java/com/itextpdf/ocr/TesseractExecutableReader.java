@@ -1,7 +1,6 @@
 package com.itextpdf.ocr;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,16 +34,9 @@ public class TesseractExecutableReader extends TesseractReader {
             .getLogger(TesseractExecutableReader.class);
 
     /**
-     * Path to hocr config script.
+     * Path to the script.
      */
-    private static final String DEFAULT_PATH_TO_HOCR_SCRIPT = "src/main/"
-            + "resources/com/itextpdf/ocr/configs/hocr";
-
-    /**
-     * Path to the hocr script.
-     * There will be used default path to hocr script if this is not set.
-     */
-    private String pathToHocrScript;
+    private String pathToScript;
 
     /**
      * Path to the tesseract executable.
@@ -57,7 +49,7 @@ public class TesseractExecutableReader extends TesseractReader {
      *
      * @param tessDataPath String
      */
-    public TesseractExecutableReader(String tessDataPath) {
+    public TesseractExecutableReader(final String tessDataPath) {
         setPathToExecutable("tesseract");
         setOsType(identifyOSType());
         setPathToTessData(tessDataPath);
@@ -114,42 +106,35 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Set path to hocr script.
-     * There will be used default path to hocr script if this is not set.
+     * Set path to script.
      *
-     * @param pathToHocr String
+     * @param path String
      */
-    public final void setPathToHocrScript(final String pathToHocr) {
-        pathToHocrScript = pathToHocr;
+    public final void setPathToScript(final String path) {
+        pathToScript = path;
     }
 
     /**
-     * Get path to hocr script.
+     * Get path to script.
      *
      * @return String
      */
-    public final String getPathToHocrScript() {
-        return pathToHocrScript;
-    }
-
-    /**
-     * Get path to default hocr script.
-     *
-     * @return String
-     */
-    public final String getDefaultPathToHocrScript() {
-        return DEFAULT_PATH_TO_HOCR_SCRIPT;
+    public final String getPathToScript() {
+        return pathToScript;
     }
 
     /**
      * Perform tesseract OCR.
      *
      * @param inputImage - input image file
-     * @param outputFile - output file
+     * @param outputFiles - list of output files (one for each page)
+     *        for tesseract executable only the first file is required
      * @param outputFormat - output format
+     * @param pageNumber - number of page to be OCRed
      */
     public void doTesseractOcr(final File inputImage,
-            final File outputFile, final OutputFormat outputFormat) {
+            final List<File> outputFiles, final OutputFormat outputFormat,
+            final int pageNumber) {
         List<String> command = new ArrayList<String>();
         String imagePath = inputImage.getAbsolutePath();
 
@@ -158,11 +143,15 @@ public class TesseractExecutableReader extends TesseractReader {
             addPathToExecutable(command);
             // path to tess data
             addTessData(command);
+
+            // validate languages before preprocessing started
+            validateLanguages(getLanguagesAsList());
+
             // preprocess input file if needed and add it
-            imagePath = preprocessImage(inputImage);
+            imagePath = preprocessImage(inputImage, pageNumber);
             addInputFile(command, imagePath);
             // output file
-            addOutputFile(command, outputFile, outputFormat);
+            addOutputFile(command, outputFiles.get(0), outputFormat);
             // page segmentation mode
             addPageSegMode(command);
             // add user words if needed
@@ -171,20 +160,21 @@ public class TesseractExecutableReader extends TesseractReader {
             addLanguages(command);
             if (outputFormat.equals(OutputFormat.hocr)) {
                 // path to hocr script
-                addPathToHocrScript(command);
+                setHocrOutput(command);
             }
+            addPathToScript(command);
 
-            UtilService.runCommand(command, isWindows());
+            TesseractUtil.runCommand(command, isWindows());
         } catch (OCRException e) {
             LOGGER.error("Running tesseract executable failed: " + e);
             throw new OCRException(e.getMessage());
         } finally {
             if (imagePath != null && isPreprocessingImages()
                     && !inputImage.getAbsolutePath().equals(imagePath)) {
-                UtilService.deleteFile(new File(imagePath));
+                UtilService.deleteFile(imagePath);
             }
             if (getUserWordsFilePath() != null) {
-                UtilService.deleteFile(new File(getUserWordsFilePath()));
+                UtilService.deleteFile(getUserWordsFilePath());
             }
         }
     }
@@ -208,16 +198,24 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Add path to hocr script for tesseract executable.
+     * Set hocr output format.
      *
      * @param command List<String>
      */
-    private void addPathToHocrScript(final List<String> command) {
-        if (getPathToHocrScript() != null
-                && !getPathToHocrScript().isEmpty()) {
-            command.add(getPathToHocrScript());
-        } else {
-            command.add(getDefaultPathToHocrScript());
+    private void setHocrOutput(final List<String> command) {
+        command.add("-c");
+        command.add("tessedit_create_hocr=1");
+    }
+
+    /**
+     * Add path to script.
+     *
+     * @param command List<String>
+     */
+    private void addPathToScript(final List<String> command) {
+        if (getPathToScript() != null
+                && !getPathToScript().isEmpty()) {
+            command.add(addQuotes(getPathToScript()));
         }
     }
 
@@ -267,10 +265,9 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command List<String>
      */
     private void addLanguages(final List<String> command) {
-        if (getLanguages().size() > 0) {
-            validateLanguages(getLanguages());
+        if (getLanguagesAsList().size() > 0) {
             command.add("-l");
-            command.add(String.join("+", getLanguages()));
+            command.add(getLanguagesAsString());
         }
     }
 
@@ -317,20 +314,14 @@ public class TesseractExecutableReader extends TesseractReader {
      * Preprocess given image if it is needed.
      *
      * @param inputImage original input image
+     * @param pageNumber number of page to be OCRed
      * @return path to output image
      */
-    private String preprocessImage(final File inputImage) {
+    private String preprocessImage(final File inputImage,
+            final int pageNumber) {
         String path = inputImage.getAbsolutePath();
         if (isPreprocessingImages()) {
-            try {
-                File tmpFile = ImageUtil.preprocessImage(inputImage);
-                if (tmpFile != null) {
-                    path = tmpFile.getAbsolutePath();
-                }
-            } catch (IOException e) {
-                LOGGER.error("Error while preprocessing image: "
-                        + e.getLocalizedMessage());
-            }
+            path = ImageUtil.preprocessImage(inputImage, pageNumber);
         }
         return path;
     }

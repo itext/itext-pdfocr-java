@@ -1,57 +1,49 @@
-package com.itextpdf.ocr;
+package com.itextpdf.ocr.general;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
-import com.itextpdf.test.annotations.type.IntegrationTest;
+import com.itextpdf.ocr.AbstractIntegrationTest;
+import com.itextpdf.ocr.IOcrReader;
+import com.itextpdf.ocr.IPdfRenderer;
+import com.itextpdf.ocr.OCRException;
+import com.itextpdf.ocr.PdfRenderer;
+import com.itextpdf.ocr.TesseractReader;
+import com.itextpdf.ocr.TesseractUtil;
+import com.itextpdf.ocr.TextInfo;
+import com.itextpdf.ocr.UtilService;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Category(IntegrationTest.class)
-@RunWith(Parameterized.class)
-public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
+public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(BasicTesseractIntegrationTest.class);
 
     TesseractReader tesseractReader;
     String parameter;
 
-    public BasicTesseractIntegrationTest(TesseractReader reader, String param) {
-        tesseractReader = reader;
-        parameter = param;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.<Object[]>asList(
-                new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory(),
-                                getTessDataDirectory()),
-                        "executable"
-                    }, {
-                        new TesseractLibReader(getTessDataDirectory()),
-                        "lib"
-                    }
-            });
+    public BasicTesseractIntegrationTest(String type) {
+        parameter = type;
+        tesseractReader = getTesseractReader(type);
     }
 
     @Test
@@ -62,10 +54,11 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         try {
+            tesseractReader.setPathToTessData(getTessDataDirectory());
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.<File>singletonList(file));
             pdfRenderer.setTextLayerName("Text1");
-            Color color = DeviceCmyk.MAGENTA;
+            com.itextpdf.kernel.colors.Color color = DeviceCmyk.MAGENTA;
             pdfRenderer.setTextColor(color);
 
             PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
@@ -80,7 +73,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
 
             processor.processPageContent(pdfDocument.getPage(1));
 
-            Color fillColor = strategy.getFillColor();
+            com.itextpdf.kernel.colors.Color fillColor = strategy.getFillColor();
             Assert.assertEquals(fillColor, color);
 
             pdfDocument.close();
@@ -106,7 +99,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         try {
             imageData = ImageDataFactory.create(file.getAbsolutePath());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         if (imageData != null) {
@@ -136,13 +129,14 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             originalImageData = ImageDataFactory
                     .create(file.getAbsolutePath());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         float pageWidthPt = 500f;
         float pageHeightPt = 500f;
 
-        Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
+        com.itextpdf.kernel.geom.Rectangle pageSize =
+                new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
         Image resultImage = getImageFromPdf(tesseractReader, file,
                 IPdfRenderer.ScaleMode.scaleWidth, pageSize);
 
@@ -160,19 +154,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             float resultPageWidth = pageSize.getWidth();
             float resultPageHeight = pageSize.getHeight();
 
-            float resultImageHeight = UtilService
-                    .getPoints(resultImage.getImageHeight());
-            float resultImageWidth = UtilService
-                    .getPoints(resultImage.getImageWidth());
-
-            float expectedImageWidth = originalImageWidth * resultPageHeight
-                    / originalImageHeight;
-
             Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
             Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
-
-//            Assert.assertEquals(resultPageHeight, resultImageHeight, delta);
-//            Assert.assertEquals(expectedImageWidth, resultImageWidth, delta);
         }
     }
 
@@ -185,13 +168,14 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         try {
             originalImageData = ImageDataFactory.create(file.getAbsolutePath());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         float pageWidthPt = 500f;
         float pageHeightPt = 500f;
 
-        Rectangle pageSize = new Rectangle(pageWidthPt, pageHeightPt);
+        com.itextpdf.kernel.geom.Rectangle pageSize =
+                new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
         Image resultImage = getImageFromPdf(tesseractReader, file,
                 IPdfRenderer.ScaleMode.scaleHeight, pageSize);
 
@@ -204,19 +188,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
             float resultPageWidth = pageSize.getWidth();
             float resultPageHeight = pageSize.getHeight();
 
-            float resultImageHeight = UtilService
-                    .getPoints(resultImage.getImageHeight());
-            float resultImageWidth = UtilService
-                    .getPoints(resultImage.getImageWidth());
-
-            float expectedImageHeight = originalImageHeight * resultPageWidth
-                    / originalImageWidth;
-
             Assert.assertEquals(resultPageWidth, pageWidthPt, delta);
             Assert.assertEquals(resultPageHeight, pageHeightPt, delta);
-
-//            Assert.assertEquals(resultPageWidth, resultImageWidth, delta);
-//            Assert.assertEquals(expectedImageHeight, resultImageHeight, delta);
         }
     }
 
@@ -273,7 +246,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.<File>singletonList(file));
         pdfRenderer.setTextLayerName("Text1");
-        Color color = DeviceCmyk.CYAN;
+        com.itextpdf.kernel.colors.Color color = DeviceCmyk.CYAN;
         pdfRenderer.setTextColor(color);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
@@ -289,7 +262,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         processor.processPageContent(pdfDocument.getFirstPage());
 
         try {
-            Color fillColor = strategy.getFillColor();
+            com.itextpdf.kernel.colors.Color fillColor = strategy.getFillColor();
             Assert.assertEquals(color, fillColor);
         } finally {
             pdfDocument.close();
@@ -315,7 +288,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
         try {
             imageData = ImageDataFactory.create(file.getAbsolutePath());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         PageSize defaultPageSize = PageSize.A4;
@@ -364,6 +337,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                 + "numbers_02.jpg");
 
         try {
+            tesseractReader.setPathToTessData(getTessDataDirectory());
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Arrays.<File>asList(file3, file1, file2, file3));
 
@@ -374,6 +348,7 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
                             "txt");
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
+        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -446,8 +421,8 @@ public class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
     private String getTextUsingTesseractFromImage(IOcrReader tesseractReader,
                                                   File file) {
         int page = 1;
-        List<TextInfo> data = tesseractReader.readDataFromInput(file);
-        List<TextInfo> pageText = UtilService.getTextForPage(data, page);
+        Map<Integer, List<TextInfo>> data = tesseractReader.readDataFromInput(file);
+        List<TextInfo> pageText = TesseractUtil.getValueByKey(data, page);
 
         if (pageText.size() > 0) {
             Assert.assertEquals(4,

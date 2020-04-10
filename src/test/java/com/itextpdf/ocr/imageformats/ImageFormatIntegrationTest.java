@@ -1,46 +1,27 @@
-package com.itextpdf.ocr;
+package com.itextpdf.ocr.imageformats;
 
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
-import com.itextpdf.test.annotations.type.IntegrationTest;
+import com.itextpdf.ocr.OCRException;
+import com.itextpdf.ocr.TesseractReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@Category(IntegrationTest.class)
-@RunWith(Parameterized.class)
-public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
+public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest {
 
     TesseractReader tesseractReader;
     String parameter;
 
-    public ImageFormatIntegrationTest(TesseractReader reader, String param) {
-        tesseractReader = reader;
-        parameter = param;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.<Object[]>asList(
-                new Object[][] { {
-                        new TesseractExecutableReader(getTesseractDirectory(),
-                                getTessDataDirectory()),
-                        "executable"
-                    }, {
-                        new TesseractLibReader(getTessDataDirectory()),
-                        "lib"
-                    }
-                });
+    public ImageFormatIntegrationTest(String type) {
+        parameter = type;
+        tesseractReader = getTesseractReader(type);
     }
 
     @Test
@@ -195,14 +176,13 @@ public class ImageFormatIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testInputMultipagesTIFF() {
+    public void testInputMultipagesTIFFWithPreprocessing() {
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
         String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
 
         File file = new File(path);
 
-        tesseractReader.setPreprocessingImages(false);
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 5,
                 Collections.<String>singletonList("eng"));
         Assert.assertNotNull(realOutputHocr);

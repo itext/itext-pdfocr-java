@@ -1,7 +1,5 @@
 package com.itextpdf.ocr;
 
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -62,7 +60,7 @@ public interface IPdfRenderer {
     /**
      * Supported image formats.
      */
-    enum ImageFormat {
+    enum ImgFormat {
         /**
          * BMP file format.
          */
@@ -132,14 +130,14 @@ public interface IPdfRenderer {
      *
      * @param newColor a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    void setTextColor(Color newColor);
+    void setTextColor(com.itextpdf.kernel.colors.Color newColor);
 
     /**
      * Get text color in output PDF document.
      *
      * @return a {@link com.itextpdf.kernel.colors.Color} object.
      */
-    Color getTextColor();
+    com.itextpdf.kernel.colors.Color getTextColor();
 
     /**
      * Set scale mode for input images using available options
@@ -162,14 +160,14 @@ public interface IPdfRenderer {
      *
      * @param pdfSize a {@link com.itextpdf.kernel.geom.Rectangle} object.
      */
-    void setPageSize(Rectangle pdfSize);
+    void setPageSize(com.itextpdf.kernel.geom.Rectangle pdfSize);
 
     /**
      * Get size for output document.
      *
      * @return a {@link com.itextpdf.kernel.geom.Rectangle} object.
      */
-    Rectangle getPageSize();
+    com.itextpdf.kernel.geom.Rectangle getPageSize();
 
     /**
      * Set name for the image layer.

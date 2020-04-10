@@ -9,9 +9,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +88,13 @@ public abstract class TesseractReader implements IOcrReader {
      * Perform tesseract OCR.
      *
      * @param inputImage - input image file
-     * @param outputFile - output file
+     * @param outputFiles - list of output file (one per each page)
      * @param outputFormat - output format
+     * @param pageNumber - int
      */
     public abstract void doTesseractOcr(File inputImage,
-            File outputFile, OutputFormat outputFormat);
+            List<File> outputFiles, OutputFormat outputFormat,
+            int pageNumber);
 
     /**
      * Set list of languages required for provided images.
@@ -104,8 +110,21 @@ public abstract class TesseractReader implements IOcrReader {
      *
      * @return List<String>
      */
-    public final List<String> getLanguages() {
+    public final List<String> getLanguagesAsList() {
         return new ArrayList<String>(languages);
+    }
+
+    /**
+     * Get list of languages converted to a string
+     * in format required by tesseract.
+     * @return String
+     */
+    public final String getLanguagesAsString() {
+        if (getLanguagesAsList().size() > 0) {
+            return String.join("+", getLanguagesAsList());
+        } else {
+            return "eng";
+        }
     }
 
     /**
@@ -202,6 +221,7 @@ public abstract class TesseractReader implements IOcrReader {
      * or line and its 4 coordinates(bbox).
      *
      * @param is InputStream
+     * @param outputFormat OutputFormat
      * @return List<TextInfo>
      */
     public final List<TextInfo> readDataFromInput(final InputStream is,
@@ -214,67 +234,100 @@ public abstract class TesseractReader implements IOcrReader {
      * returns retrieved data as a string.
      *
      * @param input File
-     * @return List<TextInfo>
+     * @param outputFormat OutputFormat
+     * @return String
      */
     public final String readDataFromInput(final File input,
             final OutputFormat outputFormat) {
-        String data = null;
+        StringBuilder data = new StringBuilder();
         try {
-            File tmpFile = getTmpFile("txt");
-            try {
-                doTesseractOcr(input, tmpFile, OutputFormat.txt);
-                if (tmpFile.exists()) {
-                    data = UtilService.readTxtFile(tmpFile);
-                } else {
-                    LOGGER.error("Error occurred. File wasn't created "
-                            + tmpFile.getAbsolutePath());
+            // image needs to be paginated only if it's tiff
+            // or preprocessing isn't required
+            int realNumOfPages = !ImageUtil.isTiffImage(input)
+                    ? 1 : ImageUtil.getNumberOfPageTiff(input);
+            int numOfPages = isPreprocessingImages() ? realNumOfPages : 1;
+            int numOfFiles = isPreprocessingImages() ? 1 : realNumOfPages;
+
+            for (int page = 1; page <= numOfPages; page++) {
+                List<File> tempFiles = new ArrayList<File>();
+                for (int i = 0; i < numOfFiles; i++) {
+                    tempFiles.add(createTempFile(".txt"));
                 }
-            } finally {
-                UtilService.deleteFile(tmpFile);
+
+                doTesseractOcr(input, tempFiles, OutputFormat.txt, page);
+                for (File tmpFile : tempFiles) {
+                    if (Files.exists(
+                            java.nio.file.Paths
+                                    .get(tmpFile.getAbsolutePath()))) {
+                        data.append(UtilService.readTxtFile(tmpFile));
+                    } else {
+                        LOGGER.error("Error occurred. File wasn't created "
+                                + tmpFile.getAbsolutePath());
+                    }
+                }
+
+                for (File file : tempFiles) {
+                    UtilService.deleteFile(file.getAbsolutePath());
+                }
             }
         } catch (IOException e) {
             LOGGER.error("Error occurred: " + e.getMessage());
         }
 
-        return data;
+        return data.toString();
     }
 
     /**
      * Reads data from the provided input image file and returns
      * retrieved data in the following format:
-     * List<Map.Entry<String, List<Float>>> where each list element
+     * Map<Integer, List<TextInfo>>:
+     * key: number of page,
+     * value: list of TextInfo objects where each list element
      * Map.Entry<String, List<Float>> contains word or line as a key
      * and its 4 coordinates(bbox) as a values.
      *
      * @param input File
-     * @return List<TextInfo>
+     * @return Map<Integer, List<TextInfo>>
      */
-    public final List<TextInfo> readDataFromInput(final File input) {
-        List<TextInfo> textData = new ArrayList<TextInfo>();
+    public final Map<Integer, List<TextInfo>> readDataFromInput(final File input) {
+        Map<Integer, List<TextInfo>> imageData =
+                new LinkedHashMap<Integer, List<TextInfo>>();
         try {
-            File tmpFile = getTmpFile("hocr");
-            try {
-                doTesseractOcr(input, tmpFile, OutputFormat.hocr);
-                if (tmpFile.exists()) {
-                    textData = UtilService.parseHocrFile(tmpFile,
-                            getTextPositioning());
+            // image needs to be paginated only if it's tiff
+            // or preprocessing isn't required
+            int realNumOfPages = !ImageUtil.isTiffImage(input)
+                    ? 1 : ImageUtil.getNumberOfPageTiff(input);
+            int numOfPages = isPreprocessingImages() ? realNumOfPages : 1;
+            int numOfFiles = isPreprocessingImages() ? 1 : realNumOfPages;
 
-                    LOGGER.info(textData.size()
-                            + (TextPositioning.byLines.equals(getTextPositioning())
-                            ? " line(s)" : " word(s)")
-                            + " were read");
-                } else {
-                    LOGGER.error("Error occurred. File wasn't created "
-                            + tmpFile.getAbsolutePath());
+            for (int page = 1; page <= numOfPages; page++) {
+                List<File> tempFiles = new ArrayList<File>();
+                for (int i = 0; i < numOfFiles; i++) {
+                    tempFiles.add(createTempFile(".hocr"));
                 }
-            } finally {
-                UtilService.deleteFile(tmpFile);
+
+                doTesseractOcr(input, tempFiles, OutputFormat.hocr, page);
+                Map<Integer, List<TextInfo>> pageData = UtilService.parseHocrFile(tempFiles,
+                        getTextPositioning());
+
+                LOGGER.info((pageData.keySet().size() > 1
+                        ? pageData.keySet().size() : page)
+                        + " page(s) were read");
+                if (isPreprocessingImages()) {
+                    imageData.put(page, TesseractUtil.getValueByKey(pageData, 1));
+                } else {
+                    imageData = pageData;
+                }
+
+                for (File file : tempFiles) {
+                    UtilService.deleteFile(file.getAbsolutePath());
+                }
             }
         } catch (IOException e) {
             LOGGER.error("Error occurred: " + e.getMessage());
         }
 
-        return textData;
+        return imageData;
     }
 
     /**
@@ -286,7 +339,8 @@ public abstract class TesseractReader implements IOcrReader {
      * @param language String
      * @param userWords List<String>
      */
-    public void setUserWords(String language, List<String> userWords) {
+    public void setUserWords(final String language,
+                             final List<String> userWords) {
         if (userWords == null || userWords.size() == 0) {
             userWordsFile = null;
         } else {
@@ -295,8 +349,8 @@ public abstract class TesseractReader implements IOcrReader {
                 for (String word : userWords) {
                     byte[] bytesWord = word.getBytes();
                     baos.write(bytesWord, 0, bytesWord.length);
-                    byte[] bytesSeparator = System
-                            .getProperty("line.separator").getBytes();
+                    byte[] bytesSeparator = System.lineSeparator()
+                            .getBytes();
                     baos.write(bytesSeparator, 0, bytesSeparator.length);
                 }
                 InputStream inputStream = new ByteArrayInputStream(
@@ -321,14 +375,14 @@ public abstract class TesseractReader implements IOcrReader {
      */
     public void setUserWords(final String language,
             final InputStream inputStream) {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        String userWordsFileName = tempDir + File.separator
+        String userWordsFileName = TesseractUtil.getTempDir()
+                + java.io.File.separatorChar
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;
-        if (!getLanguages().contains(language)) {
+        if (!getLanguagesAsList().contains(language)) {
             if ("eng".equals(language.toLowerCase())) {
-                List<String> languages = getLanguages();
-                languages.add(language);
-                setLanguages(languages);
+                List<String> languagesList = getLanguagesAsList();
+                languagesList.add(language);
+                setLanguages(languagesList);
             } else {
                 throw new OCRException(
                         OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
@@ -338,14 +392,15 @@ public abstract class TesseractReader implements IOcrReader {
         validateLanguages(Collections.<String>singletonList(language));
         try (OutputStreamWriter writer =
                 new FileWriter(userWordsFileName)) {
-            Reader reader = new InputStreamReader(inputStream);
+            Reader reader = new InputStreamReader(inputStream,
+                    StandardCharsets.UTF_8);
             int data;
             while ((data = reader.read()) != -1) {
                 writer.write(data);
             }
-            writer.write(System.getProperty("line.separator"));
+            writer.write(System.lineSeparator());
             userWordsFile = userWordsFileName;
-        } catch (Exception e) {
+        } catch (IOException e) {
             userWordsFile = null;
             LOGGER.warn("Cannot use custom user words: " + e.getMessage());
         }
@@ -389,7 +444,8 @@ public abstract class TesseractReader implements IOcrReader {
      * @return String
      */
     public String identifyOSType() {
-        String os = System.getProperty("os.name");
+        String os = System.getProperty("os.name") == null
+                ? System.getProperty("OS") : System.getProperty("os.name");
         LOGGER.info("Using System Property: " + os);
         return os.toLowerCase();
     }
@@ -399,11 +455,11 @@ public abstract class TesseractReader implements IOcrReader {
      * check if they exist in provided tess data directory.
      * @param languagesList List<String>
      */
-    public void validateLanguages(List<String> languagesList) {
+    public void validateLanguages(final List<String> languagesList) {
         String suffix = ".traineddata";
         if (languagesList.size() == 0) {
             if (!new File(getTessData()
-                    + File.separator + "eng" + suffix).exists()) {
+                    + java.io.File.separatorChar + "eng" + suffix).exists()) {
                 LOGGER.error("eng" + suffix
                         + " doesn't exist in provided directory");
                 throw new OCRException(OCRException.INCORRECT_LANGUAGE)
@@ -412,7 +468,7 @@ public abstract class TesseractReader implements IOcrReader {
         } else {
             for (String lang : languagesList) {
                 if (!new File(getTessData()
-                        + File.separator + lang + suffix)
+                        + java.io.File.separatorChar + lang + suffix)
                         .exists()) {
                     LOGGER.error(lang + suffix
                             + " doesn't exist in provided directory");
@@ -424,25 +480,14 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Create temporary file in system temp directory.
+     * Create temporary file with given extension.
      *
      * @param extension String
      * @return File
-     * @throws IOException IOException
      */
-    private File getTmpFile(final String extension) throws IOException {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
-            tempDir = tempDir + System.getProperty("file.separator");
-        }
-        String tmpFileName = tempDir + UUID.randomUUID().toString()
-                + "." + extension;
-        File tmpFile = new File(tmpFileName);
-        boolean created = true;
-        created = tmpFile.createNewFile();
-        if (!created || !tmpFile.exists()) {
-            LOGGER.warn("Cannot create tmp file");
-        }
-        return tmpFile;
+    private File createTempFile(final String extension) {
+        String tmpFileName = TesseractUtil.getTempDir()
+                + UUID.randomUUID().toString() + extension;
+        return new File(tmpFileName);
     }
 }

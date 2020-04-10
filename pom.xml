@@ -118,7 +118,6 @@
         <directory>src/main/resources</directory>
         <includes>
           <include>**/*.ttf</include>
-          <include>**/*.jpg</include>
         </includes>
       </resource>
     </resources>

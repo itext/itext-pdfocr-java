@@ -1,23 +1,23 @@
 package com.itextpdf.ocr;
 
-import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.io.image.TiffImageData;
+import com.itextpdf.io.source.RandomAccessFileOrArray;
+import com.itextpdf.io.source.RandomAccessSourceFactory;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.UUID;
 import javax.imageio.ImageIO;
-import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
-import net.sourceforge.lept4j.Pixa;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Class provides tool for basic image preprocessing.
  */
-public class ImageUtil {
+public final class ImageUtil {
 
     /**
      * ImageUtil logger.
@@ -35,45 +35,37 @@ public class ImageUtil {
             .getLogger(ImageUtil.class);
 
     /**
+     * Private constructor for util class.
+     */
+    private ImageUtil() {
+    }
+
+    /**
      * Performs basic image preprocessing using buffered image (if provided).
      * Preprocessed image file will be saved in temporary directory
      * (warning will be logged if file isn't deleted)
      *
      * @param inputFile File
-     * @return List<BufferedImage>
-     * @throws IOException IOException
+     * @param pageNumber int
+     * @return String
      */
-    public static File preprocessImage(final File inputFile)
-            throws IOException {
-        String extension = getExtension(inputFile.getAbsolutePath());
-        int format = getFormat(extension);
-
+    public static String preprocessImage(final File inputFile,
+            final int pageNumber) {
+        Pix pix = null;
+        // read image
         if (isTiffImage(inputFile)) {
-            return preprocessTiffImage(inputFile);
+            pix = TesseractUtil.readPixPageFromTiff(inputFile, pageNumber - 1);
         } else {
-            // read image
-            Pix pix = readPix(inputFile);
-
-            // preprocess image
-            pix = preprocessPix(pix);
-
-            // save preprocessed file
-            File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                    ".png");
-            Leptonica.INSTANCE.pixWritePng(tmpFile.getAbsolutePath(), pix, format);
-
-            // destroying
-            if (pix != null) {
-                PointerByReference pRef = new PointerByReference();
-                pRef.setValue(pix.getPointer());
-                Leptonica.INSTANCE.pixDestroy(pRef);
-            }
-            return tmpFile;
+            pix = readPix(inputFile);
         }
+        if (pix == null) {
+            throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+        }
+        return TesseractUtil.preprocessPixAndSave(pix);
     }
 
     /**
-     * Read Pix from file or convert from buffered image
+     * Read Pix from file or convert from buffered image.
      *
      * @param inputFile File
      * @return Pix
@@ -81,136 +73,17 @@ public class ImageUtil {
     public static Pix readPix(final File inputFile) {
         Pix pix = null;
         try {
-            BufferedImage bufferedImage = ImageIO.read(inputFile);
+            BufferedImage bufferedImage = readImageFromFile(inputFile);
             if (bufferedImage != null) {
-                pix = convertBufferedImageToPix(bufferedImage);
+                pix = TesseractUtil.convertImageToPix(bufferedImage);
             } else {
                 pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
             }
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | IOException e) {
             LOGGER.warn("Reading pix from file: " + e.getMessage());
             pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
         }
-
         return pix;
-    }
-
-    /**
-     * Performs basic image preprocessing using buffered image (if provided).
-     * Preprocessed image file will be saved in temporary directory
-     * (warning will be logged if file isn't deleted)
-     *
-     * @param inputFile File
-     * @return List<BufferedImage>
-     * @throws IOException IOException
-     */
-    public static File preprocessTiffImage(final File inputFile)
-            throws IOException {
-        Leptonica instance = Leptonica.INSTANCE;
-        // read image
-        Pixa pixa = instance.pixaReadMultipageTiff(inputFile.getAbsolutePath());
-        int size = pixa.n;
-        Pixa newpixa = instance.pixaCreate(size);
-
-        // preprocess images
-        for (int i = 0; i < size; ++i) {
-            Pix pix = instance.pixaGetPix(pixa, i, 1);
-            // pix format IFF_TIFF = 4
-            pix = preprocessPix(pix);
-            int error = instance.pixaAddPix(newpixa, pix, 1);
-            // if there was any error, preprocessing will be stopped
-            if (error == 1) {
-                LOGGER.warn("Cannot preprocess file "
-                        + inputFile.getAbsolutePath());
-                return null;
-            }
-        }
-        // save preprocessed file
-        String extension = getExtension(inputFile.getAbsolutePath());
-        File tmpFile = File.createTempFile(UUID.randomUUID().toString(),
-                "." + extension);
-        instance.pixaWriteMultipageTiff(tmpFile.getAbsolutePath(), newpixa);
-        return tmpFile;
-    }
-
-    /**
-     * Performs default image preprocessing.
-     * It includes the following actions:
-     * - remove alpha channel
-     * - convert to grayscale
-     * - thresholding
-     * - basic deskewing
-     *
-     * @param pix Pix
-     * @return Pix
-     */
-    public static Pix preprocessPix(Pix pix) {
-        Leptonica instance = Leptonica.INSTANCE;
-        pix = instance.pixRemoveAlpha(pix);
-        pix = convertToGrayscale(pix);
-        pix = otsuImageThresholding(pix);
-        pix = instance.pixDeskew(pix, 0);
-        return pix;
-    }
-
-    /**
-     * Convert Leptonica <code>Pix</code> to grayscale.
-     *
-     * @param pix source pix
-     * @return Pix output pix
-     */
-    public static Pix convertToGrayscale(final Pix pix) {
-        Leptonica instance = Leptonica.INSTANCE;
-        if (pix != null) {
-            int depth = instance.pixGetDepth(pix);
-
-            if (depth == 32) {
-                return instance.pixConvertRGBToLuminance(pix);
-            } else {
-                return instance.pixRemoveColormap(pix,
-                        instance.REMOVE_CMAP_TO_GRAYSCALE);
-            }
-        } else {
-            return pix;
-        }
-    }
-
-    /**
-     * Perform Leptonica Otsu adaptive image thresholding.
-     *
-     * @param pix source pix
-     * @return Pix output pix
-     */
-    public static Pix otsuImageThresholding(final Pix pix) {
-        if (pix != null) {
-            PointerByReference pointer = new PointerByReference();
-            Leptonica.INSTANCE
-                    .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h, 0, 0, 0,
-                            null, pointer);
-            Pix thresholdPix = new Pix(pointer.getValue());
-            if (thresholdPix.w > 0 && thresholdPix.h > 0) {
-                return thresholdPix;
-            } else {
-                return pix;
-            }
-        } else {
-            return pix;
-        }
-    }
-
-    /**
-     * Get file extension for later usage.
-     *
-     * @param path String
-     * @return String
-     */
-    public static String getExtension(final String path) {
-        int index = path.lastIndexOf('.');
-        if (index > 0) {
-            return new String(path.toCharArray(), index + 1,
-                    path.length() - index - 1);
-        }
-        return "";
     }
 
     /**
@@ -232,93 +105,50 @@ public class ImageUtil {
     }
 
     /**
-     * Converts <code>BufferedImage</code> to Leptonica <code>Pix</code>.
+     * Count number of page in provided tiff image.
      *
-     * @param bufferedImage BufferedImage
-     * @return Pix
-     * @throws IOException if it's not possible to convert
-     */
-    public static Pix convertBufferedImageToPix(
-            final BufferedImage bufferedImage)
-            throws IOException {
-        Pix pix = null;
-        if (bufferedImage != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "png", baos);
-
-            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
-            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
-            pix = Leptonica.INSTANCE.pixReadMem(byteBuffer, nativeSize);
-        }
-
-        return pix;
-    }
-
-    /**
-     * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
-     *
-     * @param pix    source pix
-     * @param format int
-     * @return BufferedImage output image
+     * @param inputImage File
+     * @return int
      * @throws IOException IOException
      */
-    public static BufferedImage convertPixToImage(final Pix pix,
-            final int format)
+    public static int getNumberOfPageTiff(File inputImage)
             throws IOException {
-        if (pix != null) {
-            PointerByReference pdata = new PointerByReference();
-            NativeSizeByReference psize = new NativeSizeByReference();
-
-            Leptonica instance = Leptonica.INSTANCE;
-
-            instance.pixWriteMem(pdata, psize, pix, format);
-            byte[] b = pdata.getValue().getByteArray(0,
-                    psize.getValue().intValue());
-            InputStream in = new ByteArrayInputStream(b);
-            BufferedImage bi = ImageIO.read(in);
-            in.close();
-            instance.lept_free(pdata.getValue());
-            return bi;
-        } else {
-            return null;
-        }
+        RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
+                new RandomAccessSourceFactory()
+                        .createBestSource(
+                                inputImage.getAbsolutePath()));
+        int numOfPages = TiffImageData.getNumberOfPages(raf);
+        raf.close();
+        return numOfPages;
     }
 
     /**
-     * Identify image format for Leptonica.
+     * Read image file from input stream from using provided file.
      *
-     * @param ext String
-     * @return int
+     * @param inputFile File
+     * @return BufferedImage
+     * @throws IllegalArgumentException IllegalArgumentException
+     * @throws IOException IOException
      */
-    static int getFormat(final String ext) {
-        String formatName = "IFF_";
-        if (ext.toLowerCase().contains("jpg")
-                || ext.toLowerCase().contains("jpeg")
-                || ext.toLowerCase().contains("jpe")
-                || ext.toLowerCase().contains("jfif")) {
-            formatName += "JFIF_JPEG";
-        } else if (ext.toLowerCase().contains("pbm")
-                || ext.toLowerCase().contains("pgm")
-                || ext.toLowerCase().contains("pnm")
-                || ext.toLowerCase().contains("ppm")) {
-            formatName += "PNM";
-        } else if (ext.toLowerCase().contains("tif")) {
-            formatName += "TIFF";
-        } else {
-            formatName += ext.toUpperCase();
-        }
+    public static BufferedImage readImageFromFile(final File inputFile)
+            throws IllegalArgumentException, IOException {
+        return ImageIO.read(
+                new FileInputStream(inputFile.getAbsolutePath()));
+    }
 
-        int format = 0;
-        Field field = null;
-        try {
-            field = ILeptonica.class.getField(formatName);
-            if (field.getType() == int.class) {
-                format = field.getInt(null);
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error(formatName + " does not exist: "
-                    + e.getMessage());
-        }
-        return format;
+    /**
+     * Reading file a Leptonica pix and converting it to image.
+     *
+     * @param inputImage File
+     * @return BufferedImage
+     * @throws IOException IOException
+     */
+    public static BufferedImage readAsPixAndConvertToBufferedImage(
+            final File inputImage)
+            throws IOException {
+        Pix pix = Leptonica.INSTANCE
+                .pixRead(inputImage.getAbsolutePath());
+        return TesseractUtil.convertPixToImage(pix);
     }
 }
+

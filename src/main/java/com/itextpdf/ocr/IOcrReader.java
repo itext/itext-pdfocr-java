@@ -3,6 +3,7 @@ package com.itextpdf.ocr;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for OcrReader classes.
@@ -62,14 +63,16 @@ public interface IOcrReader {
      * Reads data from the provided input image file and returns retrieved data
      * in the following format:
      * <p>
-     * List<TextInfo> where each list TextInfo element contains word
+     * Map<Integer, List<TextInfo>>:
+     * key: number of the page,
+     * value: list of TextInfo elements where each list TextInfo element contains word
      * or line and its 4 coordinates(bbox).
      * (There will be parsed result in hOCR format produced by reader)
      *
      * @param input input file
-     * @return List<TextInfo>
+     * @return Map<Integer, List<TextInfo>>
      */
-    List<TextInfo> readDataFromInput(File input);
+    Map<Integer, List<TextInfo>> readDataFromInput(File input);
 
     /**
      * Reads data from the provided input image file and returns retrieved data
@@ -89,6 +92,7 @@ public interface IOcrReader {
      * or line and its 4 coordinates(bbox).
      *
      * @param is InputStream
+     * @param outputFormat OutputFormat
      * @return List<TextInfo>
      */
     List<TextInfo> readDataFromInput(InputStream is,
