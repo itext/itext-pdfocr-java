@@ -27,25 +27,24 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.ocr.IOcrReader.OutputFormat;
 import com.itextpdf.pdfa.PdfADocument;
 
-import java.io.InputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import javax.imageio.ImageIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PDF Renderer class.
@@ -667,8 +666,7 @@ public class PdfRenderer implements IPdfRenderer {
                                 + inputImage.getName());
 
                         addToCanvas(pdfDocument, defaultFont, imageSize,
-                                TesseractUtil
-                                        .getValueByKey(imageTextData, page + 1),
+                                imageTextData.get(page + 1),
                                 imageData);
                     }
                 } else {
@@ -870,8 +868,7 @@ public class PdfRenderer implements IPdfRenderer {
 
                     float descent = defaultFont.getDescent(line, fontSize);
 
-                    Canvas canvas = new Canvas(pdfCanvas,
-                            pdfCanvas.getDocument(), pageMediaBox);
+                    Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
 
                     Text text = new Text(line)
                             .setHorizontalScaling(bboxWidthPt / lineWidth)

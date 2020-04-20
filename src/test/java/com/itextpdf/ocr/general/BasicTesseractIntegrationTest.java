@@ -422,7 +422,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
                                                   File file) {
         int page = 1;
         Map<Integer, List<TextInfo>> data = tesseractReader.readDataFromInput(file);
-        List<TextInfo> pageText = TesseractUtil.getValueByKey(data, page);
+        List<TextInfo> pageText = data.get(page);
 
         if (pageText.size() > 0) {
             Assert.assertEquals(4,

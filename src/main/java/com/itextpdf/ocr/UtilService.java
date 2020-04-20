@@ -2,6 +2,10 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
+import com.itextpdf.styledxmlparser.jsoup.Jsoup;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
+import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,19 +126,19 @@ public final class UtilService {
                     && Files.exists(
                             java.nio.file.Paths
                                     .get(inputFile.getAbsolutePath()))) {
-                Document doc = org.jsoup.Jsoup.parse(
+                Document doc = Jsoup.parse(
                         new FileInputStream(inputFile.getAbsolutePath()),
                         encodingUTF8, inputFile.getAbsolutePath());
                 Elements pages = doc.getElementsByClass("ocr_page");
 
-                Pattern bboxPattern = Pattern.compile("bbox(\\s+\\d+){4}");
+                Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
                 Pattern bboxCoordinatePattern = Pattern
-                        .compile("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
+                        .compile(".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
                 List<String> searchedClasses = TextPositioning.byLines
                         .equals(textPositioning)
                         ? Arrays.<String>asList("ocr_line", "ocr_caption")
                         : Collections.<String>singletonList("ocrx_word");
-                for (org.jsoup.nodes.Element page : pages) {
+                for (Element page : pages) {
                     String[] pageNum = page.id().split("page_");
                     int pageNumber = Integer.parseInt(pageNum[pageNum.length - 1]);
                     List<TextInfo> textData = new ArrayList<TextInfo>();
@@ -150,13 +152,13 @@ public final class UtilService {
                                 objects.add(foundElements.get(j));
                             }
                         }
-                        for (org.jsoup.nodes.Element obj : objects) {
+                        for (Element obj : objects) {
                             String value = obj.attr("title");
                             Matcher bboxMatcher = bboxPattern.matcher(value);
-                            if (bboxMatcher.find()) {
+                            if (bboxMatcher.matches()) {
                                 Matcher bboxCoordinateMatcher = bboxCoordinatePattern
                                         .matcher(bboxMatcher.group());
-                                if (bboxCoordinateMatcher.find()) {
+                                if (bboxCoordinateMatcher.matches()) {
                                     List<Float> coordinates = new ArrayList<Float>();
                                     for (int i = 0; i < 4; i++) {
                                         String coord = bboxCoordinateMatcher

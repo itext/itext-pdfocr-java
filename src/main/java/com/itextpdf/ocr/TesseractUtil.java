@@ -388,19 +388,6 @@ public final class TesseractUtil {
     }
 
     /**
-     * Return vaue by provided key or empty list if key doesn't exist.
-     *
-     * @param data Map<Integer, List<TextInfo>>
-     * @param key key
-     * @return List<TextInfo>
-     */
-    public static List<TextInfo> getValueByKey(
-            final Map<Integer, List<TextInfo>> data,
-            final Integer key) {
-        return data.getOrDefault(key, new ArrayList<TextInfo>());
-    }
-
-    /**
      * Return true if tesseract instance is disposed.
      * (used in .net version)
      * @param tesseractInstance ITesseract

@@ -251,10 +251,12 @@ public abstract class TesseractReader implements IOcrReader {
             for (int page = 1; page <= numOfPages; page++) {
                 List<File> tempFiles = new ArrayList<File>();
                 for (int i = 0; i < numOfFiles; i++) {
-                    tempFiles.add(createTempFile(".txt"));
+                    String extension = outputFormat.equals(OutputFormat.hocr)
+                            ? ".hocr" : ".txt";
+                    tempFiles.add(createTempFile(extension));
                 }
 
-                doTesseractOcr(input, tempFiles, OutputFormat.txt, page);
+                doTesseractOcr(input, tempFiles, outputFormat, page);
                 for (File tmpFile : tempFiles) {
                     if (Files.exists(
                             java.nio.file.Paths
@@ -314,7 +316,7 @@ public abstract class TesseractReader implements IOcrReader {
                         ? pageData.keySet().size() : page)
                         + " page(s) were read");
                 if (isPreprocessingImages()) {
-                    imageData.put(page, TesseractUtil.getValueByKey(pageData, 1));
+                    imageData.put(page, pageData.get(1));
                 } else {
                     imageData = pageData;
                 }
