@@ -102,27 +102,4 @@ public class TesseractLibIntegrationTest extends AbstractIntegrationTest {
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
-
-    // works ok only with tesseract 5
-    /*@Test
-    public void compareGreekPNG() throws IOException, InterruptedException {
-        String filename = "greek_02";
-        String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
-
-        TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
-        try {
-            tesseractReader.setPathToTessData(getTessDataDirectory());
-            tesseractReader.setTextPositioning(IOcrReader.TextPositioning.byLines);
-            doOcrAndSavePdfToPath(tesseractReader,
-                    testImagesDirectory + filename + ".png", resultPdfPath,
-                    Arrays.<String>asList("ell", "eng"),
-                    notoSansFontPath, DeviceCmyk.BLACK);
-
-            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    testDocumentsDirectory, "diff_");
-        } finally {
-            deleteFile(resultPdfPath);
-        }
-    }*/
 }
