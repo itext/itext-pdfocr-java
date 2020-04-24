@@ -13,10 +13,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.Leptonica;
@@ -112,17 +112,25 @@ public final class TesseractUtil {
             int result = process.waitFor();
 
             if (result != 0) {
-                LOGGER.error("Error occurred during running command: "
-                        + String.join(" ", command));
-                throw new OCRException(OCRException.TESSERACT_FAILED);
+                String msg = MessageFormat
+                        .format(OCRException.TESSERACT_FAILED,
+                                String.join(" ", command));
+                LOGGER.error(msg);
+                throw new OCRException(OCRException.TESSERACT_FAILED)
+                        .setMessageParams(String.join(" ", command));
             }
 
             process.destroy();
         } catch (NullPointerException | IOException | InterruptedException e) {
-            LOGGER.error("Error occurred:" + e.getMessage());
+            String msg = MessageFormat
+                    .format(OCRException.TESSERACT_FAILED,
+                            e.getMessage());
+            LOGGER.error(msg);
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
+            throw new OCRException(OCRException.TESSERACT_FAILED)
+                    .setMessageParams(e.getMessage());
         }
     }
 
@@ -161,15 +169,15 @@ public final class TesseractUtil {
         pix = preprocessPix(pix);
 
         // preprocess image
-        pix = TesseractUtil.preprocessPix(pix);
+        pix = preprocessPix(pix);
         // save preprocessed file
-        String tmpFileName = TesseractUtil.getTempDir()
+        String tmpFileName = getTempDir()
                 + UUID.randomUUID().toString() + ".png";
         int formatPng = 3;
         Leptonica.INSTANCE.pixWritePng(tmpFileName, pix, formatPng);
 
         // destroying
-        TesseractUtil.destroyPix(pix);
+        destroyPix(pix);
         return tmpFileName;
     }
 
@@ -383,7 +391,7 @@ public final class TesseractUtil {
             final ITesseract tesseractInstance,
             final Pix pix, final OutputFormat outputFormat)
             throws TesseractException, IOException {
-        BufferedImage bufferedImage = TesseractUtil.convertPixToImage(pix);
+        BufferedImage bufferedImage = convertPixToImage(pix);
         return getOcrResultAsString(tesseractInstance, bufferedImage, outputFormat);
     }
 
@@ -417,6 +425,29 @@ public final class TesseractUtil {
             final BufferedImage bufferedImage)
             throws IOException {
         return convertBufferedImageToPix(bufferedImage);
+    }
+
+    /**
+     * Read Pix from file or convert from buffered image.
+     *
+     * @param inputFile File
+     * @return Pix
+     */
+    public static Pix readPix(final File inputFile) {
+        Pix pix = null;
+        try {
+            BufferedImage bufferedImage = ImageUtil.readImageFromFile(inputFile);
+            if (bufferedImage != null) {
+                pix = convertImageToPix(bufferedImage);
+            } else {
+                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
+            }
+        } catch (IllegalArgumentException | IOException e) {
+            LoggerFactory.getLogger(ImageUtil.class)
+                    .info("Reading pix from file: " + e.getMessage());
+            pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
+        }
+        return pix;
     }
 
     /**

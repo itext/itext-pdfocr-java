@@ -13,6 +13,8 @@ public class OCRException extends com.itextpdf.io.IOException {
             "Provided list of languages doesn't contain {0} language";
     public static final String CANNOT_READ_INPUT_IMAGE =
             "Cannot read input image";
+    public static final String CANNOT_READ_SPECIFIED_INPUT_IMAGE =
+            "Cannot read input image {0}";
     public static final String CANNOT_READ_FONT = "Cannot read font";
     public static final String TESSERACT_FAILED = "Tesseract failed. "
             + "Please check provided parameters";

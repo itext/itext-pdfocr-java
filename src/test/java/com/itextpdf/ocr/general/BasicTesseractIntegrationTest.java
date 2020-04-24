@@ -15,9 +15,10 @@ import com.itextpdf.ocr.IPdfRenderer;
 import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
-import com.itextpdf.ocr.TesseractUtil;
 import com.itextpdf.ocr.TextInfo;
 import com.itextpdf.ocr.UtilService;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -328,6 +329,9 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         deleteFile(pdfPath);
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_INPUT_IMAGE_FORMAT, count = 1)
+    })
     @Test
     public void testInputInvalidImage() throws IOException {
         File file1 = new File(testImagesDirectory + "example.txt");
@@ -351,6 +355,10 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSDATA, count = 1),
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 2)
+    })
     @Test
     public void testIncorrectPathToTessData() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -374,14 +382,14 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
 
-        tesseractReader.setPathToTessData(getTessDataDirectory());
+        tesseractReader.setPathToTessData(scriptTessDataDirectory);
         try {
             getTextFromPdf(tesseractReader, file);
         } catch (OCRException e) {
             String expectedMsg = MessageFormat
                     .format(OCRException.INCORRECT_LANGUAGE,
                             "eng.traineddata",
-                            langTessDataDirectory);
+                            scriptTessDataDirectory);
             Assert.assertEquals(expectedMsg, e.getMessage());
         }
         tesseractReader.setPathToTessData(getTessDataDirectory());

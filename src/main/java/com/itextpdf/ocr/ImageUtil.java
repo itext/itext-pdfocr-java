@@ -4,22 +4,13 @@ import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.ptr.PointerByReference;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Image Util class.
@@ -27,12 +18,6 @@ import org.slf4j.LoggerFactory;
  * Class provides tool for basic image preprocessing.
  */
 public final class ImageUtil {
-
-    /**
-     * ImageUtil logger.
-     */
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ImageUtil.class);
 
     /**
      * Private constructor for util class.
@@ -50,40 +35,21 @@ public final class ImageUtil {
      * @return String
      */
     public static String preprocessImage(final File inputFile,
-            final int pageNumber) {
+            final int pageNumber) throws OCRException {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
-            pix = TesseractUtil.readPixPageFromTiff(inputFile, pageNumber - 1);
+            pix = TesseractUtil.readPixPageFromTiff(inputFile,
+                    pageNumber - 1);
         } else {
-            pix = readPix(inputFile);
+            pix = TesseractUtil.readPix(inputFile);
         }
         if (pix == null) {
-            throw new OCRException(OCRException.CANNOT_READ_INPUT_IMAGE);
+            throw new OCRException(
+                    OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE)
+                    .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractUtil.preprocessPixAndSave(pix);
-    }
-
-    /**
-     * Read Pix from file or convert from buffered image.
-     *
-     * @param inputFile File
-     * @return Pix
-     */
-    public static Pix readPix(final File inputFile) {
-        Pix pix = null;
-        try {
-            BufferedImage bufferedImage = readImageFromFile(inputFile);
-            if (bufferedImage != null) {
-                pix = TesseractUtil.convertImageToPix(bufferedImage);
-            } else {
-                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-            }
-        } catch (IllegalArgumentException | IOException e) {
-            LOGGER.warn("Reading pix from file: " + e.getMessage());
-            pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-        }
-        return pix;
     }
 
     /**

@@ -36,6 +36,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -514,15 +515,14 @@ public class PdfRenderer implements IPdfRenderer {
             defaultFont = PdfFontFactory.createFont(getFont(),
                     PdfEncodings.IDENTITY_H, true);
         } catch (com.itextpdf.io.IOException | IOException e) {
-            LOGGER.error("Error occurred when setting default font: "
-                    + e.getMessage());
+            LOGGER.error(e.getMessage());
             try {
                 defaultFont = PdfFontFactory.createFont(getDefaultFont(),
                         PdfEncodings.IDENTITY_H, true);
             } catch (com.itextpdf.io.IOException
                     | IOException | NullPointerException ex) {
-                LOGGER.error("Error occurred when setting default font: "
-                        + e.getMessage());
+                LOGGER.error(MessageFormat.format("{0}: {1}",
+                                OCRException.CANNOT_READ_FONT, ex.getMessage()));
                 throw new OCRException(OCRException.CANNOT_READ_FONT);
             }
         }
@@ -570,6 +570,9 @@ public class PdfRenderer implements IPdfRenderer {
                         index + 1, inputImage
                         .getAbsolutePath().length() - index - 1);
             }
+            LOGGER.error(MessageFormat
+                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                            extension));
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
         }
@@ -595,6 +598,9 @@ public class PdfRenderer implements IPdfRenderer {
                         index + 1, inputImage
                         .getAbsolutePath().length() - index - 1);
             }
+            LOGGER.error(MessageFormat
+                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                            extension));
             throw new OCRException(OCRException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
         }
@@ -622,9 +628,6 @@ public class PdfRenderer implements IPdfRenderer {
                     isValid = true;
                     break;
                 }
-            }
-            if (!isValid) {
-                LOGGER.error("Image format is invalid: " + extension);
             }
         }
         return isValid;
@@ -759,14 +762,14 @@ public class PdfRenderer implements IPdfRenderer {
                     String exception = "Cannot open "
                             + inputImage.getAbsolutePath()
                             + " image, converting to png: " + e.getMessage();
-                    LOGGER.warn(exception);
+                    LOGGER.info(exception);
                     try {
                         BufferedImage bufferedImage = null;
                         try {
                             bufferedImage = ImageUtil
                                     .readImageFromFile(inputImage);
                         } catch (IllegalArgumentException | IOException ex) {
-                            LOGGER.warn("Attempting to convert image: "
+                            LOGGER.info("Attempting to convert image: "
                                     + ex.getMessage());
                             bufferedImage = ImageUtil
                                     .readAsPixAndConvertToBufferedImage(inputImage);
@@ -780,12 +783,12 @@ public class PdfRenderer implements IPdfRenderer {
                         images.add(imageData);
                     } catch (com.itextpdf.io.IOException | IOException
                             | IllegalArgumentException ex) {
-                        exception = "Cannot parse "
-                                + inputImage.getAbsolutePath()
-                                + " image " + ex.getMessage();
-                        LOGGER.error(exception);
+                        LOGGER.error(MessageFormat
+                                .format(OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE,
+                                        ex.getMessage()));
                         throw new OCRException(
-                                OCRException.CANNOT_READ_INPUT_IMAGE);
+                                OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE)
+                                .setMessageParams(inputImage.getAbsolutePath());
                     }
                 }
             }

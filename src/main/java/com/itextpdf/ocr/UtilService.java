@@ -97,7 +97,7 @@ public final class UtilService {
             try {
                 Files.delete(java.nio.file.Paths.get(pathToFile));
             } catch (IOException e) {
-                LOGGER.warn("File " + pathToFile
+                LOGGER.info("File " + pathToFile
                         + " cannot be deleted: " + e.getMessage());
             }
         }

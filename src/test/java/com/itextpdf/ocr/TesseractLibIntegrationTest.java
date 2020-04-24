@@ -1,11 +1,10 @@
 package com.itextpdf.ocr;
 
-import com.itextpdf.kernel.colors.DeviceCmyk;
-import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +16,9 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class TesseractLibIntegrationTest extends AbstractIntegrationTest {
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 2)
+    })
     @Test
     public void testIncorrectLanguages() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -42,6 +44,9 @@ public class TesseractLibIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 3)
+    })
     @Test
     public void testIncorrectLanguagesScript() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -77,18 +82,24 @@ public class TesseractLibIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE, count = 1)
+    })
     @Test
     public void testCorruptedImageAndCatchException() {
+        File file = new File(testImagesDirectory
+                + "corrupted.jpg");
         try {
-            File file = new File(testImagesDirectory
-                    + "corrupted.jpg");
             TesseractReader tesseractReader = new TesseractLibReader(getTessDataDirectory());
 
             String realOutput = getTextFromPdf(tesseractReader, file);
             Assert.assertNotNull(realOutput);
             Assert.assertEquals("", realOutput);
         } catch (OCRException e) {
-            Assert.assertEquals(OCRException.CANNOT_READ_INPUT_IMAGE,
+            String expectedMsg = MessageFormat
+                    .format(OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE,
+                            file.getAbsolutePath());
+            Assert.assertEquals(expectedMsg,
                     e.getMessage());
         }
     }

@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -40,12 +41,6 @@ public abstract class TesseractReader implements IOcrReader {
      * (e.g. name: 'eng.user-words')
      */
     public static final String DEFAULT_USER_WORDS_SUFFIX = "user-words";
-
-    /**
-     * TesseractReader logger.
-     */
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TesseractReader.class);
 
     /**
      * List of languages required for ocr for provided images.
@@ -263,7 +258,7 @@ public abstract class TesseractReader implements IOcrReader {
                                     .get(tmpFile.getAbsolutePath()))) {
                         data.append(UtilService.readTxtFile(tmpFile));
                     } else {
-                        LOGGER.error("Error occurred. File wasn't created "
+                        LoggerFactory.getLogger(getClass()).error("Error occurred. File wasn't created "
                                 + tmpFile.getAbsolutePath());
                     }
                 }
@@ -273,7 +268,9 @@ public abstract class TesseractReader implements IOcrReader {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error occurred: " + e.getMessage());
+            LoggerFactory.getLogger(getClass())
+                    .error(MessageFormat.format("Error occurred: {0}",
+                            e.getMessage()));
         }
 
         return data.toString();
@@ -312,7 +309,7 @@ public abstract class TesseractReader implements IOcrReader {
                 Map<Integer, List<TextInfo>> pageData = UtilService.parseHocrFile(tempFiles,
                         getTextPositioning());
 
-                LOGGER.info((pageData.keySet().size() > 1
+                LoggerFactory.getLogger(getClass()).info((pageData.keySet().size() > 1
                         ? pageData.keySet().size() : page)
                         + " page(s) were read");
                 if (isPreprocessingImages()) {
@@ -326,7 +323,7 @@ public abstract class TesseractReader implements IOcrReader {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error occurred: " + e.getMessage());
+            LoggerFactory.getLogger(getClass()).error("Error occurred: " + e.getMessage());
         }
 
         return imageData;
@@ -360,7 +357,7 @@ public abstract class TesseractReader implements IOcrReader {
                 baos.close();
                 setUserWords(language, inputStream);
             } catch (IOException e) {
-                LOGGER.warn("Cannot use custom user words: " + e.getMessage());
+                LoggerFactory.getLogger(getClass()).warn("Cannot use custom user words: " + e.getMessage());
             }
         }
     }
@@ -404,7 +401,7 @@ public abstract class TesseractReader implements IOcrReader {
             userWordsFile = userWordsFileName;
         } catch (IOException e) {
             userWordsFile = null;
-            LOGGER.warn("Cannot use custom user words: " + e.getMessage());
+            LoggerFactory.getLogger(getClass()).warn("Cannot use custom user words: " + e.getMessage());
         }
     }
 
@@ -448,7 +445,7 @@ public abstract class TesseractReader implements IOcrReader {
     public String identifyOSType() {
         String os = System.getProperty("os.name") == null
                 ? System.getProperty("OS") : System.getProperty("os.name");
-        LOGGER.info("Using System Property: " + os);
+        LoggerFactory.getLogger(getClass()).info("Using System Property: " + os);
         return os.toLowerCase();
     }
 
@@ -462,8 +459,6 @@ public abstract class TesseractReader implements IOcrReader {
         if (languagesList.size() == 0) {
             if (!new File(getTessData()
                     + java.io.File.separatorChar + "eng" + suffix).exists()) {
-                LOGGER.error("eng" + suffix
-                        + " doesn't exist in provided directory");
                 throw new OCRException(OCRException.INCORRECT_LANGUAGE)
                         .setMessageParams("eng" + suffix, getTessData());
             }
@@ -472,8 +467,6 @@ public abstract class TesseractReader implements IOcrReader {
                 if (!new File(getTessData()
                         + java.io.File.separatorChar + lang + suffix)
                         .exists()) {
-                    LOGGER.error(lang + suffix
-                            + " doesn't exist in provided directory");
                     throw new OCRException(OCRException.INCORRECT_LANGUAGE)
                             .setMessageParams(lang + suffix, getTessData());
                 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,12 +25,6 @@ import org.slf4j.LoggerFactory;
  * installed in the system
  */
 public class TesseractExecutableReader extends TesseractReader {
-
-    /**
-     * TesseractExecutableReader logger.
-     */
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TesseractExecutableReader.class);
 
     /**
      * Path to the script.
@@ -166,8 +159,9 @@ public class TesseractExecutableReader extends TesseractReader {
 
             TesseractUtil.runCommand(command, isWindows());
         } catch (OCRException e) {
-            LOGGER.error("Running tesseract executable failed: " + e);
-            throw new OCRException(e.getMessage());
+            LoggerFactory.getLogger(getClass())
+                    .error(e.getMessage());
+            throw new OCRException(e.getMessage(), e);
         } finally {
             if (imagePath != null && isPreprocessingImages()
                     && !inputImage.getAbsolutePath().equals(imagePath)) {
@@ -296,7 +290,8 @@ public class TesseractExecutableReader extends TesseractReader {
         String fileName = new String(
                 outputFile.getAbsolutePath().toCharArray(), 0,
                 outputFile.getAbsolutePath().indexOf(extension));
-        LOGGER.info("Temp path: " + outputFile.toString());
+        LoggerFactory.getLogger(getClass())
+                .info("Temp path: " + outputFile.toString());
         command.add(addQuotes(fileName));
     }
 
@@ -318,7 +313,7 @@ public class TesseractExecutableReader extends TesseractReader {
      * @return path to output image
      */
     private String preprocessImage(final File inputImage,
-            final int pageNumber) {
+            final int pageNumber) throws OCRException {
         String path = inputImage.getAbsolutePath();
         if (isPreprocessingImages()) {
             path = ImageUtil.preprocessImage(inputImage, pageNumber);

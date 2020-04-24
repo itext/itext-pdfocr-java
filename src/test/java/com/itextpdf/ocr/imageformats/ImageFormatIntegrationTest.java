@@ -6,6 +6,8 @@ import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.TesseractReader;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -206,6 +208,9 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         tesseractReader.setPreprocessingImages(preprocess);
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_INPUT_IMAGE_FORMAT, count = 1)
+    })
     @Test
     public void testInputWrongFormat() {
         try {

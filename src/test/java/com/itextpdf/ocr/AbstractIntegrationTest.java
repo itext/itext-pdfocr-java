@@ -20,6 +20,7 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStra
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +36,7 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractIntegrationTest {
+public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);

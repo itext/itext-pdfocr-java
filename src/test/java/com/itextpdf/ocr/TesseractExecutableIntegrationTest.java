@@ -1,8 +1,11 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +17,9 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest {
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 2)
+    })
     @Test
     public void testIncorrectLanguages() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -50,6 +56,9 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
                  tesseractReader.getPathToScript());
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 3)
+    })
     @Test
     public void testIncorrectLanguagesScripts() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -100,11 +109,14 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
                 tesseractReader.getPathToScript());
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE, count = 1)
+    })
     @Test
     public void testCorruptedImageAndCatchException() {
+        File file = new File(testImagesDirectory
+                + "corrupted.jpg");
         try {
-            File file = new File(testImagesDirectory
-                    + "corrupted.jpg");
             TesseractExecutableReader tesseractReader = new TesseractExecutableReader(
                     getTesseractDirectory(), getTessDataDirectory());
 
@@ -112,11 +124,17 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
             Assert.assertNotNull(realOutput);
             Assert.assertEquals("", realOutput);
         } catch (OCRException e) {
-            Assert.assertEquals(OCRException.CANNOT_READ_INPUT_IMAGE,
-                    e.getMessage());
+            String expectedMsg = MessageFormat
+                    .format(OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE,
+                            file.getAbsolutePath());
+            Assert.assertEquals(expectedMsg, e.getMessage());
         }
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSDATA, count = 1),
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 1)
+    })
     @Test
     public void testIncorrectPathToTessData() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -145,6 +163,9 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
         tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 2)
+    })
     @Test
     public void testIncorrectPathToTesseractExecutable() {
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -164,19 +185,26 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
         }
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.TESSERACT_FAILED, count = 2)
+    })
     @Test
     public void testRunningTesseractCmd() {
+        boolean catched = false;
         try {
             TesseractUtil.runCommand(Arrays.<String>asList("tesseract",
                     "random.jpg"), false);
         } catch (OCRException e) {
-            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+            catched = true;
         }
 
+        Assert.assertTrue(catched);
+        catched = false;
         try {
             TesseractUtil.runCommand(null, false);
         } catch (OCRException e) {
-            Assert.assertEquals(OCRException.TESSERACT_FAILED, e.getMessage());
+            catched = true;
         }
+        Assert.assertTrue(catched);
     }
 }

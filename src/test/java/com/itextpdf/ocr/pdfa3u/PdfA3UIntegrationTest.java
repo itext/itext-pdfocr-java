@@ -16,6 +16,8 @@ import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
 import com.itextpdf.pdfa.PdfAConformanceException;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -137,6 +139,9 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = com.itextpdf.io.IOException.TypeOfFontIsNotRecognized, count = 1)
+    })
     @Test
     public void testInvalidCustomFontInPdf() throws IOException {
         String path = testImagesDirectory + "numbers_01.jpg";
@@ -170,6 +175,9 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         deleteFile(pdfPath);
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = com.itextpdf.io.IOException.TypeOfFontIsNotRecognized, count = 1)
+    })
     @Test
     public void testInvalidFontTwice() {
         String path = testImagesDirectory + "numbers_01.jpg";
