@@ -209,22 +209,6 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Reads data from input stream and returns retrieved data
-     * in the following format:
-     * <p>
-     * List<TextInfo> where each list TextInfo element contains word
-     * or line and its 4 coordinates(bbox).
-     *
-     * @param is InputStream
-     * @param outputFormat OutputFormat
-     * @return List<TextInfo>
-     */
-    public final List<TextInfo> readDataFromInput(final InputStream is,
-            final OutputFormat outputFormat) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Reads data from the provided input image file and
      * returns retrieved data as a string.
      *

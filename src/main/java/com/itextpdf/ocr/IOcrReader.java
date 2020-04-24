@@ -83,18 +83,4 @@ public interface IOcrReader {
      * @return List<TextInfo>
      */
     String readDataFromInput(File input, OutputFormat outputFormat);
-
-    /**
-     * Reads data from input stream and returns retrieved data
-     * in the following format:
-     * <p>
-     * List<TextInfo> where each list TextInfo element contains word
-     * or line and its 4 coordinates(bbox).
-     *
-     * @param is InputStream
-     * @param outputFormat OutputFormat
-     * @return List<TextInfo>
-     */
-    List<TextInfo> readDataFromInput(InputStream is,
-            OutputFormat outputFormat);
 }
