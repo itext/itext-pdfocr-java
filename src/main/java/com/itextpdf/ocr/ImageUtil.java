@@ -45,8 +45,7 @@ public final class ImageUtil {
             pix = TesseractUtil.readPix(inputFile);
         }
         if (pix == null) {
-            throw new OCRException(
-                    OCRException.CANNOT_READ_SPECIFIED_INPUT_IMAGE)
+            throw new OCRException(OCRException.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractUtil.preprocessPixAndSave(pix);

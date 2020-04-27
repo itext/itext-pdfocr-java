@@ -2,6 +2,7 @@ package com.itextpdf.ocr.general;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -12,6 +13,7 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader;
 import com.itextpdf.ocr.IPdfRenderer;
+import com.itextpdf.ocr.LogMessageConstant;
 import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
@@ -23,7 +25,6 @@ import com.itextpdf.test.annotations.LogMessages;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -330,7 +331,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = OCRException.INCORRECT_INPUT_IMAGE_FORMAT, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testInputInvalidImage() throws IOException {
@@ -347,7 +348,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
             pdfRenderer.doPdfOcr(getPdfWriter());
         } catch (OCRException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
                             "txt");
             Assert.assertEquals(expectedMsg, e.getMessage());
@@ -375,7 +376,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
             tesseractReader.setPathToTessData("test/");
             getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
         } catch (OCRException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.INCORRECT_LANGUAGE,
                             "eng.traineddata",
                             "test/");
@@ -386,7 +387,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         try {
             getTextFromPdf(tesseractReader, file);
         } catch (OCRException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.INCORRECT_LANGUAGE,
                             "eng.traineddata",
                             scriptTessDataDirectory);

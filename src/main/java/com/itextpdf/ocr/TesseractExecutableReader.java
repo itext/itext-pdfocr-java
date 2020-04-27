@@ -1,5 +1,7 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.util.MessageFormatUtil;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -290,8 +292,10 @@ public class TesseractExecutableReader extends TesseractReader {
         String fileName = new String(
                 outputFile.getAbsolutePath().toCharArray(), 0,
                 outputFile.getAbsolutePath().indexOf(extension));
-        LoggerFactory.getLogger(getClass())
-                .info("Temp path: " + outputFile.toString());
+        LoggerFactory.getLogger(getClass()).info(
+                MessageFormatUtil.format(
+                        LogMessageConstant.CREATED_TEMPORARY_FILE,
+                        outputFile.getAbsolutePath()));
         command.add(addQuotes(fileName));
     }
 

@@ -1,5 +1,6 @@
 package com.itextpdf.ocr.tessdata;
 
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.ocr.AbstractIntegrationTest;
@@ -12,7 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -551,7 +551,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         try {
             tesseractReader.setUserWords("spa", new FileInputStream(userWords));
         } catch (OCRException | FileNotFoundException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
                             "spa");
             Assert.assertEquals(expectedMsg, e.getMessage());
@@ -565,7 +565,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         try {
             tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
         } catch (OCRException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
                             "eng1");
             Assert.assertEquals(expectedMsg, e.getMessage());
@@ -576,7 +576,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             String userWords = testDocumentsDirectory + "userwords.txt";
             tesseractReader.setUserWords("test", new FileInputStream(userWords));
         } catch (OCRException | FileNotFoundException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
                             "test");
             Assert.assertEquals(expectedMsg, e.getMessage());

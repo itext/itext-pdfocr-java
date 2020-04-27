@@ -1,9 +1,11 @@
 package com.itextpdf.ocr.imageformats;
 
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
+import com.itextpdf.ocr.LogMessageConstant;
 import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.TesseractReader;
 import com.itextpdf.test.annotations.LogMessage;
@@ -11,7 +13,6 @@ import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
@@ -209,7 +210,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = OCRException.INCORRECT_INPUT_IMAGE_FORMAT, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testInputWrongFormat() {
@@ -219,7 +220,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
             Assert.assertNotNull(realOutput);
             Assert.assertEquals("", realOutput);
         } catch (OCRException e) {
-            String expectedMsg = MessageFormat
+            String expectedMsg = MessageFormatUtil
                     .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
                             "txt");
             Assert.assertEquals(expectedMsg, e.getMessage());

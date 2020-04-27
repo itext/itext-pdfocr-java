@@ -12,6 +12,7 @@ import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.IPdfRenderer;
 import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
+import com.itextpdf.ocr.LogMessageConstant;
 import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
@@ -176,10 +177,10 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = com.itextpdf.io.IOException.TypeOfFontIsNotRecognized, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
     })
     @Test
-    public void testInvalidFontTwice() {
+    public void testInvalidFont() {
         String path = testImagesDirectory + "numbers_01.jpg";
 
         try {

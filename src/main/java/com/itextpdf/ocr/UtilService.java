@@ -1,6 +1,7 @@
 package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -70,8 +71,10 @@ public final class UtilService {
                     Files.readAllBytes(txtFile.toPath()),
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.error("Cannot read file " + txtFile.getAbsolutePath()
-                    + " with error " + e.getMessage());
+            LOGGER.error(MessageFormatUtil.format(
+                    LogMessageConstant.CANNOT_READ_FILE,
+                    txtFile.getAbsolutePath(),
+                    e.getMessage()));
         }
         return content;
     }
@@ -97,8 +100,10 @@ public final class UtilService {
             try {
                 Files.delete(java.nio.file.Paths.get(pathToFile));
             } catch (IOException e) {
-                LOGGER.info("File " + pathToFile
-                        + " cannot be deleted: " + e.getMessage());
+                LOGGER.info(MessageFormatUtil.format(
+                        LogMessageConstant.CANNOT_DELETE_FILE,
+                        pathToFile,
+                        e.getMessage()));
             }
         }
     }
@@ -115,7 +120,7 @@ public final class UtilService {
      * @throws IOException IOException
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    static Map<Integer, List<TextInfo>> parseHocrFile(final List<File> inputFiles,
+    public static Map<Integer, List<TextInfo>> parseHocrFile(final List<File> inputFiles,
             final TextPositioning textPositioning)
             throws IOException {
         Map<Integer, List<TextInfo>> imageData =

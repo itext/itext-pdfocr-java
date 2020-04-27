@@ -1,5 +1,6 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.ocr.IOcrReader.OutputFormat;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
@@ -13,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,8 +73,10 @@ public final class TesseractUtil {
                     .getAllBufferedImages(is,
                             inputFile.getAbsolutePath());
         } catch (ImageReadException | IOException e) {
-            LOGGER.error("Cannot get pages from image: "
-                    + e.getMessage());
+            LOGGER.error(MessageFormatUtil.format(
+                    LogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
+                    inputFile.getAbsolutePath(),
+                    e.getMessage()));
         }
     }
 
@@ -97,8 +99,6 @@ public final class TesseractUtil {
             final boolean isWindows) throws OCRException {
         Process process = null;
         try {
-            LOGGER.info("Running command: "
-                    + String.join(" ", command));
             if (isWindows) {
                 ProcessBuilder pb = new ProcessBuilder(command); //NOSONAR
                 process = pb.start();
@@ -112,25 +112,21 @@ public final class TesseractUtil {
             int result = process.waitFor();
 
             if (result != 0) {
-                String msg = MessageFormat
-                        .format(OCRException.TESSERACT_FAILED,
-                                String.join(" ", command));
-                LOGGER.error(msg);
-                throw new OCRException(OCRException.TESSERACT_FAILED)
-                        .setMessageParams(String.join(" ", command));
+                LOGGER.error(MessageFormatUtil
+                        .format(LogMessageConstant.TESSERACT_FAILED,
+                                String.join(" ", command)));
+                throw new OCRException(OCRException.TESSERACT_FAILED);
             }
 
             process.destroy();
         } catch (NullPointerException | IOException | InterruptedException e) {
-            String msg = MessageFormat
-                    .format(OCRException.TESSERACT_FAILED,
-                            e.getMessage());
-            LOGGER.error(msg);
+            LOGGER.error(MessageFormatUtil
+                    .format(LogMessageConstant.TESSERACT_FAILED,
+                            e.getMessage()));
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            throw new OCRException(OCRException.TESSERACT_FAILED)
-                    .setMessageParams(e.getMessage());
+            throw new OCRException(OCRException.TESSERACT_FAILED);
         }
     }
 
@@ -148,8 +144,11 @@ public final class TesseractUtil {
         int size = pixa.n;
         // in case page number is incorrect
         if (pageNumber >= size) {
-            LOGGER.warn("Provided number of page ("+ pageNumber
-                    +") is incorrect for " + inputFile.getAbsolutePath());
+            LOGGER.warn(MessageFormatUtil
+                    .format(
+                            LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
+                            pageNumber,
+                            inputFile.getAbsolutePath()));
             return null;
         }
         Pix pix = Leptonica.INSTANCE.pixaGetPix(pixa, pageNumber, 1);
@@ -444,7 +443,11 @@ public final class TesseractUtil {
             }
         } catch (IllegalArgumentException | IOException e) {
             LoggerFactory.getLogger(ImageUtil.class)
-                    .info("Reading pix from file: " + e.getMessage());
+                    .info(MessageFormatUtil
+                            .format(
+                                    LogMessageConstant.READING_IMAGE_AS_PIX,
+                                    inputFile.getAbsolutePath(),
+                                    e.getMessage()));
             pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
         }
         return pix;

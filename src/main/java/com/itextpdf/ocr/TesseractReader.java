@@ -1,5 +1,7 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.util.MessageFormatUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,14 +13,12 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -241,9 +241,6 @@ public abstract class TesseractReader implements IOcrReader {
                             java.nio.file.Paths
                                     .get(tmpFile.getAbsolutePath()))) {
                         data.append(UtilService.readTxtFile(tmpFile));
-                    } else {
-                        LoggerFactory.getLogger(getClass()).error("Error occurred. File wasn't created "
-                                + tmpFile.getAbsolutePath());
                     }
                 }
 
@@ -253,7 +250,8 @@ public abstract class TesseractReader implements IOcrReader {
             }
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass())
-                    .error(MessageFormat.format("Error occurred: {0}",
+                    .error(MessageFormatUtil.format(
+                            LogMessageConstant.CANNOT_OCR_INPUT_FILE,
                             e.getMessage()));
         }
 
@@ -293,9 +291,6 @@ public abstract class TesseractReader implements IOcrReader {
                 Map<Integer, List<TextInfo>> pageData = UtilService.parseHocrFile(tempFiles,
                         getTextPositioning());
 
-                LoggerFactory.getLogger(getClass()).info((pageData.keySet().size() > 1
-                        ? pageData.keySet().size() : page)
-                        + " page(s) were read");
                 if (isPreprocessingImages()) {
                     imageData.put(page, pageData.get(1));
                 } else {
@@ -307,7 +302,10 @@ public abstract class TesseractReader implements IOcrReader {
                 }
             }
         } catch (IOException e) {
-            LoggerFactory.getLogger(getClass()).error("Error occurred: " + e.getMessage());
+            LoggerFactory.getLogger(getClass())
+                    .error(MessageFormatUtil.format(
+                            LogMessageConstant.CANNOT_OCR_INPUT_FILE,
+                            e.getMessage()));
         }
 
         return imageData;
@@ -341,7 +339,10 @@ public abstract class TesseractReader implements IOcrReader {
                 baos.close();
                 setUserWords(language, inputStream);
             } catch (IOException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot use custom user words: " + e.getMessage());
+                LoggerFactory.getLogger(getClass())
+                        .warn(MessageFormatUtil.format(
+                                LogMessageConstant.CANNOT_USE_USER_WORDS,
+                                e.getMessage()));
             }
         }
     }
@@ -385,7 +386,10 @@ public abstract class TesseractReader implements IOcrReader {
             userWordsFile = userWordsFileName;
         } catch (IOException e) {
             userWordsFile = null;
-            LoggerFactory.getLogger(getClass()).warn("Cannot use custom user words: " + e.getMessage());
+            LoggerFactory.getLogger(getClass())
+                    .warn(MessageFormatUtil.format(
+                            LogMessageConstant.CANNOT_USE_USER_WORDS,
+                            e.getMessage()));
         }
     }
 
@@ -429,7 +433,6 @@ public abstract class TesseractReader implements IOcrReader {
     public String identifyOSType() {
         String os = System.getProperty("os.name") == null
                 ? System.getProperty("OS") : System.getProperty("os.name");
-        LoggerFactory.getLogger(getClass()).info("Using System Property: " + os);
         return os.toLowerCase();
     }
 

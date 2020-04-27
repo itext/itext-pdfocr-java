@@ -1,5 +1,7 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.io.util.MessageFormatUtil;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +16,7 @@ import java.util.List;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 /**
  * Tesseract Library Reader class.
@@ -154,12 +157,12 @@ public class TesseractLibReader extends TesseractReader {
                             StandardCharsets.UTF_8)) {
                         writer.write(result);
                     } catch (IOException e) {
+                        String msg = MessageFormatUtil.format(
+                                LogMessageConstant.TESSERACT_FAILED,
+                                "Cannot write to file: " + e.getMessage());
                         LoggerFactory.getLogger(getClass())
-                                .error("Cannot write to file: " + e.getMessage());
-                        throw new OCRException(
-                                OCRException.TESSERACT_FAILED)
-                                .setMessageParams("Cannot write to file "
-                                        + outputFile.getAbsolutePath());
+                                .error(msg);
+                        throw new OCRException(OCRException.TESSERACT_FAILED);
                     }
                 } else {
                     LoggerFactory.getLogger(getClass())
@@ -206,12 +209,11 @@ public class TesseractLibReader extends TesseractReader {
             }
         } catch (TesseractException e) {
             String msg = MessageFormat
-                    .format(OCRException.TESSERACT_FAILED,
+                    .format(LogMessageConstant.TESSERACT_FAILED,
                             e.getMessage());
             LoggerFactory.getLogger(getClass())
                     .error(msg);
-            throw new OCRException(OCRException.TESSERACT_FAILED)
-                    .setMessageParams(e.getMessage());
+            throw new OCRException(OCRException.TESSERACT_FAILED);
         }
         return resultList;
     }
@@ -275,13 +277,11 @@ public class TesseractLibReader extends TesseractReader {
                                 preprocessed, outputFormat);
             }
         } catch (TesseractException e) {
-            String msg = MessageFormat
-                    .format(OCRException.TESSERACT_FAILED,
-                            e.getMessage());
             LoggerFactory.getLogger(getClass())
-                    .error(msg);
-            throw new OCRException(OCRException.TESSERACT_FAILED)
-                    .setMessageParams(e.getMessage());
+                    .error(MessageFormat
+                            .format(LogMessageConstant.TESSERACT_FAILED,
+                                    e.getMessage()));
+            throw new OCRException(OCRException.TESSERACT_FAILED);
         } finally {
             if (preprocessed != null) {
                 UtilService.deleteFile(preprocessed.getAbsolutePath());
