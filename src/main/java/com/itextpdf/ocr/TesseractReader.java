@@ -214,48 +214,38 @@ public abstract class TesseractReader implements IOcrReader {
      *
      * @param input File
      * @param outputFormat OutputFormat
+     *        "txt" output format:
+     *              tesseract performs ocr and returns output in txt format
+     *         "hocr" output format:
+     *              tesseract performs ocr and returns output in hocr format,
+     *              then result text is extracted
      * @return String
      */
     public final String readDataFromInput(final File input,
             final OutputFormat outputFormat) {
-        StringBuilder data = new StringBuilder();
-        try {
-            // image needs to be paginated only if it's tiff
-            // or preprocessing isn't required
-            int realNumOfPages = !ImageUtil.isTiffImage(input)
-                    ? 1 : ImageUtil.getNumberOfPageTiff(input);
-            int numOfPages = isPreprocessingImages() ? realNumOfPages : 1;
-            int numOfFiles = isPreprocessingImages() ? 1 : realNumOfPages;
-
-            for (int page = 1; page <= numOfPages; page++) {
-                List<File> tempFiles = new ArrayList<File>();
-                for (int i = 0; i < numOfFiles; i++) {
-                    String extension = outputFormat.equals(OutputFormat.hocr)
-                            ? ".hocr" : ".txt";
-                    tempFiles.add(createTempFile(extension));
-                }
-
-                doTesseractOcr(input, tempFiles, outputFormat, page);
-                for (File tmpFile : tempFiles) {
-                    if (Files.exists(
-                            java.nio.file.Paths
-                                    .get(tmpFile.getAbsolutePath()))) {
-                        data.append(UtilService.readTxtFile(tmpFile));
+        Map<String, Map<Integer, List<TextInfo>>> result =
+                processInputFiles(input, outputFormat);
+        if (result != null && result.size() > 0) {
+            List<String> keys = new ArrayList<String>(result.keySet());
+            if (outputFormat.equals(OutputFormat.txt)) {
+                return keys.get(0);
+            } else {
+                StringBuilder outputText = new StringBuilder();
+                Map<Integer, List<TextInfo>> outputMap = result.get(keys.get(0));
+                for (int page : outputMap.keySet()) {
+                    StringBuilder pageText = new StringBuilder();
+                    for (TextInfo textInfo : outputMap.get(page)) {
+                        pageText.append(textInfo.getText());
+                        pageText.append(System.lineSeparator());
                     }
+                    outputText.append(pageText);
+                    outputText.append(System.lineSeparator());
                 }
-
-                for (File file : tempFiles) {
-                    UtilService.deleteFile(file.getAbsolutePath());
-                }
+                return outputText.toString();
             }
-        } catch (IOException e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(MessageFormatUtil.format(
-                            LogMessageConstant.CANNOT_OCR_INPUT_FILE,
-                            e.getMessage()));
+        } else {
+            return "";
         }
-
-        return data.toString();
     }
 
     /**
@@ -271,8 +261,32 @@ public abstract class TesseractReader implements IOcrReader {
      * @return Map<Integer, List<TextInfo>>
      */
     public final Map<Integer, List<TextInfo>> readDataFromInput(final File input) {
+        Map<String, Map<Integer, List<TextInfo>>> result =
+                processInputFiles(input, OutputFormat.hocr);
+        if (result != null && result.size() > 0) {
+            List<String> keys = new ArrayList<String>(result.keySet());
+            return result.get(keys.get(0));
+        } else {
+            return new LinkedHashMap<Integer, List<TextInfo>>();
+        }
+    }
+
+    /**
+     * Reads data from the provided input image file.
+     *
+     * @param input File
+     * @param outputFormat OutputFormat
+     * @return Pair<Map<Integer, List<TextInfo>>, String>
+     *     if output format is txt,
+     *     result is key of the returned map(String),
+     *     otherwise - the value (Map<Integer, List<TextInfo>)
+     */
+    Map<String, Map<Integer, List<TextInfo>>> processInputFiles(final File input,
+            final OutputFormat outputFormat) {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
+        StringBuilder data = new StringBuilder();
+
         try {
             // image needs to be paginated only if it's tiff
             // or preprocessing isn't required
@@ -283,18 +297,30 @@ public abstract class TesseractReader implements IOcrReader {
 
             for (int page = 1; page <= numOfPages; page++) {
                 List<File> tempFiles = new ArrayList<File>();
+                String extension = outputFormat.equals(OutputFormat.hocr)
+                        ? ".hocr" : ".txt";
                 for (int i = 0; i < numOfFiles; i++) {
-                    tempFiles.add(createTempFile(".hocr"));
+                    tempFiles.add(createTempFile(extension));
                 }
 
-                doTesseractOcr(input, tempFiles, OutputFormat.hocr, page);
-                Map<Integer, List<TextInfo>> pageData = UtilService.parseHocrFile(tempFiles,
-                        getTextPositioning());
+                doTesseractOcr(input, tempFiles, outputFormat, page);
+                if (outputFormat.equals(OutputFormat.hocr)) {
+                    Map<Integer, List<TextInfo>> pageData = UtilService
+                            .parseHocrFile(tempFiles, getTextPositioning());
 
-                if (isPreprocessingImages()) {
-                    imageData.put(page, pageData.get(1));
+                    if (isPreprocessingImages()) {
+                        imageData.put(page, pageData.get(1));
+                    } else {
+                        imageData = pageData;
+                    }
                 } else {
-                    imageData = pageData;
+                    for (File tmpFile : tempFiles) {
+                        if (Files.exists(
+                                java.nio.file.Paths
+                                        .get(tmpFile.getAbsolutePath()))) {
+                            data.append(UtilService.readTxtFile(tmpFile));
+                        }
+                    }
                 }
 
                 for (File file : tempFiles) {
@@ -308,7 +334,10 @@ public abstract class TesseractReader implements IOcrReader {
                             e.getMessage()));
         }
 
-        return imageData;
+        Map<String, Map<Integer, List<TextInfo>>> result =
+                new LinkedHashMap<String, Map<Integer, List<TextInfo>>>();
+        result.put(data.toString(), imageData);
+        return result;
     }
 
     /**

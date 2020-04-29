@@ -40,9 +40,11 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,15 @@ import org.slf4j.LoggerFactory;
  * or using setter
  */
 public class PdfRenderer implements IPdfRenderer {
+
+    /**
+     * Supported image formats.
+     */
+    private static final Set<String> SUPPORTED_IMAGE_FORMATS =
+            Collections.unmodifiableSet(new HashSet<>(
+                    Arrays.<String>asList("bmp", "png", "pnm", "pgm",
+                            "ppm", "pbm", "tiff", "tif", "jpeg",
+                            "jpg", "jpe", "jfif")));
 
     /**
      * Logger.
@@ -604,9 +615,8 @@ public class PdfRenderer implements IPdfRenderer {
             extension = new String(image.getAbsolutePath().toCharArray(),
                     index + 1,
                     image.getAbsolutePath().length() - index - 1);
-            for (ImgFormat imageFormat
-                    : ImgFormat.class.getEnumConstants()) {
-                if (imageFormat.name().equals(extension.toLowerCase())) {
+            for (String format : SUPPORTED_IMAGE_FORMATS) {
+                if (format.equals(extension.toLowerCase())) {
                     isValid = true;
                     break;
                 }

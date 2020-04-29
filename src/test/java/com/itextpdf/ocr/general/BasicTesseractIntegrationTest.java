@@ -12,6 +12,7 @@ import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader;
+import com.itextpdf.ocr.IOcrReader.OutputFormat;
 import com.itextpdf.ocr.IPdfRenderer;
 import com.itextpdf.ocr.LogMessageConstant;
 import com.itextpdf.ocr.OCRException;
@@ -403,6 +404,30 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.contains(expectedOutput));
+    }
+
+    @Test
+    public void testHocrStringOutput() {
+        File file = new File(testImagesDirectory + "multipage.tiff");
+        List<String> expectedOutput = Arrays.<String>asList(
+                "Multipage\nTIFF\nExample\nPage 1",
+                "Multipage\nTIFF\nExample\nPage 2",
+                "Multipage\nTIFF\nExample\nPage 4",
+                "Multipage\nTIFF\nExample\nPage 5",
+                "Multipage\nTIFF\nExample\nPage 6",
+                "Multipage\nTIFF\nExample\nPage /",
+                "Multipage\nTIFF\nExample\nPage 8",
+                "Multipage\nTIFF\nExample\nPage 9"
+        );
+
+        String result = tesseractReader.readDataFromInput(file, OutputFormat.hocr);
+        for (String line : expectedOutput) {
+            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
+        }
+        result = tesseractReader.readDataFromInput(file, OutputFormat.txt);
+        for (String line : expectedOutput) {
+            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
+        }
     }
 
     /**

@@ -58,60 +58,6 @@ public interface IPdfRenderer {
     }
 
     /**
-     * Supported image formats.
-     */
-    enum ImgFormat {
-        /**
-         * BMP file format.
-         */
-        bmp,
-        /**
-         * PNG file format.
-         */
-        png,
-        /**
-         * PNM file format.
-         */
-        pnm,
-        /**
-         * PGM file format.
-         */
-        pgm,
-        /**
-         * PPM file format.
-         */
-        ppm,
-        /**
-         * PBM file format.
-         */
-        pbm,
-        /**
-         * TIFF file format.
-         */
-        tiff,
-        /**
-         * TIF file format.
-         */
-        tif,
-        /**
-         * JPEG file format.
-         */
-        jpeg,
-        /**
-         * JPG file format.
-         */
-        jpg,
-        /**
-         * JPE file format.
-         */
-        jpe,
-        /**
-         * JFIF file format.
-         */
-        jfif
-    }
-
-    /**
      * Set list of input images for OCR.
      *
      * @param images a {@link java.util.List} object.
