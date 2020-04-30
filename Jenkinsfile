@@ -11,7 +11,7 @@ switch (env.BRANCH_NAME) {
     case ~/.*develop.*/:
         schedule = '@midnight'
         sonarBranchName = '-Dsonar.branch.name=develop'
-        sonarBranchTarget = '-Dsonar.branch.target=master'
+        sonarBranchTarget = ''
         break
     default:
         schedule = ''
