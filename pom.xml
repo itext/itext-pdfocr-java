@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>ocr</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <name>pdfOCR</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from
