@@ -14,7 +14,7 @@ import net.sourceforge.lept4j.Pix;
 
 /**
  * Image Util class.
- * <p>
+ *
  * Class provides tool for basic image preprocessing.
  */
 public final class ImageUtil {
@@ -28,11 +28,10 @@ public final class ImageUtil {
     /**
      * Performs basic image preprocessing using buffered image (if provided).
      * Preprocessed image file will be saved in temporary directory
-     * (warning will be logged if file isn't deleted)
      *
-     * @param inputFile File
+     * @param inputFile {@link java.io.File}
      * @param pageNumber int
-     * @return String
+     * @return {@link java.lang.String}
      */
     public static String preprocessImage(final File inputFile,
             final int pageNumber) throws OCRException {
@@ -55,7 +54,7 @@ public final class ImageUtil {
      * Return true if provided image has 'tiff'
      * or 'tif' extension, otherwise - false.
      *
-     * @param inputImage File
+     * @param inputImage {@link java.io.File}
      * @return boolean
      */
     public static boolean isTiffImage(final File inputImage) {
@@ -72,7 +71,7 @@ public final class ImageUtil {
     /**
      * Count number of page in provided tiff image.
      *
-     * @param inputImage File
+     * @param inputImage {@link java.io.File}
      * @return int
      * @throws IOException IOException
      */
@@ -90,8 +89,8 @@ public final class ImageUtil {
     /**
      * Read image file from input stream from using provided file.
      *
-     * @param inputFile File
-     * @return BufferedImage
+     * @param inputFile {@link java.io.File}
+     * @return {@link java.awt.image.BufferedImage}
      * @throws IllegalArgumentException IllegalArgumentException
      * @throws IOException IOException
      */
@@ -104,8 +103,8 @@ public final class ImageUtil {
     /**
      * Reading file a Leptonica pix and converting it to image.
      *
-     * @param inputImage File
-     * @return BufferedImage
+     * @param inputImage {@link java.io.File}
+     * @return {@link java.awt.image.BufferedImage}
      * @throws IOException IOException
      */
     public static BufferedImage readAsPixAndConvertToBufferedImage(

@@ -33,7 +33,9 @@ public class OCRException extends RuntimeException {
      * Creates a new OCRException.
      *
      * @param msg the detail message.
-     * @param e   the cause (which is saved for later retrieval by {@link #getCause()} method).
+     * @param e   the cause
+     *            (which is saved for later retrieval
+     *            by {@link #getCause()} method).
      */
     public OCRException(String msg, Throwable e) {
         super(msg, e);
@@ -53,8 +55,10 @@ public class OCRException extends RuntimeException {
      */
     @Override
     public String getMessage() {
-        return this.messageParams != null && this.messageParams.size() != 0 ? MessageFormatUtil
-                .format(super.getMessage(), this.getMessageParams()) : super.getMessage();
+        return this.messageParams != null && this.messageParams.size() != 0
+                ? MessageFormatUtil
+                        .format(super.getMessage(), this.getMessageParams())
+                : super.getMessage();
     }
 
     /**

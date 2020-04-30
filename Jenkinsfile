@@ -72,7 +72,8 @@ pipeline {
                     }
                     steps {
                         withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                            sh 'mvn --threads 2C --no-transfer-progress clean dependency:purge-local-repository ' +
+                            sh 'mvn --threads 2C --no-transfer-progress clean ' +
+                                    'dependency:purge-local-repository ' +
                                     '-Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false ' + 
                                     "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
@@ -133,7 +134,7 @@ pipeline {
                     }
                     steps {
                         withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                            sh 'mvn --threads 2C --no-transfer-progress package -Dmaven.test.skip=true -Dmaven.source.skip=true ' +
+                            sh 'mvn --threads 2C package -Dmaven.test.skip=true -Dmaven.source.skip=true ' +
                                 "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
                     }
@@ -155,7 +156,7 @@ pipeline {
             steps {
                 withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                     sh 'mvn --no-transfer-progress verify --activate-profiles qa ' +
-                            '-Dpmd.analysisCache=true -DassemblyAnalyzerEnabled=false' + 
+                            '-Dpmd.analysisCache=true -Dmaven.test.skip=true' +
                             "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                 }
                 recordIssues tools: [
@@ -172,25 +173,30 @@ pipeline {
             }
             steps {
                 withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                    withSonarQubeEnv('Sonar') {
-                        sh 'mvn --no-transfer-progress --activate-profiles test ' +
-                                '-DgsExec="${gsExec}" -DcompareExec="${compareExec}" ' +
-                                '-DtesseractDir="${tesseractDir}" ' +
-                                '-Dmaven.main.skip=true -Dmaven.test.failure.ignore=false ' +
-                                'org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report ' +
-                                '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' + 
-                                "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository " +
-                                'sonar:sonar ' + sonarBranchName + ' ' + sonarBranchTarget
-                    }
+                    sh 'mvn --no-transfer-progress --activate-profiles test ' +
+                            "-Dmaven.repo.local=${env.WORKSPACE.replace '\\', '/'}/.repository " +
+                            '-DgsExec="${gsExec}" -DcompareExec="${compareExec}" ' +
+                            '-DtesseractDir="${tesseractDir}" ' +
+                            '-Dmaven.main.skip=true ' +
+                            '-Dmaven.test.failure.ignore=false ' +
+                            '-Ddependency-check.skip=true -Dmaven.javadoc.skip=true ' +
+                            'org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report'
                 }
             }
         }
         stage("Quality Gate") {
-            options {
-                timeout time: 1, unit: 'HOURS'
-            }
             steps {
-                waitForQualityGate abortPipeline: true
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
+                    withSonarQubeEnv('Sonar') {
+                        sh 'mvn --no-transfer-progress sonar:sonar ' +
+                                "-Dmaven.repo.local=${env.WORKSPACE.replace '\\', '/'}/.repository " +
+                                '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' +
+                                sonarBranchName + ' ' + sonarBranchTarget
+                    }
+                }
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
         stage('Artifactory Deploy') {

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,13 +19,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Tesseract Library Reader class.
  * (extends TesseractReader class)
- * <p>
+ *
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- * <p>
+ *
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- * <p>
+ *
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data.
@@ -40,9 +39,9 @@ public class TesseractLibReader extends TesseractReader {
     private ITesseract tesseractInstance = null;
 
     /**
-     * TesseractLibReader constructor with path to tess data directory.
+     * Create new TesseractLibReader.
      *
-     * @param tessDataPath String
+     * @param tessDataPath {@link java.lang.String}
      */
     public TesseractLibReader(final String tessDataPath) {
         setOsType(identifyOSType());
@@ -51,11 +50,10 @@ public class TesseractLibReader extends TesseractReader {
     }
 
     /**
-     * TesseractLibReader constructor with path to tess data directory,
-     * list of languages and path to tess data directory.
+     * Create new TesseractLibReader.
      *
-     * @param languagesList List<String>
-     * @param tessDataPath  String
+     * @param languagesList {@link java.util.List}
+     * @param tessDataPath  {@link java.lang.String}
      */
     public TesseractLibReader(final String tessDataPath,
             final List<String> languagesList) {
@@ -76,7 +74,7 @@ public class TesseractLibReader extends TesseractReader {
      * Get tesseract instance depending on the OS type.
      * If instance is null, it will be initialized with parameters
      *
-     * @return ITesseract
+     * @return {@link net.sourceforge.tess4j.ITesseract}
      */
     public ITesseract getTesseractInstance() {
         if (tesseractInstance == null
@@ -93,7 +91,7 @@ public class TesseractLibReader extends TesseractReader {
     /**
      * Initialize instance of tesseract and set all the required properties.
      *
-     * @param outputFormat OutputFormat
+     * @param outputFormat {@link OutputFormat}
      */
     public void initializeTesseract(final OutputFormat outputFormat) {
         setTesseractInstance();
@@ -122,10 +120,11 @@ public class TesseractLibReader extends TesseractReader {
     /**
      * Perform tesseract OCR.
      *
-     * @param inputImage - input image file
-     * @param outputFiles - list of output file (one for each page)
-     * @param outputFormat - output format
-     * @param pageNumber - int
+     * @param inputImage {@link java.io.File} input image file
+     * @param outputFiles {@link java.util.List} of output file
+     *                                          (one for each page)
+     * @param outputFormat {@link OutputFormat}
+     * @param pageNumber int
      */
     public void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
@@ -134,11 +133,13 @@ public class TesseractLibReader extends TesseractReader {
             validateLanguages(getLanguagesAsList());
             initializeTesseract(outputFormat);
 
-            // if proprocessing is not needed and provided image is tiff,
+            // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
-            if (!isPreprocessingImages() && ImageUtil.isTiffImage(inputImage)) {
-                resultList = getOCRResultForMultiPage(inputImage, outputFormat);
+            if (!isPreprocessingImages()
+                    && ImageUtil.isTiffImage(inputImage)) {
+                resultList = getOCRResultForMultiPage(inputImage,
+                        outputFormat);
             } else {
                 resultList.add(getOCRResultForSinglePage(inputImage,
                         outputFormat, pageNumber));
@@ -158,7 +159,8 @@ public class TesseractLibReader extends TesseractReader {
                     } catch (IOException e) {
                         String msg = MessageFormatUtil.format(
                                 LogMessageConstant.TESSERACT_FAILED,
-                                "Cannot write to file: " + e.getMessage());
+                                "Cannot write to file: "
+                                        + e.getMessage());
                         LoggerFactory.getLogger(getClass())
                                 .error(msg);
                         throw new OCRException(OCRException.TESSERACT_FAILED);
@@ -186,10 +188,6 @@ public class TesseractLibReader extends TesseractReader {
      * Get ocr result from provided multipage image and
      * and return result ad list fo strings for each page.
      * (this method is used when preprocessing is not needed)
-     *
-     * @param inputImage File
-     * @param outputFormat OutputFormat
-     * @return List<String>
      */
     private List<String> getOCRResultForMultiPage(final File inputImage,
             final OutputFormat outputFormat) {
@@ -207,7 +205,7 @@ public class TesseractLibReader extends TesseractReader {
                 TesseractUtil.disposeTesseractInstance(getTesseractInstance());
             }
         } catch (TesseractException e) {
-            String msg = MessageFormat
+            String msg = MessageFormatUtil
                     .format(LogMessageConstant.TESSERACT_FAILED,
                             e.getMessage());
             LoggerFactory.getLogger(getClass())
@@ -220,11 +218,6 @@ public class TesseractLibReader extends TesseractReader {
     /**
      * Get ocr result from provided single page image
      * and preprocess it if needed.
-     *
-     * @param inputImage File
-     * @param outputFormat OutputFormat
-     * @param pageNumber int
-     * @return String
      */
     private String getOCRResultForSinglePage(final File inputImage,
             final OutputFormat outputFormat,
@@ -234,7 +227,8 @@ public class TesseractLibReader extends TesseractReader {
         try {
             // preprocess if required
             if (isPreprocessingImages()) {
-                preprocessed = new File(ImageUtil.preprocessImage(inputImage, pageNumber));
+                preprocessed = new File(
+                        ImageUtil.preprocessImage(inputImage, pageNumber));
             }
             if (!isPreprocessingImages() || preprocessed == null) {
                 // try to open as buffered image if it's not a tiff image
@@ -249,7 +243,8 @@ public class TesseractLibReader extends TesseractReader {
                                 + "from the input image: "
                                 + ex.getMessage());
                         bufferedImage = ImageUtil
-                                .readAsPixAndConvertToBufferedImage(inputImage);
+                                .readAsPixAndConvertToBufferedImage(
+                                        inputImage);
                     }
                 } catch (IOException ex) {
                     LoggerFactory.getLogger(getClass())
@@ -262,7 +257,8 @@ public class TesseractLibReader extends TesseractReader {
                                         bufferedImage, outputFormat);
                     } catch (TesseractException e) {
                         LoggerFactory.getLogger(getClass())
-                                .info("Cannot process image: " + e.getMessage());
+                                .info("Cannot process image: "
+                                        + e.getMessage());
                     }
                 }
                 if (result == null) {
@@ -277,7 +273,7 @@ public class TesseractLibReader extends TesseractReader {
             }
         } catch (TesseractException e) {
             LoggerFactory.getLogger(getClass())
-                    .error(MessageFormat
+                    .error(MessageFormatUtil
                             .format(LogMessageConstant.TESSERACT_FAILED,
                                     e.getMessage()));
             throw new OCRException(OCRException.TESSERACT_FAILED);

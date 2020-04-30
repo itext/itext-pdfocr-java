@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public final class UtilService {
 
     /**
-     * Constantsfor points per inch (for tests).
+     * Constants for points per inch (for tests).
      */
     @SuppressWarnings("checkstyle:magicnumber")
     private static final float POINTS_PER_INCH = 72.0f;
@@ -44,7 +44,7 @@ public final class UtilService {
     /**
      * Encoding UTF-8 string.
      */
-    private static String encodingUTF8 = "UTF-8";
+    private final static String encodingUTF8 = "UTF-8";
 
     /**
      * Constant to convert pixels to points (for tests).
@@ -61,8 +61,8 @@ public final class UtilService {
     /**
      * Read text file to string.
      *
-     * @param txtFile File
-     * @return String
+     * @param txtFile {@link java.io.File}
+     * @return {@link java.lang.String}
      */
     public static String readTxtFile(final File txtFile) {
         String content = null;
@@ -111,16 +111,20 @@ public final class UtilService {
     /**
      * Parse `hocr` file, retrieve text, and return in the format
      * described below.
-     * each list element : Map.Entry<String, List<Integer>> contains
-     * word or line as a key and its 4 coordinates(bbox) as a values
+     * Map<Integer, List<TextInfo>>:
+     * key: number of the page,
+     * value: list of {@link TextInfo} elements where
+     * each {@link TextInfo} element contains a word or a line
+     * and its 4 coordinates(bbox).
      *
-     * @param inputFiles list ofo input files
-     * @param textPositioning TextPositioning
+     * @param inputFiles list of input files
+     * @param textPositioning {@link TextPositioning}
      * @return Map<Integer, List<TextInfo>>
      * @throws IOException IOException
      */
     @SuppressWarnings("checkstyle:magicnumber")
-    public static Map<Integer, List<TextInfo>> parseHocrFile(final List<File> inputFiles,
+    public static Map<Integer, List<TextInfo>> parseHocrFile(
+            final List<File> inputFiles,
             final TextPositioning textPositioning)
             throws IOException {
         Map<Integer, List<TextInfo>> imageData =
@@ -138,21 +142,24 @@ public final class UtilService {
 
                 Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
                 Pattern bboxCoordinatePattern = Pattern
-                        .compile(".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
+                        .compile(
+                                ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
                 List<String> searchedClasses = TextPositioning.BY_LINES
                         .equals(textPositioning)
                         ? Arrays.<String>asList("ocr_line", "ocr_caption")
                         : Collections.<String>singletonList("ocrx_word");
                 for (Element page : pages) {
                     String[] pageNum = page.id().split("page_");
-                    int pageNumber = Integer.parseInt(pageNum[pageNum.length - 1]);
+                    int pageNumber = Integer
+                            .parseInt(pageNum[pageNum.length - 1]);
                     List<TextInfo> textData = new ArrayList<TextInfo>();
                     if (searchedClasses.size() > 0) {
                         Elements objects = page
                                 .getElementsByClass(searchedClasses.get(0));
                         for (int i = 1; i < searchedClasses.size(); i++) {
                             Elements foundElements = page
-                                    .getElementsByClass(searchedClasses.get(i));
+                                    .getElementsByClass(
+                                            searchedClasses.get(i));
                             for (int j = 0; j < foundElements.size(); j++) {
                                 objects.add(foundElements.get(j));
                             }
@@ -161,24 +168,29 @@ public final class UtilService {
                             String value = obj.attr("title");
                             Matcher bboxMatcher = bboxPattern.matcher(value);
                             if (bboxMatcher.matches()) {
-                                Matcher bboxCoordinateMatcher = bboxCoordinatePattern
-                                        .matcher(bboxMatcher.group());
+                                Matcher bboxCoordinateMatcher =
+                                        bboxCoordinatePattern
+                                                .matcher(bboxMatcher.group());
                                 if (bboxCoordinateMatcher.matches()) {
-                                    List<Float> coordinates = new ArrayList<Float>();
+                                    List<Float> coordinates =
+                                            new ArrayList<Float>();
                                     for (int i = 0; i < 4; i++) {
                                         String coord = bboxCoordinateMatcher
                                                 .group(i + 1);
-                                        coordinates.add(Float.parseFloat(coord));
+                                        coordinates
+                                                .add(Float.parseFloat(coord));
                                     }
 
-                                    textData.add(new TextInfo(obj.text(), coordinates));
+                                    textData.add(new TextInfo(obj.text(),
+                                            coordinates));
                                 }
                             }
                         }
                     }
                     if (textData.size() > 0) {
                         if (imageData.containsKey(pageNumber)) {
-                            pageNumber = Collections.max(imageData.keySet()) + 1;
+                            pageNumber = Collections.max(imageData.keySet())
+                                    + 1;
                         }
                         imageData.put(pageNumber, textData);
                     }
@@ -192,10 +204,10 @@ public final class UtilService {
      * Calculate the size of the PDF document page
      * should transform pixels to points and according to image resolution.
      *
-     * @param imageData    ImageData
-     * @param scaleMode    IPdfRenderer.ScaleMode
-     * @param requiredSize Rectangle
-     * @return Rectangle
+     * @param imageData    {@link com.itextpdf.io.image.ImageData}
+     * @param scaleMode    {@link IPdfRenderer.ScaleMode}
+     * @param requiredSize {@link com.itextpdf.kernel.geom.Rectangle}
+     * @return {@link com.itextpdf.kernel.geom.Rectangle}
      */
     static com.itextpdf.kernel.geom.Rectangle calculateImageSize(
             final ImageData imageData,

@@ -53,7 +53,7 @@ public final class TesseractUtil {
      * List of page of processing image.
      */
     private static List<BufferedImage> imagePages =
-            Collections.<BufferedImage>emptyList();;
+            Collections.<BufferedImage>emptyList();
 
     /**
      * Private constructor for util class.
@@ -63,7 +63,7 @@ public final class TesseractUtil {
 
     /**
      * Retrieve list of pages from provided image.
-     * @param inputFile File
+     * @param inputFile {@link java.io.File}
      */
     public static void initializeImagesListFromTiff(
             final File inputFile) {
@@ -91,7 +91,7 @@ public final class TesseractUtil {
     /**
      * Run given command in command line.
      *
-     * @param command   List<String>
+     * @param command List<String>
      * @param isWindows boolean
      * @throws OCRException if command failed
      */
@@ -133,14 +133,15 @@ public final class TesseractUtil {
     /**
      * Reads required page from provided tiff image.
      *
-     * @param inputFile File
+     * @param inputFile {@link java.io.File}
      * @param pageNumber int
-     * @return Pix
+     * @return {@link net.sourceforge.lept4j.Pix}
      */
     public static Pix readPixPageFromTiff(final File inputFile,
             final int pageNumber) {
         // read image
-        Pixa pixa = Leptonica.INSTANCE.pixaReadMultipageTiff(inputFile.getAbsolutePath());
+        Pixa pixa = Leptonica.INSTANCE
+                .pixaReadMultipageTiff(inputFile.getAbsolutePath());
         int size = pixa.n;
         // in case page number is incorrect
         if (pageNumber >= size) {
@@ -161,8 +162,8 @@ public final class TesseractUtil {
      * Performs default image preprocessing
      * and saves result to temporary file.
      *
-     * @param pix Pix
-     * @return String Path to create preprocesed image
+     * @param pix {@link net.sourceforge.lept4j.Pix}
+     * @return {@link java.lang.String} Path to create preprocessed image
      */
     public static String preprocessPixAndSave(Pix pix) {
         pix = preprocessPix(pix);
@@ -188,8 +189,8 @@ public final class TesseractUtil {
      * - thresholding
      * - basic deskewing
      *
-     * @param pix Pix
-     * @return Pix
+     * @param pix {@link net.sourceforge.lept4j.Pix}
+     * @return {@link net.sourceforge.lept4j.Pix}
      */
     public static Pix preprocessPix(Pix pix) {
         pix = Leptonica.INSTANCE.pixRemoveAlpha(pix);
@@ -201,8 +202,8 @@ public final class TesseractUtil {
     /**
      * Convert Leptonica <code>Pix</code> to grayscale.
      *
-     * @param pix source pix
-     * @return Pix output pix
+     * @param pix {@link net.sourceforge.lept4j.Pix} source
+     * @return {@link net.sourceforge.lept4j.Pix} output
      */
     public static Pix convertToGrayscale(final Pix pix) {
         Leptonica instance = Leptonica.INSTANCE;
@@ -216,15 +217,15 @@ public final class TesseractUtil {
                         instance.REMOVE_CMAP_TO_GRAYSCALE);
             }
         } else {
-            return pix;
+            return null;
         }
     }
 
     /**
      * Perform Leptonica Otsu adaptive image thresholding.
      *
-     * @param pix source pix
-     * @return Pix output pix
+     * @param pix {@link net.sourceforge.lept4j.Pix} source
+     * @return {@link net.sourceforge.lept4j.Pix} output
      */
     public static Pix otsuImageThresholding(final Pix pix) {
         if (pix != null) {
@@ -240,14 +241,14 @@ public final class TesseractUtil {
                 return pix;
             }
         } else {
-            return pix;
+            return null;
         }
     }
 
     /**
      * Destroy pix object.
      *
-     * @param pix Pix
+     * @param pix {@link net.sourceforge.lept4j.Pix}
      */
     public static void destroyPix(Pix pix) {
         if (pix != null) {
@@ -260,7 +261,7 @@ public final class TesseractUtil {
     /**
      * Destroy pixa object.
      *
-     * @param pixa Pixa
+     * @param pixa {@link net.sourceforge.lept4j.Pixa}
      */
     public static void destroyPixa(Pixa pixa) {
         if (pixa != null) {
@@ -272,7 +273,7 @@ public final class TesseractUtil {
 
     /**
      * Get png image format in required format.
-     * @return String
+     * @return {@link java.lang.String}
      */
     public static String getPngImageFormat() {
         return ImageFormats.PNG.getName();
@@ -283,11 +284,11 @@ public final class TesseractUtil {
      * In java: path to tess data, languages, psm
      * In .Net: psm
      *
-     * @param tesseractInstance ITesseract
-     * @param tessData String
-     * @param languages String
-     * @param pageSegMode Integer
-     * @param userWordsFilePath String
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
+     * @param tessData {@link java.lang.String}
+     * @param languages {@link java.lang.String}
+     * @param pageSegMode {@link java.lang.Integer}
+     * @param userWordsFilePath {@link java.lang.String}
      */
     public static void setTesseractProperties(
             final ITesseract tesseractInstance,
@@ -304,10 +305,10 @@ public final class TesseractUtil {
     }
 
     /**
-     * Create teseract instance without parameters.
+     * Create tesseract instance without parameters.
      *
      * @param isWindows boolean
-     * @return ITesseract
+     * @return {@link net.sourceforge.tess4j.ITesseract}
      */
     public static ITesseract createTesseractInstance(final boolean isWindows) {
         if (isWindows) {
@@ -318,13 +319,13 @@ public final class TesseractUtil {
     }
 
     /**
-     * Create teseract instance with parameters.
+     * Create tesseract instance with parameters.
      *
-     * @param tessData String
-     * @param languages String
+     * @param tessData {@link java.lang.String}
+     * @param languages {@link java.lang.String}
      * @param isWindows boolean
-     * @param userWordsFilePath String
-     * @return ITesseract
+     * @param userWordsFilePath {@link java.lang.String}
+     * @return {@link net.sourceforge.tess4j.ITesseract}
      */
     public static ITesseract initializeTesseractInstanceWithParameters(
             final String tessData, final String languages,
@@ -340,11 +341,11 @@ public final class TesseractUtil {
      * Perform ocr for the provided image
      * and return result as string in required format.
      *
-     * @param tesseractInstance ITesseract
-     * @param image BufferedImage
-     * @param outputFormat OutputFormat
-     * @return String
-     * @throws TesseractException TesseractException
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
+     * @param image {@link java.awt.image.BufferedImage}
+     * @param outputFormat {@link OutputFormat}
+     * @return {@link java.lang.String}
+     * @throws {@link net.sourceforge.tess4j.TesseractException}
      */
     public static String getOcrResultAsString(
             final ITesseract tesseractInstance,
@@ -360,11 +361,11 @@ public final class TesseractUtil {
      * Perform ocr for the provided image file
      * and return result as string in required format.
      *
-     * @param tesseractInstance ITesseract
-     * @param image File
-     * @param outputFormat OutputFormat
-     * @return String
-     * @throws TesseractException TesseractException
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
+     * @param image {@link java.io.File}
+     * @param outputFormat {@link OutputFormat}
+     * @return {@link java.lang.String}
+     * @throws {@link net.sourceforge.tess4j.TesseractException}
      */
     public static String getOcrResultAsString(
             final ITesseract tesseractInstance,
@@ -380,24 +381,25 @@ public final class TesseractUtil {
      * Perform ocr for the provided Pix object
      * and return result as string in required format.
      *
-     * @param tesseractInstance ITesseract
-     * @param pix Pix
-     * @param outputFormat OutputFormat
-     * @return String
-     * @throws TesseractException TesseractException
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
+     * @param pix {@link net.sourceforge.lept4j.Pix}
+     * @param outputFormat {@link OutputFormat}
+     * @return {@link java.lang.String}
+     * @throws {@link net.sourceforge.tess4j.TesseractException}
      */
     public static String getOcrResultAsString(
             final ITesseract tesseractInstance,
             final Pix pix, final OutputFormat outputFormat)
             throws TesseractException, IOException {
         BufferedImage bufferedImage = convertPixToImage(pix);
-        return getOcrResultAsString(tesseractInstance, bufferedImage, outputFormat);
+        return getOcrResultAsString(tesseractInstance,
+                bufferedImage, outputFormat);
     }
 
     /**
      * Return true if tesseract instance is disposed.
      * (used in .net version)
-     * @param tesseractInstance ITesseract
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      * @return boolean
      */
     public static boolean isTesseractInstanceDisposed(
@@ -408,16 +410,17 @@ public final class TesseractUtil {
     /**
      * Dispose Tesseract instance.
      * (used in .net version)
-     * @param tesseractInstance ITesseract
+     * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      */
-    public static void disposeTesseractInstance(final ITesseract tesseractInstance) {
+    public static void disposeTesseractInstance(
+            final ITesseract tesseractInstance) {
     }
 
     /**
      * Converts <code>BufferedImage</code> to Leptonica <code>Pix</code>.
      *
-     * @param bufferedImage BufferedImage
-     * @return Pix
+     * @param bufferedImage {@link java.awt.image.BufferedImage}
+     * @return Pix {@link net.sourceforge.lept4j.Pix}
      * @throws IOException if it's not possible to convert
      */
     public static Pix convertImageToPix(
@@ -429,13 +432,14 @@ public final class TesseractUtil {
     /**
      * Read Pix from file or convert from buffered image.
      *
-     * @param inputFile File
-     * @return Pix
+     * @param inputFile {@link java.io.File}
+     * @return Pix {@link net.sourceforge.lept4j.Pix}
      */
     public static Pix readPix(final File inputFile) {
         Pix pix = null;
         try {
-            BufferedImage bufferedImage = ImageUtil.readImageFromFile(inputFile);
+            BufferedImage bufferedImage = ImageUtil
+                    .readImageFromFile(inputFile);
             if (bufferedImage != null) {
                 pix = convertImageToPix(bufferedImage);
             } else {
@@ -456,8 +460,8 @@ public final class TesseractUtil {
     /**
      * Converts Leptonica Pix to image.
      *
-     * @param pix source pix
-     * @return BufferedImage output image
+     * @param pix {@link net.sourceforge.lept4j.Pix}
+     * @return {@link java.awt.image.BufferedImage}
      * @throws IOException IOException
      */
     public static BufferedImage convertPixToImage(final Pix pix)
@@ -469,8 +473,8 @@ public final class TesseractUtil {
     /**
      * Converts <code>BufferedImage</code> to Leptonica <code>Pix</code>.
      *
-     * @param bufferedImage BufferedImage
-     * @return Pix
+     * @param bufferedImage {@link java.awt.image.BufferedImage}
+     * @return {@link net.sourceforge.lept4j.Pix}
      * @throws IOException if it's not possible to convert
      */
     public static Pix convertBufferedImageToPix(
@@ -492,9 +496,9 @@ public final class TesseractUtil {
     /**
      * Converts Leptonica <code>Pix</code> to <code>BufferedImage</code>.
      *
-     * @param pix source pix
+     * @param pix {@link net.sourceforge.lept4j.Pix}
      * @param format int
-     * @return BufferedImage output image
+     * @return {@link java.awt.image.BufferedImage}
      * @throws IOException IOException
      */
     public static BufferedImage convertPixToBufferedImage(final Pix pix,

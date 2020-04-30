@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * TextInfo class.
- * <p>
+ *
  * This class describes item of text info retrieved
  * from HOCR file after parsing
  */

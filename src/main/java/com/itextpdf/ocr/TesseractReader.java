@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tesseract reader class.
- * <p>
+ *
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- * <p>
+ *
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- * <p>
+ *
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data.
@@ -82,10 +82,11 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Perform tesseract OCR.
      *
-     * @param inputImage - input image file
-     * @param outputFiles - list of output file (one per each page)
-     * @param outputFormat - output format
-     * @param pageNumber - int
+     * @param inputImage {@link java.io.File} input image file
+     * @param outputFiles {@link java.util.List} list of output file
+     *                                          (one per each page)
+     * @param outputFormat {@link OutputFormat}
+     * @param pageNumber int
      */
     public abstract void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat,
@@ -94,7 +95,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Set list of languages required for provided images.
      *
-     * @param requiredLanguages List<String>
+     * @param requiredLanguages {@link java.util.List}
      */
     public final void setLanguages(final List<String> requiredLanguages) {
         languages = Collections.<String>unmodifiableList(requiredLanguages);
@@ -103,7 +104,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get list of languages required for provided images.
      *
-     * @return List<String>
+     * @return {@link java.util.List}
      */
     public final List<String> getLanguagesAsList() {
         return new ArrayList<String>(languages);
@@ -112,7 +113,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get list of languages converted to a string
      * in format required by tesseract.
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getLanguagesAsString() {
         if (getLanguagesAsList().size() > 0) {
@@ -125,7 +126,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Set path to directory with tess data.
      *
-     * @param tessData String
+     * @param tessData {@link java.lang.String}
      */
     public final void setPathToTessData(final String tessData) {
         tessDataDir = tessData;
@@ -134,7 +135,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get path to directory with tess data.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getPathToTessData() {
         return tessDataDir;
@@ -143,7 +144,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Set Page Segmentation Mode.
      *
-     * @param mode Integer
+     * @param mode {@link java.lang.Integer}
      */
     public final void setPageSegMode(final Integer mode) {
         pageSegMode = mode;
@@ -152,7 +153,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get Page Segmentation Mode.
      *
-     * @return Integer pageSegMode
+     * @return {@link java.lang.Integer} pageSegMode
      */
     public final Integer getPageSegMode() {
         return pageSegMode;
@@ -161,7 +162,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Set type of current OS.
      *
-     * @param os String
+     * @param os {@link java.lang.String}
      */
     public final void setOsType(final String os) {
         osType = os;
@@ -170,7 +171,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get type of current OS.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getOsType() {
         return osType;
@@ -195,14 +196,14 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Set text positioning (by lines or by words).
      *
-     * @param positioning TextPositioning
+     * @param positioning {@link TextPositioning}
      */
     public final void setTextPositioning(final TextPositioning positioning) {
         textPositioning = positioning;
     }
 
     /**
-     * @return text positioning
+     * @return {@link TextPositioning}
      */
     public final TextPositioning getTextPositioning() {
         return textPositioning;
@@ -212,14 +213,14 @@ public abstract class TesseractReader implements IOcrReader {
      * Reads data from the provided input image file and
      * returns retrieved data as a string.
      *
-     * @param input File
-     * @param outputFormat OutputFormat
+     * @param input {@link java.io.File}
+     * @param outputFormat {@link OutputFormat}
      *        "txt" output format:
      *              tesseract performs ocr and returns output in txt format
      *         "hocr" output format:
      *              tesseract performs ocr and returns output in hocr format,
      *              then result text is extracted
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String readDataFromInput(final File input,
             final OutputFormat outputFormat) {
@@ -231,7 +232,8 @@ public abstract class TesseractReader implements IOcrReader {
                 return keys.get(0);
             } else {
                 StringBuilder outputText = new StringBuilder();
-                Map<Integer, List<TextInfo>> outputMap = result.get(keys.get(0));
+                Map<Integer, List<TextInfo>> outputMap =
+                        result.get(keys.get(0));
                 for (int page : outputMap.keySet()) {
                     StringBuilder pageText = new StringBuilder();
                     for (TextInfo textInfo : outputMap.get(page)) {
@@ -253,14 +255,15 @@ public abstract class TesseractReader implements IOcrReader {
      * retrieved data in the following format:
      * Map<Integer, List<TextInfo>>:
      * key: number of page,
-     * value: list of TextInfo objects where each list element
+     * value: list of {@link TextInfo} objects where each list element
      * Map.Entry<String, List<Float>> contains word or line as a key
      * and its 4 coordinates(bbox) as a values.
      *
-     * @param input File
+     * @param input {@link java.io.File}
      * @return Map<Integer, List<TextInfo>>
      */
-    public final Map<Integer, List<TextInfo>> readDataFromInput(final File input) {
+    public final Map<Integer, List<TextInfo>> readDataFromInput(
+            final File input) {
         Map<String, Map<Integer, List<TextInfo>>> result =
                 processInputFiles(input, OutputFormat.HOCR);
         if (result != null && result.size() > 0) {
@@ -274,15 +277,15 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Reads data from the provided input image file.
      *
-     * @param input File
-     * @param outputFormat OutputFormat
-     * @return Pair<Map<Integer, List<TextInfo>>, String>
+     * @param input {@link java.io.File}
+     * @param outputFormat {@link OutputFormat}
+     * @return Map<String, Map<Integer, List<TextInfo>>>
      *     if output format is txt,
      *     result is key of the returned map(String),
-     *     otherwise - the value (Map<Integer, List<TextInfo>)
+     *     otherwise - the value (Map<Integer, List<{@link TextInfo}>)
      */
-    Map<String, Map<Integer, List<TextInfo>>> processInputFiles(final File input,
-            final OutputFormat outputFormat) {
+    Map<String, Map<Integer, List<TextInfo>>> processInputFiles(
+            final File input, final OutputFormat outputFormat) {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
         StringBuilder data = new StringBuilder();
@@ -346,8 +349,8 @@ public abstract class TesseractReader implements IOcrReader {
      * ends with a new line character. Train data for provided language
      * should exist in specified tess data directory.
      *
-     * @param language String
-     * @param userWords List<String>
+     * @param language {@link java.lang.String}
+     * @param userWords {@link java.util.List}
      */
     public void setUserWords(final String language,
                              final List<String> userWords) {
@@ -383,8 +386,8 @@ public abstract class TesseractReader implements IOcrReader {
      * a new line character. Train data for provided language
      * should exist in specified tess data directory.
      *
-     * @param language String
-     * @param inputStream InputStream
+     * @param language {@link java.lang.String}
+     * @param inputStream {@link java.io.InputStream}
      */
     public void setUserWords(final String language,
             final InputStream inputStream) {
@@ -425,7 +428,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Return path to the user words file if exists, otherwise null.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getUserWordsFilePath() {
         return userWordsFile;
@@ -434,7 +437,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Get path to provided tess data directory or return default one.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     String getTessData() {
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
@@ -457,7 +460,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Check type of current OS and return it (mac, win, linux).
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public String identifyOSType() {
         String os = System.getProperty("os.name") == null
@@ -468,7 +471,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Validate provided languages and
      * check if they exist in provided tess data directory.
-     * @param languagesList List<String>
+     * @param languagesList {@link java.util.List}
      */
     public void validateLanguages(final List<String> languagesList) {
         String suffix = ".traineddata";
@@ -493,8 +496,8 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Create temporary file with given extension.
      *
-     * @param extension String
-     * @return File
+     * @param extension {@link java.lang.String}
+     * @return {@link java.io.File}
      */
     private File createTempFile(final String extension) {
         String tmpFileName = TesseractUtil.getTempDir()

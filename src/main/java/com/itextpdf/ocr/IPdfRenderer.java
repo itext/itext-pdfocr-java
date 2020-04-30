@@ -22,15 +22,15 @@ public interface IPdfRenderer {
      * Enum describing possible scale modes for images.
      *
      *
-     * <li>{@link #KEEP_ORIGINAL_SIZE}</li>
-     * <li>{@link #SCALE_WIDTH}</li>
-     * <li>{@link #SCALE_HEIGHT}</li>
-     * <li>{@link #SCALE_TO_FIT}</li>
+     * {@link #KEEP_ORIGINAL_SIZE}
+     * {@link #SCALE_WIDTH}
+     * {@link #SCALE_HEIGHT}
+     * {@link #SCALE_TO_FIT}
      */
     enum ScaleMode {
         /**
          * KEEP_ORIGINAL_SIZE (default value).
-         * <p>
+         *
          * the size of every page of
          * the output PDF document will match the size of the
          * corresponding input image
@@ -38,19 +38,19 @@ public interface IPdfRenderer {
         KEEP_ORIGINAL_SIZE,
         /**
          * SCALE_WIDTH.
-         * <p>
+         *
          * Only width of the image will be proportionally scaled
          */
         SCALE_WIDTH,
         /**
          * SCALE_HEIGHT.
-         * <p>
+         *
          * Only height of the image will be proportionally scaled
          */
         SCALE_HEIGHT,
         /**
          * SCALE_TO_FIT.
-         * <p>
+         *
          * the size of every page of the output PDF document
          * will match the values set using "setPdfSize()" method
          */

@@ -11,18 +11,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Tesseract Executable Reader class.
  * (extends Tesseract Reader class)
- * <p>
+ *
  * This class provides possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems)
- * <p>
+ *
  * This class provides possibility to perform OCR, read data from input files
  * and return contained text in the described format
- * <p>
+ *
  * This class provides possibilities to set type of current os,
  * required languages for OCR for input images,
  * set path to directory with tess data and set path
  * to the tesseract executable
- * <p>
+ *
  * Please note that It's assumed that "tesseract" is already
  * installed in the system
  */
@@ -40,9 +40,9 @@ public class TesseractExecutableReader extends TesseractReader {
     private String pathToExecutable;
 
     /**
-     * TesseractExecutableReader constructor with path to tess data directory.
+     * Create new TesseractExecutableReader.
      *
-     * @param tessDataPath String
+     * @param tessDataPath {@link java.lang.String}
      */
     public TesseractExecutableReader(final String tessDataPath) {
         setPathToExecutable("tesseract");
@@ -51,11 +51,10 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * TesseractExecutableReader constructor with path to executable and
-     * path to tess data directory.
+     * Create new TesseractExecutableReader.
      *
-     * @param executablePath String
-     * @param tessDataPath String
+     * @param executablePath {@link java.lang.String}
+     * @param tessDataPath {@link java.lang.String}
      */
     public TesseractExecutableReader(final String executablePath,
             final String tessDataPath) {
@@ -65,12 +64,11 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * TesseractExecutableReader constructor with path to executable,
-     * list of languages and path to tess data directory.
+     * Create new TesseractExecutableReader.
      *
-     * @param path          String
-     * @param languagesList List<String>
-     * @param tessDataPath  String
+     * @param path          {@link java.lang.String}
+     * @param languagesList {@link java.util.List}
+     * @param tessDataPath  {@link java.lang.String}
      */
     public TesseractExecutableReader(final String path,
             final String tessDataPath,
@@ -85,7 +83,7 @@ public class TesseractExecutableReader extends TesseractReader {
      * Set path to tesseract executable.
      * By default it's assumed that "tesseract" already exists in the PATH
      *
-     * @param path String
+     * @param path {@link java.lang.String}
      */
     public final void setPathToExecutable(final String path) {
         pathToExecutable = path;
@@ -94,7 +92,7 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Get path to tesseract executable.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getPathToExecutable() {
         return pathToExecutable;
@@ -103,7 +101,7 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Set path to script.
      *
-     * @param path String
+     * @param path {@link java.lang.String}
      */
     public final void setPathToScript(final String path) {
         pathToScript = path;
@@ -112,7 +110,7 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Get path to script.
      *
-     * @return String
+     * @return {@link java.lang.String}
      */
     public final String getPathToScript() {
         return pathToScript;
@@ -121,11 +119,12 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Perform tesseract OCR.
      *
-     * @param inputImage - input image file
-     * @param outputFiles - list of output files (one for each page)
+     * @param inputImage {@link java.io.File}
+     * @param outputFiles {@link java.util.List} of output files
+     *        (one for each page)
      *        for tesseract executable only the first file is required
-     * @param outputFormat - output format
-     * @param pageNumber - number of page to be OCRed
+     * @param outputFormat {@link java.io.File}
+     * @param pageNumber int, number of page to be OCRed
      */
     public void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
@@ -177,8 +176,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add path to tesseract executable.
-     *
-     * @param command List<String>
      * @throws OCRException if path to executable is not set
      */
     private void addPathToExecutable(final List<String> command)
@@ -195,8 +192,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Set hocr output format.
-     *
-     * @param command List<String>
      */
     private void setHocrOutput(final List<String> command) {
         command.add("-c");
@@ -205,8 +200,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add path to script.
-     *
-     * @param command List<String>
      */
     private void addPathToScript(final List<String> command) {
         if (getPathToScript() != null
@@ -217,8 +210,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add path to user-words file for tesseract executable.
-     *
-     * @param command List<String>
      */
     private void addUserWords(final List<String> command) {
         if (getUserWordsFilePath() != null
@@ -232,8 +223,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add path to tess data.
-     *
-     * @param command List<String>
      */
     private void addTessData(final List<String> command) {
         if (getPathToTessData() != null
@@ -245,8 +234,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add select Page Segmentation Mode as parameter.
-     *
-     * @param command List<String>
      */
     private void addPageSegMode(final List<String> command) {
         if (getPageSegMode() != null) {
@@ -257,8 +244,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add list pf selected languages as parameter.
-     *
-     * @param command List<String>
      */
     private void addLanguages(final List<String> command) {
         if (getLanguagesAsList().size() > 0) {
@@ -269,9 +254,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Preprocess input image (if needed) and add path to this file.
-     *
-     * @param command List<String>
-     * @param imagePath path to file
      */
     private void addInputFile(final List<String> command,
             final String imagePath) {
@@ -280,10 +262,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Add path to temporary output file.
-     *
-     * @param command    List<String>
-     * @param outputFile output file
-     * @param outputFormat output format
      */
     private void addOutputFile(final List<String> command,
             final File outputFile, final OutputFormat outputFormat) {
@@ -301,9 +279,6 @@ public class TesseractExecutableReader extends TesseractReader {
 
     /**
      * Surrounds given string with quotes.
-     *
-     * @param value String
-     * @return String in quotes
      */
     private String addQuotes(final String value) {
         return "\"" + value + "\"";
@@ -312,9 +287,9 @@ public class TesseractExecutableReader extends TesseractReader {
     /**
      * Preprocess given image if it is needed.
      *
-     * @param inputImage original input image
-     * @param pageNumber number of page to be OCRed
-     * @return path to output image
+     * @param inputImage {@link java.io.File} original input image
+     * @param pageNumber int, number of page to be OCRed
+     * @return {@link java.lang.String} path to output image
      */
     private String preprocessImage(final File inputImage,
             final int pageNumber) throws OCRException {
