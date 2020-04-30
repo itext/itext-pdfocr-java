@@ -4,6 +4,7 @@ import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -26,6 +27,7 @@ import com.itextpdf.test.annotations.LogMessages;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -428,6 +430,31 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         for (String line : expectedOutput) {
             Assert.assertTrue(result.replaceAll("\r", "").contains(line));
         }
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
+    })
+    @Test
+    public void testInvalidFont() throws IOException {
+        String path = testImagesDirectory + "numbers_01.jpg";
+        String expectedOutput = "619121";
+        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
+                + ".pdf";
+        File file = new File(path);
+
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.<File>singletonList(file));
+        pdfRenderer.setFontPath("font.ttf");
+
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+
+        Assert.assertNotNull(doc);
+        doc.close();
+
+        String result = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
+        Assert.assertEquals(expectedOutput, result);
+        deleteFile(pdfPath);
     }
 
     /**
