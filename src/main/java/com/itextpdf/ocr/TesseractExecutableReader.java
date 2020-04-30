@@ -153,7 +153,7 @@ public class TesseractExecutableReader extends TesseractReader {
             addUserWords(command);
             // required languages
             addLanguages(command);
-            if (outputFormat.equals(OutputFormat.hocr)) {
+            if (outputFormat.equals(OutputFormat.HOCR)) {
                 // path to hocr script
                 setHocrOutput(command);
             }
@@ -287,7 +287,7 @@ public class TesseractExecutableReader extends TesseractReader {
      */
     private void addOutputFile(final List<String> command,
             final File outputFile, final OutputFormat outputFormat) {
-        String extension = outputFormat.equals(OutputFormat.hocr)
+        String extension = outputFormat.equals(OutputFormat.HOCR)
                 ? ".hocr" : ".txt";
         String fileName = new String(
                 outputFile.getAbsolutePath().toCharArray(), 0,

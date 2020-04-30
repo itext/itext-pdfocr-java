@@ -1,7 +1,6 @@
 package com.itextpdf.ocr;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -17,46 +16,46 @@ public interface IOcrReader {
      * Enum describing possible types of text positioning.
      *
      *
-     * <li>{@link #byLines}</li>
-     * <li>{@link #byWords}</li>
+     * <li>{@link #BY_LINES}</li>
+     * <li>{@link #BY_WORDS}</li>
      */
     enum TextPositioning {
         /**
-         * byLines (default value).
+         * BY_LINES (default value).
          * <p>
          * text will be located by lines retrieved from hocr file
          */
-        byLines,
+        BY_LINES,
         /**
-         * byWords.
+         * BY_WORDS.
          * <p>
          * text will be located by words retrieved from hocr file
          */
-        byWords
+        BY_WORDS
     }
 
     /**
      * Enum describing available output formats.
      *
      *
-     * <li>{@link #txt}</li>
-     * <li>{@link #hocr}</li>
+     * <li>{@link #TXT}</li>
+     * <li>{@link #HOCR}</li>
      */
     enum OutputFormat {
         /**
-         * hocr.
+         * HOCR.
          * <p>
          * Reader will produce XHTML output compliant
          * with the hOCR specification.
          * Output will be parsed and represented as List<TextInfo>
          */
-        hocr,
+        HOCR,
         /**
-         * txt.
+         * TXT.
          * <p>
          * Reader will produce plain txt file
          */
-        txt
+        TXT
     }
 
     /**

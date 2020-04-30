@@ -71,7 +71,7 @@ public abstract class TesseractReader implements IOcrReader {
     /**
      * Default text positioning is by lines.
      */
-    private TextPositioning textPositioning = TextPositioning.byLines;
+    private TextPositioning textPositioning = TextPositioning.BY_LINES;
 
     /**
      * Path to the file containing user words.
@@ -227,7 +227,7 @@ public abstract class TesseractReader implements IOcrReader {
                 processInputFiles(input, outputFormat);
         if (result != null && result.size() > 0) {
             List<String> keys = new ArrayList<String>(result.keySet());
-            if (outputFormat.equals(OutputFormat.txt)) {
+            if (outputFormat.equals(OutputFormat.TXT)) {
                 return keys.get(0);
             } else {
                 StringBuilder outputText = new StringBuilder();
@@ -262,7 +262,7 @@ public abstract class TesseractReader implements IOcrReader {
      */
     public final Map<Integer, List<TextInfo>> readDataFromInput(final File input) {
         Map<String, Map<Integer, List<TextInfo>>> result =
-                processInputFiles(input, OutputFormat.hocr);
+                processInputFiles(input, OutputFormat.HOCR);
         if (result != null && result.size() > 0) {
             List<String> keys = new ArrayList<String>(result.keySet());
             return result.get(keys.get(0));
@@ -297,14 +297,14 @@ public abstract class TesseractReader implements IOcrReader {
 
             for (int page = 1; page <= numOfPages; page++) {
                 List<File> tempFiles = new ArrayList<File>();
-                String extension = outputFormat.equals(OutputFormat.hocr)
+                String extension = outputFormat.equals(OutputFormat.HOCR)
                         ? ".hocr" : ".txt";
                 for (int i = 0; i < numOfFiles; i++) {
                     tempFiles.add(createTempFile(extension));
                 }
 
                 doTesseractOcr(input, tempFiles, outputFormat, page);
-                if (outputFormat.equals(OutputFormat.hocr)) {
+                if (outputFormat.equals(OutputFormat.HOCR)) {
                     Map<Integer, List<TextInfo>> pageData = UtilService
                             .parseHocrFile(tempFiles, getTextPositioning());
 

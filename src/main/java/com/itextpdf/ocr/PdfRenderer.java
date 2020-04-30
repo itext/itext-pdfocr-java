@@ -97,7 +97,7 @@ public class PdfRenderer implements IPdfRenderer {
     /**
      * Scale mode for input images: "scaleToFit" by default.
      */
-    private ScaleMode scaleMode = ScaleMode.scaleToFit;
+    private ScaleMode scaleMode = ScaleMode.SCALE_TO_FIT;
 
     /**
      * Size of the PDF document pages: "A4" by default.
@@ -189,7 +189,7 @@ public class PdfRenderer implements IPdfRenderer {
         ocrReader = reader;
         inputImages = Collections.<File>unmodifiableList(images);
         textColor = newColor;
-        scaleMode = ScaleMode.keepOriginalSize;
+        scaleMode = ScaleMode.KEEP_ORIGINAL_SIZE;
     }
 
     /**
@@ -448,7 +448,7 @@ public class PdfRenderer implements IPdfRenderer {
 
         StringBuilder content = new StringBuilder();
         for (File inputImage : getInputImages()) {
-            content.append(doOCRForImages(inputImage, OutputFormat.txt));
+            content.append(doOCRForImages(inputImage, OutputFormat.TXT));
         }
 
         // write to file
@@ -700,7 +700,7 @@ public class PdfRenderer implements IPdfRenderer {
             final com.itextpdf.kernel.geom.Rectangle imageSize,
             final List<TextInfo> pageText, final ImageData imageData) {
         com.itextpdf.kernel.geom.Rectangle rectangleSize =
-                getScaleMode() == ScaleMode.keepOriginalSize
+                getScaleMode() == ScaleMode.KEEP_ORIGINAL_SIZE
                 ? imageSize : getPageSize();
         PageSize size = new PageSize(rectangleSize);
         PdfPage pdfPage = pdfDocument.addNewPage(size);
@@ -807,7 +807,7 @@ public class PdfRenderer implements IPdfRenderer {
             final com.itextpdf.kernel.geom.Rectangle imageSize,
             final PdfCanvas pdfCanvas) {
         if (imageData != null) {
-            if (getScaleMode() == ScaleMode.keepOriginalSize) {
+            if (getScaleMode() == ScaleMode.KEEP_ORIGINAL_SIZE) {
                 pdfCanvas.addImage(imageData, imageSize, false);
             } else {
                 List<Float> coordinates = calculateImageCoordinates(
@@ -942,7 +942,7 @@ public class PdfRenderer implements IPdfRenderer {
             final ScaleMode pageScaleMode) {
         float x = 0;
         float y = 0;
-        if (pageScaleMode != ScaleMode.keepOriginalSize) {
+        if (pageScaleMode != ScaleMode.KEEP_ORIGINAL_SIZE) {
             if (imageSize.getHeight() < size.getHeight()) {
                 y = (size.getHeight() - imageSize.getHeight()) / 2;
             }

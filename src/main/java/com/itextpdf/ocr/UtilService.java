@@ -139,7 +139,7 @@ public final class UtilService {
                 Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
                 Pattern bboxCoordinatePattern = Pattern
                         .compile(".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
-                List<String> searchedClasses = TextPositioning.byLines
+                List<String> searchedClasses = TextPositioning.BY_LINES
                         .equals(textPositioning)
                         ? Arrays.<String>asList("ocr_line", "ocr_caption")
                         : Collections.<String>singletonList("ocrx_word");
@@ -217,7 +217,7 @@ public final class UtilService {
             LOGGER.info("Original image size in pixels: ("
                     + imageData.getWidth() + ", "
                     + imageData.getHeight() + ")");
-            if (scaleMode == IPdfRenderer.ScaleMode.keepOriginalSize) {
+            if (scaleMode == IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE) {
                 com.itextpdf.kernel.geom.Rectangle size =
                         new com.itextpdf.kernel.geom.Rectangle(imgWidthPt,
                                 imgHeightPt);
@@ -231,15 +231,15 @@ public final class UtilService {
                                 requiredSize.getWidth(),
                                 requiredSize.getHeight());
                 // scale image according to the page size and scale mode
-                if (scaleMode == IPdfRenderer.ScaleMode.scaleHeight) {
+                if (scaleMode == IPdfRenderer.ScaleMode.SCALE_HEIGHT) {
                     float newHeight = imgHeightPt
                             * requiredSize.getWidth() / imgWidthPt;
                     size.setHeight(newHeight);
-                } else if (scaleMode == IPdfRenderer.ScaleMode.scaleWidth) {
+                } else if (scaleMode == IPdfRenderer.ScaleMode.SCALE_WIDTH) {
                     float newWidth = imgWidthPt
                             * requiredSize.getHeight() / imgHeightPt;
                     size.setWidth(newWidth);
-                } else if (scaleMode == IPdfRenderer.ScaleMode.scaleToFit) {
+                } else if (scaleMode == IPdfRenderer.ScaleMode.SCALE_TO_FIT) {
                     float ratio = Math.min(
                             requiredSize.getWidth() / imgWidthPt,
                             requiredSize.getHeight() / imgHeightPt);

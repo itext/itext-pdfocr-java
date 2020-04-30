@@ -67,7 +67,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         } finally {
             deleteFile(resultPdfPath);
             tesseractReader.setPreprocessingImages(preprocess);
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
+            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
 
@@ -233,7 +233,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
-        tesseractReader.setTextPositioning(TextPositioning.byWords);
+        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".jpg",
                 resultPdfPath);
@@ -243,7 +243,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
                     testDocumentsDirectory, "diff_");
         } finally {
             deleteFile(resultPdfPath);
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
+            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
 }

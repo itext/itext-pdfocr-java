@@ -92,7 +92,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.<File>singletonList(file));
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
 
@@ -113,7 +113,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
             Assert.assertEquals(imageWidth, realWidth, delta);
             Assert.assertEquals(imageHeight, realHeight, delta);
-            Assert.assertEquals(IPdfRenderer.ScaleMode.keepOriginalSize,
+            Assert.assertEquals(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE,
                     pdfRenderer.getScaleMode());
         }
 
@@ -141,7 +141,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         com.itextpdf.kernel.geom.Rectangle pageSize =
                 new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
         Image resultImage = getImageFromPdf(tesseractReader, file,
-                IPdfRenderer.ScaleMode.scaleWidth, pageSize);
+                IPdfRenderer.ScaleMode.SCALE_WIDTH, pageSize);
 
         // page size should be equal to the result image size
         // result image height should be equal to the value that
@@ -180,7 +180,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         com.itextpdf.kernel.geom.Rectangle pageSize =
                 new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
         Image resultImage = getImageFromPdf(tesseractReader, file,
-                IPdfRenderer.ScaleMode.scaleHeight, pageSize);
+                IPdfRenderer.ScaleMode.SCALE_HEIGHT, pageSize);
 
         if (originalImageData != null) {
             float originalImageHeight = UtilService
@@ -296,7 +296,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         PageSize defaultPageSize = PageSize.A4;
         Image resultImage = getImageFromPdf(tesseractReader, file,
-                IPdfRenderer.ScaleMode.scaleToFit, defaultPageSize);
+                IPdfRenderer.ScaleMode.SCALE_TO_FIT, defaultPageSize);
 
         if (imageData != null) {
             float imageWidth = UtilService.getPoints(imageData.getWidth());
@@ -420,11 +420,11 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
                 "Multipage\nTIFF\nExample\nPage 9"
         );
 
-        String result = tesseractReader.readDataFromInput(file, OutputFormat.hocr);
+        String result = tesseractReader.readDataFromInput(file, OutputFormat.HOCR);
         for (String line : expectedOutput) {
             Assert.assertTrue(result.replaceAll("\r", "").contains(line));
         }
-        result = tesseractReader.readDataFromInput(file, OutputFormat.txt);
+        result = tesseractReader.readDataFromInput(file, OutputFormat.TXT);
         for (String line : expectedOutput) {
             Assert.assertTrue(result.replaceAll("\r", "").contains(line));
         }

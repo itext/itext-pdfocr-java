@@ -390,7 +390,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.<File>singletonList(new File(imgPath)));
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE);
         if (fontPath != null && !fontPath.isEmpty()) {
             pdfRenderer.setFontPath(fontPath);
         }

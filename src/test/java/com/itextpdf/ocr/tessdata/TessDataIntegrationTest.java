@@ -86,7 +86,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         }
 
         // locate text by words
-        tesseractReader.setTextPositioning(TextPositioning.byWords);
+        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
                 Arrays.<String>asList("spa", "spa_old"),  DeviceCmyk.BLACK);
@@ -96,9 +96,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                     testDocumentsDirectory, "diff_");
         } finally {
             deleteFile(resultPdfPath);
-            Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
+            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
             tesseractReader.setPreprocessingImages(preprocess);
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
+            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
 
@@ -258,7 +258,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
         try {
-            tesseractReader.setTextPositioning(TextPositioning.byWords);
+            tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
             tesseractReader.setPathToTessData(getTessDataDirectory());
             doOcrAndSavePdfToPath(tesseractReader,
                     testImagesDirectory + filename + ".png", resultPdfPath,
@@ -268,8 +268,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                     testDocumentsDirectory, "diff_");
         } finally {
             deleteFile(resultPdfPath);
-            Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
+            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
+            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
 
@@ -371,7 +371,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ইংরজে\nশখো";
 
-        tesseractReader.setTextPositioning(TextPositioning.byWords);
+        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("ben"), freeSansFontPath));
@@ -384,7 +384,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.<String>singletonList("ben"), kosugiFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
                 new ArrayList<String>()));
-        tesseractReader.setTextPositioning(TextPositioning.byLines);
+        tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
     }
 
     @Test

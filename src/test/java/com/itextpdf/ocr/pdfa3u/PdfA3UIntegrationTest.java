@@ -47,7 +47,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
         IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 Collections.<File>singletonList(file), DeviceCmyk.BLACK,
-                ScaleMode.scaleToFit);
+                ScaleMode.SCALE_TO_FIT);
 
         PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), null);
         doc.close();
@@ -236,10 +236,10 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                     Collections.<File>singletonList(
                             new File(testImagesDirectory
                                     + filename + ".jpg")));
-            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE);
             pdfRenderer.setOcrReader(tesseractReader);
 
-            tesseractReader.setTextPositioning(TextPositioning.byWords);
+            tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
             Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
             PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath), getCMYKPdfOutputIntent());
             Assert.assertNotNull(doc);
@@ -249,8 +249,8 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                     testDocumentsDirectory, "diff_");
         } finally {
             deleteFile(resultPdfPath);
-            Assert.assertEquals(TextPositioning.byWords, tesseractReader.getTextPositioning());
-            tesseractReader.setTextPositioning(TextPositioning.byLines);
+            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
+            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
 
@@ -270,7 +270,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                             new File(testImagesDirectory + filename
                                     + ".jpg")));
             pdfRenderer.setTextColor(DeviceRgb.BLACK);
-            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.keepOriginalSize);
+            pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE);
 
             PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(resultPdfPath),
                     getRGBPdfOutputIntent());

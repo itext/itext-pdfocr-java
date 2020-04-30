@@ -16,7 +16,6 @@ import java.util.List;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 /**
  * Tesseract Library Reader class.
@@ -101,7 +100,7 @@ public class TesseractLibReader extends TesseractReader {
 
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
-                        outputFormat.equals(OutputFormat.hocr) ? "1" : "0");
+                        outputFormat.equals(OutputFormat.HOCR) ? "1" : "0");
         if (getUserWordsFilePath() != null) {
             getTesseractInstance()
                     .setTessVariable("load_system_dawg", "0");
