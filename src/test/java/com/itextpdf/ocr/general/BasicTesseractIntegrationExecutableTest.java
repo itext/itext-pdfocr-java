@@ -5,8 +5,8 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
-public class BasicTesseractIntegrationTestLib extends BasicTesseractIntegrationTest {
-    public BasicTesseractIntegrationTestLib() {
-        super("lib");
+public class BasicTesseractIntegrationExecutableTest extends BasicTesseractIntegrationTest {
+    public BasicTesseractIntegrationExecutableTest() {
+        super("executable");
     }
 }

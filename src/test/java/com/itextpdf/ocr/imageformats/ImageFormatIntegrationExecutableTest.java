@@ -1,12 +1,12 @@
-package com.itextpdf.ocr.general;
+package com.itextpdf.ocr.imageformats;
 
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
-public class BasicTesseractIntegrationTestExecutable extends BasicTesseractIntegrationTest {
-    public BasicTesseractIntegrationTestExecutable() {
+public class ImageFormatIntegrationExecutableTest extends ImageFormatIntegrationTest {
+    public ImageFormatIntegrationExecutableTest() {
         super("executable");
     }
 }
