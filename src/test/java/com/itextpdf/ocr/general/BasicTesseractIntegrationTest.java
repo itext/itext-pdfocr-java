@@ -4,7 +4,6 @@ import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
-import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -34,7 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +45,17 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     private static final Logger LOGGER = LoggerFactory
             .getLogger(BasicTesseractIntegrationTest.class);
 
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
+
     TesseractReader tesseractReader;
     String parameter;
+
+    @Before
+    public void initTessDataPath() {
+        tesseractReader.setPathToTessData(getTessDataDirectory());
+        tesseractReader.setLanguages(new ArrayList<String>());
+    }
 
     public BasicTesseractIntegrationTest(String type) {
         parameter = type;
@@ -59,7 +70,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         File file = new File(path);
 
         try {
-            tesseractReader.setPathToTessData(getTessDataDirectory());
             IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                     Collections.<File>singletonList(file));
             pdfRenderer.setTextLayerName("Text1");
@@ -142,8 +152,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         com.itextpdf.kernel.geom.Rectangle pageSize =
                 new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
-        Image resultImage = getImageFromPdf(tesseractReader, file,
-                IPdfRenderer.ScaleMode.SCALE_WIDTH, pageSize);
 
         // page size should be equal to the result image size
         // result image height should be equal to the value that
@@ -151,11 +159,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         // proportionally according to the provided image height
         // and original image size
         if (originalImageData != null) {
-            float originalImageHeight = UtilService
-                    .getPoints(originalImageData.getHeight());
-            float originalImageWidth = UtilService
-                    .getPoints(originalImageData.getWidth());
-
             float resultPageWidth = pageSize.getWidth();
             float resultPageHeight = pageSize.getHeight();
 
@@ -185,11 +188,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
                 IPdfRenderer.ScaleMode.SCALE_HEIGHT, pageSize);
 
         if (originalImageData != null) {
-            float originalImageHeight = UtilService
-                    .getPoints(originalImageData.getHeight());
-            float originalImageWidth = UtilService
-                    .getPoints(originalImageData.getWidth());
-
             float resultPageWidth = pageSize.getWidth();
             float resultPageHeight = pageSize.getHeight();
 
@@ -338,65 +336,66 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     })
     @Test
     public void testInputInvalidImage() throws IOException {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                        "txt"));
+
         File file1 = new File(testImagesDirectory + "example.txt");
         File file2 = new File(testImagesDirectory
                 + "example_05_corrupted.bmp");
         File file3 = new File(testImagesDirectory
                 + "numbers_02.jpg");
-
-        try {
-            tesseractReader.setPathToTessData(getTessDataDirectory());
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Arrays.<File>asList(file3, file1, file2, file3));
-
-            pdfRenderer.doPdfOcr(getPdfWriter());
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
-                            "txt");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-        }
         tesseractReader.setPathToTessData(getTessDataDirectory());
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Arrays.<File>asList(file3, file1, file2, file3));
+
+        pdfRenderer.doPdfOcr(getPdfWriter());
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSDATA, count = 1),
-        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count = 2)
+        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSDATA, count = 1)
     })
     @Test
-    public void testIncorrectPathToTessData() {
+    public void testNullPathToTessData() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(OCRException.CANNOT_FIND_PATH_TO_TESSDATA);
         File file = new File(testImagesDirectory + "spanish_01.jpg");
+        tesseractReader.setPathToTessData(null);
+        getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
+    }
 
-        try {
-            tesseractReader.setPathToTessData(null);
-            getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
-        } catch (OCRException e) {
-            Assert.assertEquals(OCRException.CANNOT_FIND_PATH_TO_TESSDATA, e.getMessage());
-            tesseractReader.setPathToTessData(getTessDataDirectory());
-        }
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count
+                = 1)
+    })
+    @Test
+    public void testPathToTessDataWithoutData() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_LANGUAGE,
+                        "eng.traineddata",
+                        "test/"));
 
-        try {
-            tesseractReader.setPathToTessData("test/");
-            getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.INCORRECT_LANGUAGE,
-                            "eng.traineddata",
-                            "test/");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-        }
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        tesseractReader.setPathToTessData("test/");
+        getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("eng"));
+    }
 
-        tesseractReader.setPathToTessData(scriptTessDataDirectory);
-        try {
-            getTextFromPdf(tesseractReader, file);
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.INCORRECT_LANGUAGE,
-                            "eng.traineddata",
-                            scriptTessDataDirectory);
-            Assert.assertEquals(expectedMsg, e.getMessage());
-        }
-        tesseractReader.setPathToTessData(getTessDataDirectory());
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = OCRException.CANNOT_FIND_PATH_TO_TESSDATA, count
+                = 1)
+    })
+    @Test
+    public void testIncorrectPathToTessData3() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(OCRException.CANNOT_FIND_PATH_TO_TESSDATA);
+
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        tesseractReader.setPathToTessData("");
+        getTextFromPdf(tesseractReader, file);
+
+        Assert.assertEquals("", tesseractReader.getPathToTessData());
     }
 
     @Test
@@ -406,6 +405,26 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.contains(expectedOutput));
+    }
+
+    @Test
+    public void testTxtStringOutput() {
+        File file = new File(testImagesDirectory + "multipage.tiff");
+        List<String> expectedOutput = Arrays.<String>asList(
+                "Multipage\nTIFF\nExample\nPage 1",
+                "Multipage\nTIFF\nExample\nPage 2",
+                "Multipage\nTIFF\nExample\nPage 4",
+                "Multipage\nTIFF\nExample\nPage 5",
+                "Multipage\nTIFF\nExample\nPage 6",
+                "Multipage\nTIFF\nExample\nPage /",
+                "Multipage\nTIFF\nExample\nPage 8",
+                "Multipage\nTIFF\nExample\nPage 9"
+        );
+
+        String result = tesseractReader.readDataFromInput(file, OutputFormat.TXT);
+        for (String line : expectedOutput) {
+            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
+        }
     }
 
     @Test
@@ -423,10 +442,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         );
 
         String result = tesseractReader.readDataFromInput(file, OutputFormat.HOCR);
-        for (String line : expectedOutput) {
-            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
-        }
-        result = tesseractReader.readDataFromInput(file, OutputFormat.TXT);
         for (String line : expectedOutput) {
             Assert.assertTrue(result.replaceAll("\r", "").contains(line));
         }
@@ -455,6 +470,84 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         String result = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
         Assert.assertEquals(expectedOutput, result);
         deleteFile(pdfPath);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE,
+                    count = 1)
+    })
+    @Test
+    public void testIncorrectLanguage() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_LANGUAGE,
+                        "spa_new.traineddata", langTessDataDirectory));
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("spa_new"));
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE,
+                    count = 1)
+    })
+    @Test
+    public void testListOfLanguagesWithOneIncorrectLanguage() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_LANGUAGE,
+                        "spa_new.traineddata",
+                        langTessDataDirectory));
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        getTextFromPdf(tesseractReader, file, Arrays.<String>asList("spa", "spa_new", "spa_old"));
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE,
+                    count = 1)
+    })
+    @Test
+    public void testIncorrectScriptsName() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_LANGUAGE,
+                        "English.traineddata",
+                        scriptTessDataDirectory));
+
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        tesseractReader.setPathToTessData(scriptTessDataDirectory);
+        getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("English"));
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = OCRException.INCORRECT_LANGUAGE, count
+                    = 1)
+    })
+    @Test
+    public void testListOfScriptsWithOneIncorrect() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_LANGUAGE,
+                        "English.traineddata",
+                        scriptTessDataDirectory));
+
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        tesseractReader.setPathToTessData(scriptTessDataDirectory);
+        getTextFromPdf(tesseractReader, file,
+                Arrays.<String>asList("Georgian", "Japanese", "English"));
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
+    })
+    @Test
+    public void testCorruptedImage() {
+        junitExpectedException.expect(OCRException.class);
+
+        File file = new File(testImagesDirectory
+                + "corrupted.jpg");
+        String realOutput = getTextFromPdf(tesseractReader, file);
+        Assert.assertNotNull(realOutput);
+        Assert.assertEquals("", realOutput);
     }
 
     /**

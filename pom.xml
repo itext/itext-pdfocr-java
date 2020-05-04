@@ -24,6 +24,7 @@
     <licensekey.version>3.0.0</licensekey.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <skipTests>false</skipTests>
   </properties>
 
   <dependencies>
@@ -133,6 +134,14 @@
         <version>1.1.11</version>
         <configuration>
           <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <skipTests>${skipTests}</skipTests>
+          <forkCount>0</forkCount>
         </configuration>
       </plugin>
     </plugins>
