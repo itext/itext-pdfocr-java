@@ -25,12 +25,17 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.UUID;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
     TesseractReader tesseractReader;
     String parameter;
+
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
 
     public PdfA3UIntegrationTest(String type) {
         parameter = type;
@@ -61,18 +66,16 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testIncompatibleOutputIntentAndFontColorSpaceException()
             throws IOException {
+        junitExpectedException.expect(com.itextpdf.kernel.PdfException.class);
+        junitExpectedException.expectMessage(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT);
+
         String path = testImagesDirectory + "example_01.BMP";
-
-        try {
-            File file = new File(path);
-
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.<File>singletonList(file), DeviceCmyk.BLACK);
-
-            pdfRenderer.doPdfOcr(getPdfWriter(), getRGBPdfOutputIntent());
-        } catch (com.itextpdf.kernel.PdfException e) {
-            Assert.assertEquals(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT, e.getMessage());
-        }
+        File file = new File(path);
+        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.<File>singletonList(file), DeviceCmyk.BLACK);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(),
+                getRGBPdfOutputIntent());
+        doc.close();
     }
 
     @Test
@@ -180,20 +183,14 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
     })
     @Test
-    public void testInvalidFont() {
+    public void testInvalidFont() throws IOException {
         String path = testImagesDirectory + "numbers_01.jpg";
-
-        try {
-            File file = new File(path);
-
-            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.<File>singletonList(file));
-            pdfRenderer.setFontPath(path);
-
-            pdfRenderer.doPdfOcr(getPdfWriter(), getCMYKPdfOutputIntent());
-        } catch (OCRException | IOException e) {
-            Assert.assertEquals(OCRException.CANNOT_READ_FONT, e.getMessage());
-        }
+        File file = new File(path);
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                Collections.<File>singletonList(file));
+        pdfRenderer.setFontPath(path);
+        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(), getCMYKPdfOutputIntent());
+        doc.close();
     }
 
     @Test
@@ -291,27 +288,32 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
                 + ".pdf";
         File file = new File(path);
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(file));
+        try {
+            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+                    Collections.<File>singletonList(file));
 
-        String locale = "nl-BE";
-        pdfRenderer.setPdfLang(locale);
-        String title = "Title";
-        pdfRenderer.setTitle(title);
+            String locale = "nl-BE";
+            pdfRenderer.setPdfLang(locale);
+            String title = "Title";
+            pdfRenderer.setTitle(title);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
+            PdfDocument doc = pdfRenderer
+                    .doPdfOcr(getPdfWriter(pdfPath), getCMYKPdfOutputIntent());
 
-        Assert.assertNotNull(doc);
-        doc.close();
+            Assert.assertNotNull(doc);
+            doc.close();
 
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        Assert.assertEquals(locale,
-                pdfDocument.getCatalog().getLang().toString());
-        Assert.assertEquals(title, pdfDocument.getDocumentInfo().getTitle());
-        Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
+            PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+            Assert.assertEquals(locale,
+                    pdfDocument.getCatalog().getLang().toString());
+            Assert.assertEquals(title,
+                    pdfDocument.getDocumentInfo().getTitle());
+            Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
+                    pdfDocument.getReader().getPdfAConformanceLevel());
 
-        pdfDocument.close();
-        deleteFile(pdfPath);
+            pdfDocument.close();
+        } finally {
+            deleteFile(pdfPath);
+        }
     }
 }

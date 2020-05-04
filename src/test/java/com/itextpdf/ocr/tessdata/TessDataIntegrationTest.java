@@ -18,9 +18,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
+
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
 
     TesseractReader tesseractReader;
     String parameter;
@@ -522,7 +527,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCustomUserWords02() {
+    public void testCustomUserWordsWithListOfLanguages() {
         String imgPath = testImagesDirectory + "bogusText.jpg";
         String expectedOutput = "B1adeb1ab1a";
 
@@ -545,42 +550,35 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testUserWordsLanguageNotInList() {
+    public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                        "spa"));
         String userWords = testDocumentsDirectory + "userwords.txt";
-
-        try {
-            tesseractReader.setUserWords("spa", new FileInputStream(userWords));
-        } catch (OCRException | FileNotFoundException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                            "spa");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-            tesseractReader.setLanguages(new ArrayList<String>());
-        }
+        tesseractReader.setUserWords("spa", new FileInputStream(userWords));
         tesseractReader.setLanguages(new ArrayList<String>());
     }
 
     @Test
-    public void testIncorrectLanguageForUserWords() {
-        try {
-            tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                            "eng1");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-            tesseractReader.setLanguages(new ArrayList<String>());
-        }
+    public void testIncorrectLanguageForUserWordsAsList() {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                        "eng1"));
+        tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
+        tesseractReader.setLanguages(new ArrayList<String>());
+    }
 
-        try {
-            String userWords = testDocumentsDirectory + "userwords.txt";
-            tesseractReader.setUserWords("test", new FileInputStream(userWords));
-        } catch (OCRException | FileNotFoundException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                            "test");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-            tesseractReader.setLanguages(new ArrayList<String>());
-        }
+    @Test
+    public void testIncorrectLanguageForUserWordsAsInputStream()
+            throws FileNotFoundException {
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                        "test"));
+        String userWords = testDocumentsDirectory + "userwords.txt";
+        tesseractReader.setUserWords("test", new FileInputStream(userWords));
+        tesseractReader.setLanguages(new ArrayList<String>());
     }
 }

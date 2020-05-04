@@ -15,9 +15,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest {
+
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
 
     TesseractReader tesseractReader;
     String parameter;
@@ -75,6 +80,15 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     public void testTextFromJPG() {
         String path = testImagesDirectory + "numbers_02.jpg";
         String expectedOutput = "0123456789";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void testTextFromJPE() {
+        String path = testImagesDirectory + "numbers_01.jpe";
+        String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
@@ -214,17 +228,14 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     })
     @Test
     public void testInputWrongFormat() {
-        try {
-            File file = new File(testImagesDirectory + "example.txt");
-            String realOutput = getTextFromPdf(tesseractReader, file);
-            Assert.assertNotNull(realOutput);
-            Assert.assertEquals("", realOutput);
-        } catch (OCRException e) {
-            String expectedMsg = MessageFormatUtil
-                    .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
-                            "txt");
-            Assert.assertEquals(expectedMsg, e.getMessage());
-        }
+        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil
+                .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                        "txt"));
+        File file = new File(testImagesDirectory + "example.txt");
+        String realOutput = getTextFromPdf(tesseractReader, file);
+        Assert.assertNotNull(realOutput);
+        Assert.assertEquals("", realOutput);
     }
 
     @Test
