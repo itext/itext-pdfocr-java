@@ -21,6 +21,7 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,9 +34,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.Assert;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Category(IntegrationTest.class)
 public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
