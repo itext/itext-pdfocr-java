@@ -494,6 +494,14 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
+     * @return true if user words are used, in this case OEM mode will be 0.
+     */
+    protected boolean isCustomDictionaryUsed() {
+        return getUserWordsFilePath() != null
+                && !getUserWordsFilePath().isEmpty();
+    }
+
+    /**
      * Create temporary file with given extension.
      *
      * @param extension {@link java.lang.String}

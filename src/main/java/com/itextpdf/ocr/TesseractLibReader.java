@@ -228,7 +228,8 @@ public class TesseractLibReader extends TesseractReader {
             // preprocess if required
             if (isPreprocessingImages()) {
                 preprocessed = new File(
-                        ImageUtil.preprocessImage(inputImage, pageNumber));
+                        ImageUtil.preprocessImage(inputImage, pageNumber,
+                                isCustomDictionaryUsed()));
             }
             if (!isPreprocessingImages() || preprocessed == null) {
                 // try to open as buffered image if it's not a tiff image

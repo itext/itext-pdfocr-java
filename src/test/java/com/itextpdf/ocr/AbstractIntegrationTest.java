@@ -400,22 +400,20 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         if (color != null) {
             pdfRenderer.setTextColor(color);
         }
-
-        PdfDocument doc = null;
-        try {
-            doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-
         if (languages != null) {
             Assert.assertEquals(languages.size(),
                     tesseractReader.getLanguagesAsList().size());
         }
 
-        Assert.assertNotNull(doc);
-        if (!doc.isClosed()) {
-            doc.close();
+        try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
+            PdfDocument doc = pdfRenderer.doPdfOcr(pdfWriter);
+
+            Assert.assertNotNull(doc);
+            if (!doc.isClosed()) {
+                doc.close();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 

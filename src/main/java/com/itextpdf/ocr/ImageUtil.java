@@ -31,10 +31,15 @@ public final class ImageUtil {
      *
      * @param inputFile {@link java.io.File}
      * @param pageNumber int
+     * @param isCustomDictionaryUsed true if user words are used
+     *                               and OEM mode is 0. For this OEM mode
+     *                               slightly different preprocessing
+     *                               parameters are used.
      * @return {@link java.lang.String}
      */
     public static String preprocessImage(final File inputFile,
-            final int pageNumber) throws OCRException {
+            final int pageNumber, final boolean isCustomDictionaryUsed)
+            throws OCRException {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
@@ -47,7 +52,7 @@ public final class ImageUtil {
             throw new OCRException(OCRException.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
-        return TesseractUtil.preprocessPixAndSave(pix);
+        return TesseractUtil.preprocessPixAndSave(pix, isCustomDictionaryUsed);
     }
 
     /**

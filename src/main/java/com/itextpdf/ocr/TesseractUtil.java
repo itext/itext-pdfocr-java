@@ -165,11 +165,10 @@ public final class TesseractUtil {
      * @param pix {@link net.sourceforge.lept4j.Pix}
      * @return {@link java.lang.String} Path to create preprocessed image
      */
-    public static String preprocessPixAndSave(Pix pix) {
-        pix = preprocessPix(pix);
-
+    public static String preprocessPixAndSave(Pix pix,
+            final boolean isCustomDictionaryUsed) {
         // preprocess image
-        pix = preprocessPix(pix);
+        pix = preprocessPix(pix, isCustomDictionaryUsed);
         // save preprocessed file
         String tmpFileName = getTempDir()
                 + UUID.randomUUID().toString() + ".png";
@@ -192,10 +191,11 @@ public final class TesseractUtil {
      * @param pix {@link net.sourceforge.lept4j.Pix}
      * @return {@link net.sourceforge.lept4j.Pix}
      */
-    public static Pix preprocessPix(Pix pix) {
+    public static Pix preprocessPix(Pix pix,
+            final boolean isCustomDictionaryUsed) {
         pix = Leptonica.INSTANCE.pixRemoveAlpha(pix);
         pix = convertToGrayscale(pix);
-        pix = otsuImageThresholding(pix);
+        pix = otsuImageThresholding(pix, isCustomDictionaryUsed);
         return pix;
     }
 
@@ -227,12 +227,14 @@ public final class TesseractUtil {
      * @param pix {@link net.sourceforge.lept4j.Pix} source
      * @return {@link net.sourceforge.lept4j.Pix} output
      */
-    public static Pix otsuImageThresholding(final Pix pix) {
+    public static Pix otsuImageThresholding(final Pix pix,
+            final boolean isCustomDictionaryUsed) {
         if (pix != null) {
             PointerByReference pointer = new PointerByReference();
+            float scorefract = isCustomDictionaryUsed ? 0.0f : 0.1f;
             Leptonica.INSTANCE
                     .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h,
-                            0, 0, 0,
+                            0, 0, scorefract,
                             null, pointer);
             Pix thresholdPix = new Pix(pointer.getValue());
             if (thresholdPix.w > 0 && thresholdPix.h > 0) {

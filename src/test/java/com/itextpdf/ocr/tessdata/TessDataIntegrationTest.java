@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +31,14 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     TesseractReader tesseractReader;
     String parameter;
 
+    @Before
+    public void initTessDataPath() {
+        tesseractReader.setPreprocessingImages(true);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
+        tesseractReader.setLanguages(new ArrayList<String>());
+        tesseractReader.setUserWords("eng", new ArrayList<String>());
+    }
+
     public TessDataIntegrationTest(String type) {
         parameter = type;
         tesseractReader = getTesseractReader(type);
@@ -41,6 +50,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ΟΜΟΛΟΓΙΑ";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         String real = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("ell"), notoSansFontPath);
         // correct result with specified greek language
@@ -112,6 +124,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "greek_01.jpg";
         String expected = "ΟΜΟΛΟΓΙΑ";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
                 Collections.<String>singletonList("ell"));
         // correct result with specified greek language
@@ -121,7 +136,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void textJapaneseOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "japanese_01.png";
-        String expected = "日 本 語文法";
+        String expected = "日本語文法";
 
         String result = getOCRedTextFromTextFile(tesseractReader, imgPath,
                 Collections.<String>singletonList("jpn"));

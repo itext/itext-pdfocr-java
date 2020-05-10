@@ -212,8 +212,7 @@ public class TesseractExecutableReader extends TesseractReader {
      * Add path to user-words file for tesseract executable.
      */
     private void addUserWords(final List<String> command) {
-        if (getUserWordsFilePath() != null
-                && !getUserWordsFilePath().isEmpty()) {
+        if (isCustomDictionaryUsed()) {
             command.add("--user-words");
             command.add(addQuotes(getUserWordsFilePath()));
             command.add("--oem");
@@ -295,7 +294,8 @@ public class TesseractExecutableReader extends TesseractReader {
             final int pageNumber) throws OCRException {
         String path = inputImage.getAbsolutePath();
         if (isPreprocessingImages()) {
-            path = ImageUtil.preprocessImage(inputImage, pageNumber);
+            path = ImageUtil.preprocessImage(inputImage, pageNumber,
+                    isCustomDictionaryUsed());
         }
         return path;
     }
