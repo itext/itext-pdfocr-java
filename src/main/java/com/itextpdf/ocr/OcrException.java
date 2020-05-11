@@ -2,51 +2,51 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Exception class for custom exceptions.
  */
-public class OCRException extends RuntimeException {
+public class OcrException extends RuntimeException {
 
-    public static final String INCORRECT_INPUT_IMAGE_FORMAT =
+    public static final String IncorrectInputImageFormat =
             "{0} format is not supported.";
-    public static final String INCORRECT_LANGUAGE =
+    public static final String IncorrectLanguage =
             "{0} does not exist in {1}";
-    public static final String LANGUAGE_IS_NOT_IN_THE_LIST =
+    public static final String LanguageIsNotInTheList =
             "Provided list of languages doesn't contain {0} language";
-    public static final String CANNOT_READ_INPUT_IMAGE =
+    public static final String CannotReadInputImage =
             "Cannot read input image";
-    public static final String CANNOT_READ_PROVIDED_IMAGE =
+    public static final String CannotReadProvidedImage =
             "Cannot read input image {0}";
-    public static final String CANNOT_READ_FONT = "Cannot read font";
-    public static final String TESSERACT_FAILED = "Tesseract failed. "
+    public static final String CannotReadFont = "Cannot read font";
+    public static final String TesseractFailed = "Tesseract failed. "
             + "Please check provided parameters";
-    public static final String CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE =
+    public static final String CannotFindPathToTesseractExecutable =
             "Cannot find path to tesseract executable.";
-    public static final String CANNOT_FIND_PATH_TO_TESSDATA =
+    public static final String CannotFindPathToTessDataDirectory =
             "Cannot find path to tess data directory";
     private List<String> messageParams;
 
     /**
-     * Creates a new OCRException.
+     * Creates a new OcrException.
      *
      * @param msg the detail message.
      * @param e   the cause
      *            (which is saved for later retrieval
      *            by {@link #getCause()} method).
      */
-    public OCRException(String msg, Throwable e) {
+    public OcrException(String msg, Throwable e) {
         super(msg, e);
     }
 
     /**
-     * Creates a new OCRException.
+     * Creates a new OcrException.
      *
      * @param msg the detail message.
      */
-    public OCRException(String msg) {
+    public OcrException(String msg) {
         super(msg);
     }
 
@@ -80,11 +80,8 @@ public class OCRException extends RuntimeException {
      * @param messageParams additional params.
      * @return object itself.
      */
-    public RuntimeException setMessageParams(String... messageParams) {
-        this.messageParams = new ArrayList<String>();
-        for (String obj : messageParams) {
-            this.messageParams.add(obj);
-        }
+    public OcrException setMessageParams(String... messageParams) {
+        this.messageParams = Arrays.<String>asList(messageParams);
         return this;
     }
 }

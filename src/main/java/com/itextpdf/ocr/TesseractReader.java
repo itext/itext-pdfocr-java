@@ -22,19 +22,19 @@ import java.util.UUID;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tesseract reader class.
+ * The implementation of {@link IOcrReader}.
  *
- * This class provides possibilities to use features of "tesseract"
- * (optical character recognition engine for various operating systems)
- *
- * This class provides possibility to perform OCR, read data from input files
- * and return contained text in the described format
- *
- * This class provides possibilities to set type of current os,
- * required languages for OCR for input images,
- * set path to directory with tess data.
+ * This class provides possibilities to perform OCR, to read data from input
+ * files and to return contained text in the required format.
+ * Also there are possibilities to use features of "tesseract"
+ * (optical character recognition engine for various operating systems).
  */
 public abstract class TesseractReader implements IOcrReader {
+
+    /**
+     * Default language for OCR.
+     */
+    public static final String DEFAULT_LANGUAGE = "eng";
 
     /**
      * Default suffix for user-word file.
@@ -64,129 +64,143 @@ public abstract class TesseractReader implements IOcrReader {
 
     /**
      * "True" - if images need to be preprocessed, otherwise - false.
-     * By default - true.
+     * True by default.
      */
     private boolean preprocessingImages = true;
 
     /**
+     * Defines the way text is retrieved from tesseract output.
      * Default text positioning is by lines.
      */
     private TextPositioning textPositioning = TextPositioning.BY_LINES;
 
     /**
      * Path to the file containing user words.
-     * Each word should on new line , file should end with a newline.
+     * Each word should be on a new line,
+     * file should end with a newline character.
      */
     private String userWordsFile = null;
 
     /**
-     * Perform tesseract OCR.
+     * Performs tesseract OCR using command line tool
+     * or a wrapper for Tesseract OCR API.
      *
-     * @param inputImage {@link java.io.File} input image file
-     * @param outputFiles {@link java.util.List} list of output file
+     * @param inputImage input image {@link java.io.File}
+     * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
-     * @param outputFormat {@link OutputFormat}
-     * @param pageNumber int
+     * @param outputFormat selected {@link IOcrReader.OutputFormat} for
+     *                     tesseract
+     * @param pageNumber number of page to be processed
      */
     public abstract void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat,
             int pageNumber);
 
     /**
-     * Set list of languages required for provided images.
+     * Performs tesseract OCR for the first (or for the only) image page.
      *
-     * @param requiredLanguages {@link java.util.List}
+     * @param inputImage input image {@link java.io.File}
+     * @param outputFiles {@link java.util.List} of output files
+     *                                          (one per each page)
+     * @param outputFormat selected {@link IOcrReader.OutputFormat} for
+     *                     tesseract
+     */
+    public void doTesseractOcr(File inputImage,
+            List<File> outputFiles, OutputFormat outputFormat) {
+        doTesseractOcr(inputImage, outputFiles, outputFormat, 1);
+    }
+
+    /**
+     * Sets list of languages to be recognized in provided images.
+     *
+     * @param requiredLanguages {@link java.util.List} of languages in string
+     *                                               format
      */
     public final void setLanguages(final List<String> requiredLanguages) {
         languages = Collections.<String>unmodifiableList(requiredLanguages);
     }
 
     /**
-     * Get list of languages required for provided images.
+     * Gets list of languages required for provided images.
      *
-     * @return {@link java.util.List}
+     * @return {@link java.util.List} of languages
      */
     public final List<String> getLanguagesAsList() {
         return new ArrayList<String>(languages);
     }
 
     /**
-     * Get list of languages converted to a string
+     * Gets list of languages concatenated with "+" symbol to a string
      * in format required by tesseract.
-     * @return {@link java.lang.String}
+     * @return {@link java.lang.String} of concatenated languages
      */
     public final String getLanguagesAsString() {
         if (getLanguagesAsList().size() > 0) {
             return String.join("+", getLanguagesAsList());
         } else {
-            return "eng";
+            return DEFAULT_LANGUAGE;
         }
     }
 
     /**
-     * Set path to directory with tess data.
+     * Gets path to directory with tess data.
      *
-     * @param tessData {@link java.lang.String}
-     */
-    public final void setPathToTessData(final String tessData) {
-        tessDataDir = tessData;
-    }
-
-    /**
-     * Get path to directory with tess data.
-     *
-     * @return {@link java.lang.String}
+     * @return path to directory with tess data
      */
     public final String getPathToTessData() {
         return tessDataDir;
     }
 
     /**
-     * Set Page Segmentation Mode.
+     * Sets path to directory with tess data.
      *
-     * @param mode {@link java.lang.Integer}
+     * @param tessData path to train directory as {@link java.lang.String}
      */
-    public final void setPageSegMode(final Integer mode) {
-        pageSegMode = mode;
+    public final void setPathToTessData(final String tessData) {
+        tessDataDir = tessData;
     }
 
     /**
-     * Get Page Segmentation Mode.
+     * Gets Page Segmentation Mode.
      *
-     * @return {@link java.lang.Integer} pageSegMode
+     * @return psm mode as {@link java.lang.Integer}
      */
     public final Integer getPageSegMode() {
         return pageSegMode;
     }
 
     /**
-     * Set type of current OS.
+     * Sets Page Segmentation Mode.
+     * More detailed explanation about psm modes could be found
+     * here https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#options
      *
-     * @param os {@link java.lang.String}
+     * @param mode psm mode as {@link java.lang.Integer}
      */
-    public final void setOsType(final String os) {
-        osType = os;
+    public final void setPageSegMode(final Integer mode) {
+        pageSegMode = mode;
     }
 
     /**
      * Get type of current OS.
      *
-     * @return {@link java.lang.String}
+     * @return os type as {@link java.lang.String}
      */
     public final String getOsType() {
         return osType;
     }
 
     /**
-     * Set true if images need to be preprocessed, otherwise - false.
+     * Sets type of current OS.
      *
-     * @param preprocess boolean
+     * @param os os type as {@link java.lang.String}
      */
-    public final void setPreprocessingImages(final boolean preprocess) {
-        preprocessingImages = preprocess;
+    public final void setOsType(final String os) {
+        osType = os;
     }
 
     /**
+     * Checks whether image preprocessing is needed.
+     *
      * @return true if images need to be preprocessed, otherwise - false
      */
     public final boolean isPreprocessingImages() {
@@ -194,33 +208,67 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Set text positioning (by lines or by words).
+     * Sets true if image preprocessing is needed.
      *
-     * @param positioning {@link TextPositioning}
+     * @param preprocess true if images need to be preprocessed,
+     *                   otherwise - false
      */
-    public final void setTextPositioning(final TextPositioning positioning) {
-        textPositioning = positioning;
+    public final void setPreprocessingImages(final boolean preprocess) {
+        preprocessingImages = preprocess;
     }
 
     /**
-     * @return {@link TextPositioning}
+     * Defines the way text is retrieved from tesseract output using
+     * {@link IOcrReader.TextPositioning}.
+     *
+     * @return the way text is retrieved
      */
     public final TextPositioning getTextPositioning() {
         return textPositioning;
     }
 
     /**
-     * Reads data from the provided input image file and
-     * returns retrieved data as a string.
+     * Defines the way text is retrieved from tesseract output
+     * using {@link IOcrReader.TextPositioning}.
      *
-     * @param input {@link java.io.File}
-     * @param outputFormat {@link OutputFormat}
-     *        "txt" output format:
-     *              tesseract performs ocr and returns output in txt format
-     *         "hocr" output format:
-     *              tesseract performs ocr and returns output in hocr format,
-     *              then result text is extracted
-     * @return {@link java.lang.String}
+     * @param positioning the way text is retrieved
+     */
+    public final void setTextPositioning(final TextPositioning positioning) {
+        textPositioning = positioning;
+    }
+
+    /**
+     * Reads data from the provided input image file and returns retrieved data
+     * in the format described below.
+     *
+     * @param input input image {@link java.io.File}
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    public final Map<Integer, List<TextInfo>> readDataFromInput(
+            final File input) {
+        Map<String, Map<Integer, List<TextInfo>>> result =
+                processInputFiles(input, OutputFormat.HOCR);
+        if (result != null && result.size() > 0) {
+            List<String> keys = new ArrayList<String>(result.keySet());
+            return result.get(keys.get(0));
+        } else {
+            return new LinkedHashMap<Integer, List<TextInfo>>();
+        }
+    }
+
+    /**
+     * Reads data from the provided input image file and returns retrieved data
+     * as string.
+     *
+     * @param input input image {@link java.io.File}
+     * @param outputFormat {@link IOcrReader.OutputFormat} for the result
+     *                     returned by {@link IOcrReader}
+     * @return OCR result as a {@link java.lang.String} that is
+     * returned after processing the given image
      */
     public final String readDataFromInput(final File input,
             final OutputFormat outputFormat) {
@@ -251,34 +299,159 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Reads data from the provided input image file and returns
-     * retrieved data in the following format:
-     * Map<Integer, List<TextInfo>>:
-     * key: number of page,
-     * value: list of {@link TextInfo} objects where each list element
-     * Map.Entry<String, List<Float>> contains word or line as a key
-     * and its 4 coordinates(bbox) as a values.
+     * Using provided list of words there will be created
+     * temporary file containing words (one per line) which
+     * ends with a new line character. Train data for provided language
+     * should exist in specified tess data directory.
      *
-     * @param input {@link java.io.File}
-     * @return Map<Integer, List<TextInfo>>
+     * @param language language as {@link java.lang.String}, tessdata for
+     *                 this languages has to exist in tess data directory
+     * @param userWords {@link java.util.List} of custom words
      */
-    public final Map<Integer, List<TextInfo>> readDataFromInput(
-            final File input) {
-        Map<String, Map<Integer, List<TextInfo>>> result =
-                processInputFiles(input, OutputFormat.HOCR);
-        if (result != null && result.size() > 0) {
-            List<String> keys = new ArrayList<String>(result.keySet());
-            return result.get(keys.get(0));
+    public void setUserWords(final String language,
+                             final List<String> userWords) {
+        if (userWords == null || userWords.size() == 0) {
+            userWordsFile = null;
         } else {
-            return new LinkedHashMap<Integer, List<TextInfo>>();
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                for (String word : userWords) {
+                    byte[] bytesWord = word.getBytes();
+                    baos.write(bytesWord, 0, bytesWord.length);
+                    byte[] bytesSeparator = System.lineSeparator()
+                            .getBytes();
+                    baos.write(bytesSeparator, 0, bytesSeparator.length);
+                }
+                InputStream inputStream = new ByteArrayInputStream(
+                        baos.toByteArray());
+                baos.close();
+                setUserWords(language, inputStream);
+            } catch (IOException e) {
+                LoggerFactory.getLogger(getClass())
+                        .warn(MessageFormatUtil.format(
+                                LogMessageConstant.CannotUseUserWords,
+                                e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Using provided input stream there will be created
+     * temporary file (with name 'language.user-words')
+     * containing words (one per line) which ends with
+     * a new line character. Train data for provided language
+     * should exist in specified tess data directory.
+     *
+     * @param language language as {@link java.lang.String}, tessdata for
+     *                 this languages has to exist in tess data directory
+     * @param inputStream custom user words as {@link java.io.InputStream}
+     * @throws OcrException if one of given languages wasn't specified in the
+     * list of required languages for OCR using
+     * {@link TesseractReader#setLanguages(List)} method
+     */
+    public void setUserWords(final String language,
+            final InputStream inputStream) throws OcrException {
+        String userWordsFileName = TesseractUtil.getTempDir()
+                + java.io.File.separatorChar
+                + language + "." + DEFAULT_USER_WORDS_SUFFIX;
+        if (!getLanguagesAsList().contains(language)) {
+            if (DEFAULT_LANGUAGE.equals(language.toLowerCase())) {
+                List<String> languagesList = getLanguagesAsList();
+                languagesList.add(language);
+                setLanguages(languagesList);
+            } else {
+                throw new OcrException(
+                        OcrException.LanguageIsNotInTheList)
+                        .setMessageParams(language);
+            }
+        }
+        validateLanguages(Collections.<String>singletonList(language));
+        try (OutputStreamWriter writer =
+                new FileWriter(userWordsFileName)) {
+            Reader reader = new InputStreamReader(inputStream,
+                    StandardCharsets.UTF_8);
+            int data;
+            while ((data = reader.read()) != -1) {
+                writer.write(data);
+            }
+            writer.write(System.lineSeparator());
+            userWordsFile = userWordsFileName;
+        } catch (IOException e) {
+            userWordsFile = null;
+            LoggerFactory.getLogger(getClass())
+                    .warn(MessageFormatUtil.format(
+                            LogMessageConstant.CannotUseUserWords,
+                            e.getMessage()));
+        }
+    }
+
+    /**
+     * Returns path to the user words file.
+     *
+     * @return path to user words file as {@link java.lang.String} if it
+     * exists, otherwise - null
+     */
+    public final String getUserWordsFilePath() {
+        return userWordsFile;
+    }
+
+    /**
+     * Checks current os type.
+     *
+     * @return boolean true is current os is windows, otherwise - false
+     */
+    public boolean isWindows() {
+        return getOsType().toLowerCase().contains("win");
+    }
+
+    /**
+     * Identifies type of current OS and return it (win, linux).
+     *
+     * @return type of current os as {@link java.lang.String}
+     */
+    public String identifyOsType() {
+        String os = System.getProperty("os.name") == null
+                ? System.getProperty("OS") : System.getProperty("os.name");
+        return os.toLowerCase();
+    }
+
+    /**
+     * Validates list of provided languages and
+     * checks if they all exist in given tess data directory.
+     *
+     * @param languagesList {@link java.util.List} of provided languages
+     * @throws OcrException if tess data wasn't found for one of the
+     * languages from the provided list
+     */
+    public void validateLanguages(final List<String> languagesList)
+            throws OcrException {
+        String suffix = ".traineddata";
+        if (languagesList.size() == 0) {
+            if (!new File(getTessData()
+                    + java.io.File.separatorChar
+                    + DEFAULT_LANGUAGE + suffix).exists()) {
+                throw new OcrException(OcrException.IncorrectLanguage)
+                        .setMessageParams(DEFAULT_LANGUAGE + suffix,
+                                getTessData());
+            }
+        } else {
+            for (String lang : languagesList) {
+                if (!new File(getTessData()
+                        + java.io.File.separatorChar + lang + suffix)
+                        .exists()) {
+                    throw new OcrException(OcrException.IncorrectLanguage)
+                            .setMessageParams(lang + suffix, getTessData());
+                }
+            }
         }
     }
 
     /**
      * Reads data from the provided input image file.
      *
-     * @param input {@link java.io.File}
-     * @param outputFormat {@link OutputFormat}
+     * @param input input image {@link java.io.File}
+     * @param outputFormat {@link OutputFormat} for the result returned
+     *                                         by {@link IOcrReader}
      * @return Map<String, Map<Integer, List<TextInfo>>>
      *     if output format is txt,
      *     result is key of the returned map(String),
@@ -333,7 +506,7 @@ public abstract class TesseractReader implements IOcrReader {
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil.format(
-                            LogMessageConstant.CANNOT_OCR_INPUT_FILE,
+                            LogMessageConstant.CannotOcrInputFile,
                             e.getMessage()));
         }
 
@@ -344,160 +517,25 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Using provided list of words there will be created
-     * temporary file containing words (one per line) which
-     * ends with a new line character. Train data for provided language
-     * should exist in specified tess data directory.
+     * Gets path to provided tess data directory.
      *
-     * @param language {@link java.lang.String}
-     * @param userWords {@link java.util.List}
+     * @return path to provided tess data directory as
+     * {@link java.lang.String}, otherwise - the default one
+     * @throws OcrException if path to tess data directory is empty or null
      */
-    public void setUserWords(final String language,
-                             final List<String> userWords) {
-        if (userWords == null || userWords.size() == 0) {
-            userWordsFile = null;
-        } else {
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                for (String word : userWords) {
-                    byte[] bytesWord = word.getBytes();
-                    baos.write(bytesWord, 0, bytesWord.length);
-                    byte[] bytesSeparator = System.lineSeparator()
-                            .getBytes();
-                    baos.write(bytesSeparator, 0, bytesSeparator.length);
-                }
-                InputStream inputStream = new ByteArrayInputStream(
-                        baos.toByteArray());
-                baos.close();
-                setUserWords(language, inputStream);
-            } catch (IOException e) {
-                LoggerFactory.getLogger(getClass())
-                        .warn(MessageFormatUtil.format(
-                                LogMessageConstant.CANNOT_USE_USER_WORDS,
-                                e.getMessage()));
-            }
-        }
-    }
-
-    /**
-     * Using provided input stream there will be created
-     * temporary file (with name 'language.user-words')
-     * containing words (one per line) which ends with
-     * a new line character. Train data for provided language
-     * should exist in specified tess data directory.
-     *
-     * @param language {@link java.lang.String}
-     * @param inputStream {@link java.io.InputStream}
-     */
-    public void setUserWords(final String language,
-            final InputStream inputStream) {
-        String userWordsFileName = TesseractUtil.getTempDir()
-                + java.io.File.separatorChar
-                + language + "." + DEFAULT_USER_WORDS_SUFFIX;
-        if (!getLanguagesAsList().contains(language)) {
-            if ("eng".equals(language.toLowerCase())) {
-                List<String> languagesList = getLanguagesAsList();
-                languagesList.add(language);
-                setLanguages(languagesList);
-            } else {
-                throw new OCRException(
-                        OCRException.LANGUAGE_IS_NOT_IN_THE_LIST)
-                        .setMessageParams(language);
-            }
-        }
-        validateLanguages(Collections.<String>singletonList(language));
-        try (OutputStreamWriter writer =
-                new FileWriter(userWordsFileName)) {
-            Reader reader = new InputStreamReader(inputStream,
-                    StandardCharsets.UTF_8);
-            int data;
-            while ((data = reader.read()) != -1) {
-                writer.write(data);
-            }
-            writer.write(System.lineSeparator());
-            userWordsFile = userWordsFileName;
-        } catch (IOException e) {
-            userWordsFile = null;
-            LoggerFactory.getLogger(getClass())
-                    .warn(MessageFormatUtil.format(
-                            LogMessageConstant.CANNOT_USE_USER_WORDS,
-                            e.getMessage()));
-        }
-    }
-
-    /**
-     * Return path to the user words file if exists, otherwise null.
-     *
-     * @return {@link java.lang.String}
-     */
-    public final String getUserWordsFilePath() {
-        return userWordsFile;
-    }
-
-    /**
-     * Get path to provided tess data directory or return default one.
-     *
-     * @return {@link java.lang.String}
-     */
-    String getTessData() {
+    String getTessData() throws OcrException {
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
             return getPathToTessData();
         } else {
-            throw new OCRException(OCRException.CANNOT_FIND_PATH_TO_TESSDATA);
+            throw new OcrException(OcrException.CannotFindPathToTessDataDirectory);
         }
     }
 
     /**
-     * Return 'true' if current OS is windows
-     * otherwise 'false'.
+     * Creates a temporary file with given extension.
      *
-     * @return boolean
-     */
-    public boolean isWindows() {
-        return getOsType().toLowerCase().contains("win");
-    }
-
-    /**
-     * Check type of current OS and return it (mac, win, linux).
-     *
-     * @return {@link java.lang.String}
-     */
-    public String identifyOSType() {
-        String os = System.getProperty("os.name") == null
-                ? System.getProperty("OS") : System.getProperty("os.name");
-        return os.toLowerCase();
-    }
-
-    /**
-     * Validate provided languages and
-     * check if they exist in provided tess data directory.
-     * @param languagesList {@link java.util.List}
-     */
-    public void validateLanguages(final List<String> languagesList) {
-        String suffix = ".traineddata";
-        if (languagesList.size() == 0) {
-            if (!new File(getTessData()
-                    + java.io.File.separatorChar + "eng" + suffix).exists()) {
-                throw new OCRException(OCRException.INCORRECT_LANGUAGE)
-                        .setMessageParams("eng" + suffix, getTessData());
-            }
-        } else {
-            for (String lang : languagesList) {
-                if (!new File(getTessData()
-                        + java.io.File.separatorChar + lang + suffix)
-                        .exists()) {
-                    throw new OCRException(OCRException.INCORRECT_LANGUAGE)
-                            .setMessageParams(lang + suffix, getTessData());
-                }
-            }
-        }
-    }
-
-    /**
-     * Create temporary file with given extension.
-     *
-     * @param extension {@link java.lang.String}
-     * @return {@link java.io.File}
+     * @param extension file extesion for a new file {@link java.lang.String}
+     * @return a new created {@link java.io.File} instance
      */
     private File createTempFile(final String extension) {
         String tmpFileName = TesseractUtil.getTempDir()

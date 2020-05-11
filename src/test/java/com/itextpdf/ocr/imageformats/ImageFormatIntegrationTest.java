@@ -6,7 +6,7 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.LogMessageConstant;
-import com.itextpdf.ocr.OCRException;
+import com.itextpdf.ocr.OcrException;
 import com.itextpdf.ocr.TesseractReader;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -224,13 +224,13 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count = 1)
     })
     @Test
     public void testInputWrongFormat() {
-        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expect(OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(OCRException.INCORRECT_INPUT_IMAGE_FORMAT,
+                .format(OcrException.IncorrectInputImageFormat,
                         "txt"));
         File file = new File(testImagesDirectory + "example.txt");
         String realOutput = getTextFromPdf(tesseractReader, file);

@@ -5,71 +5,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Interface for OcrReader classes.
- *
- * IOcrReader interface provides possibility to perform OCR actions,
- * read data from input files and return contained text in the described format
+ * {@link IOcrReader} interface is used for instantiating new OcrReader
+ * objects.
+ * {@link IOcrReader} interface provides possibility to perform OCR,
+ * to read data from input files and to return the contained text in the
+ * required format.
  */
 public interface IOcrReader {
 
     /**
-     * Enum describing possible types of text positioning.
-     *
-     *
-     * {@link #BY_LINES}
-     * {@link #BY_WORDS}
-     */
-    enum TextPositioning {
-        /**
-         * BY_LINES (default value).
-         *
-         * text will be located by lines retrieved from hocr file
-         */
-        BY_LINES,
-        /**
-         * BY_WORDS.
-         *
-         * text will be located by words retrieved from hocr file
-         */
-        BY_WORDS
-    }
-
-    /**
-     * Enum describing available output formats.
-     *
-     * {@link #TXT}
-     * {@link #HOCR}
-     */
-    enum OutputFormat {
-        /**
-         * HOCR.
-         *
-         * Reader will produce XHTML output compliant
-         * with the hOCR specification.
-         * Output will be parsed and represented as {@link java.util.List}
-         */
-        HOCR,
-        /**
-         * TXT.
-         *
-         * Reader will produce plain txt file
-         */
-        TXT
-    }
-
-    /**
      * Reads data from the provided input image file and returns retrieved data
-     * in the following format:
+     * in the format described below.
      *
-     * Map<Integer, List<TextInfo>>:
-     * key: number of the page,
-     * value: list of {@link TextInfo} elements where
-     * each {@link TextInfo} element contains a word or a line
-     * and its 4 coordinates(bbox).
-     * (There will be parsed result in hOCR format produced by reader)
-     *
-     * @param input input file
-     * @return Map<Integer, List<{@link TextInfo}>>
+     * @param input input image {@link java.io.File}
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
      */
     Map<Integer, List<TextInfo>> readDataFromInput(File input);
 
@@ -77,9 +30,50 @@ public interface IOcrReader {
      * Reads data from the provided input image file and returns retrieved data
      * as string.
      *
-     * @param input {@link java.io.File}
-     * @param outputFormat {@link OutputFormat}
-     * @return {@link java.lang.String}
+     * @param input input image {@link java.io.File}
+     * @param outputFormat {@link OutputFormat} for the result returned
+     *                                         by {@link IOcrReader}
+     * @return OCR result as a {@link java.lang.String} that is
+     * returned after processing the given image
      */
     String readDataFromInput(File input, OutputFormat outputFormat);
+
+    /**
+     * Enumeration of the possible types of text positioning.
+     * It is used when there is possibility in selected Reader to process
+     * the text by lines or by words and to return coordinates for the
+     * selected type of item.
+     * For tesseract this value makes sense only if selected
+     * {@link OutputFormat} is HOCR.
+     */
+    enum TextPositioning {
+        /**
+         * Text will be located by lines retrieved from hocr file.
+         * (default value)
+         */
+        BY_LINES,
+        /**
+         * Text will be located by words retrieved from hocr file.
+         */
+        BY_WORDS
+    }
+
+    /**
+     * Enumeration of the available output formats.
+     * It is used when there is possibility in selected Reader to process input
+     * file and to return result in the required output format.
+     */
+    enum OutputFormat {
+        /**
+         * Reader will produce XHTML output compliant
+         * with the hOCR specification.
+         * Output will be parsed and represented as {@link java.util.List} of
+         * {@link TextInfo} objects
+         */
+        HOCR,
+        /**
+         * Reader will produce plain txt file.
+         */
+        TXT
+    }
 }

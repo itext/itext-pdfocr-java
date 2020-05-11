@@ -13,7 +13,6 @@ import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.IPdfRenderer;
 import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
 import com.itextpdf.ocr.LogMessageConstant;
-import com.itextpdf.ocr.OCRException;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
 import com.itextpdf.pdfa.PdfAConformanceException;
@@ -180,7 +179,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CannotReadProvidedFont, count = 1)
     })
     @Test
     public void testInvalidFont() throws IOException {

@@ -1,213 +1,224 @@
 package com.itextpdf.ocr;
 
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfWriter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
- * Interface for PDF Renderer classes.
- * <p>
- * The IPdfRenderer provides possibilities to set list of input images
- * to be used for OCR, to set scaling mode for images, color of text in output
- * PDF document,  set fixed size of the PDF document
- * and to perform OCR using given images and return PDFDocument as result
+ * {@link IPdfRenderer} interface is used for instantiating
+ * new {@link PdfRenderer} objects.
+ *
+ * {@link IPdfRenderer} provides possibilities to set list of input images
+ * to be used for OCR, to set scaling mode for images, to set color of text in
+ * output PDF document, to set fixed size of the PDF document and
+ * to perform OCR using given images and to return
+ * {@link com.itextpdf.kernel.pdf.PdfDocument} as result.
  */
 public interface IPdfRenderer {
 
     /**
-     * Enum describing possible scale modes for images.
+     * Gets list of provided input images for OCR.
      *
-     *
-     * {@link #KEEP_ORIGINAL_SIZE}
-     * {@link #SCALE_WIDTH}
-     * {@link #SCALE_HEIGHT}
-     * {@link #SCALE_TO_FIT}
-     */
-    enum ScaleMode {
-        /**
-         * KEEP_ORIGINAL_SIZE (default value).
-         *
-         * the size of every page of
-         * the output PDF document will match the size of the
-         * corresponding input image
-         */
-        KEEP_ORIGINAL_SIZE,
-        /**
-         * SCALE_WIDTH.
-         *
-         * Only width of the image will be proportionally scaled
-         */
-        SCALE_WIDTH,
-        /**
-         * SCALE_HEIGHT.
-         *
-         * Only height of the image will be proportionally scaled
-         */
-        SCALE_HEIGHT,
-        /**
-         * SCALE_TO_FIT.
-         *
-         * the size of every page of the output PDF document
-         * will match the values set using "setPdfSize()" method
-         */
-        SCALE_TO_FIT
-    }
-
-    /**
-     * Set list of input images for OCR.
-     *
-     * @param images a {@link java.util.List} object.
-     */
-    void setInputImages(List<File> images);
-
-    /**
-     * Get list of provided input images for OCR.
-     *
-     * @return a {@link java.util.List} object.
+     * @return {@link java.util.List} of given input images
      */
     List<File> getInputImages();
 
     /**
-     * Set text color (should be CMYK) in output PDF document.
+     * Sets list of input images for OCR.
      *
-     * @param newColor a {@link com.itextpdf.kernel.colors.Color} object.
+     * @param images {@link java.util.List} of input images
      */
-    void setTextColor(com.itextpdf.kernel.colors.Color newColor);
+    void setInputImages(List<File> images);
 
     /**
-     * Get text color in output PDF document.
+     * Gets text color in output PDF document.
      *
-     * @return a {@link com.itextpdf.kernel.colors.Color} object.
+     * @return set text {@link com.itextpdf.kernel.colors.Color}
      */
     com.itextpdf.kernel.colors.Color getTextColor();
 
     /**
-     * Set scale mode for input images using available options
-     * from ScaleMode enum.
+     * Sets text color in output PDF document.
      *
-     * @param mode a {@link com.itextpdf.ocr.IPdfRenderer.ScaleMode} object.
+     * @param color required text {@link com.itextpdf.kernel.colors.Color}
      */
-    void setScaleMode(ScaleMode mode);
+    void setTextColor(com.itextpdf.kernel.colors.Color color);
 
     /**
-     * Get scale mode for input images.
+     * Gets scale mode for input images.
      *
-     * @return a {@link com.itextpdf.ocr.IPdfRenderer.ScaleMode} object.
+     * @return selected {@link IPdfRenderer.ScaleMode}
      */
     ScaleMode getScaleMode();
 
     /**
-     * Set fixed size for output PDF document.
-     * (this parameter is used only is ScaleMode is set as "fitToSize")
+     * Sets scale mode for input images using available options
+     * from {@link com.itextpdf.ocr.IPdfRenderer.ScaleMode} enumeration.
      *
-     * @param pdfSize a {@link com.itextpdf.kernel.geom.Rectangle} object.
+     * @param scaleMode selected {@link IPdfRenderer.ScaleMode}
      */
-    void setPageSize(com.itextpdf.kernel.geom.Rectangle pdfSize);
+    void setScaleMode(ScaleMode scaleMode);
 
     /**
-     * Get size for output document.
+     * Gets required size for output PDF document. Real size of the page will
+     * be calculated according to the selected {@link IPdfRenderer.ScaleMode}
      *
-     * @return a {@link com.itextpdf.kernel.geom.Rectangle} object.
+     * @return required page size as {@link com.itextpdf.kernel.geom.Rectangle}
      */
     com.itextpdf.kernel.geom.Rectangle getPageSize();
 
     /**
-     * Set name for the image layer.
-     * (of by default it is "Image layer")
+     * Sets required size for output PDF document. Real size of the page will
+     * be calculated according to the selected {@link IPdfRenderer.ScaleMode}.
      *
-     * @param name layer's name
+     * @param pageSize required page
+     *                size as {@link com.itextpdf.kernel.geom.Rectangle}
      */
-    void setImageLayerName(String name);
+    void setPageSize(com.itextpdf.kernel.geom.Rectangle pageSize);
 
     /**
-     * Get name of image layer.
+     * Gets name of image layer.
      *
-     * @return layer's name that was manually set or
-     * the default one (="Image layer")
+     * @return image layer's name as {@link java.lang.String} if it was
+     * manually set, otherwise - the default name ("Image layer")
      */
     String getImageLayerName();
 
     /**
-     * Set name for the text layer.
-     * (of by default it is "Text layer")
+     * Sets name for the image layer.
+     * (by default its name is "Image layer")
      *
-     * @param name layer's name
+     * @param layerName name of the image layer
+     *                       as {@link java.lang.String}
      */
-    void setTextLayerName(String name);
+    void setImageLayerName(String layerName);
 
     /**
-     * @return layer's name that was manually set or
-     * the default one (="Text layer")
+     * Gets name of text layer.
+     *
+     * @return text layer's name as {@link java.lang.String} if it was
+     * manually set, otherwise - the default name ("Text layer")
      */
     String getTextLayerName();
 
     /**
-     * Specify pdf natural language, and optionally locale.
+     * Sets name for the text layer.
+     * (by default it is "Text layer")
      *
-     * @param lang String
+     * @param layerName of the text layer as {@link java.lang.String}
      */
-    void setPdfLang(String lang);
+    void setTextLayerName(String layerName);
 
     /**
-     * @return pdf document lang
+     * Gets pdf language.
+     *
+     * @return pdf document language as {@link java.lang.String}
      */
     String getPdfLang();
 
     /**
-     * Set pdf document title.
+     * Specify pdf natural language, and optionally locale.
+     * For the content usage dictionary use
+     * {@link com.itextpdf.kernel.pdf.PdfName#Language}
      *
-     * @param name String
+     * @param language pdf document language as {@link java.lang.String},
+     *                 e.g. "en-US", etc.
      */
-    void setTitle(String name);
+    void setPdfLang(String language);
 
     /**
-     * @return pdf document title
+     * Gets pdf document title.
+     *
+     * @return pdf title as {@link java.lang.String}
      */
     String getTitle();
 
     /**
-     * Set path to font to be used in pdf document.
+     * Sets pdf document title.
      *
-     * @param name String
+     * @param title pdf title as {@link java.lang.String}
      */
-    void setFontPath(String name);
+    void setTitle(String title);
 
     /**
-     * @return path to font
+     * Returns path to font to be used in pdf document.
+     * @return path to the required font
      */
     String getFontPath();
 
     /**
-     * Perform OCR using provided pdfWriter and pdfOutputIntent.
-     * PDF/A-3u document will be created if pdfOutputIntent is not null
+     * Sets path to font to be used in pdf document.
      *
-     * @param pdfWriter PdfWriter
-     * @param pdfOutputIntent PdfOutputIntent
-     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument}
-     *         object - PDF/A-3u document
-     * @throws IOException if provided font or output intent is incorrect
+     * @param path path to the required font
+     */
+    void setFontPath(String path);
+
+    /**
+     * Performs OCR with set parameters and create pdf using provided
+     * {@link com.itextpdf.kernel.pdf.PdfWriter} and
+     * {@link com.itextpdf.kernel.pdf.PdfOutputIntent}.
+     * PDF/A-3u document will be created if
+     * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
+     *
+     * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                  to write final pdf document to
+     * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
+     *                        for PDF/A-3u document
+     * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
+     * object
      */
     PdfDocument doPdfOcr(PdfWriter pdfWriter,
-            PdfOutputIntent pdfOutputIntent) throws IOException;
+            PdfOutputIntent pdfOutputIntent);
 
     /**
-     * Perform OCR using provided pdfWriter.
+     * Performs OCR using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
      *
-     * @param pdfWriter provided pdfWriter
-     * @return a {@link com.itextpdf.kernel.pdf.PdfDocument} object
-     * @throws IOException if provided font or output intent is incorrect
+     * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                  to write final pdf document to
+     * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
+     * @throws OcrException if provided font is incorrect
      */
-    PdfDocument doPdfOcr(PdfWriter pdfWriter) throws IOException;
+    PdfDocument doPdfOcr(PdfWriter pdfWriter) throws OcrException;
 
     /**
-     * Perform OCR using provided pdfWriter.
+     * Performs OCR for the given list of input images and saves output to a
+     * text file using provided path.
      *
-     * @param path path to text file to be created
-     * @throws IOException IOException
+     * @param path path as {@link java.lang.String} to file to be
+     *                     created
      */
-    void doPdfOcr(String path) throws IOException;
+    void doPdfOcr(String path);
+
+    /**
+     * Enumeration of the possible scale modes for input images.
+     */
+    enum ScaleMode {
+        /**
+         * Size of every page of the output PDF document will match the size
+         * of the corresponding input image.
+         * (default value)
+         */
+        KEEP_ORIGINAL_SIZE,
+        /**
+         * Only width of the image will be proportionally scaled to fit
+         * required size that is set using {@link #setPageSize(Rectangle)}
+         * method.
+         */
+        SCALE_WIDTH,
+        /**
+         * Only height of the image will be proportionally scaled to fit
+         * required size that is set using {@link #setPageSize(Rectangle)}
+         * method.
+         */
+        SCALE_HEIGHT,
+        /**
+         * Size of every page of the output PDF document will match the
+         * values set using {@link #setPageSize(Rectangle)} method.
+         */
+        SCALE_TO_FIT
+    }
 }

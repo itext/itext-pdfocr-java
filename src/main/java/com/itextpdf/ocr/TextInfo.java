@@ -5,28 +5,34 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * TextInfo class.
- *
- * This class describes item of text info retrieved
- * from HOCR file after parsing
+ * This class describes the way text info retrieved from HOCR file
+ * is structured.
  */
 public class TextInfo {
 
     /**
-     * Contains word or line.
+     * Contains any text.
      */
     private String text;
 
     /**
-     * Contains 4 coordinates: bbox parameters.
+     * Contains 4 float coordinates: bbox parameters.
      */
     private List<Float> coordinates;
 
     /**
-     * TextInfo Constructor.
+     * Creates a new {@link TextInfo} instance.
+     */
+    public TextInfo() {
+        text = null;
+        coordinates = Collections.<Float>emptyList();
+    }
+
+    /**
+     * Creates a new {@link TextInfo} instance.
      *
-     * @param newText String
-     * @param newCoordinates List<Integer>
+     * @param newText any text
+     * @param newCoordinates {@link java.util.List} of bbox parameters
      */
     public TextInfo(final String newText, final List<Float> newCoordinates) {
         text = newText;
@@ -34,7 +40,7 @@ public class TextInfo {
     }
 
     /**
-     * Text element.
+     * Gets text element.
      *
      * @return String
      */
@@ -43,27 +49,27 @@ public class TextInfo {
     }
 
     /**
-     * Text element.
+     * Sets text element.
      *
-     * @param newText String
+     * @param newText retrieved text
      */
     public void setText(final String newText) {
         text = newText;
     }
 
     /**
-     * Bbox coordinates.
+     * Gets bbox coordinates.
      *
-     * @return List<Float>
+     * @return {@link java.util.List} of bbox parameters
      */
     public List<Float> getCoordinates() {
         return new ArrayList<Float>(coordinates);
     }
 
     /**
-     * Bbox coordinates.
+     * Sets bbox coordinates.
      *
-     * @param newCoordinates List<Float>
+     * @param newCoordinates {@link java.util.List} of bbox parameters
      */
     public void setCoordinates(final List<Float> newCoordinates) {
         coordinates = Collections.<Float>unmodifiableList(newCoordinates);

@@ -13,28 +13,28 @@ import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 
 /**
- * Image Util class.
- *
- * Class provides tool for basic image preprocessing.
+ * Utilities class to work with images.
+ * Class provides tools for basic image preprocessing.
  */
 public final class ImageUtil {
 
     /**
-     * Private constructor for util class.
+     * Creates a new {@link ImageUtil} instance.
      */
     private ImageUtil() {
     }
 
     /**
      * Performs basic image preprocessing using buffered image (if provided).
-     * Preprocessed image file will be saved in temporary directory
+     * Preprocessed image will be saved in temporary directory.
      *
-     * @param inputFile {@link java.io.File}
-     * @param pageNumber int
-     * @return {@link java.lang.String}
+     * @param inputFile input image {@link java.io.File}
+     * @param pageNumber number of page to be preprocessed
+     * @return path to the created preprocessed image file as
+     * {@link java.lang.String}
      */
     public static String preprocessImage(final File inputFile,
-            final int pageNumber) throws OCRException {
+            final int pageNumber) throws OcrException {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
@@ -44,18 +44,17 @@ public final class ImageUtil {
             pix = TesseractUtil.readPix(inputFile);
         }
         if (pix == null) {
-            throw new OCRException(OCRException.CANNOT_READ_PROVIDED_IMAGE)
+            throw new OcrException(OcrException.CannotReadProvidedImage)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractUtil.preprocessPixAndSave(pix);
     }
 
     /**
-     * Return true if provided image has 'tiff'
-     * or 'tif' extension, otherwise - false.
+     * Checks whether image format is TIFF.
      *
-     * @param inputImage {@link java.io.File}
-     * @return boolean
+     * @param inputImage input image {@link java.io.File}
+     * @return true if provided image has 'tiff' or 'tif' extension
      */
     public static boolean isTiffImage(final File inputImage) {
         int index = inputImage.getAbsolutePath().lastIndexOf('.');
@@ -69,11 +68,13 @@ public final class ImageUtil {
     }
 
     /**
-     * Count number of page in provided tiff image.
+     * Counts number of pages in the provided tiff image.
      *
-     * @param inputImage {@link java.io.File}
-     * @return int
-     * @throws IOException IOException
+     * @param inputImage input image {@link java.io.File}
+     * @return number of pages in the provided TIFF image
+     * @throws IOException if error occurred during creating a
+     * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
+     * string
      */
     public static int getNumberOfPageTiff(File inputImage)
             throws IOException {
@@ -87,12 +88,12 @@ public final class ImageUtil {
     }
 
     /**
-     * Read image file from input stream from using provided file.
+     * Reads provided image file using stream.
      *
-     * @param inputFile {@link java.io.File}
-     * @return {@link java.awt.image.BufferedImage}
-     * @throws IllegalArgumentException IllegalArgumentException
-     * @throws IOException IOException
+     * @param inputFile input image {@link java.io.File}
+     * @return returns a {@link java.awt.image.BufferedImage} as the result
+     * @throws IllegalArgumentException if error occurred during reading a file
+     * @throws IOException if error occurred during reading a file
      */
     public static BufferedImage readImageFromFile(final File inputFile)
             throws IllegalArgumentException, IOException {
@@ -101,11 +102,14 @@ public final class ImageUtil {
     }
 
     /**
-     * Reading file a Leptonica pix and converting it to image.
+     * Reads input file as Leptonica {@link net.sourceforge.lept4j.Pix} and
+     * converts it to {@link java.awt.image.BufferedImage}.
      *
-     * @param inputImage {@link java.io.File}
-     * @return {@link java.awt.image.BufferedImage}
-     * @throws IOException IOException
+     * @param inputImage input image {@link java.io.File}
+     * @return returns a {@link java.awt.image.BufferedImage} as the result
+     * @throws IOException is error occurred during conversion from
+     * {@link net.sourceforge.lept4j.Pix} to
+     * {@link java.awt.image.BufferedImage}
      */
     public static BufferedImage readAsPixAndConvertToBufferedImage(
             final File inputImage)

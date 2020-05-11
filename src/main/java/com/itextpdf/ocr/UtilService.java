@@ -2,7 +2,9 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
+import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -30,39 +32,37 @@ import org.slf4j.LoggerFactory;
 public final class UtilService {
 
     /**
-     * Constants for points per inch (for tests).
+     * The Constant to convert pixels to points.
      */
-    @SuppressWarnings("checkstyle:magicnumber")
+    static final float PX_TO_PT = 3f / 4f;
+
+    /**
+     * The Constant for points per inch.
+     */
     private static final float POINTS_PER_INCH = 72.0f;
 
     /**
-     * UtilService logger.
+     * The logger.
      */
     private static final Logger LOGGER = LoggerFactory
             .getLogger(UtilService.class);
 
     /**
-     * Encoding UTF-8 string.
+     * The Constant ENCODING_UTF_8.
      */
-    private final static String encodingUTF8 = "UTF-8";
+    private final static String ENCODING_UTF_8 = "UTF-8";
 
     /**
-     * Constant to convert pixels to points (for tests).
-     */
-    @SuppressWarnings("checkstyle:magicnumber")
-    static final float PX_TO_PT = 3f / 4f;
-
-    /**
-     * Private constructor for util class.
+     * Creates a new {@link UtilService} instance.
      */
     private UtilService() {
     }
 
     /**
-     * Read text file to string.
+     * Reads from text file to string.
      *
-     * @param txtFile {@link java.io.File}
-     * @return {@link java.lang.String}
+     * @param txtFile input {@link java.io.File} to be read
+     * @return result {@link java.lang.String} from provided text file
      */
     public static String readTxtFile(final File txtFile) {
         String content = null;
@@ -72,7 +72,7 @@ public final class UtilService {
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    LogMessageConstant.CANNOT_READ_FILE,
+                    LogMessageConstant.CannotReadFile,
                     txtFile.getAbsolutePath(),
                     e.getMessage()));
         }
@@ -80,49 +80,48 @@ public final class UtilService {
     }
 
     /**
-     * Convert from pixels to points.
+     * Converts value from pixels to points.
      *
-     * @param pixels float
-     * @return float
+     * @param pixels input value in pixels
+     * @return result value in points
      */
     public static float getPoints(final float pixels) {
         return pixels * PX_TO_PT;
     }
 
     /**
-     * Delete file using provided path.
+     * Deletes file using provided path.
      *
-     * @param pathToFile String
+     * @param pathToFile path to the file to be deleted
      */
     public static void deleteFile(final String pathToFile) {
-        if (pathToFile != null && !pathToFile.isEmpty()
-                && Files.exists(java.nio.file.Paths.get(pathToFile))) {
-            try {
+        try {
+            if (pathToFile != null && !pathToFile.isEmpty()
+                    && Files.exists(java.nio.file.Paths.get(pathToFile))) {
                 Files.delete(java.nio.file.Paths.get(pathToFile));
-            } catch (IOException e) {
-                LOGGER.info(MessageFormatUtil.format(
-                        LogMessageConstant.CANNOT_DELETE_FILE,
-                        pathToFile,
-                        e.getMessage()));
             }
+        } catch (IOException | SecurityException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    LogMessageConstant.CannotDeleteFile,
+                    pathToFile,
+                    e.getMessage()));
         }
     }
 
     /**
-     * Parse `hocr` file, retrieve text, and return in the format
-     * described below.
-     * Map<Integer, List<TextInfo>>:
-     * key: number of the page,
-     * value: list of {@link TextInfo} elements where
-     * each {@link TextInfo} element contains a word or a line
-     * and its 4 coordinates(bbox).
+     * Parses each hocr file from the provided list, retrieves text, and
+     * returns data in the format described below.
      *
      * @param inputFiles list of input files
-     * @param textPositioning {@link TextPositioning}
-     * @return Map<Integer, List<TextInfo>>
-     * @throws IOException IOException
+     * @param textPositioning {@link IOcrReader.TextPositioning}
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     * @throws IOException if error occurred during reading one the provided
+     * files
      */
-    @SuppressWarnings("checkstyle:magicnumber")
     public static Map<Integer, List<TextInfo>> parseHocrFile(
             final List<File> inputFiles,
             final TextPositioning textPositioning)
@@ -137,7 +136,7 @@ public final class UtilService {
                                     .get(inputFile.getAbsolutePath()))) {
                 Document doc = Jsoup.parse(
                         new FileInputStream(inputFile.getAbsolutePath()),
-                        encodingUTF8, inputFile.getAbsolutePath());
+                        ENCODING_UTF_8, inputFile.getAbsolutePath());
                 Elements pages = doc.getElementsByClass("ocr_page");
 
                 Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
@@ -201,12 +200,15 @@ public final class UtilService {
     }
 
     /**
-     * Calculate the size of the PDF document page
-     * should transform pixels to points and according to image resolution.
+     * Calculates the size of the PDF document page according to the provided
+     * {@link IPdfRenderer.ScaleMode}.
      *
-     * @param imageData    {@link com.itextpdf.io.image.ImageData}
-     * @param scaleMode    {@link IPdfRenderer.ScaleMode}
-     * @param requiredSize {@link com.itextpdf.kernel.geom.Rectangle}
+     * @param imageData input image or its one page as
+     *                  {@link com.itextpdf.io.image.ImageData}
+     * @param scaleMode required {@link IPdfRenderer.ScaleMode} that could be
+     *                  set using {@link PdfRenderer#setScaleMode} method
+     * @param requiredSize size of the page that could be using
+     *                     {@link PdfRenderer#setPageSize} method
      * @return {@link com.itextpdf.kernel.geom.Rectangle}
      */
     static com.itextpdf.kernel.geom.Rectangle calculateImageSize(

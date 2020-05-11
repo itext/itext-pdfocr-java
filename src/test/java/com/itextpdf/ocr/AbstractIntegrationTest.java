@@ -44,8 +44,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
 
-    // path to hocr script for tesseract executable
-    protected static String pathToHocrScript = null;
     // directory with trained data for tests
     protected static String langTessDataDirectory = null;
     // directory with trained data for tests
@@ -95,9 +93,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         if (scriptTessDataDirectory == null) {
             scriptTessDataDirectory = path + "tessdata" + java.io.File.separatorChar + "script";
         }
-        if (pathToHocrScript == null) {
-            pathToHocrScript = path + "hocr" + java.io.File.separatorChar;
-        }
         if (testFontsDirectory == null) {
             testFontsDirectory = path + "fonts" + java.io.File.separatorChar;
             updateFonts();
@@ -140,10 +135,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     protected static String getTessDataDirectory() {
         return langTessDataDirectory;
-    }
-
-    protected static String getPathToHocrScript() {
-        return pathToHocrScript;
     }
 
     /**
@@ -315,7 +306,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * @param languages
      * @return
      */
-    protected String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input,
+    protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input,
             List<String> languages) {
         String result = null;
         String txtPath = null;
@@ -341,8 +332,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * @param input
      * @return
      */
-    protected String getOCRedTextFromTextFile(TesseractReader tesseractReader, String input) {
-        return getOCRedTextFromTextFile(tesseractReader, input, null);
+    protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input) {
+        return getRecognizedTextFromTextFile(tesseractReader, input, null);
     }
 
     /**
@@ -400,22 +391,20 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         if (color != null) {
             pdfRenderer.setTextColor(color);
         }
-
-        PdfDocument doc = null;
-        try {
-            doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-
         if (languages != null) {
             Assert.assertEquals(languages.size(),
                     tesseractReader.getLanguagesAsList().size());
         }
 
-        Assert.assertNotNull(doc);
-        if (!doc.isClosed()) {
-            doc.close();
+        try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
+            PdfDocument doc = pdfRenderer.doPdfOcr(pdfWriter);
+
+            Assert.assertNotNull(doc);
+            if (!doc.isClosed()) {
+                doc.close();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 

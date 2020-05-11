@@ -19,45 +19,48 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate =
-                OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
+                OcrException.CannotFindPathToTesseractExecutable, count = 1)
     })
     @Test
     public void testNullPathToTesseractExecutable() {
-        junitExpectedException.expect(OCRException.class);
-        junitExpectedException.expectMessage(OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expectMessage(OcrException.CannotFindPathToTesseractExecutable);
         File file = new File(testImagesDirectory + "spanish_01.jpg");
-        getTextFromPdf(new TesseractExecutableReader(null,null), file);
+        TesseractExecutableReader tesseractExecutableReader =
+                new TesseractExecutableReader(null);
+        tesseractExecutableReader.setPathToExecutable(null);
+        getTextFromPdf(tesseractExecutableReader, file);
     }
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate =
-                OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
+                OcrException.CannotFindPathToTesseractExecutable, count = 1)
     })
     @Test
     public void testEmptyPathToTesseractExecutable() {
-        junitExpectedException.expect(OCRException.class);
-        junitExpectedException.expectMessage(OCRException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expectMessage(OcrException.CannotFindPathToTesseractExecutable);
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         getTextFromPdf(new TesseractExecutableReader("", ""), file);
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.TESSERACT_FAILED,
+        @LogMessage(messageTemplate = LogMessageConstant.TesseractFailed,
                 count = 1)
     })
     @Test
     public void testCLTesseractWithWrongCommand() {
-        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expect(OcrException.class);
         TesseractUtil.runCommand(Arrays.<String>asList("tesseract",
                 "random.jpg"), false);
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.TESSERACT_FAILED, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.TesseractFailed, count = 1)
     })
     @Test
     public void testCLTesseractWithNullCommand() {
-        junitExpectedException.expect(OCRException.class);
+        junitExpectedException.expect(OcrException.class);
         TesseractUtil.runCommand(null, false);
     }
 }
