@@ -22,7 +22,7 @@ switch (env.BRANCH_NAME) {
 
 pipeline {
 
-    agent { label 'windows' }
+    agent { label '!master' }
 
     environment {
         JDK_VERSION = 'jdk-8-oracle'
