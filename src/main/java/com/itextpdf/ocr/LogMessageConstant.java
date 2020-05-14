@@ -25,6 +25,8 @@ public class LogMessageConstant {
             "Provided number of page ({0}) is incorrect for {1}";
     public static final String CannotDeleteFile =
             "File {0} cannot be deleted: {1}";
+    public static final String CannotProcessImage = "Cannot process "
+            + "image: {0}";
 
     /*
     INFO messages
@@ -43,4 +45,6 @@ public class LogMessageConstant {
             "Cannot convert to gray image with depth {0}";
     public static final String CannotBinarizeImage =
             "Cannot binarize image with depth {0}";
+    public static final String CannotCreateBufferedImage =
+            "Cannot create a buffered image from the input image: {0}";
 }

@@ -2,9 +2,7 @@ package com.itextpdf.ocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
-import com.itextpdf.ocr.IPdfRenderer.ScaleMode;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -29,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class.
  */
-public final class UtilService {
+final class UtilService {
 
     /**
      * The Constant to convert pixels to points.
@@ -64,7 +62,7 @@ public final class UtilService {
      * @param txtFile input {@link java.io.File} to be read
      * @return result {@link java.lang.String} from provided text file
      */
-    public static String readTxtFile(final File txtFile) {
+    static String readTxtFile(final File txtFile) {
         String content = null;
         try {
             content = new String(
@@ -85,7 +83,7 @@ public final class UtilService {
      * @param pixels input value in pixels
      * @return result value in points
      */
-    public static float getPoints(final float pixels) {
+    static float getPoints(final float pixels) {
         return pixels * PX_TO_PT;
     }
 
@@ -94,7 +92,7 @@ public final class UtilService {
      *
      * @param pathToFile path to the file to be deleted
      */
-    public static void deleteFile(final String pathToFile) {
+    static void deleteFile(final String pathToFile) {
         try {
             if (pathToFile != null && !pathToFile.isEmpty()
                     && Files.exists(java.nio.file.Paths.get(pathToFile))) {
@@ -122,7 +120,7 @@ public final class UtilService {
      * @throws IOException if error occurred during reading one the provided
      * files
      */
-    public static Map<Integer, List<TextInfo>> parseHocrFile(
+    static Map<Integer, List<TextInfo>> parseHocrFile(
             final List<File> inputFiles,
             final TextPositioning textPositioning)
             throws IOException {
@@ -134,9 +132,10 @@ public final class UtilService {
                     && Files.exists(
                             java.nio.file.Paths
                                     .get(inputFile.getAbsolutePath()))) {
-                Document doc = Jsoup.parse(
-                        new FileInputStream(inputFile.getAbsolutePath()),
-                        ENCODING_UTF_8, inputFile.getAbsolutePath());
+                FileInputStream fileInputStream =
+                        new FileInputStream(inputFile.getAbsolutePath());
+                Document doc = Jsoup.parse(fileInputStream, ENCODING_UTF_8,
+                        inputFile.getAbsolutePath());
                 Elements pages = doc.getElementsByClass("ocr_page");
 
                 Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
@@ -194,6 +193,7 @@ public final class UtilService {
                         imageData.put(pageNumber, textData);
                     }
                 }
+                fileInputStream.close();
             }
         }
         return imageData;
@@ -201,19 +201,20 @@ public final class UtilService {
 
     /**
      * Calculates the size of the PDF document page according to the provided
-     * {@link IPdfRenderer.ScaleMode}.
+     * {@link ScaleMode}.
      *
      * @param imageData input image or its one page as
      *                  {@link com.itextpdf.io.image.ImageData}
-     * @param scaleMode required {@link IPdfRenderer.ScaleMode} that could be
-     *                  set using {@link PdfRenderer#setScaleMode} method
+     * @param scaleMode required {@link ScaleMode} that could be
+     *                  set using {@link OcrPdfCreatorProperties#setScaleMode}
+     *                  method
      * @param requiredSize size of the page that could be using
-     *                     {@link PdfRenderer#setPageSize} method
+     *                     {@link OcrPdfCreatorProperties#setPageSize} method
      * @return {@link com.itextpdf.kernel.geom.Rectangle}
      */
     static com.itextpdf.kernel.geom.Rectangle calculateImageSize(
             final ImageData imageData,
-            final IPdfRenderer.ScaleMode scaleMode,
+            final ScaleMode scaleMode,
             final com.itextpdf.kernel.geom.Rectangle requiredSize) {
         // Adjust image size and dpi
         // The resolution of a PDF file is 72pt per inch
@@ -228,40 +229,32 @@ public final class UtilService {
         if (imageData != null) {
             float imgWidthPt = getPoints(imageData.getWidth());
             float imgHeightPt = getPoints(imageData.getHeight());
-            LOGGER.info("Original image size in pixels: ("
-                    + imageData.getWidth() + ", "
-                    + imageData.getHeight() + ")");
-            if (scaleMode == IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE) {
-                com.itextpdf.kernel.geom.Rectangle size =
-                        new com.itextpdf.kernel.geom.Rectangle(imgWidthPt,
-                                imgHeightPt);
-
-                LOGGER.info("Final size in points: (" + size.getWidth() + ", "
-                        + size.getHeight() + ")");
-                return size;
+            // page size will be equal to the image size if page size or
+            // scale mode are not set
+            if (requiredSize == null || scaleMode == null) {
+                return new com.itextpdf.kernel.geom.Rectangle(imgWidthPt,
+                        imgHeightPt);
             } else {
                 com.itextpdf.kernel.geom.Rectangle size =
                         new com.itextpdf.kernel.geom.Rectangle(
                                 requiredSize.getWidth(),
                                 requiredSize.getHeight());
                 // scale image according to the page size and scale mode
-                if (scaleMode == IPdfRenderer.ScaleMode.SCALE_HEIGHT) {
+                if (scaleMode == ScaleMode.SCALE_HEIGHT) {
                     float newHeight = imgHeightPt
                             * requiredSize.getWidth() / imgWidthPt;
                     size.setHeight(newHeight);
-                } else if (scaleMode == IPdfRenderer.ScaleMode.SCALE_WIDTH) {
+                } else if (scaleMode == ScaleMode.SCALE_WIDTH) {
                     float newWidth = imgWidthPt
                             * requiredSize.getHeight() / imgHeightPt;
                     size.setWidth(newWidth);
-                } else if (scaleMode == IPdfRenderer.ScaleMode.SCALE_TO_FIT) {
+                } else if (scaleMode == ScaleMode.SCALE_TO_FIT) {
                     float ratio = Math.min(
                             requiredSize.getWidth() / imgWidthPt,
                             requiredSize.getHeight() / imgHeightPt);
                     size.setWidth(imgWidthPt * ratio);
                     size.setHeight(imgHeightPt * ratio);
                 }
-                LOGGER.info("Final size in points: (" + size.getWidth()
-                        + ", " + size.getHeight() + ")");
                 return size;
             }
         } else {

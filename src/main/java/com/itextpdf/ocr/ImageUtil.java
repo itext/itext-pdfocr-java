@@ -32,9 +32,11 @@ public final class ImageUtil {
      * @param pageNumber number of page to be preprocessed
      * @return path to the created preprocessed image file as
      * {@link java.lang.String}
+     * @throws OcrException if it was not possible to read or convert input
+     * file
      */
     public static String preprocessImage(final File inputFile,
-            final int pageNumber) throws OcrException {
+            final int pageNumber) {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
@@ -76,7 +78,7 @@ public final class ImageUtil {
      * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
      * string
      */
-    public static int getNumberOfPageTiff(File inputImage)
+    public static int getNumberOfPageTiff(final File inputImage)
             throws IOException {
         RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
                 new RandomAccessSourceFactory()
@@ -119,4 +121,3 @@ public final class ImageUtil {
         return TesseractUtil.convertPixToImage(pix);
     }
 }
-

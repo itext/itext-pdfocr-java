@@ -14,10 +14,13 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +38,19 @@ public abstract class TesseractReader implements IOcrReader {
      * Default language for OCR.
      */
     public static final String DEFAULT_LANGUAGE = "eng";
-
     /**
      * Default suffix for user-word file.
      * (e.g. name: 'eng.user-words')
      */
     public static final String DEFAULT_USER_WORDS_SUFFIX = "user-words";
-
+    /**
+     * Supported image formats.
+     */
+    private static final Set<String> SUPPORTED_IMAGE_FORMATS =
+            Collections.unmodifiableSet(new HashSet<>(
+                    Arrays.<String>asList("bmp", "png", "pnm", "pgm",
+                            "ppm", "pbm", "tiff", "tif", "jpeg",
+                            "jpg", "jpe", "jfif")));
     /**
      * List of languages required for ocr for provided images.
      */
@@ -238,8 +247,8 @@ public abstract class TesseractReader implements IOcrReader {
     }
 
     /**
-     * Reads data from the provided input image file and returns retrieved data
-     * in the format described below.
+     * Reads data from the provided input image file and returns retrieved
+     * data in the format described below.
      *
      * @param input input image {@link java.io.File}
      * @return {@link java.util.Map} where key is {@link java.lang.Integer}
@@ -248,21 +257,24 @@ public abstract class TesseractReader implements IOcrReader {
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
      */
-    public final Map<Integer, List<TextInfo>> readDataFromInput(
+    public final Map<Integer, List<TextInfo>> doImageOcr(
             final File input) {
-        Map<String, Map<Integer, List<TextInfo>>> result =
-                processInputFiles(input, OutputFormat.HOCR);
-        if (result != null && result.size() > 0) {
-            List<String> keys = new ArrayList<String>(result.keySet());
-            return result.get(keys.get(0));
-        } else {
-            return new LinkedHashMap<Integer, List<TextInfo>>();
+        Map<Integer, List<TextInfo>> result = new LinkedHashMap<Integer,
+                List<TextInfo>>();
+        if (isValidImageFormat(input)) {
+            Map<String, Map<Integer, List<TextInfo>>> processedData =
+                    processInputFiles(input, OutputFormat.HOCR);
+            if (processedData != null && processedData.size() > 0) {
+                List<String> keys = new ArrayList<String>(processedData.keySet());
+                result = processedData.get(keys.get(0));
+            }
         }
+        return result;
     }
 
     /**
-     * Reads data from the provided input image file and returns retrieved data
-     * as string.
+     * Reads data from the provided input image file and returns retrieved
+     * data as string.
      *
      * @param input input image {@link java.io.File}
      * @param outputFormat {@link IOcrReader.OutputFormat} for the result
@@ -270,32 +282,34 @@ public abstract class TesseractReader implements IOcrReader {
      * @return OCR result as a {@link java.lang.String} that is
      * returned after processing the given image
      */
-    public final String readDataFromInput(final File input,
+    public final String doImageOcr(final File input,
             final OutputFormat outputFormat) {
-        Map<String, Map<Integer, List<TextInfo>>> result =
-                processInputFiles(input, outputFormat);
-        if (result != null && result.size() > 0) {
-            List<String> keys = new ArrayList<String>(result.keySet());
-            if (outputFormat.equals(OutputFormat.TXT)) {
-                return keys.get(0);
-            } else {
-                StringBuilder outputText = new StringBuilder();
-                Map<Integer, List<TextInfo>> outputMap =
-                        result.get(keys.get(0));
-                for (int page : outputMap.keySet()) {
-                    StringBuilder pageText = new StringBuilder();
-                    for (TextInfo textInfo : outputMap.get(page)) {
-                        pageText.append(textInfo.getText());
-                        pageText.append(System.lineSeparator());
+        String result = "";
+        if (isValidImageFormat(input)) {
+            Map<String, Map<Integer, List<TextInfo>>> processedData =
+                    processInputFiles(input, outputFormat);
+            if (processedData != null && processedData.size() > 0) {
+                List<String> keys = new ArrayList<String>(processedData.keySet());
+                if (outputFormat.equals(OutputFormat.TXT)) {
+                    result = keys.get(0);
+                } else {
+                    StringBuilder outputText = new StringBuilder();
+                    Map<Integer, List<TextInfo>> outputMap =
+                            processedData.get(keys.get(0));
+                    for (int page : outputMap.keySet()) {
+                        StringBuilder pageText = new StringBuilder();
+                        for (TextInfo textInfo : outputMap.get(page)) {
+                            pageText.append(textInfo.getText());
+                            pageText.append(System.lineSeparator());
+                        }
+                        outputText.append(pageText);
+                        outputText.append(System.lineSeparator());
                     }
-                    outputText.append(pageText);
-                    outputText.append(System.lineSeparator());
+                    result = outputText.toString();
                 }
-                return outputText.toString();
             }
-        } else {
-            return "";
         }
+        return result;
     }
 
     /**
@@ -527,7 +541,8 @@ public abstract class TesseractReader implements IOcrReader {
         if (getPathToTessData() != null && !getPathToTessData().isEmpty()) {
             return getPathToTessData();
         } else {
-            throw new OcrException(OcrException.CannotFindPathToTessDataDirectory);
+            throw new OcrException(
+                    OcrException.CannotFindPathToTessDataDirectory);
         }
     }
 
@@ -541,5 +556,38 @@ public abstract class TesseractReader implements IOcrReader {
         String tmpFileName = TesseractUtil.getTempDir()
                 + UUID.randomUUID().toString() + extension;
         return new File(tmpFileName);
+    }
+
+    /**
+     * Validates input image format.
+     * Allowed image formats are listed
+     * in {@link TesseractReader#SUPPORTED_IMAGE_FORMATS}
+     *
+     * @param image input image {@link java.io.File}
+     * @return true if image extension is valid, false - if not
+     */
+    private boolean isValidImageFormat(final File image) {
+        boolean isValid = false;
+        String extension = "incorrect extension";
+        int index = image.getAbsolutePath().lastIndexOf('.');
+        if (index > 0) {
+            extension = new String(image.getAbsolutePath().toCharArray(),
+                    index + 1,
+                    image.getAbsolutePath().length() - index - 1);
+            for (String format : SUPPORTED_IMAGE_FORMATS) {
+                if (format.equals(extension.toLowerCase())) {
+                    isValid = true;
+                    break;
+                }
+            }
+        }
+        if (!isValid) {
+            LoggerFactory.getLogger(getClass()).error(MessageFormatUtil
+                    .format(LogMessageConstant.CannotReadInputImage,
+                            image.getAbsolutePath()));
+            throw new OcrException(OcrException.IncorrectInputImageFormat)
+                    .setMessageParams(extension);
+        }
+        return isValid;
     }
 }

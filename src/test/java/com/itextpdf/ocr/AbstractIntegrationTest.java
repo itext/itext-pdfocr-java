@@ -1,6 +1,7 @@
 package com.itextpdf.ocr;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -28,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,14 +150,16 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * @throws IOException
      */
     protected Image getImageFromPdf(TesseractReader tesseractReader,
-                          File file, IPdfRenderer.ScaleMode scaleMode,
+                          File file, ScaleMode scaleMode,
             com.itextpdf.kernel.geom.Rectangle pageSize) throws IOException {
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(file), scaleMode);
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setScaleMode(scaleMode);
+        properties.setPageSize(pageSize);
 
-        pdfRenderer.setPageSize(pageSize);
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
 
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
+        PdfDocument doc = pdfRenderer.createPdf(
+                Collections.<File>singletonList(file), getPdfWriter());
 
         Image image = null;
 
@@ -350,11 +354,11 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         if (languages != null) {
             tesseractReader.setLanguages(languages);
         }
-
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(new File(imgPath)));
+                new OcrPdfCreatorProperties());
 
-        pdfRenderer.doPdfOcr(txtPath);
+        pdfRenderer.createTxt(Collections.<File>singletonList(new File(imgPath)),
+                txtPath);
 
         if (languages != null) {
             Assert.assertEquals(languages.size(),
@@ -381,23 +385,23 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         if (languages != null) {
             tesseractReader.setLanguages(languages);
         }
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                Collections.<File>singletonList(new File(imgPath)));
-        pdfRenderer.setScaleMode(IPdfRenderer.ScaleMode.KEEP_ORIGINAL_SIZE);
+        OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
         if (fontPath != null && !fontPath.isEmpty()) {
-            pdfRenderer.setFontPath(fontPath);
+            properties.setFontPath(fontPath);
         }
         if (color != null) {
-            pdfRenderer.setTextColor(color);
+            properties.setTextColor(color);
         }
         if (languages != null) {
             Assert.assertEquals(languages.size(),
                     tesseractReader.getLanguagesAsList().size());
         }
 
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
         try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
-            PdfDocument doc = pdfRenderer.doPdfOcr(pdfWriter);
+            PdfDocument doc = pdfRenderer.createPdf(
+                    Collections.<File>singletonList(new File(imgPath)),
+                    pdfWriter);
 
             Assert.assertNotNull(doc);
             if (!doc.isClosed()) {
@@ -495,7 +499,18 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * @return
      */
     protected String getTextFromTextFile(File file) {
-        return UtilService.readTxtFile(file);
+        String content = null;
+        try {
+            content = new String(
+                    Files.readAllBytes(file.toPath()),
+                    StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    LogMessageConstant.CannotReadFile,
+                    file.getAbsolutePath(),
+                    e.getMessage()));
+        }
+        return content;
     }
 
     /**
@@ -504,7 +519,17 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * @param filePath
      */
     protected void deleteFile(String filePath) {
-        UtilService.deleteFile(filePath);
+        try {
+            if (filePath != null && !filePath.isEmpty()
+                    && Files.exists(java.nio.file.Paths.get(filePath))) {
+                Files.delete(java.nio.file.Paths.get(filePath));
+            }
+        } catch (IOException | SecurityException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    LogMessageConstant.CannotDeleteFile,
+                    filePath,
+                    e.getMessage()));
+        }
     }
 
     /**
@@ -618,6 +643,16 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         InputStream is = new FileInputStream(defaultRGBColorProfilePath);
         return new PdfOutputIntent("", "",
                 "", "sRGB IEC61966-2.1", is);
+    }
+
+    /**
+     * Converts value from pixels to points.
+     *
+     * @param pixels input value in pixels
+     * @return result value in points
+     */
+    protected float getPoints(final float pixels) {
+        return pixels * 3f / 4f;
     }
 
     /**

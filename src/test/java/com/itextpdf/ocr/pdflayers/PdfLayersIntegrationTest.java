@@ -4,7 +4,8 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.ocr.AbstractIntegrationTest;
-import com.itextpdf.ocr.IPdfRenderer;
+import com.itextpdf.ocr.OcrPdfCreatorProperties;
+import com.itextpdf.ocr.ScaleMode;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
 
@@ -32,9 +33,10 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        pdfRenderer.setInputImages(Collections.<File>singletonList(file));
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        PdfDocument doc =
+                pdfRenderer.createPdf(Collections.<File>singletonList(file),
+                        getPdfWriter());
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()
@@ -45,7 +47,6 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 layers.get(0).getPdfObject().get(PdfName.Name).toString());
         Assert.assertEquals("Text Layer",
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals(1, pdfRenderer.getInputImages().size());
         doc.close();
     }
 
@@ -54,16 +55,14 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        pdfRenderer.setInputImages(Collections.<File>singletonList(file));
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageLayerName("name image 1");
+        properties.setTextLayerName("name text 1");
 
-        pdfRenderer.setImageLayerName("name image 1");
-        pdfRenderer.setTextLayerName("name text 1");
-
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter());
-
-        // setting layer's name after ocr was done, name shouldn't change
-        pdfRenderer.setImageLayerName("name image 100500");
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
+        PdfDocument doc =
+                pdfRenderer.createPdf(Collections.<File>singletonList(file),
+                        getPdfWriter());
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()
@@ -76,7 +75,6 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals("name text 1",
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
         Assert.assertTrue(layers.get(1).isOn());
-        Assert.assertEquals(1, pdfRenderer.getInputImages().size());
 
         doc.close();
     }
@@ -89,9 +87,9 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         File file = new File(path);
 
         try {
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.<File>singletonList(file));
-            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+            PdfDocument doc =
+                    pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
             Assert.assertNotNull(doc);
             List<PdfLayer> layers = doc.getCatalog()
@@ -129,9 +127,9 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
         try {
             tesseractReader.setPreprocessingImages(false);
-            IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                    Collections.<File>singletonList(file));
-            PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+            PdfDocument doc =
+                    pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
             Assert.assertNotNull(doc);
             int numOfPages = doc.getNumberOfPages();
@@ -173,10 +171,12 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 new File(testImagesDirectory + "example_04.png")
         );
 
-        IPdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, files);
-        pdfRenderer.setImageLayerName("image");
-        pdfRenderer.setTextLayerName("text");
-        PdfDocument doc = pdfRenderer.doPdfOcr(getPdfWriter(pdfPath));
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageLayerName("image");
+        properties.setTextLayerName("text");
+
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
+        PdfDocument doc = pdfRenderer.createPdf(files, getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
@@ -199,7 +199,6 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 getTextFromPdfLayer(pdfPath, "text", 3));
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath, "image", 3));
-        Assert.assertEquals(4, pdfRenderer.getInputImages().size());
 
         deleteFile(pdfPath);
     }

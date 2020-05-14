@@ -84,7 +84,8 @@ public class TesseractExecutableReader extends TesseractReader {
     }
 
     /**
-     * Performs tesseract OCR using command line tool.
+     * Performs tesseract OCR using command line tool for the selected page
+     * of input image (by default 1st).
      *
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
@@ -117,6 +118,8 @@ public class TesseractExecutableReader extends TesseractReader {
             addPageSegMode(command);
             // add user words if needed
             addUserWords(command);
+            // set default user defined dpi
+            addDefaultDpi(command);
             // required languages
             addLanguages(command);
             if (outputFormat.equals(OutputFormat.HOCR)) {
@@ -195,6 +198,16 @@ public class TesseractExecutableReader extends TesseractReader {
             command.add("--oem");
             command.add("0");
         }
+    }
+
+    /**
+     * Set default DPI for image.
+     *
+     * @param command result command as list of strings
+     */
+    private void addDefaultDpi(final List<String> command) {
+        command.add("--dpi");
+        command.add("300");
     }
 
     /**

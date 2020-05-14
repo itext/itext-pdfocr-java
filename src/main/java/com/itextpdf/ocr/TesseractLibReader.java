@@ -37,8 +37,8 @@ public class TesseractLibReader extends TesseractReader {
      */
     public TesseractLibReader(final String tessDataPath) {
         setOsType(identifyOsType());
-        setTesseractInstance();
         setPathToTessData(tessDataPath);
+        TesseractUtil.initializeTesseractInstance(isWindows());
     }
 
     /**
@@ -50,14 +50,15 @@ public class TesseractLibReader extends TesseractReader {
     public TesseractLibReader(final String tessDataPath,
             final List<String> languagesList) {
         setOsType(identifyOsType());
-        setTesseractInstance();
         setPathToTessData(tessDataPath);
         setLanguages(Collections.<String>unmodifiableList(languagesList));
+        TesseractUtil.initializeTesseractInstance(isWindows());
     }
 
     /**
      * Gets tesseract instance depending on the OS type.
-     * If instance is null, it will be initialized with parameters
+     * If instance is null or it was already disposed, it will be initialized
+     * with parameters.
      *
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} instance
      */
@@ -66,7 +67,7 @@ public class TesseractLibReader extends TesseractReader {
                 || TesseractUtil
                 .isTesseractInstanceDisposed(tesseractInstance)) {
             tesseractInstance = TesseractUtil
-                    .initializeTesseractInstanceWithParameters(
+                    .initializeTesseractInstance(
                     getTessData(), getLanguagesAsString(),
                     isWindows(), getUserWordsFilePath());
         }
@@ -74,17 +75,18 @@ public class TesseractLibReader extends TesseractReader {
     }
 
     /**
-     * Initializes instance of tesseract and sets all the required properties.
+     * Initializes instance of tesseract if it haven't been already
+     * initialized or it have been disposed and sets all the required
+     * properties.
      *
      * @param outputFormat selected {@link IOcrReader.OutputFormat} for
      *                     tesseract
      */
     public void initializeTesseract(final OutputFormat outputFormat) {
-        setTesseractInstance();
-
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
                         outputFormat.equals(OutputFormat.HOCR) ? "1" : "0");
+        getTesseractInstance().setTessVariable("user_defined_dpi", "300");
         if (getUserWordsFilePath() != null) {
             getTesseractInstance()
                     .setTessVariable("load_system_dawg", "0");
@@ -104,7 +106,8 @@ public class TesseractLibReader extends TesseractReader {
     }
 
     /**
-     * Performs tesseract OCR.
+     * Performs tesseract OCR using command line tool for the selected page
+     * of input image (by default 1st).
      *
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
@@ -152,10 +155,6 @@ public class TesseractLibReader extends TesseractReader {
                                 .error(msg);
                         throw new OcrException(OcrException.TesseractFailed);
                     }
-                } else {
-                    LoggerFactory.getLogger(getClass())
-                            .info("OCR result is NULL for "
-                            + inputImage.getAbsolutePath());
                 }
             }
         } catch (OcrException e) {
@@ -170,13 +169,6 @@ public class TesseractLibReader extends TesseractReader {
                 UtilService.deleteFile(getUserWordsFilePath());
             }
         }
-    }
-
-    /**
-     * Sets tesseract instance depending on the OS type.
-     */
-    private void setTesseractInstance() {
-        tesseractInstance = TesseractUtil.createTesseractInstance(isWindows());
     }
 
     /**
@@ -250,17 +242,20 @@ public class TesseractLibReader extends TesseractReader {
                         bufferedImage = ImageUtil
                                 .readImageFromFile(inputImage);
                     } catch (IllegalArgumentException | IOException ex) {
-                        LoggerFactory.getLogger(getClass())
-                                .info("Cannot create a buffered image "
-                                + "from the input image: "
-                                + ex.getMessage());
+                        LoggerFactory.getLogger(getClass()).info(
+                                MessageFormatUtil.format(
+                                        LogMessageConstant
+                                                .CannotCreateBufferedImage,
+                                        ex.getMessage()));
                         bufferedImage = ImageUtil
                                 .readAsPixAndConvertToBufferedImage(
                                         inputImage);
                     }
                 } catch (IOException ex) {
                     LoggerFactory.getLogger(getClass())
-                            .info("Cannot read image: " + ex.getMessage());
+                            .info(MessageFormatUtil.format(
+                                    LogMessageConstant.CannotReadInputImage,
+                                    ex.getMessage()));
                 }
                 if (bufferedImage != null) {
                     try {
@@ -269,8 +264,9 @@ public class TesseractLibReader extends TesseractReader {
                                         bufferedImage, outputFormat);
                     } catch (TesseractException e) {
                         LoggerFactory.getLogger(getClass())
-                                .info("Cannot process image: "
-                                        + e.getMessage());
+                                .info(MessageFormatUtil.format(
+                                        LogMessageConstant.CannotProcessImage,
+                                        e.getMessage()));
                     }
                 }
                 if (result == null) {

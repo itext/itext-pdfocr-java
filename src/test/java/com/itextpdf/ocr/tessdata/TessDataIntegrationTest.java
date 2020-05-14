@@ -6,8 +6,10 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.IOcrReader.TextPositioning;
 import com.itextpdf.ocr.OcrException;
+import com.itextpdf.ocr.TesseractExecutableReader;
+import com.itextpdf.ocr.TesseractLibReader;
 import com.itextpdf.ocr.TesseractReader;
-import com.itextpdf.ocr.TesseractUtil;
+import com.itextpdf.ocr.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +33,14 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     TesseractReader tesseractReader;
     String parameter;
 
+    @Before
+    public void initTessDataPath() {
+        tesseractReader.setPreprocessingImages(true);
+        tesseractReader.setPathToTessData(getTessDataDirectory());
+        tesseractReader.setLanguages(new ArrayList<String>());
+        tesseractReader.setUserWords("eng", new ArrayList<String>());
+    }
+
     public TessDataIntegrationTest(String type) {
         parameter = type;
         tesseractReader = getTesseractReader(type);
@@ -41,6 +52,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ΟΜΟΛΟΓΙΑ";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         String real = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("ell"), notoSansFontPath);
         // correct result with specified greek language
@@ -86,15 +100,22 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 ".pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
 
+        List<String> languages = Arrays.<String>asList("spa", "spa_old");
         if ("executable".equals(parameter)) {
+            tesseractReader =
+                    new TesseractExecutableReader(getTesseractDirectory(),
+                            getTessDataDirectory(), languages);
             tesseractReader.setPreprocessingImages(false);
+        } else {
+            tesseractReader =
+                    new TesseractLibReader(getTessDataDirectory(), languages);
         }
 
         // locate text by words
         tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
-                Arrays.<String>asList("spa", "spa_old"),  DeviceCmyk.BLACK);
+                languages,  DeviceCmyk.BLACK);
 
         try {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
@@ -112,6 +133,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "greek_01.jpg";
         String expected = "ΟΜΟΛΟΓΙΑ";
 
+        if ("executable".equals(parameter)) {
+            tesseractReader.setPreprocessingImages(false);
+        }
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
                 Collections.<String>singletonList("ell"));
         // correct result with specified greek language
@@ -121,7 +145,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void textJapaneseOutputFromTxtFile() {
         String imgPath = testImagesDirectory + "japanese_01.png";
-        String expected = "日 本 語文法";
+        String expected = "日本語文法";
 
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
                 Collections.<String>singletonList("jpn"));
@@ -519,7 +543,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(result.contains(userWords.get(0))
                 || result.contains(userWords.get(1)));
 
-        Assert.assertEquals(TesseractUtil.getTempDir()
+        Assert.assertEquals(TestUtils.getTempDir()
                         + java.io.File.separatorChar
                         + "fra.user-words",
                 tesseractReader.getUserWordsFilePath());
@@ -540,7 +564,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
             Assert.assertTrue(result.startsWith(expectedOutput));
 
-            Assert.assertEquals(TesseractUtil.getTempDir()
+            Assert.assertEquals(TestUtils.getTempDir()
                             + java.io.File.separatorChar
                             + "eng.user-words",
                     tesseractReader.getUserWordsFilePath());

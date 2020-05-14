@@ -24,7 +24,7 @@ public interface IOcrReader {
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
      */
-    Map<Integer, List<TextInfo>> readDataFromInput(File input);
+    Map<Integer, List<TextInfo>> doImageOcr(File input);
 
     /**
      * Reads data from the provided input image file and returns retrieved data
@@ -36,7 +36,7 @@ public interface IOcrReader {
      * @return OCR result as a {@link java.lang.String} that is
      * returned after processing the given image
      */
-    String readDataFromInput(File input, OutputFormat outputFormat);
+    String doImageOcr(File input, OutputFormat outputFormat);
 
     /**
      * Enumeration of the possible types of text positioning.
@@ -44,7 +44,7 @@ public interface IOcrReader {
      * the text by lines or by words and to return coordinates for the
      * selected type of item.
      * For tesseract this value makes sense only if selected
-     * {@link OutputFormat} is HOCR.
+     * {@link OutputFormat} is {@link OutputFormat#HOCR}.
      */
     enum TextPositioning {
         /**
