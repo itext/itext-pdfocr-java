@@ -118,14 +118,14 @@ public class TesseractExecutableReader extends TesseractReader {
             addPageSegMode(command);
             // add user words if needed
             addUserWords(command);
-            // set default user defined dpi
-            addDefaultDpi(command);
             // required languages
             addLanguages(command);
             if (outputFormat.equals(OutputFormat.HOCR)) {
                 // path to hocr script
                 setHocrOutput(command);
             }
+            // set default user defined dpi
+            addDefaultDpi(command);
 
             TesseractUtil.runCommand(command, isWindows());
         } catch (OcrException e) {
@@ -206,8 +206,8 @@ public class TesseractExecutableReader extends TesseractReader {
      * @param command result command as list of strings
      */
     private void addDefaultDpi(final List<String> command) {
-        command.add("--dpi");
-        command.add("300");
+        command.add("-c");
+        command.add("user_defined_dpi=300");
     }
 
     /**
