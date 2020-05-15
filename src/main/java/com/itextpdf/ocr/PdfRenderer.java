@@ -153,7 +153,7 @@ public class PdfRenderer {
     public final PdfDocument createPdfA(final List<File> inputImages,
             final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent)
-             {
+            throws OcrException {
         LOGGER.info(MessageFormatUtil.format(
                 LogMessageConstant.StartOcrForImages,
                 inputImages.size()));

@@ -35,14 +35,14 @@ import org.slf4j.LoggerFactory;
 public abstract class TesseractReader implements IOcrReader {
 
     /**
-     * Default language for OCR.
-     */
-    public static final String DEFAULT_LANGUAGE = "eng";
-    /**
      * Default suffix for user-word file.
      * (e.g. name: 'eng.user-words')
      */
-    public static final String DEFAULT_USER_WORDS_SUFFIX = "user-words";
+    static final String DEFAULT_USER_WORDS_SUFFIX = "user-words";
+    /**
+     * Default language for OCR.
+     */
+    private static final String DEFAULT_LANGUAGE = "eng";
     /**
      * Supported image formats.
      */
@@ -265,7 +265,8 @@ public abstract class TesseractReader implements IOcrReader {
             Map<String, Map<Integer, List<TextInfo>>> processedData =
                     processInputFiles(input, OutputFormat.HOCR);
             if (processedData != null && processedData.size() > 0) {
-                List<String> keys = new ArrayList<String>(processedData.keySet());
+                List<String> keys = new ArrayList<String>(
+                        processedData.keySet());
                 result = processedData.get(keys.get(0));
             }
         }
@@ -289,7 +290,8 @@ public abstract class TesseractReader implements IOcrReader {
             Map<String, Map<Integer, List<TextInfo>>> processedData =
                     processInputFiles(input, outputFormat);
             if (processedData != null && processedData.size() > 0) {
-                List<String> keys = new ArrayList<String>(processedData.keySet());
+                List<String> keys = new ArrayList<String>(
+                        processedData.keySet());
                 if (outputFormat.equals(OutputFormat.TXT)) {
                     result = keys.get(0);
                 } else {
