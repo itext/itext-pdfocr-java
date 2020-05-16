@@ -31,7 +31,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     TesseractReader tesseractReader;
-    String parameter;
+    String testFileTypeName;
+    private boolean isExecutableReaderType;
 
     @Before
     public void initTessDataPath() {
@@ -41,8 +42,13 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setUserWords("eng", new ArrayList<String>());
     }
 
-    public TessDataIntegrationTest(String type) {
-        parameter = type;
+    public TessDataIntegrationTest(ReaderType type) {
+        isExecutableReaderType = type.equals(ReaderType.EXECUTABLE);
+        if (isExecutableReaderType) {
+            testFileTypeName = "executable";
+        } else {
+            testFileTypeName = "lib";
+        }
         tesseractReader = getTesseractReader(type);
     }
 
@@ -52,7 +58,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ΟΜΟΛΟΓΙΑ";
 
-        if ("executable".equals(parameter)) {
+        if (isExecutableReaderType) {
             tesseractReader.setPreprocessingImages(false);
         }
         String real = getTextFromPdf(tesseractReader, file,
@@ -94,14 +100,14 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void compareSpanishPNG() throws IOException, InterruptedException {
-        boolean preprocess = tesseractReader.isPreprocessingImages();
+        String testName = "compareSpanishPNG";
         String filename = "scanned_spa_01";
-        String expectedPdfPath = testDocumentsDirectory + filename + parameter +
+        String expectedPdfPath = testDocumentsDirectory + filename + testFileTypeName +
                 ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
 
         List<String> languages = Arrays.<String>asList("spa", "spa_old");
-        if ("executable".equals(parameter)) {
+        if (isExecutableReaderType) {
             tesseractReader =
                     new TesseractExecutableReader(getTesseractDirectory(),
                             getTessDataDirectory(), languages);
@@ -121,9 +127,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                     testDocumentsDirectory, "diff_");
         } finally {
-            deleteFile(resultPdfPath);
             Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
-            tesseractReader.setPreprocessingImages(preprocess);
             tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }
     }
@@ -133,7 +137,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "greek_01.jpg";
         String expected = "ΟΜΟΛΟΓΙΑ";
 
-        if ("executable".equals(parameter)) {
+        if (isExecutableReaderType) {
             tesseractReader.setPreprocessingImages(false);
         }
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
@@ -193,18 +197,22 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
-        Assert.assertNotEquals(expected, getRecognizedTextFromTextFile(tesseractReader, imgPath,
-                Collections.<String>singletonList("eng")));
-        Assert.assertNotEquals(expected, getRecognizedTextFromTextFile(tesseractReader, imgPath,
-                Collections.<String>singletonList("spa")));
-        Assert.assertNotEquals(expected, getRecognizedTextFromTextFile(tesseractReader, imgPath,
-                new ArrayList<String>()));
+
+        String engResult = getRecognizedTextFromTextFile(tesseractReader, imgPath,
+                Collections.<String>singletonList("eng"));
+        Assert.assertFalse(engResult.startsWith(expected));
+        String spaResult = getRecognizedTextFromTextFile(tesseractReader, imgPath,
+                Collections.<String>singletonList("spa"));
+        Assert.assertFalse(spaResult.startsWith(expected));
+        String langNotSpecifiedResult = getRecognizedTextFromTextFile(tesseractReader, imgPath,
+                new ArrayList<String>());
+        Assert.assertFalse(langNotSpecifiedResult.startsWith(expected));
     }
 
     @Test
     public void testGermanAndCompareTxtFiles() {
         String imgPath = testImagesDirectory + "german_01.jpg";
-        String expectedTxt = testDocumentsDirectory + "german_01" + parameter + ".txt";
+        String expectedTxt = testDocumentsDirectory + "german_01" + testFileTypeName + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
                 Collections.<String>singletonList("deu"));
@@ -214,7 +222,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testMultipageTiffAndCompareTxtFiles() {
         String imgPath = testImagesDirectory + "multipage.tiff";
-        String expectedTxt = testDocumentsDirectory + "multipage_" + parameter + ".txt";
+        String expectedTxt = testDocumentsDirectory + "multipage_" + testFileTypeName + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
                 Collections.<String>singletonList("eng"));
@@ -283,9 +291,10 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void compareMultiLangImage() throws InterruptedException, java.io.IOException {
+        String testName = "compareMultiLangImage";
         String filename = "multilang";
-        String expectedPdfPath = testDocumentsDirectory + filename + "_" + parameter + ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_created.pdf";
+        String expectedPdfPath = testDocumentsDirectory + filename + "_" + testFileTypeName + ".pdf";
+        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
 
         try {
             tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
@@ -297,7 +306,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                     testDocumentsDirectory, "diff_");
         } finally {
-            deleteFile(resultPdfPath);
             Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
             tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
         }

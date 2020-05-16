@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class PdfA3UIntegrationExecutableTest extends PdfA3UIntegrationTest {
     public PdfA3UIntegrationExecutableTest() {
-        super("executable");
+        super(ReaderType.EXECUTABLE);
     }
 }

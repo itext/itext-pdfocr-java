@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     public TessDataIntegrationLibTest() {
-        super("lib");
+        super(ReaderType.LIB);
     }
 }

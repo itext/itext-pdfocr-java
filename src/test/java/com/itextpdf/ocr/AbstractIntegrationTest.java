@@ -15,6 +15,7 @@ import com.itextpdf.kernel.pdf.canvas.CanvasTag;
 import com.itextpdf.kernel.pdf.canvas.parser.EventType;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.pdf.canvas.parser.data.IEventData;
+import com.itextpdf.kernel.pdf.canvas.parser.data.ImageRenderInfo;
 import com.itextpdf.kernel.pdf.canvas.parser.data.TextRenderInfo;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextChunkLocation;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
@@ -45,6 +46,11 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
+
+    protected enum ReaderType {
+        LIB,
+        EXECUTABLE
+    }
 
     // directory with trained data for tests
     protected static String langTessDataDirectory = null;
@@ -118,8 +124,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
     }
 
-    protected static TesseractReader getTesseractReader(String type) {
-        if ("lib".equals(type)) {
+    protected static TesseractReader getTesseractReader(ReaderType type) {
+        if (type.equals(ReaderType.LIB)) {
             return tesseractLibReader;
         } else {
             return tesseractExecutableReader;
@@ -141,17 +147,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Retrieve image from given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param scaleMode
-     * @param pageSize
-     * @return
-     * @throws IOException
      */
     protected Image getImageFromPdf(TesseractReader tesseractReader,
                           File file, ScaleMode scaleMode,
-            com.itextpdf.kernel.geom.Rectangle pageSize) throws IOException {
+            com.itextpdf.kernel.geom.Rectangle pageSize) {
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
         properties.setScaleMode(scaleMode);
         properties.setPageSize(pageSize);
@@ -184,14 +183,22 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
+     * Retrieve image BBox rectangle from the first page from given pdf document.
+     */
+    protected com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangleFromPdf(String path) throws IOException {
+        PdfDocument doc = new PdfDocument(new PdfReader(path));
+
+        ExtractionStrategy extractionStrategy = new ExtractionStrategy("Image Layer");
+        PdfCanvasProcessor processor = new PdfCanvasProcessor(extractionStrategy);
+        processor.processPageContent(doc.getFirstPage());
+
+        doc.close();
+
+        return extractionStrategy.getImageBBoxRectangle();
+    }
+
+    /**
      * Retrieve text from specified page from given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param page
-     * @param languages
-     * @param fontPath
-     * @return
      */
     protected String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
                           List<String> languages, String fontPath) {
@@ -214,12 +221,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Retrieve text from the first page of given pdf document setting font.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param languages
-     * @param fontPath
-     * @return
      */
     protected String getTextFromPdf(TesseractReader tesseractReader, File file,
                           List<String> languages, String fontPath) {
@@ -228,11 +229,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Retrieve text from the first page of given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param languages
-     * @return
      */
     protected String getTextFromPdf(TesseractReader tesseractReader, File file,
             List<String> languages) {
@@ -241,12 +237,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Retrieve text from the required page of given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param page
-     * @param languages
-     * @return
      */
     protected String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
                           List<String> languages) {
@@ -254,24 +244,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from specified page from given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @param page
-     * @return
-     */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file,
-                          int page) {
-        return getTextFromPdf(tesseractReader, file, page, null, null);
-    }
-
-    /**
      * Retrieve text from the first page of given pdf document.
-     *
-     * @param tesseractReader
-     * @param file
-     * @return
      */
     protected String getTextFromPdf(TesseractReader tesseractReader, File file) {
         return getTextFromPdf(tesseractReader, file, 1, null, null);
@@ -279,12 +252,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Get text from layer specified by name from page.
-     *
-     * @param pdfPath
-     * @param layerName
-     * @param page
-     * @return
-     * @throws IOException
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
                                        int page) throws IOException {
@@ -304,11 +271,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Perform OCR using provided path to image (imgPath),
      * save to file and get text from file.
-     *
-     * @param tesseractReader
-     * @param input
-     * @param languages
-     * @return
      */
     protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input,
             List<String> languages) {
@@ -331,10 +293,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Perform OCR using provided path to image (imgPath),
      * save to file and get text from file.
-     *
-     * @param tesseractReader
-     * @param input
-     * @return
      */
     protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input) {
         return getRecognizedTextFromTextFile(tesseractReader, input, null);
@@ -343,11 +301,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result to text file.
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param txtPath
-     * @param languages
      */
     protected void doOcrAndSaveToTextFile(TesseractReader tesseractReader, String imgPath,
                                String txtPath, List<String> languages) {
@@ -370,13 +323,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
-     * @param languages
-     * @param fontPath
-     * @param color
      */
     protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
@@ -404,9 +350,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                     pdfWriter);
 
             Assert.assertNotNull(doc);
-            if (!doc.isClosed()) {
-                doc.close();
-            }
+            doc.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         }
@@ -415,12 +359,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
-     * @param languages
-     * @param color
      */
     protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
                                String pdfPath, List<String> languages,
@@ -433,12 +371,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
      * (Text will be invisible)
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
-     * @param languages
-     * @param fontPath
      */
     protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
                                String pdfPath, List<String> languages, String fontPath) {
@@ -449,42 +381,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
-     * @param fontPath
-     */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
-                               String pdfPath, String fontPath) {
-        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
-                null, fontPath, null);
-    }
-
-    /**
-     * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
-     *   (Method uses default font path)
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
-     * @param languages
-     */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
-                               String pdfPath, List<String> languages) {
-        doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
-                languages, null, null);
-    }
-
-    /**
-     * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param pdfPath
      */
     protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
                                String pdfPath) {
@@ -494,9 +391,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Retrieve text from given txt file.
-     *
-     * @param file
-     * @return
      */
     protected String getTextFromTextFile(File file) {
         String content = null;
@@ -515,8 +409,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Delete file using provided path.
-     *
-     * @param filePath
      */
     protected void deleteFile(String filePath) {
         try {
@@ -534,12 +426,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Do OCR for given image and compare result etxt file with expected one.
-     *
-     * @param tesseractReader
-     * @param imgPath
-     * @param expectedPath
-     * @param languages
-     * @return
      */
     protected boolean doOcrAndCompareTxtFiles(TesseractReader tesseractReader, String imgPath,
             String expectedPath, List<String> languages) {
@@ -559,10 +445,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Compare two text files using provided paths.
-     *
-     * @param expectedFilePath
-     * @param resultFilePath
-     * @return
      */
     protected boolean compareTxtFiles(String expectedFilePath, String resultFilePath) {
         boolean areEqual = true;
@@ -598,22 +480,9 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
         return areEqual;
     }
-    /**
-     * Create pdfWriter using provided ByteArrayOutputStream.
-     *
-     * @param baos
-     * @return
-     */
-    protected PdfWriter getPdfWriter(ByteArrayOutputStream baos) {
-        return new PdfWriter(baos, new WriterProperties().addUAXmpMetadata());
-    }
 
     /**
      * Create pdfWriter using provided path to destination file.
-     *
-     * @param pdfPath
-     * @return
-     * @throws FileNotFoundException
      */
     protected PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
         return new PdfWriter(pdfPath,
@@ -622,9 +491,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Creates pdf cmyk output intent for tests.
-     *
-     * @return
-     * @throws FileNotFoundException
      */
     protected  PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(defaultCMYKColorProfilePath);
@@ -635,9 +501,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Creates pdf rgb output intent for tests.
-     *
-     * @return
-     * @throws FileNotFoundException
      */
     protected  PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(defaultRGBColorProfilePath);
@@ -657,15 +520,13 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Create pdfWriter.
-     *
-     * @return
-     * @throws IOException
      */
-    protected PdfWriter getPdfWriter() throws IOException {
+    protected PdfWriter getPdfWriter() {
        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
     }
 
     public static class ExtractionStrategy extends LocationTextExtractionStrategy {
+        private com.itextpdf.kernel.geom.Rectangle imageBBoxRectangle;
         private com.itextpdf.kernel.colors.Color fillColor;
         private String layerName;
         private PdfFont pdfFont;
@@ -691,11 +552,11 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             return pdfFont;
         }
 
+        public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() { return this.imageBBoxRectangle; }
+
         @Override
         protected boolean isChunkAtWordBoundary(TextChunk chunk,
                                                 TextChunk previousChunk) {
-            String cur = chunk.getText();
-            String prev = previousChunk.getText();
             ITextChunkLocation curLoc = chunk.getLocation();
             ITextChunkLocation prevLoc = previousChunk.getLocation();
 
@@ -712,22 +573,40 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
         @Override
         public void eventOccurred(IEventData data, EventType type) {
-            if (EventType.RENDER_TEXT.equals(type)) {
-                TextRenderInfo renderInfo = (TextRenderInfo) data;
-                java.util.List<CanvasTag> tagHierarchy = renderInfo
-                        .getCanvasTagHierarchy();
+            java.util.List<CanvasTag> tagHierarchy = null;
+            if (type.equals(EventType.RENDER_TEXT)) {
+                TextRenderInfo textRenderInfo = (TextRenderInfo) data;
+                tagHierarchy = textRenderInfo.getCanvasTagHierarchy();
+            }
+            else if (type.equals(EventType.RENDER_IMAGE)) {
+                ImageRenderInfo imageRenderInfo = (ImageRenderInfo) data;
+                tagHierarchy = imageRenderInfo.getCanvasTagHierarchy();
+            }
+
+            if (tagHierarchy != null) {
                 for (CanvasTag tag : tagHierarchy) {
                     PdfDictionary dict = tag.getProperties();
                     String name = dict.get(PdfName.Name).toString();
-                    if (layerName.equals(name)) {
-                        setFillColor(renderInfo.getGraphicsState()
-                                .getFillColor());
-                        setPdfFont(renderInfo.getGraphicsState().getFont());
-                        super.eventOccurred(data, type);
-                        break;
+                    if (name.equals(layerName)) {
+                        if (type.equals(EventType.RENDER_TEXT)) {
+                            TextRenderInfo renderInfo = (TextRenderInfo) data;
+                            setFillColor(renderInfo.getGraphicsState()
+                                    .getFillColor());
+                            setPdfFont(renderInfo.getGraphicsState().getFont());
+                            super.eventOccurred(data, type);
+                            break;
+                        }
+                        else if (type.equals(EventType.RENDER_IMAGE)) {
+                            ImageRenderInfo renderInfo = (ImageRenderInfo) data;
+                            com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
+                            this.imageBBoxRectangle = new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
+                                    ctm.get(0), ctm.get(4));
+                            break;
+                        }
                     }
                 }
             }
         }
+
     }
 }

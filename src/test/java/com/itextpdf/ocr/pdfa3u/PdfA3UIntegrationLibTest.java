@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class PdfA3UIntegrationLibTest extends PdfA3UIntegrationTest {
     public PdfA3UIntegrationLibTest() {
-        super("lib");
+        super(ReaderType.LIB);
     }
 }

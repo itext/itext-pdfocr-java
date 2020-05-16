@@ -5,7 +5,6 @@ import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.ocr.AbstractIntegrationTest;
 import com.itextpdf.ocr.OcrPdfCreatorProperties;
-import com.itextpdf.ocr.ScaleMode;
 import com.itextpdf.ocr.PdfRenderer;
 import com.itextpdf.ocr.TesseractReader;
 
@@ -14,22 +13,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
 public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     TesseractReader tesseractReader;
-    String parameter;
 
-    public PdfLayersIntegrationTest(String type) {
-        parameter = type;
+    public PdfLayersIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
     }
 
     @Test
-    public void testPdfLayersWithDefaultNames() throws IOException {
+    public void testPdfLayersWithDefaultNames() {
         String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
@@ -51,7 +47,7 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testPdfLayersWithCustomNames() throws IOException {
+    public void testPdfLayersWithCustomNames() {
         String path = testImagesDirectory + "numbers_01.jpg";
         File file = new File(path);
 
@@ -81,88 +77,81 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testTextFromPdfLayers() throws IOException {
+        String testName = "testTextFromPdfLayers";
         String path = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString()
-                + ".pdf";
+        String pdfPath = testDocumentsDirectory +testName + ".pdf";
         File file = new File(path);
 
-        try {
-            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-            PdfDocument doc =
-                    pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        PdfDocument doc =
+                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
-            Assert.assertNotNull(doc);
-            List<PdfLayer> layers = doc.getCatalog()
-                    .getOCProperties(true).getLayers();
+        Assert.assertNotNull(doc);
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
 
-            Assert.assertEquals(2, layers.size());
-            Assert.assertEquals("Image Layer",
-                    layers.get(0).getPdfObject().get(PdfName.Name).toString());
-            Assert.assertTrue(layers.get(0).isOn());
-            Assert.assertEquals("Text Layer",
-                    layers.get(1).getPdfObject().get(PdfName.Name).toString());
-            Assert.assertTrue(layers.get(1).isOn());
+        Assert.assertEquals(2, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+        Assert.assertEquals("Text Layer",
+                layers.get(1).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(1).isOn());
 
-            doc.close();
+        doc.close();
 
-            // Text layer should contain all text
-            // Image layer shouldn't contain any text
-            String expectedOutput = "619121";
-            Assert.assertEquals(expectedOutput,
-                    getTextFromPdfLayer(pdfPath, "Text Layer", 1));
-            Assert.assertEquals("",
-                    getTextFromPdfLayer(pdfPath,
-                            "Image Layer", 1));
-        } finally {
-            deleteFile(pdfPath);
-        }
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "619121";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, "Text Layer", 1));
+        Assert.assertEquals("",
+                getTextFromPdfLayer(pdfPath,
+                        "Image Layer", 1));
     }
 
     @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
+        String testName = "testTextFromPdfLayersFromMultiPageTiff";
         boolean preprocess = tesseractReader.isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
-        String pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() + ".pdf";
+        String pdfPath = testDocumentsDirectory + testName + ".pdf";
         File file = new File(path);
 
-        try {
-            tesseractReader.setPreprocessingImages(false);
-            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-            PdfDocument doc =
-                    pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+        tesseractReader.setPreprocessingImages(false);
+        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        PdfDocument doc =
+                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
-            Assert.assertNotNull(doc);
-            int numOfPages = doc.getNumberOfPages();
-            List<PdfLayer> layers = doc.getCatalog()
-                    .getOCProperties(true).getLayers();
+        Assert.assertNotNull(doc);
+        int numOfPages = doc.getNumberOfPages();
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
 
-            Assert.assertEquals(numOfPages * 2, layers.size());
-            Assert.assertEquals("Image Layer",
-                    layers.get(2).getPdfObject().get(PdfName.Name).toString());
-            Assert.assertEquals("Text Layer",
-                    layers.get(3).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals(numOfPages * 2, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(2).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals("Text Layer",
+                layers.get(3).getPdfObject().get(PdfName.Name).toString());
 
-            doc.close();
+        doc.close();
 
-            // Text layer should contain all text
-            // Image layer shouldn't contain any text
-            String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
-            Assert.assertEquals(expectedOutput,
-                    getTextFromPdfLayer(pdfPath, "Text Layer", 5));
-            Assert.assertEquals("",
-                    getTextFromPdfLayer(pdfPath,
-                            "Image Layer", 5));
-            Assert.assertFalse(tesseractReader.isPreprocessingImages());
-        } finally {
-            deleteFile(pdfPath);
-            tesseractReader.setPreprocessingImages(preprocess);
-        }
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, "Text Layer", 5));
+        Assert.assertEquals("",
+                getTextFromPdfLayer(pdfPath,
+                        "Image Layer", 5));
+        Assert.assertFalse(tesseractReader.isPreprocessingImages());
+        tesseractReader.setPreprocessingImages(preprocess);
     }
 
     @Test
     public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {
-        String pdfPath = testImagesDirectory + UUID.randomUUID().toString()
-                + ".pdf";
+        String testName = "testTextFromPdfLayersFromMultiPagePdf";
+        String pdfPath = testImagesDirectory + testName + ".pdf";
 
         List<File> files = Arrays.<File>asList(
                 new File(testImagesDirectory + "german_01.jpg"),
@@ -199,7 +188,5 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
                 getTextFromPdfLayer(pdfPath, "text", 3));
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath, "image", 3));
-
-        deleteFile(pdfPath);
     }
 }

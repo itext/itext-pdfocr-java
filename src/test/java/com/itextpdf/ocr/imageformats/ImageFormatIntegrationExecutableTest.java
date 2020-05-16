@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class ImageFormatIntegrationExecutableTest extends ImageFormatIntegrationTest {
     public ImageFormatIntegrationExecutableTest() {
-        super("executable");
+        super(ReaderType.EXECUTABLE);
     }
 }

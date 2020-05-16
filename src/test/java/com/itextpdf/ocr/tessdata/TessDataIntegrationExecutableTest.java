@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class TessDataIntegrationExecutableTest extends TessDataIntegrationTest {
     public TessDataIntegrationExecutableTest() {
-        super("executable");
+        super(ReaderType.EXECUTABLE);
     }
 }

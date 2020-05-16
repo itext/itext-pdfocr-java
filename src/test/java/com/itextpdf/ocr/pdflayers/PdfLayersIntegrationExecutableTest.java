@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class PdfLayersIntegrationExecutableTest extends PdfLayersIntegrationTest {
     public PdfLayersIntegrationExecutableTest() {
-        super("executable");
+        super(ReaderType.EXECUTABLE);
     }
 }

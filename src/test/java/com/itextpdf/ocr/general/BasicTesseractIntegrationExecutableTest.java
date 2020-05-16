@@ -7,6 +7,6 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class BasicTesseractIntegrationExecutableTest extends BasicTesseractIntegrationTest {
     public BasicTesseractIntegrationExecutableTest() {
-        super("executable");
+        super(ReaderType.EXECUTABLE);
     }
 }
