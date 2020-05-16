@@ -47,11 +47,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
 
-    protected enum ReaderType {
-        LIB,
-        EXECUTABLE
-    }
-
     // directory with trained data for tests
     protected static String langTessDataDirectory = null;
     // directory with trained data for tests
@@ -79,6 +74,11 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     protected static String freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
 
     protected static float delta = 1e-4f;
+
+    public enum ReaderType {
+        LIB,
+        EXECUTABLE
+    }
 
     static TesseractLibReader tesseractLibReader = null;
     static TesseractExecutableReader tesseractExecutableReader = null;
