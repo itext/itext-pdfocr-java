@@ -1,51 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>com.itextpdf</groupId>
-    <artifactId>root</artifactId>
-    <version>7.1.11-SNAPSHOT</version>
-    <relativePath />
+    <artifactId>pdfocr</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pdfocr</artifactId>
+  <artifactId>pdfocr-tesseract4</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
 
-  <modules>
-    <module>pdfocr-api</module>
-    <module>pdfocr-tesseract4</module>
-  </modules>
+  <name>pdfOCR Tesseract 4</name>
+  <description>OCR is an iText 7 add-on that lets you to parse text from
+    provided images and adds it to PDF.
+  </description>
 
-  <properties>
-    <itext.version>7.1.11-SNAPSHOT</itext.version>
-    <java.version>1.8</java.version>
-    <jdkLevel>${java.version}</jdkLevel>
-    <licensekey.version>3.0.0</licensekey.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <skipTests>false</skipTests>
-  </properties>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>itext-snapshot</id>
-      <name>iText Repository - snapshots</name>
-      <url>https://repo.itextsupport.com/snapshot</url>
-    </repository>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>itext-releases</id>
-      <name>iText Repository - releases</name>
-      <url>https://repo.itextsupport.com/releases</url>
-    </repository>
-  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdfocr-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.tess4j</groupId>
+      <artifactId>tess4j</artifactId>
+      <version>4.5.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ghost4j</groupId>
+          <artifactId>ghost4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>log4j-over-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdftest</artifactId>
+      <version>${itext.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>styled-xml-parser</artifactId>
+      <version>${itext.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>io</artifactId>
+      <version>${itext.version}</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <resources>
@@ -62,16 +77,6 @@
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${failsafe.version}</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-          <forkCount>1</forkCount>
-          <reuseForks>false</reuseForks>
-          <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
       </plugin>
       <plugin>
@@ -97,8 +102,16 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.1.11</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${failsafe.version}</version>
         <configuration>
           <skipTests>${skipTests}</skipTests>
           <forkCount>1</forkCount>
@@ -107,11 +120,13 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <version>1.1.11</version>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
         <configuration>
-          <skip>true</skip>
+          <skipTests>${skipTests}</skipTests>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
       </plugin>
     </plugins>
