@@ -1,15 +1,14 @@
-package com.itextpdf.ocr.tessdata;
+package com.itextpdf.pdfocr.tessdata;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.ocr.AbstractIntegrationTest;
-import com.itextpdf.ocr.IOcrReader.TextPositioning;
-import com.itextpdf.ocr.OcrException;
-import com.itextpdf.ocr.TesseractExecutableReader;
-import com.itextpdf.ocr.TesseractLibReader;
-import com.itextpdf.ocr.TesseractReader;
-import com.itextpdf.ocr.TestUtils;
+import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.TestUtils;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,16 +29,20 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
-    TesseractReader tesseractReader;
+    Tesseract4OcrEngine tesseractReader;
     String testFileTypeName;
     private boolean isExecutableReaderType;
 
     @Before
     public void initTessDataPath() {
-        tesseractReader.setPreprocessingImages(true);
-        tesseractReader.setPathToTessData(getTessDataDirectory());
-        tesseractReader.setLanguages(new ArrayList<String>());
-        tesseractReader.setUserWords("eng", new ArrayList<String>());
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setPreprocessingImages(true);
+        properties.setPathToTessData(getTessDataDirectory());
+        properties.setLanguages(new ArrayList<String>());
+        properties.setUserWords("eng", new ArrayList<String>());
+        properties.setTextPositioning(TextPositioning.BY_LINES);
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
     }
 
     public TessDataIntegrationTest(ReaderType type) {
@@ -59,7 +62,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "ΟΜΟΛΟΓΙΑ";
 
         if (isExecutableReaderType) {
-            tesseractReader.setPreprocessingImages(false);
+            tesseractReader.setTesseract4OcrEngineProperties(
+                    tesseractReader.getTesseract4OcrEngineProperties()
+                            .setPreprocessingImages(false));
         }
         String real = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("ell"), notoSansFontPath);
@@ -108,17 +113,15 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         List<String> languages = Arrays.<String>asList("spa", "spa_old");
         if (isExecutableReaderType) {
-            tesseractReader =
-                    new TesseractExecutableReader(getTesseractDirectory(),
-                            getTessDataDirectory(), languages);
-            tesseractReader.setPreprocessingImages(false);
-        } else {
-            tesseractReader =
-                    new TesseractLibReader(getTessDataDirectory(), languages);
+            tesseractReader.setTesseract4OcrEngineProperties(
+                    tesseractReader.getTesseract4OcrEngineProperties()
+                            .setPreprocessingImages(false));
         }
 
         // locate text by words
-        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setTextPositioning(TextPositioning.BY_WORDS));
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".png", resultPdfPath,
                 languages,  DeviceCmyk.BLACK);
@@ -127,8 +130,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                     testDocumentsDirectory, "diff_");
         } finally {
-            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
-            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
+            Assert.assertEquals(TextPositioning.BY_WORDS,
+                    tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
         }
     }
 
@@ -138,7 +141,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expected = "ΟΜΟΛΟΓΙΑ";
 
         if (isExecutableReaderType) {
-            tesseractReader.setPreprocessingImages(false);
+            tesseractReader.setTesseract4OcrEngineProperties(
+                    tesseractReader.getTesseract4OcrEngineProperties()
+                            .setPreprocessingImages(false));
         }
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
                 Collections.<String>singletonList("ell"));
@@ -297,8 +302,11 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
 
         try {
-            tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
-            tesseractReader.setPathToTessData(getTessDataDirectory());
+            Tesseract4OcrEngineProperties properties =
+                    tesseractReader.getTesseract4OcrEngineProperties();
+            properties.setTextPositioning(TextPositioning.BY_WORDS);
+            properties.setPathToTessData(getTessDataDirectory());
+            tesseractReader.setTesseract4OcrEngineProperties(properties);
             doOcrAndSavePdfToPath(tesseractReader,
                     testImagesDirectory + filename + ".png", resultPdfPath,
                     Arrays.<String>asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
@@ -306,8 +314,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                     testDocumentsDirectory, "diff_");
         } finally {
-            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
-            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
+            Assert.assertEquals(TextPositioning.BY_WORDS,
+                    tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
         }
     }
 
@@ -409,7 +417,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ইংরজে\nশখো";
 
-        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setTextPositioning(TextPositioning.BY_WORDS));
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("ben"), freeSansFontPath));
@@ -422,7 +432,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.<String>singletonList("ben"), kosugiFontPath));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
                 new ArrayList<String>()));
-        tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
     }
 
     @Test
@@ -482,7 +491,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "ইংরজে";
 
-        tesseractReader.setPathToTessData(scriptTessDataDirectory);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPathToTessData(scriptTessDataDirectory));
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Bengali"), freeSansFontPath)
@@ -496,8 +507,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Bengali"), kosugiFontPath)
                 .startsWith(expected));
-
-        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -507,7 +516,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // First sentence
         String expected = "ღმერთი";
 
-        tesseractReader.setPathToTessData(scriptTessDataDirectory);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPathToTessData(scriptTessDataDirectory));
         // correct result with specified georgian+eng language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Georgian"), freeSansFontPath)
@@ -521,8 +532,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Japanese"))
                 .contains(expected));
-
-        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -531,13 +540,13 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         File file = new File(imgPath);
         String expected = "日 本 語\n文法";
 
-        tesseractReader.setPathToTessData(scriptTessDataDirectory);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPathToTessData(scriptTessDataDirectory));
         // correct result with specified japanese language
         String result = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("Japanese"), kosugiFontPath);
         Assert.assertEquals(expected, result);
-
-        tesseractReader.setPathToTessData(getTessDataDirectory());
     }
 
     @Test
@@ -545,8 +554,11 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "wierdwords.png";
         List<String> userWords = Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty");
 
-        tesseractReader.setLanguages(Arrays.asList("fra"));
-        tesseractReader.setUserWords("fra", userWords);
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setLanguages(Arrays.asList("fra"));
+        properties.setUserWords("fra", userWords);
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
         Assert.assertTrue(result.contains(userWords.get(0))
                 || result.contains(userWords.get(1)));
@@ -554,9 +566,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals(TestUtils.getTempDir()
                         + java.io.File.separatorChar
                         + "fra.user-words",
-                tesseractReader.getUserWordsFilePath());
-        tesseractReader.setUserWords("eng", new ArrayList<String>());
-        tesseractReader.setLanguages(new ArrayList<String>());
+                tesseractReader.getTesseract4OcrEngineProperties().getPathToUserWordsFile());
     }
 
     @Test
@@ -564,54 +574,59 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String imgPath = testImagesDirectory + "bogusText.jpg";
         String expectedOutput = "B1adeb1ab1a";
 
-        try {
-            tesseractReader.setLanguages(Arrays.asList("fra", "eng"));
-            tesseractReader.setUserWords("eng", Arrays.<String>asList("b1adeb1ab1a"));
-            String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-            result = result.replace("\n", "").replace("\f", "");
-            result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-            Assert.assertTrue(result.startsWith(expectedOutput));
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setLanguages(Arrays.asList("fra", "eng"));
+        properties.setUserWords("eng", Arrays.<String>asList("b1adeb1ab1a"));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
 
-            Assert.assertEquals(TestUtils.getTempDir()
-                            + java.io.File.separatorChar
-                            + "eng.user-words",
-                    tesseractReader.getUserWordsFilePath());
-        } finally {
-            tesseractReader.setUserWords("eng", new ArrayList<String>());
-            tesseractReader.setLanguages(new ArrayList<String>());
-        }
+        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
+        result = result.replace("\n", "").replace("\f", "");
+        result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
+        Assert.assertTrue(result.startsWith(expectedOutput));
+
+        Assert.assertEquals(TestUtils.getTempDir()
+                        + java.io.File.separatorChar
+                        + "eng.user-words",
+                tesseractReader.getTesseract4OcrEngineProperties().getPathToUserWordsFile());
     }
 
     @Test
     public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LanguageIsNotInTheList,
                         "spa"));
         String userWords = testDocumentsDirectory + "userwords.txt";
-        tesseractReader.setUserWords("spa", new FileInputStream(userWords));
-        tesseractReader.setLanguages(new ArrayList<String>());
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setUserWords("spa", new FileInputStream(userWords));
+        properties.setLanguages(new ArrayList<String>());
     }
 
     @Test
     public void testIncorrectLanguageForUserWordsAsList() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LanguageIsNotInTheList,
                         "eng1"));
-        tesseractReader.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
-        tesseractReader.setLanguages(new ArrayList<String>());
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
+        properties.setLanguages(new ArrayList<String>());
     }
 
     @Test
     public void testIncorrectLanguageForUserWordsAsInputStream()
             throws FileNotFoundException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LanguageIsNotInTheList,
                         "test"));
         String userWords = testDocumentsDirectory + "userwords.txt";
-        tesseractReader.setUserWords("test", new FileInputStream(userWords));
-        tesseractReader.setLanguages(new ArrayList<String>());
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setUserWords("test", new FileInputStream(userWords));
+        properties.setLanguages(new ArrayList<String>());
     }
 }

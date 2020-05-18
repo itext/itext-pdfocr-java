@@ -1,4 +1,4 @@
-package com.itextpdf.ocr;
+package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.io.util.MessageFormatUtil;
@@ -22,6 +22,11 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStra
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -80,14 +85,17 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         EXECUTABLE
     }
 
-    static TesseractLibReader tesseractLibReader = null;
-    static TesseractExecutableReader tesseractExecutableReader = null;
+    static Tesseract4LibOcrEngine tesseractLibReader = null;
+    static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
     public AbstractIntegrationTest() {
         setResourceDirectories();
-        tesseractLibReader = new TesseractLibReader(getTessDataDirectory());
-        tesseractExecutableReader = new TesseractExecutableReader(
-                    getTesseractDirectory(), getTessDataDirectory());
+        Tesseract4OcrEngineProperties ocrEngineProperties =
+                new Tesseract4OcrEngineProperties();
+        ocrEngineProperties.setPathToTessData(getTessDataDirectory());
+        tesseractLibReader = new Tesseract4LibOcrEngine(ocrEngineProperties);
+        tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
+                    getTesseractDirectory(), ocrEngineProperties);
     }
 
     static void setResourceDirectories() {
@@ -124,7 +132,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
     }
 
-    protected static TesseractReader getTesseractReader(ReaderType type) {
+    protected static Tesseract4OcrEngine getTesseractReader(ReaderType type) {
         if (type.equals(ReaderType.LIB)) {
             return tesseractLibReader;
         } else {
@@ -148,7 +156,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve image from given pdf document.
      */
-    protected Image getImageFromPdf(TesseractReader tesseractReader,
+    protected Image getImageFromPdf(Tesseract4OcrEngine tesseractReader,
                           File file, ScaleMode scaleMode,
             com.itextpdf.kernel.geom.Rectangle pageSize) {
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -200,12 +208,12 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve text from specified page from given pdf document.
      */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
-                          List<String> languages, String fontPath) {
+    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader,
+            File file, int page, List<String> languages, String fontPath) {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = TesseractUtil.getTempDir() + UUID.randomUUID().toString() +
+            pdfPath = TestUtils.getTempDir() + UUID.randomUUID().toString() +
                     ".pdf";
             doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
                     pdfPath, languages, fontPath);
@@ -222,7 +230,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve text from the first page of given pdf document setting font.
      */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file,
+    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file,
                           List<String> languages, String fontPath) {
         return getTextFromPdf(tesseractReader, file, 1, languages, fontPath);
     }
@@ -230,7 +238,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve text from the first page of given pdf document.
      */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file,
+    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file,
             List<String> languages) {
         return getTextFromPdf(tesseractReader, file, 1, languages, null);
     }
@@ -238,7 +246,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve text from the required page of given pdf document.
      */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file, int page,
+    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file, int page,
                           List<String> languages) {
         return getTextFromPdf(tesseractReader, file, page, languages, null);
     }
@@ -246,7 +254,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Retrieve text from the first page of given pdf document.
      */
-    protected String getTextFromPdf(TesseractReader tesseractReader, File file) {
+    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file) {
         return getTextFromPdf(tesseractReader, file, 1, null, null);
     }
 
@@ -272,12 +280,12 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath),
      * save to file and get text from file.
      */
-    protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input,
+    protected String getRecognizedTextFromTextFile(Tesseract4OcrEngine tesseractReader, String input,
             List<String> languages) {
         String result = null;
         String txtPath = null;
         try {
-            txtPath = TesseractUtil.getTempDir()
+            txtPath = TestUtils.getTempDir()
                     + UUID.randomUUID().toString() + ".txt";
             doOcrAndSaveToTextFile(tesseractReader, input, txtPath, languages);
             result = getTextFromTextFile(new File(txtPath));
@@ -294,7 +302,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath),
      * save to file and get text from file.
      */
-    protected String getRecognizedTextFromTextFile(TesseractReader tesseractReader, String input) {
+    protected String getRecognizedTextFromTextFile(Tesseract4OcrEngine tesseractReader, String input) {
         return getRecognizedTextFromTextFile(tesseractReader, input, null);
     }
 
@@ -302,20 +310,21 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath)
      * and save result to text file.
      */
-    protected void doOcrAndSaveToTextFile(TesseractReader tesseractReader, String imgPath,
+    protected void doOcrAndSaveToTextFile(Tesseract4OcrEngine tesseractReader, String imgPath,
                                String txtPath, List<String> languages) {
         if (languages != null) {
-            tesseractReader.setLanguages(languages);
+            Tesseract4OcrEngineProperties properties =
+                    tesseractReader.getTesseract4OcrEngineProperties();
+            properties.setLanguages(languages);
+            tesseractReader.setTesseract4OcrEngineProperties(properties);
         }
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                new OcrPdfCreatorProperties());
 
-        pdfRenderer.createTxt(Collections.<File>singletonList(new File(imgPath)),
+        tesseractReader.createTxt(Collections.<File>singletonList(new File(imgPath)),
                 txtPath);
 
         if (languages != null) {
             Assert.assertEquals(languages.size(),
-                    tesseractReader.getLanguagesAsList().size());
+                    tesseractReader.getTesseract4OcrEngineProperties().getLanguages().size());
         }
     }
 
@@ -324,12 +333,15 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
      */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+    protected void doOcrAndSavePdfToPath(Tesseract4OcrEngine tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
             String fontPath,
             com.itextpdf.kernel.colors.Color color) {
         if (languages != null) {
-            tesseractReader.setLanguages(languages);
+            Tesseract4OcrEngineProperties properties =
+                    tesseractReader.getTesseract4OcrEngineProperties();
+            properties.setLanguages(languages);
+            tesseractReader.setTesseract4OcrEngineProperties(properties);
         }
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
         if (fontPath != null && !fontPath.isEmpty()) {
@@ -340,7 +352,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         }
         if (languages != null) {
             Assert.assertEquals(languages.size(),
-                    tesseractReader.getLanguagesAsList().size());
+                    tesseractReader.getTesseract4OcrEngineProperties().getLanguages().size());
         }
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
@@ -360,7 +372,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Perform OCR using provided path to image (imgPath)
      * and save result pdf document to "pdfPath".
      */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+    protected void doOcrAndSavePdfToPath(Tesseract4OcrEngine tesseractReader, String imgPath,
                                String pdfPath, List<String> languages,
             com.itextpdf.kernel.colors.Color color) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
@@ -372,7 +384,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * and save result pdf document to "pdfPath".
      * (Text will be invisible)
      */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+    protected void doOcrAndSavePdfToPath(Tesseract4OcrEngine tesseractReader, String imgPath,
                                String pdfPath, List<String> languages, String fontPath) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, fontPath, null);
@@ -383,7 +395,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * and save result pdf document to "pdfPath".
      * (Method is used for compare tool)
      */
-    protected void doOcrAndSavePdfToPath(TesseractReader tesseractReader, String imgPath,
+    protected void doOcrAndSavePdfToPath(Tesseract4OcrEngine tesseractReader, String imgPath,
                                String pdfPath) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath, null,
                 null, null);
@@ -400,7 +412,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    LogMessageConstant.CannotReadFile,
+                    Tesseract4LogMessageConstant.CannotReadFile,
                     file.getAbsolutePath(),
                     e.getMessage()));
         }
@@ -418,7 +430,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             }
         } catch (IOException | SecurityException e) {
             LOGGER.info(MessageFormatUtil.format(
-                    LogMessageConstant.CannotDeleteFile,
+                    Tesseract4LogMessageConstant.CannotDeleteFile,
                     filePath,
                     e.getMessage()));
         }
@@ -427,12 +439,13 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     /**
      * Do OCR for given image and compare result etxt file with expected one.
      */
-    protected boolean doOcrAndCompareTxtFiles(TesseractReader tesseractReader, String imgPath,
+    protected boolean doOcrAndCompareTxtFiles(Tesseract4OcrEngine tesseractReader,
+            String imgPath,
             String expectedPath, List<String> languages) {
         boolean result = false;
         String resutTxtFile = null;
         try {
-            resutTxtFile = TesseractUtil.getTempDir()
+            resutTxtFile = TestUtils.getTempDir()
                             + UUID.randomUUID().toString() + ".txt";
             doOcrAndSaveToTextFile(tesseractReader, imgPath, resutTxtFile, languages);
             result = compareTxtFiles(expectedPath, resutTxtFile);
@@ -607,6 +620,5 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                 }
             }
         }
-
     }
 }

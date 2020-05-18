@@ -39,8 +39,7 @@ public class PdfTest extends ExtendedITextTest {
      * @return String
      */
     protected static String getImagesTestDirectory() {
-        return PdfTestUtils.getCurrentDirectory() + "images"
-                + java.io.File.separatorChar;
+        return PdfTestUtils.getCurrentDirectory() + "images/";
     }
 
     /**

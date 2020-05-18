@@ -1,13 +1,13 @@
-package com.itextpdf.ocr.imageformats;
+package com.itextpdf.pdfocr.imageformats;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.ocr.AbstractIntegrationTest;
-import com.itextpdf.ocr.IOcrReader.TextPositioning;
-import com.itextpdf.ocr.LogMessageConstant;
-import com.itextpdf.ocr.OcrException;
-import com.itextpdf.ocr.TesseractReader;
+import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -25,11 +25,13 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
-    TesseractReader tesseractReader;
+    Tesseract4OcrEngine tesseractReader;
 
     @Before
     public void restoreTesseractReaderPreprocessingImagesState() {
-        tesseractReader.setPreprocessingImages(true);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(true));
     }
 
     public ImageFormatIntegrationTest(ReaderType type) {
@@ -134,7 +136,9 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String path = testImagesDirectory + "numbers_01.ppm";
         String expectedOutput = "619121";
 
-        tesseractReader.setPreprocessingImages(false);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertEquals(realOutputHocr, expectedOutput);
     }
@@ -182,7 +186,9 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String path = testImagesDirectory + "example_03_10MB.tiff";
         String expectedOutput = "Image File Format";
 
-        tesseractReader.setPreprocessingImages(false);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
@@ -208,7 +214,9 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
 
         File file = new File(path);
 
-        tesseractReader.setPreprocessingImages(false);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 3,
                 Collections.<String>singletonList("eng"));
         Assert.assertNotNull(realOutputHocr);
@@ -216,13 +224,13 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count = 1)
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadInputImage, count = 1)
     })
     @Test
     public void testInputWrongFormat() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(OcrException.IncorrectInputImageFormat,
+                .format(Tesseract4OcrException.IncorrectInputImageFormat,
                         "txt"));
         File file = new File(testImagesDirectory + "example.txt");
         getTextFromPdf(tesseractReader, file);
@@ -235,11 +243,15 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
 
-        tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setTextPositioning(TextPositioning.BY_WORDS));
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".jpg",
                 resultPdfPath);
-        tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setTextPositioning(TextPositioning.BY_LINES));
 
         new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                 testDocumentsDirectory, "diff_");

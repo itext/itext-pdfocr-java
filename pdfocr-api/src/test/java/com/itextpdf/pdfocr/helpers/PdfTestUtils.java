@@ -8,7 +8,8 @@ import org.slf4j.LoggerFactory;
 
 public class PdfTestUtils {
     // directory with test files
-    protected static String testDirectory = "com/itextpdf/pdfocr/";
+    private static final String testDirectory = "./src/test/resources/com"
+            + "/itextpdf/pdfocr/";
 
     /**
      * Return current test directory.
@@ -16,9 +17,6 @@ public class PdfTestUtils {
      * @return String
      */
     public static String getCurrentDirectory() {
-        URL url = Thread.currentThread().getContextClassLoader()
-                .getResource(testDirectory);
-        return new File(url.getFile()).getAbsolutePath() + File.separatorChar;
+        return testDirectory;
     }
-
 }

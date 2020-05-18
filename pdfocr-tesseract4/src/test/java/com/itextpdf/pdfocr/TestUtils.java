@@ -3,14 +3,15 @@ package com.itextpdf.pdfocr;
 public class TestUtils {
 
     // directory with test files
-    private static final String testDirectory = "./src/test/resources/com/itextpdf/ocr/";
+    private static final String testDirectory = "./src/test/resources/com"
+            + "/itextpdf/pdfocr/";
 
     /**
      * Return current test directory.
      *
      * @return String
      */
-    protected static String getCurrentDirectory() {
+    public static String getCurrentDirectory() {
         return testDirectory;
     }
 

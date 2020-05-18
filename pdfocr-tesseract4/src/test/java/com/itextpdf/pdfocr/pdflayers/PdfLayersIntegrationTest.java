@@ -1,12 +1,12 @@
-package com.itextpdf.ocr.pdflayers;
+package com.itextpdf.pdfocr.pdflayers;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
-import com.itextpdf.ocr.AbstractIntegrationTest;
-import com.itextpdf.ocr.OcrPdfCreatorProperties;
-import com.itextpdf.ocr.PdfRenderer;
-import com.itextpdf.ocr.TesseractReader;
+import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
-    TesseractReader tesseractReader;
+    Tesseract4OcrEngine tesseractReader;
 
     public PdfLayersIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
@@ -113,12 +113,15 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
         String testName = "testTextFromPdfLayersFromMultiPageTiff";
-        boolean preprocess = tesseractReader.isPreprocessingImages();
+        boolean preprocess =
+                tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
         String pdfPath = testDocumentsDirectory + testName + ".pdf";
         File file = new File(path);
 
-        tesseractReader.setPreprocessingImages(false);
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
         PdfDocument doc =
                 pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
@@ -144,8 +147,10 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath,
                         "Image Layer", 5));
-        Assert.assertFalse(tesseractReader.isPreprocessingImages());
-        tesseractReader.setPreprocessingImages(preprocess);
+        Assert.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(preprocess));
     }
 
     @Test

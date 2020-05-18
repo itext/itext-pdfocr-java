@@ -1,4 +1,4 @@
-package com.itextpdf.ocr.pdfa3u;
+package com.itextpdf.pdfocr.pdfa3u;
 
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -8,14 +8,16 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.ocr.AbstractIntegrationTest;
-import com.itextpdf.ocr.IOcrReader.TextPositioning;
-import com.itextpdf.ocr.ScaleMode;
-import com.itextpdf.ocr.LogMessageConstant;
-import com.itextpdf.ocr.OcrPdfCreatorProperties;
-import com.itextpdf.ocr.PdfRenderer;
-import com.itextpdf.ocr.TesseractReader;
+import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfa.PdfAConformanceException;
+import com.itextpdf.pdfocr.LogMessageConstant;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.ScaleMode;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -29,7 +31,7 @@ import org.junit.rules.ExpectedException;
 
 public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
-    TesseractReader tesseractReader;
+    Tesseract4OcrEngine tesseractReader;
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
@@ -51,10 +53,8 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
 
-        PdfDocument doc =
-                pdfRenderer.createPdfA(Collections.<File>singletonList(file),
-                        getPdfWriter(pdfPath), null);
-        doc.close();
+        pdfRenderer.createPdfA(Collections.<File>singletonList(file),
+                        getPdfWriter(pdfPath), null).close();
 
         String result = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
         Assert.assertEquals(expected, result);
@@ -230,7 +230,9 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         try {
             PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
 
-            tesseractReader.setTextPositioning(TextPositioning.BY_WORDS);
+            tesseractReader.setTesseract4OcrEngineProperties(
+                    tesseractReader.getTesseract4OcrEngineProperties()
+                            .setTextPositioning(TextPositioning.BY_WORDS));
             Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
             pdfRenderer.setOcrReader(tesseractReader);
             PdfDocument doc =
@@ -246,8 +248,11 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
                     testDocumentsDirectory, "diff_");
         } finally {
-            Assert.assertEquals(TextPositioning.BY_WORDS, tesseractReader.getTextPositioning());
-            tesseractReader.setTextPositioning(TextPositioning.BY_LINES);
+            Assert.assertEquals(TextPositioning.BY_WORDS,
+                    tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
+            tesseractReader.setTesseract4OcrEngineProperties(
+                    tesseractReader.getTesseract4OcrEngineProperties()
+                            .setTextPositioning(TextPositioning.BY_LINES));
         }
     }
 
@@ -259,8 +264,11 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
         String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_a3u_created.pdf";
 
-        tesseractReader.setPathToTessData(langTessDataDirectory);
-        tesseractReader.setLanguages(Collections.<String>singletonList("spa"));
+        Tesseract4OcrEngineProperties properties =
+                new Tesseract4OcrEngineProperties(tesseractReader.getTesseract4OcrEngineProperties());
+        properties.setPathToTessData(langTessDataDirectory);
+        properties.setLanguages(Collections.<String>singletonList("spa"));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
                 new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
