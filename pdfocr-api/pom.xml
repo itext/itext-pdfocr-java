@@ -4,7 +4,7 @@
 
   <parent>
     <groupId>com.itextpdf</groupId>
-    <artifactId>pdfocr</artifactId>
+    <artifactId>ocr</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
