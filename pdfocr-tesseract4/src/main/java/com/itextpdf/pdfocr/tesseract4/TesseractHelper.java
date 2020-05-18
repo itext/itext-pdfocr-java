@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.pdfocr.IOcrEngine.TextPositioning;
 import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;

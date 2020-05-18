@@ -2,7 +2,6 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.IOcrEngine.TextPositioning;
 import com.itextpdf.pdfocr.OcrEngineProperties;
 
 import java.io.ByteArrayInputStream;
@@ -167,7 +166,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
 
     /**
      * Defines the way text is retrieved from tesseract output using
-     * {@link com.itextpdf.pdfocr.IOcrEngine.TextPositioning}.
+     * {@link TextPositioning}.
      *
      * @return the way text is retrieved
      */
@@ -177,7 +176,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
 
     /**
      * Defines the way text is retrieved from tesseract output
-     * using {@link com.itextpdf.pdfocr.IOcrEngine.TextPositioning}.
+     * using {@link TextPositioning}.
      *
      * @param positioning the way text is retrieved
      * @return the {@link Tesseract4OcrEngineProperties} instance

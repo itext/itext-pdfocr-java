@@ -67,8 +67,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * initialized or it have been disposed and sets all the required
      * properties.
      *
-     * @param outputFormat selected
-     * {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat} for tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      */
     public void initializeTesseract(final OutputFormat outputFormat) {
         getTesseractInstance()
@@ -104,8 +103,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
-     * @param outputFormat selected
-     * {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat} for tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
     public void doTesseractOcr(final File inputImage,
@@ -173,8 +171,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * when preprocessing is not needed.
      *
      * @param inputImage input image {@link java.io.File}
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                     tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @return list of result string that will be written to a temporary files
      * later
      */
@@ -216,8 +213,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * it is needed.
      *
      * @param inputImage input image {@link java.io.File}
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                     tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be OCRed
      * @return result as string that will be written to a temporary file later
      */

@@ -56,8 +56,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
-     * @param outputFormat selected
-     * {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat} for tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
     public abstract void doTesseractOcr(File inputImage,
@@ -70,8 +69,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
-     * @param outputFormat selected
-     * {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat} for tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      */
     public void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat) {
@@ -169,9 +167,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      *
      * @param input input image {@link java.io.File}
      *
-     * @param outputFormat {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat}
-     *                     for the result returned by
-     *                     {@link com.itextpdf.pdfocr.IOcrEngine}
+     * @param outputFormat return {@link OutputFormat} result
      * @return OCR result as a {@link java.lang.String} that is
      * returned after processing the given image
      */

@@ -2,7 +2,6 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.IOcrEngine.OutputFormat;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
@@ -527,13 +526,12 @@ final class TesseractOcrUtil {
     /**
      * Performs ocr for the provided image
      * and returns result as string in required format.
-     * ({@link IOcrEngine.OutputFormat} is used in .Net version,
+     * ({@link OutputFormat} is used in .Net version,
      * in java output format should already be set)
      * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      *                          object to perform OCR
      * @param image input {@link java.awt.image.BufferedImage} to be processed
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                      tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @return result as {@link java.lang.String} in required format
      * @throws TesseractException if tesseract recognition failed
      */
@@ -550,15 +548,14 @@ final class TesseractOcrUtil {
     /**
      * Performs ocr for the provided image
      * and returns result as string in required format.
-     * ({@link IOcrEngine.OutputFormat} is used in .Net version,
-     * in java output format should already be set)
+     * ({@link OutputFormat} is used in .Net version, in java output format
+     * should already be set)
      *
      * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      *                          object to perform OCR
      * @param image input image as {@link java.io.File} to be
      *              processed
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                     tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @return result as {@link java.lang.String} in required format
      * @throws TesseractException if tesseract recognition failed
      */
@@ -575,15 +572,14 @@ final class TesseractOcrUtil {
      /**
      * Performs ocr for the provided image
      * and returns result as string in required format.
-     * ({@link IOcrEngine.OutputFormat} is used in .Net version,
-     * in java output format should already be set)
+     * ({@link OutputFormat} is used in .Net version, in java output format
+      * should already be set)
      *
      * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      *                          object to perform OCR
      * @param pix input image as {@link net.sourceforge.lept4j.Pix} to be
      *              processed
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                     tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @return result as {@link java.lang.String} in required format
      * @throws TesseractException if tesseract recognition failed
      * @throws IOException if it is not possible to convert input image

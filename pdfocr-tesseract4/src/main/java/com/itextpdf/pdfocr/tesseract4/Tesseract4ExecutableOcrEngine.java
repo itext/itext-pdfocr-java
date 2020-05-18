@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.pdfocr.IOcrEngine;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -73,8 +72,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
-     * @param outputFormat selected
-     * {@link com.itextpdf.pdfocr.IOcrEngine.OutputFormat} for tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
     public void doTesseractOcr(final File inputImage,
@@ -254,8 +252,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
      *
      * @param command result command as list of strings
      * @param outputFile output file with result
-     * @param outputFormat selected {@link IOcrEngine.OutputFormat} for
-     *                     tesseract
+     * @param outputFormat selected {@link OutputFormat} for tesseract
      */
     private void addOutputFile(final List<String> command,
             final File outputFile, final OutputFormat outputFormat) {
