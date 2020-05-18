@@ -25,60 +25,9 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testPdfLayersWithDefaultNames() {
-        String path = testImagesDirectory + "numbers_01.jpg";
-        File file = new File(path);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
-
-        Assert.assertNotNull(doc);
-        List<PdfLayer> layers = doc.getCatalog()
-                .getOCProperties(true).getLayers();
-
-        Assert.assertEquals(2, layers.size());
-        Assert.assertEquals("Image Layer",
-                layers.get(0).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals("Text Layer",
-                layers.get(1).getPdfObject().get(PdfName.Name).toString());
-        doc.close();
-    }
-
-    @Test
-    public void testPdfLayersWithCustomNames() {
-        String path = testImagesDirectory + "numbers_01.jpg";
-        File file = new File(path);
-
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setImageLayerName("name image 1");
-        properties.setTextLayerName("name text 1");
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
-
-        Assert.assertNotNull(doc);
-        List<PdfLayer> layers = doc.getCatalog()
-                .getOCProperties(true).getLayers();
-
-        Assert.assertEquals(2, layers.size());
-        Assert.assertEquals("name image 1",
-                layers.get(0).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(0).isOn());
-        Assert.assertEquals("name text 1",
-                layers.get(1).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(1).isOn());
-
-        doc.close();
-    }
-
-    @Test
     public void testTextFromPdfLayers() throws IOException {
         String testName = "testTextFromPdfLayers";
-        String path = testImagesDirectory + "numbers_01.jpg";
+        String path = testImagesDirectory + "numbers_02.jpg";
         String pdfPath = testDocumentsDirectory +testName + ".pdf";
         File file = new File(path);
 
@@ -102,7 +51,7 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
         // Text layer should contain all text
         // Image layer shouldn't contain any text
-        String expectedOutput = "619121";
+        String expectedOutput = "0123456789";
         Assert.assertEquals(expectedOutput,
                 getTextFromPdfLayer(pdfPath, "Text Layer", 1));
         Assert.assertEquals("",

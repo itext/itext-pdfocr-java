@@ -425,7 +425,7 @@ public class PdfRenderer {
             float y = imageCoordinates.get(1);
             for (TextInfo item : pageText) {
                 String line = item.getText();
-                List<Float> coordinates = item.getCoordinates();
+                List<Float> coordinates = item.getBbox();
                 final float left = coordinates.get(0) * multiplier;
                 final float right = (coordinates.get(2) + 1) * multiplier - 1;
                 final float top = coordinates.get(1) * multiplier;

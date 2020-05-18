@@ -1,7 +1,9 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
@@ -12,15 +14,16 @@ import com.itextpdf.pdfocr.helpers.PdfTestUtils;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.UUID;
-import org.junit.Rule;
+import org.junit.Assert;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +33,8 @@ public class PdfTest extends ExtendedITextTest {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PdfTest.class);
 
-    public static final String MOCKED_IMAGE_NAME = "numbers_01.jpg";
-    public static final String MOCKED_EXPECTED_RESULT = "619121";
+    public static final String DEFAULT_IMAGE_NAME = "numbers_01.jpg";
+    public static final String DEFAULT_EXPECTED_RESULT = "619121";
 
     /**
      * Return images test directory.
@@ -42,78 +45,64 @@ public class PdfTest extends ExtendedITextTest {
         return PdfTestUtils.getCurrentDirectory() + "images/";
     }
 
+    protected String getFreeSansFontPath() {
+        return PdfTestUtils.getCurrentDirectory() + "fonts/FreeSans.ttf";
+    }
+
     /**
      * Create pdfWriter using provided path to destination file.
      */
-    protected PdfWriter getPdfWriter(String pdfPath)
-            throws FileNotFoundException {
+    protected PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
         return new PdfWriter(pdfPath,
                 new WriterProperties().addUAXmpMetadata());
     }
 
     /**
-     * Delete file using provided path.
+     * Create pdfWriter.
      */
-    protected static void deleteFile(String filePath) {
-        try {
-            if (filePath != null && !filePath.isEmpty()
-                    && Files.exists(java.nio.file.Paths.get(filePath))) {
-                Files.delete(java.nio.file.Paths.get(filePath));
-            }
-        } catch (IOException | SecurityException e) {
-            LOGGER.info(MessageFormatUtil.format(
-                            "Cannot delete file {0}: {1}",
-                            filePath,
-                            e.getMessage()));
-        }
+    protected PdfWriter getPdfWriter() {
+        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
     }
 
     /**
-     * Retrieve text from given pdf document.
+     * Creates pdf rgb output intent for tests.
      */
-    protected String getTextFromPdf(File inputFile,
-            OcrPdfCreatorProperties properties) {
-        String result = null;
-        String pdfPath = null;
-        try {
-            pdfPath = getImagesTestDirectory() + UUID.randomUUID().toString() +
-                    ".pdf";
-            doPdfOcr(pdfPath, inputFile, properties);
-            result = getTextFromPdfLayer(pdfPath, properties.getTextLayerName());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            deleteFile(pdfPath);
-        }
-
-        return result;
+    protected PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
+        String defaultRGBColorProfilePath =
+                PdfTestUtils.getCurrentDirectory() + "profiles"
+                        + "/sRGB_CS_profile.icm";
+        InputStream is = new FileInputStream(defaultRGBColorProfilePath);
+        return new PdfOutputIntent("", "",
+                "", "sRGB IEC61966-2.1", is);
     }
 
     /**
-     * Retrieve text from given pdf document.
+     * Creates pdf cmyk output intent for tests.
      */
-    protected String getTextFromPdf(File inputFile,
-            OcrPdfCreatorProperties properties, String layerName) {
-        String result = null;
-        String pdfPath = null;
-        try {
-            pdfPath = getImagesTestDirectory() + UUID.randomUUID().toString() +
-                    ".pdf";
-            doPdfOcr(pdfPath, inputFile, properties);
-            result = getTextFromPdfLayer(pdfPath, layerName);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            deleteFile(pdfPath);
-        }
-
-        return result;
+    protected  PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
+        String defaultCMYKColorProfilePath =
+                PdfTestUtils.getCurrentDirectory() + "profiles/CoatedFOGRA27"
+                        + ".icc";
+        InputStream is = new FileInputStream(defaultCMYKColorProfilePath);
+        return new PdfOutputIntent("Custom",
+                "","http://www.color.org",
+                "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
     }
 
     /**
-     * Retrieve text from given pdf document.
+     * Get text from layer specified by name from the first page.
      */
-    protected void doPdfOcr(String pdfPath, File inputFile,
+    protected String getTextFromPdfLayer(String pdfPath, String layerName)
+            throws IOException {
+        ExtractionStrategy textExtractionStrategy = getExtractionStrategy(pdfPath, layerName);
+        return textExtractionStrategy.getResultantText();
+    }
+
+    /**
+     * Perform OCR with custom ocr engine using provided input image and set
+     * of properties and save to the given path.
+     */
+    protected void createPdf(String pdfPath, File inputFile,
             OcrPdfCreatorProperties properties) {
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(),
                 properties);
@@ -126,20 +115,86 @@ public class PdfTest extends ExtendedITextTest {
     }
 
     /**
-     * Get text from layer specified by name from the first page.
+     * Perform OCR with custom ocr engine using provided input image and set
+     * of properties and save to the given path.
      */
-    protected String getTextFromPdfLayer(String pdfPath, String layerName)
+    protected void createPdfA(String pdfPath, File inputFile,
+            OcrPdfCreatorProperties properties, PdfOutputIntent outputIntent) {
+        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(),
+                properties);
+        try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
+            pdfRenderer.createPdfA(Collections.<File>singletonList(inputFile),
+                    pdfWriter, outputIntent).close();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieve text from specified page from given pdf document.
+     */
+    protected String getTextFromPdf(File file, String testName) {
+        String result = null;
+        String pdfPath = null;
+        try {
+            pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+            createPdf(pdfPath, file, new OcrPdfCreatorProperties());
+            result = getTextFromPdfLayer(pdfPath, "Text Layer");
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            deleteFile(pdfPath);
+        }
+
+        return result;
+    }
+
+    /**
+     * Retrieve image BBox rectangle from the first page from given pdf document.
+     */
+    protected Rectangle getImageBBoxRectangleFromPdf(String path)
+            throws IOException {
+        ExtractionStrategy extractionStrategy = getExtractionStrategy(path, "Image Layer");
+        return extractionStrategy.getImageBBoxRectangle();
+    }
+
+    /**
+     * Get extraction strategy for given document.
+     */
+    protected ExtractionStrategy getExtractionStrategy(String pdfPath)
+            throws IOException {
+        return getExtractionStrategy(pdfPath, "Text Layer");
+    }
+
+    /**
+     * Get extraction strategy for given document.
+     */
+    protected ExtractionStrategy getExtractionStrategy(String pdfPath,
+            String layerName)
             throws IOException {
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        ExtractionStrategy strategy = new ExtractionStrategy(layerName);
+        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
 
-        ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
-                layerName);
-
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(
-                textExtractionStrategy);
         processor.processPageContent(pdfDocument.getFirstPage());
-
         pdfDocument.close();
-        return textExtractionStrategy.getResultantText();
+        return strategy;
+    }
+
+    /**
+     * Delete file using provided path.
+     */
+    protected void deleteFile(String filePath) {
+        try {
+            if (filePath != null && !filePath.isEmpty()
+                    && Files.exists(java.nio.file.Paths.get(filePath))) {
+                Files.delete(java.nio.file.Paths.get(filePath));
+            }
+        } catch (IOException | SecurityException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    "Cannot delete file {0} : {1}",
+                    filePath,
+                    e.getMessage()));
+        }
     }
 }

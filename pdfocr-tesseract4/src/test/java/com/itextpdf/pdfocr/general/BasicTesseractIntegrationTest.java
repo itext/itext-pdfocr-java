@@ -1,7 +1,5 @@
 package com.itextpdf.pdfocr.general;
 
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -10,10 +8,10 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.OcrException;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfRenderer;
-import com.itextpdf.pdfocr.ScaleMode;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
@@ -92,101 +90,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         Assert.assertEquals(fillColor, color);
 
         pdfDocument.close();
-    }
-
-    @Test
-    public void testKeepOriginalSizeScaleMode() throws IOException {
-        String filePath = testImagesDirectory + "numbers_01.jpg";
-        File file = new File(filePath);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
-
-        Assert.assertNotNull(doc);
-
-        ImageData imageData = ImageDataFactory.create(file.getAbsolutePath());
-
-        float imageWidth = getPoints(imageData.getWidth());
-        float imageHeight = getPoints(imageData.getHeight());
-        float realWidth = doc.getFirstPage().getPageSize().getWidth();
-        float realHeight = doc.getFirstPage().getPageSize().getHeight();
-
-        Assert.assertEquals(imageWidth, realWidth, delta);
-        Assert.assertEquals(imageHeight, realHeight, delta);
-
-        doc.close();
-    }
-
-    @Test
-    public void testScaleWidthMode() throws IOException {
-        String testName = "testScaleWidthMode";
-        String srcPath = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
-
-        File file = new File(srcPath);
-
-        float pageWidthPt = 400f;
-        float pageHeightPt = 400f;
-
-        com.itextpdf.kernel.geom.Rectangle pageSize =
-                new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
-
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setScaleMode(ScaleMode.SCALE_WIDTH);
-        properties.setPageSize(pageSize);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-
-        PdfDocument doc = pdfRenderer.createPdf(
-                Collections.<File>singletonList(file), getPdfWriter(pdfPath));
-        doc.close();
-
-        com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
-        ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
-
-        // page size should be equal to the result image size
-        // result image height should be equal to the value that
-        // was set as page height result image width should be scaled
-        // proportionally according to the provided image height
-        // and original image size
-        Assert.assertEquals(pageHeightPt, rect.getHeight(), delta);
-        Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
-                rect.getWidth() / rect.getHeight(), delta);
-    }
-
-    @Test
-    public void testScaleHeightMode() throws IOException {
-        String testName = "testScaleHeightMode";
-        String srcPath = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
-
-        File file = new File(srcPath);
-
-        float pageWidthPt = 400f;
-        float pageHeightPt = 400f;
-
-        com.itextpdf.kernel.geom.Rectangle pageSize =
-                new com.itextpdf.kernel.geom.Rectangle(pageWidthPt, pageHeightPt);
-
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setScaleMode(ScaleMode.SCALE_HEIGHT);
-        properties.setPageSize(pageSize);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-
-        PdfDocument doc = pdfRenderer.createPdf(
-                Collections.<File>singletonList(file), getPdfWriter(pdfPath));
-        doc.close();
-
-        com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
-        ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
-
-        Assert.assertEquals(pageWidthPt, rect.getWidth(), delta);
-        Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
-                rect.getWidth() / rect.getHeight(), delta);
     }
 
     @Test
@@ -399,35 +302,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadProvidedFont, count = 1)
-    })
-    @Test
-    public void testInvalidFont() throws IOException {
-        String testName = "testImageWithoutText";
-        String expectedOutput = "619121";
-        String path = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
-        File file = new File(path);
-
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setFontPath("font.ttf");
-        properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter(pdfPath));
-
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        String result = getTextFromPdfLayer(pdfPath, "Text Layer", 1);
-        Assert.assertEquals(expectedOutput, result);
-        Assert.assertEquals(ScaleMode.SCALE_TO_FIT,
-                pdfRenderer.getOcrPdfCreatorProperties().getScaleMode());
-    }
-
-    @LogMessages(messages = {
             @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage,
                     count = 1)
     })
@@ -496,7 +370,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadInputImage, count
+            @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count
                     = 1)
     })
     @Test
@@ -511,10 +385,10 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadInputImage, count = 1)
+        @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count = 1)
     })
     @Test
-    public void testCorruptedImageWithoutExtesion() {
+    public void testCorruptedImageWithoutExtension() {
         junitExpectedException.expect(OcrException.class);
 
         File file = new File(testImagesDirectory
@@ -548,12 +422,12 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         if (pageText == null || pageText.size() == 0) {
             pageText = new ArrayList<TextInfo>();
             TextInfo textInfo = new TextInfo();
-            textInfo.setCoordinates(Arrays.<Float>asList(0f, 0f, 0f, 0f));
+            textInfo.setBbox(Arrays.<Float>asList(0f, 0f, 0f, 0f));
             textInfo.setText("");
             pageText.add(textInfo);
         }
         Assert.assertEquals(4,
-                pageText.get(0).getCoordinates().size());
+                pageText.get(0).getBbox().size());
 
         StringBuilder stringBuilder = new StringBuilder();
         for (TextInfo text : pageText) {

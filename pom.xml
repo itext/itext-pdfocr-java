@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
-    <version>7.1.11-SNAPSHOT</version>
+    <version>7.1.11</version>
     <relativePath />
   </parent>
 
@@ -15,8 +15,7 @@
 
   <name>pdfOCR</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from
-    provided images and adds it to PDF.
-  </description>
+    provided images and adds it to PDF.</description>
 
   <modules>
     <module>pdfocr-api</module>
@@ -24,7 +23,7 @@
   </modules>
 
   <properties>
-    <itext.version>7.1.11-SNAPSHOT</itext.version>
+    <itext.version>7.1.11</itext.version>
     <java.version>1.8</java.version>
     <jdkLevel>${java.version}</jdkLevel>
     <licensekey.version>3.0.0</licensekey.version>

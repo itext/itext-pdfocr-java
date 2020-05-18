@@ -154,43 +154,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve image from given pdf document.
-     */
-    protected Image getImageFromPdf(Tesseract4OcrEngine tesseractReader,
-                          File file, ScaleMode scaleMode,
-            com.itextpdf.kernel.geom.Rectangle pageSize) {
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setScaleMode(scaleMode);
-        properties.setPageSize(pageSize);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-
-        PdfDocument doc = pdfRenderer.createPdf(
-                Collections.<File>singletonList(file), getPdfWriter());
-
-        Image image = null;
-
-        Assert.assertNotNull(doc);
-        if (!doc.isClosed()) {
-            PdfDictionary pageDict = doc.getFirstPage().getPdfObject();
-            PdfDictionary pageResources = pageDict
-                    .getAsDictionary(PdfName.Resources);
-            PdfDictionary pageXObjects = pageResources
-                    .getAsDictionary(PdfName.XObject);
-            List<PdfName> pdfNames = new ArrayList<PdfName>(pageXObjects.keySet());
-            PdfName imgRef = pdfNames.get(0);
-            PdfStream imgStream = pageXObjects.getAsStream(imgRef);
-
-            PdfImageXObject imgObject = new PdfImageXObject(imgStream);
-
-            image = new Image(imgObject);
-            doc.close();
-        }
-
-        return image;
-    }
-
-    /**
      * Retrieve image BBox rectangle from the first page from given pdf document.
      */
     protected com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangleFromPdf(String path) throws IOException {
@@ -519,16 +482,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         InputStream is = new FileInputStream(defaultRGBColorProfilePath);
         return new PdfOutputIntent("", "",
                 "", "sRGB IEC61966-2.1", is);
-    }
-
-    /**
-     * Converts value from pixels to points.
-     *
-     * @param pixels input value in pixels
-     * @return result value in points
-     */
-    protected float getPoints(final float pixels) {
-        return pixels * 3f / 4f;
     }
 
     /**

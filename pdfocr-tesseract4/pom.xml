@@ -18,11 +18,6 @@
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>io</artifactId>
-      <version>${itext.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
       <artifactId>pdfocr-api</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -18,25 +18,25 @@ public class TextInfo {
     /**
      * Contains 4 float coordinates: bbox parameters.
      */
-    private List<Float> coordinates;
+    private List<Float> bbox;
 
     /**
      * Creates a new {@link TextInfo} instance.
      */
     public TextInfo() {
         text = null;
-        coordinates = Collections.<Float>emptyList();
+        bbox = Collections.<Float>emptyList();
     }
 
     /**
      * Creates a new {@link TextInfo} instance.
      *
-     * @param newText any text
-     * @param newCoordinates {@link java.util.List} of bbox parameters
+     * @param text any text
+     * @param bbox {@link java.util.List} of bbox parameters
      */
-    public TextInfo(final String newText, final List<Float> newCoordinates) {
-        text = newText;
-        coordinates = Collections.<Float>unmodifiableList(newCoordinates);
+    public TextInfo(final String text, final List<Float> bbox) {
+        this.text = text;
+        this.bbox = Collections.<Float>unmodifiableList(bbox);
     }
 
     /**
@@ -62,16 +62,16 @@ public class TextInfo {
      *
      * @return {@link java.util.List} of bbox parameters
      */
-    public List<Float> getCoordinates() {
-        return new ArrayList<Float>(coordinates);
+    public List<Float> getBbox() {
+        return new ArrayList<Float>(bbox);
     }
 
     /**
      * Sets bbox coordinates.
      *
-     * @param newCoordinates {@link java.util.List} of bbox parameters
+     * @param bbox {@link java.util.List} of bbox parameters
      */
-    public void setCoordinates(final List<Float> newCoordinates) {
-        coordinates = Collections.<Float>unmodifiableList(newCoordinates);
+    public void setBbox(final List<Float> bbox) {
+        this.bbox = Collections.<Float>unmodifiableList(bbox);
     }
 }
