@@ -3,28 +3,28 @@ package com.itextpdf.pdfocr;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
-import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
-import com.itextpdf.pdfocr.helpers.PdfTestUtils;
+import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
+import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class PdfFontTest extends PdfTest {
+@Category(IntegrationTest.class)
+public class PdfFontTest extends ExtendedITextTest {
 
     @Test
     public void testFontColor() throws IOException {
         String testName = "testFontColor";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -32,9 +32,9 @@ public class PdfFontTest extends PdfTest {
         com.itextpdf.kernel.colors.Color color = DeviceCmyk.CYAN;
         properties.setTextColor(color);
 
-        createPdf(pdfPath, file, properties);
+        PdfHelper.createPdf(pdfPath, file, properties);
 
-        ExtractionStrategy strategy = getExtractionStrategy(pdfPath, "Text1");
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath, "Text1");
         com.itextpdf.kernel.colors.Color fillColor = strategy.getFillColor();
         Assert.assertEquals(color, fillColor);
     }
@@ -46,16 +46,16 @@ public class PdfFontTest extends PdfTest {
     public void testInvalidFont() throws IOException {
         String testName = "testImageWithoutText";
         String expectedOutput = "619121";
-        String path = getImagesTestDirectory() + "numbers_01.jpg";
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
         properties.setFontPath("font.ttf");
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
 
-        createPdf(pdfPath, file, properties);
-        String result = getTextFromPdfLayer(pdfPath, "Text Layer");
+        PdfHelper.createPdf(pdfPath, file, properties);
+        String result = PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer");
         Assert.assertEquals(expectedOutput, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }
@@ -63,14 +63,14 @@ public class PdfFontTest extends PdfTest {
     @Test
     public void testDefaultFontInPdfARgb() throws IOException {
         String testName = "testDefaultFontInPdf";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
-        createPdfA(pdfPath, file,
+        PdfHelper.createPdfA(pdfPath, file,
                 new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
-                getRGBPdfOutputIntent());
-        ExtractionStrategy strategy = getExtractionStrategy(pdfPath);
+                PdfHelper.getRGBPdfOutputIntent());
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
 
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
@@ -84,15 +84,15 @@ public class PdfFontTest extends PdfTest {
     @Test
     public void testInvalidCustomFontInPdfACMYK() throws IOException {
         String testName = "testInvalidCustomFontInPdf";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
-        createPdfA(pdfPath, file,
+        PdfHelper.createPdfA(pdfPath, file,
                 new OcrPdfCreatorProperties().setFontPath(path),
-                getCMYKPdfOutputIntent());
+                PdfHelper.getCMYKPdfOutputIntent());
 
-        ExtractionStrategy strategy = getExtractionStrategy(pdfPath);
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("LiberationSans"));
@@ -102,15 +102,16 @@ public class PdfFontTest extends PdfTest {
     @Test
     public void testCustomFontInPdf() throws IOException {
         String testName = "testDefaultFontInPdf";
-        String imgPath = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String imgPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(imgPath);
 
-        createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties().setFontPath(getFreeSansFontPath()),
-                getCMYKPdfOutputIntent());
+        PdfHelper.createPdfA(pdfPath, file,
+                new OcrPdfCreatorProperties()
+                        .setFontPath(TestDirectoryUtils.getFreeSansFontPath()),
+                PdfHelper.getCMYKPdfOutputIntent());
 
-        ExtractionStrategy strategy = getExtractionStrategy(pdfPath);
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("FreeSans"));

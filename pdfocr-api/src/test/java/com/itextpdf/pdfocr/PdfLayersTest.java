@@ -4,7 +4,10 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
-import com.itextpdf.pdfocr.helpers.PdfTestUtils;
+import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,18 +15,20 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class PdfLayersTest extends PdfTest {
+@Category(IntegrationTest.class)
+public class PdfLayersTest extends ExtendedITextTest {
 
     @Test
     public void testPdfLayersWithDefaultNames() {
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
         File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
         PdfDocument doc =
                 pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
+                        PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()
@@ -39,7 +44,7 @@ public class PdfLayersTest extends PdfTest {
 
     @Test
     public void testPdfLayersWithCustomNames() {
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -49,7 +54,7 @@ public class PdfLayersTest extends PdfTest {
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(), properties);
         PdfDocument doc =
                 pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
+                        PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()
@@ -69,13 +74,13 @@ public class PdfLayersTest extends PdfTest {
     @Test
     public void testTextFromPdfLayers() throws IOException {
         String testName = "testTextFromPdfLayers";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+                pdfRenderer.createPdf(Collections.<File>singletonList(file), PdfHelper.getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()
@@ -91,9 +96,9 @@ public class PdfLayersTest extends PdfTest {
 
         doc.close();
 
-        Assert.assertEquals(DEFAULT_EXPECTED_RESULT,
-                getTextFromPdfLayer(pdfPath, "Text Layer"));
+        Assert.assertEquals(TestDirectoryUtils.DEFAULT_EXPECTED_RESULT,
+                PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer"));
         Assert.assertEquals("",
-                getTextFromPdfLayer(pdfPath, "Image Layer"));
+                PdfHelper.getTextFromPdfLayer(pdfPath, "Image Layer"));
     }
 }

@@ -6,17 +6,21 @@ import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.pdfa.PdfAConformanceException;
-import com.itextpdf.pdfocr.helpers.PdfTestUtils;
+import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
-public class PdfA3uTest extends PdfTest {
+@Category(IntegrationTest.class)
+public class PdfA3uTest extends ExtendedITextTest {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
@@ -24,16 +28,16 @@ public class PdfA3uTest extends PdfTest {
     @Test
     public void testPdfA3uWithNullIntent() throws IOException {
         String testName = "testPdfA3uWithNullIntent";
-        String imgPath = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String imgPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
         properties.setTextColor(DeviceCmyk.BLACK);
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
 
-        createPdfA(pdfPath, new File(imgPath), properties, null);
-        String result = getTextFromPdfLayer(pdfPath, "Text Layer");
-        Assert.assertEquals(DEFAULT_EXPECTED_RESULT, result);
+        PdfHelper.createPdfA(pdfPath, new File(imgPath), properties, null);
+        String result = PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer");
+        Assert.assertEquals(TestDirectoryUtils.DEFAULT_EXPECTED_RESULT, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }
 
@@ -44,24 +48,25 @@ public class PdfA3uTest extends PdfTest {
         junitExpectedException.expectMessage(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT);
 
         String testName = "testIncompatibleOutputIntentAndFontColorSpaceException";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory()
+                        + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
 
-        createPdfA(pdfPath, new File(path),
+        PdfHelper.createPdfA(pdfPath, new File(path),
                 new OcrPdfCreatorProperties().setTextColor(DeviceCmyk.BLACK),
-                getRGBPdfOutputIntent());
+                PdfHelper.getRGBPdfOutputIntent());
     }
 
     @Test
     public void testPdfA3DefaultMetadata() throws IOException {
         String testName = "testPdfDefaultMetadata";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
-        createPdfA(pdfPath, file,
+        PdfHelper.createPdfA(pdfPath, file,
                 new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
-                getRGBPdfOutputIntent());
+                PdfHelper.getRGBPdfOutputIntent());
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
@@ -78,8 +83,8 @@ public class PdfA3uTest extends PdfTest {
     @Test
     public void testPdfCustomMetadata() throws IOException {
         String testName = "testPdfCustomMetadata";
-        String path = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -88,9 +93,9 @@ public class PdfA3uTest extends PdfTest {
         String title = "Title";
         properties.setTitle(title);
 
-        createPdfA(pdfPath, file,
+        PdfHelper.createPdfA(pdfPath, file,
                 new OcrPdfCreatorProperties(properties),
-                getCMYKPdfOutputIntent());
+                PdfHelper.getCMYKPdfOutputIntent());
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
         Assert.assertEquals(locale,

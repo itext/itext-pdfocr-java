@@ -280,6 +280,16 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     }
 
     /**
+     * Returns path to the user words file.
+     *
+     * @return path to user words file as {@link java.lang.String} if it
+     * exists, otherwise - null
+     */
+    public final String getPathToUserWordsFile() {
+        return pathToUserWordsFile;
+    }
+
+    /**
      * Sets path to the user words file.
      *
      * @param pathToUserWordsFile path to user words file
@@ -290,15 +300,5 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
             String pathToUserWordsFile) {
         this.pathToUserWordsFile = pathToUserWordsFile;
         return this;
-    }
-
-    /**
-     * Returns path to the user words file.
-     *
-     * @return path to user words file as {@link java.lang.String} if it
-     * exists, otherwise - null
-     */
-    public final String getPathToUserWordsFile() {
-        return pathToUserWordsFile;
     }
 }

@@ -23,40 +23,23 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         layerName = name;
     }
 
-    public void setFillColor(com.itextpdf.kernel.colors.Color color) {
-        fillColor = color;
-    }
-
     public com.itextpdf.kernel.colors.Color getFillColor() {
         return fillColor;
     }
 
-    public void setPdfFont(PdfFont font) {
-        pdfFont = font;
+    public void setFillColor(com.itextpdf.kernel.colors.Color color) {
+        fillColor = color;
     }
 
     public PdfFont getPdfFont() {
         return pdfFont;
     }
 
-    public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() { return this.imageBBoxRectangle; }
-
-    @Override
-    protected boolean isChunkAtWordBoundary(TextChunk chunk,
-            TextChunk previousChunk) {
-        ITextChunkLocation curLoc = chunk.getLocation();
-        ITextChunkLocation prevLoc = previousChunk.getLocation();
-
-        if (curLoc.getStartLocation().equals(curLoc.getEndLocation()) ||
-                prevLoc.getEndLocation()
-                        .equals(prevLoc.getStartLocation())) {
-            return false;
-        }
-
-        return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
-                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth())
-                        / 2.0f;
+    public void setPdfFont(PdfFont font) {
+        pdfFont = font;
     }
+
+    public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() { return this.imageBBoxRectangle; }
 
     @Override
     public void eventOccurred(IEventData data, EventType type) {
@@ -93,5 +76,22 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
                 }
             }
         }
+    }
+
+    @Override
+    protected boolean isChunkAtWordBoundary(TextChunk chunk,
+            TextChunk previousChunk) {
+        ITextChunkLocation curLoc = chunk.getLocation();
+        ITextChunkLocation prevLoc = previousChunk.getLocation();
+
+        if (curLoc.getStartLocation().equals(curLoc.getEndLocation()) ||
+                prevLoc.getEndLocation()
+                        .equals(prevLoc.getStartLocation())) {
+            return false;
+        }
+
+        return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
+                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth())
+                        / 2.0f;
     }
 }

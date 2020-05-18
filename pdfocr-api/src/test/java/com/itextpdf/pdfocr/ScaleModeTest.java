@@ -2,25 +2,32 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
-import com.itextpdf.pdfocr.helpers.PdfTestUtils;
+import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
+import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class ScaleModeTest extends PdfTest {
+@Category(IntegrationTest.class)
+public class ScaleModeTest extends ExtendedITextTest {
 
     private static float delta = 1e-4f;
 
     @Test
     public void testScaleWidthMode() throws IOException {
         String testName = "testScaleWidthMode";
-        String srcPath = getImagesTestDirectory() + "numbers_01.jpg";
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String srcPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
 
         File file = new File(srcPath);
 
@@ -34,7 +41,7 @@ public class ScaleModeTest extends PdfTest {
         properties.setScaleMode(ScaleMode.SCALE_WIDTH);
         properties.setPageSize(pageSize);
 
-        createPdf(pdfPath, file, properties);
+        PdfHelper.createPdf(pdfPath, file, properties);
 
         com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
         ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
@@ -52,8 +59,8 @@ public class ScaleModeTest extends PdfTest {
     @Test
     public void testScaleHeightMode() throws IOException {
         String testName = "testScaleHeightMode";
-        String srcPath = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
-        String pdfPath = PdfTestUtils.getCurrentDirectory() + testName + ".pdf";
+        String srcPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
 
         File file = new File(srcPath);
 
@@ -67,7 +74,7 @@ public class ScaleModeTest extends PdfTest {
         properties.setScaleMode(ScaleMode.SCALE_HEIGHT);
         properties.setPageSize(pageSize);
 
-        createPdf(pdfPath, file, properties);
+        PdfHelper.createPdf(pdfPath, file, properties);
 
         com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
         ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
@@ -79,13 +86,13 @@ public class ScaleModeTest extends PdfTest {
 
     @Test
     public void testOriginalSizeScaleMode() throws IOException {
-        String filePath = getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
+        String filePath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
         File file = new File(filePath);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
         PdfDocument doc =
                 pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter());
+                        PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);
 
@@ -110,5 +117,15 @@ public class ScaleModeTest extends PdfTest {
      */
     protected float getPoints(final float pixels) {
         return pixels * 3f / 4f;
+    }
+
+    /**
+     * Retrieve image BBox rectangle from the first page from given pdf document.
+     */
+    public static Rectangle getImageBBoxRectangleFromPdf(String path)
+            throws IOException {
+        ExtractionStrategy extractionStrategy =
+                PdfHelper.getExtractionStrategy(path, "Image Layer");
+        return extractionStrategy.getImageBBoxRectangle();
     }
 }
