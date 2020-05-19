@@ -46,15 +46,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
     Tesseract4OcrEngine tesseractReader;
 
-    @Before
-    public void initTessDataPath() {
-        Tesseract4OcrEngineProperties ocrEngineProperties =
-                new Tesseract4OcrEngineProperties();
-        ocrEngineProperties.setPathToTessData(getTessDataDirectory());
-        ocrEngineProperties.setLanguages(new ArrayList<String>());
-        tesseractReader.setTesseract4OcrEngineProperties(ocrEngineProperties);
-    }
-
     public BasicTesseractIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
     }
@@ -250,15 +241,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         Assert.assertEquals("",
                 tesseractReader.getTesseract4OcrEngineProperties().getPathToTessData());
-    }
-
-    @Test
-    public void testSimpleTextOutput() {
-        String imgPath = testImagesDirectory + "numbers_01.jpg";
-        String expectedOutput = "619121";
-
-        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        Assert.assertTrue(result.contains(expectedOutput));
     }
 
     @Test

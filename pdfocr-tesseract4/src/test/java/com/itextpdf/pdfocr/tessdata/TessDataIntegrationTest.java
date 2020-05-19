@@ -32,18 +32,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     String testFileTypeName;
     private boolean isExecutableReaderType;
 
-    @Before
-    public void initTessDataPath() {
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setPreprocessingImages(true);
-        properties.setPathToTessData(getTessDataDirectory());
-        properties.setLanguages(new ArrayList<String>());
-        properties.setUserWords("eng", new ArrayList<String>());
-        properties.setTextPositioning(TextPositioning.BY_LINES);
-        tesseractReader.setTesseract4OcrEngineProperties(properties);
-    }
-
     public TessDataIntegrationTest(ReaderType type) {
         isExecutableReaderType = type.equals(ReaderType.EXECUTABLE);
         if (isExecutableReaderType) {

@@ -27,13 +27,6 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
 
     Tesseract4OcrEngine tesseractReader;
 
-    @Before
-    public void restoreTesseractReaderPreprocessingImagesState() {
-        tesseractReader.setTesseract4OcrEngineProperties(
-                tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPreprocessingImages(true));
-    }
-
     public ImageFormatIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
     }

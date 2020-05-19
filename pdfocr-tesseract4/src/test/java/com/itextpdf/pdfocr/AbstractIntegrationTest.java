@@ -26,6 +26,7 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,9 +41,12 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Category(IntegrationTest.class)
 public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
@@ -88,7 +92,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
     @Before
-    public void initTessDataPath() {
+    public void initTesseractProeprties() {
         Tesseract4OcrEngineProperties properties =
                 new Tesseract4OcrEngineProperties();
         properties.setPreprocessingImages(true);
@@ -101,8 +105,23 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         }
         if (tesseractExecutableReader != null) {
             tesseractExecutableReader
+                    .setPathToExecutable(getTesseractDirectory());
+            tesseractExecutableReader
                     .setTesseract4OcrEngineProperties(properties);
         }
+    }
+
+    @Test
+    public void testSimpleTextOutput() {
+        String imgPath = testImagesDirectory + "numbers_01.jpg";
+        String expectedOutput = "619121";
+
+        Assert.assertTrue(
+                getRecognizedTextFromTextFile(tesseractExecutableReader, imgPath)
+                        .contains(expectedOutput));
+        Assert.assertTrue(
+                getRecognizedTextFromTextFile(tesseractExecutableReader, imgPath)
+                        .contains(expectedOutput));
     }
 
     public AbstractIntegrationTest() {
