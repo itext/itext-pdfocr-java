@@ -48,8 +48,8 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Category(IntegrationTest.class)
-public class AbstractIntegrationTest extends ExtendedITextTest {
+@Category(IntegrationTest.class) // NO SONAR
+public class AbstractIntegrationTest extends ExtendedITextTest { // NO SONAR
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
