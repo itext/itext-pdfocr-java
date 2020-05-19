@@ -8,7 +8,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfStream;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.CanvasTag;
@@ -20,8 +19,6 @@ import com.itextpdf.kernel.pdf.canvas.parser.data.TextRenderInfo;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextChunkLocation;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
-import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
@@ -29,7 +26,6 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,12 +40,10 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Category(IntegrationTest.class) // NO SONAR
-public class AbstractIntegrationTest extends ExtendedITextTest { // NO SONAR
+public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
