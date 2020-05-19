@@ -203,6 +203,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     public Tesseract4OcrEngineProperties setUserWords(final String language,
             final List<String> userWords)
             throws Tesseract4OcrException {
+        setPathToUserWordsFile(null);
         if (userWords != null && userWords.size() > 0) {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -244,6 +245,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      */
     public Tesseract4OcrEngineProperties setUserWords(final String language,
             final InputStream inputStream) throws Tesseract4OcrException {
+        setPathToUserWordsFile(null);
         String userWordsFileName = TesseractOcrUtil.getTempDir()
                 + java.io.File.separatorChar
                 + language + "." + DEFAULT_USER_WORDS_SUFFIX;

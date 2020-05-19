@@ -7,7 +7,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
-import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -21,15 +20,14 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class ScaleModeTest extends ExtendedITextTest {
 
-    private static float delta = 1e-4f;
+    private static final float DELTA = 1e-4f;
 
     @Test
     public void testScaleWidthMode() throws IOException {
         String testName = "testScaleWidthMode";
-        String srcPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
-        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
-
-        File file = new File(srcPath);
+        String path = PdfHelper.getDefaultImagePath();
+        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        File file = new File(path);
 
         float pageWidthPt = 400f;
         float pageHeightPt = 400f;
@@ -51,18 +49,17 @@ public class ScaleModeTest extends ExtendedITextTest {
         // was set as page height result image width should be scaled
         // proportionally according to the provided image height
         // and original image size
-        Assert.assertEquals(pageHeightPt, rect.getHeight(), delta);
+        Assert.assertEquals(pageHeightPt, rect.getHeight(), DELTA);
         Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
-                rect.getWidth() / rect.getHeight(), delta);
+                rect.getWidth() / rect.getHeight(), DELTA);
     }
 
     @Test
     public void testScaleHeightMode() throws IOException {
         String testName = "testScaleHeightMode";
-        String srcPath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
-        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
-
-        File file = new File(srcPath);
+        String path = PdfHelper.getDefaultImagePath();
+        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        File file = new File(path);
 
         float pageWidthPt = 400f;
         float pageHeightPt = 400f;
@@ -79,15 +76,15 @@ public class ScaleModeTest extends ExtendedITextTest {
         com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
         ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
 
-        Assert.assertEquals(pageWidthPt, rect.getWidth(), delta);
+        Assert.assertEquals(pageWidthPt, rect.getWidth(), DELTA);
         Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
-                rect.getWidth() / rect.getHeight(), delta);
+                rect.getWidth() / rect.getHeight(), DELTA);
     }
 
     @Test
     public void testOriginalSizeScaleMode() throws IOException {
-        String filePath = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
-        File file = new File(filePath);
+        String path = PdfHelper.getDefaultImagePath();
+        File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
         PdfDocument doc =
@@ -103,8 +100,8 @@ public class ScaleModeTest extends ExtendedITextTest {
         float realWidth = doc.getFirstPage().getPageSize().getWidth();
         float realHeight = doc.getFirstPage().getPageSize().getHeight();
 
-        Assert.assertEquals(imageWidth, realWidth, delta);
-        Assert.assertEquals(imageHeight, realHeight, delta);
+        Assert.assertEquals(imageWidth, realWidth, DELTA);
+        Assert.assertEquals(imageHeight, realHeight, DELTA);
 
         doc.close();
     }

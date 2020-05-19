@@ -1,7 +1,5 @@
 package com.itextpdf.pdfocr.helpers;
 
-import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -17,15 +15,40 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PdfHelper {
 
+    public static final String DEFAULT_IMAGE_NAME = "numbers_01.jpg";
+    public static final String DEFAULT_EXPECTED_RESULT = "619121";
+    // directory with test files
+    public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PdfHelper.class);
+
+    /**
+     * Returns images test directory.
+     */
+    public static String getImagesTestDirectory() {
+        return TEST_DIRECTORY + "images/";
+    }
+
+    /**
+     * Returns path to default test image.
+     */
+    public static String getDefaultImagePath() {
+        return getImagesTestDirectory() + DEFAULT_IMAGE_NAME;
+    }
+
+    /**
+     * Returns path to test font.
+     */
+    public static String getFreeSansFontPath() {
+        return TEST_DIRECTORY + "fonts/FreeSans.ttf";
+    }
 
     /**
      *
@@ -47,8 +70,7 @@ public class PdfHelper {
      * Creates pdf rgb output intent for tests.
      */
     public static PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
-        String defaultRGBColorProfilePath =
-                TestDirectoryUtils.getCurrentDirectory() + "profiles"
+        String defaultRGBColorProfilePath = TEST_DIRECTORY + "profiles"
                         + "/sRGB_CS_profile.icm";
         InputStream is = new FileInputStream(defaultRGBColorProfilePath);
         return new PdfOutputIntent("", "",
@@ -59,9 +81,8 @@ public class PdfHelper {
      * Creates pdf cmyk output intent for tests.
      */
     public static PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
-        String defaultCMYKColorProfilePath =
-                TestDirectoryUtils.getCurrentDirectory() + "profiles/CoatedFOGRA27"
-                        + ".icc";
+        String defaultCMYKColorProfilePath = TEST_DIRECTORY
+                + "profiles/CoatedFOGRA27.icc";
         InputStream is = new FileInputStream(defaultCMYKColorProfilePath);
         return new PdfOutputIntent("Custom",
                 "","http://www.color.org",
@@ -117,7 +138,7 @@ public class PdfHelper {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
+            pdfPath = TEST_DIRECTORY + testName + ".pdf";
             createPdf(pdfPath, file, new OcrPdfCreatorProperties());
             result = getTextFromPdfLayer(pdfPath, "Text Layer");
         } catch (IOException e) {

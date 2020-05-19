@@ -6,6 +6,11 @@ package com.itextpdf.pdfocr;
 public class OcrPdfCreatorProperties {
 
     /**
+     * Path to the default font.
+     */
+    private static final String DEFAULT_FONT_PATH = "com/itextpdf/pdfocr/fonts/LiberationSans-Regular.ttf";
+
+    /**
      * Color of the text in the output PDF document.
      * Text will be transparent by default.
      */
@@ -258,5 +263,14 @@ public class OcrPdfCreatorProperties {
     public OcrPdfCreatorProperties setFontPath(final String path) {
         fontPath = path;
         return this;
+    }
+
+    /**
+     * Gets path to the default font.
+     *
+     * @return {@link java.lang.String} path to default font
+     */
+    public String getDefaultFontName() {
+        return com.itextpdf.pdfocr.OcrPdfCreatorProperties.DEFAULT_FONT_PATH;
     }
 }

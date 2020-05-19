@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.pdfocr.helpers.PdfHelper;
-import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -26,7 +25,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     @Test
     public void testCorruptedImage() {
         junitExpectedException.expect(OcrException.class);
-        File file = new File(TestDirectoryUtils.getImagesTestDirectory()
+        File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted.jpg");
         String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImage");
         Assert.assertNotNull(realOutput);
@@ -40,7 +39,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     public void testCorruptedImageWithoutExtension() {
         junitExpectedException.expect(OcrException.class);
 
-        File file = new File(TestDirectoryUtils.getImagesTestDirectory()
+        File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted");
         String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension");
         Assert.assertNotNull(realOutput);

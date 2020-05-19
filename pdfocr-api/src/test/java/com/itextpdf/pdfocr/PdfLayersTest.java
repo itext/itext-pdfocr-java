@@ -5,7 +5,6 @@ import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
-import com.itextpdf.pdfocr.helpers.TestDirectoryUtils;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -22,7 +21,7 @@ public class PdfLayersTest extends ExtendedITextTest {
 
     @Test
     public void testPdfLayersWithDefaultNames() {
-        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String path = PdfHelper.getDefaultImagePath();
         File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
@@ -44,7 +43,7 @@ public class PdfLayersTest extends ExtendedITextTest {
 
     @Test
     public void testPdfLayersWithCustomNames() {
-        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
+        String path = PdfHelper.getDefaultImagePath();
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -74,8 +73,8 @@ public class PdfLayersTest extends ExtendedITextTest {
     @Test
     public void testTextFromPdfLayers() throws IOException {
         String testName = "testTextFromPdfLayers";
-        String path = TestDirectoryUtils.getImagesTestDirectory() + TestDirectoryUtils.DEFAULT_IMAGE_NAME;
-        String pdfPath = TestDirectoryUtils.getCurrentDirectory() + testName + ".pdf";
+        String path = PdfHelper.getDefaultImagePath();
+        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
         File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
@@ -96,7 +95,7 @@ public class PdfLayersTest extends ExtendedITextTest {
 
         doc.close();
 
-        Assert.assertEquals(TestDirectoryUtils.DEFAULT_EXPECTED_RESULT,
+        Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT,
                 PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer"));
         Assert.assertEquals("",
                 PdfHelper.getTextFromPdfLayer(pdfPath, "Image Layer"));

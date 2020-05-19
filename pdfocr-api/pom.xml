@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>pdfocr-api</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>${parent.version}</version>
 
   <name>pdfOCR API</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from

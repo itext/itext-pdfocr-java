@@ -4,7 +4,6 @@ import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
-import com.itextpdf.pdfocr.TestUtils;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
@@ -563,10 +562,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         Assert.assertTrue(result.contains(userWords.get(0))
                 || result.contains(userWords.get(1)));
 
-        Assert.assertEquals(TestUtils.getTempDir()
-                        + java.io.File.separatorChar
-                        + "fra.user-words",
-                tesseractReader.getTesseract4OcrEngineProperties().getPathToUserWordsFile());
+        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
+                        .getPathToUserWordsFile().endsWith("fra.user-words"));
     }
 
     @Test
@@ -585,10 +582,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
         Assert.assertTrue(result.startsWith(expectedOutput));
 
-        Assert.assertEquals(TestUtils.getTempDir()
-                        + java.io.File.separatorChar
-                        + "eng.user-words",
-                tesseractReader.getTesseract4OcrEngineProperties().getPathToUserWordsFile());
+        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
+                .getPathToUserWordsFile().endsWith("eng.user-words"));
     }
 
     @Test

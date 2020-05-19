@@ -213,7 +213,8 @@ public class PdfRenderer {
      */
     private byte[] getDefaultFont() {
         try (InputStream stream = ResourceUtil
-                .getResourceStream(PropertiesUtil.getDefaultFontName())) {
+                .getResourceStream(getOcrPdfCreatorProperties()
+                        .getDefaultFontName())) {
             return StreamUtil.inputStreamToArray(stream);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(

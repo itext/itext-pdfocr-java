@@ -27,6 +27,7 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -42,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,9 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractIntegrationTest.class);
+
+    // directory with test files
+    private static String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
 
     // directory with trained data for tests
     protected static String langTessDataDirectory = null;
@@ -88,6 +93,24 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     static Tesseract4LibOcrEngine tesseractLibReader = null;
     static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
+    @Before
+    public void initTessDataPath() {
+        Tesseract4OcrEngineProperties properties =
+                new Tesseract4OcrEngineProperties();
+        properties.setPreprocessingImages(true);
+        properties.setPathToTessData(getTessDataDirectory());
+        properties.setLanguages(new ArrayList<String>());
+        properties.setUserWords("eng", new ArrayList<String>());
+        properties.setTextPositioning(TextPositioning.BY_LINES);
+        if (tesseractLibReader != null) {
+            tesseractLibReader.setTesseract4OcrEngineProperties(properties);
+        }
+        if (tesseractExecutableReader != null) {
+            tesseractExecutableReader
+                    .setTesseract4OcrEngineProperties(properties);
+        }
+    }
+
     public AbstractIntegrationTest() {
         setResourceDirectories();
         Tesseract4OcrEngineProperties ocrEngineProperties =
@@ -99,28 +122,27 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     static void setResourceDirectories() {
-        String path = TestUtils.getCurrentDirectory();
         if (testImagesDirectory == null) {
-            testImagesDirectory = path + "images" + java.io.File.separatorChar;
+            testImagesDirectory = TEST_DIRECTORY + "images" + java.io.File.separatorChar;
         }
         if (langTessDataDirectory == null) {
-            langTessDataDirectory = path + "tessdata";
+            langTessDataDirectory = TEST_DIRECTORY + "tessdata";
         }
         if (scriptTessDataDirectory == null) {
-            scriptTessDataDirectory = path + "tessdata" + java.io.File.separatorChar + "script";
+            scriptTessDataDirectory = TEST_DIRECTORY + "tessdata" + java.io.File.separatorChar + "script";
         }
         if (testFontsDirectory == null) {
-            testFontsDirectory = path + "fonts" + java.io.File.separatorChar;
+            testFontsDirectory = TEST_DIRECTORY + "fonts" + java.io.File.separatorChar;
             updateFonts();
         }
         if (testDocumentsDirectory == null) {
-            testDocumentsDirectory = path + "documents" + java.io.File.separatorChar;
+            testDocumentsDirectory = TEST_DIRECTORY + "documents" + java.io.File.separatorChar;
         }
         if (defaultCMYKColorProfilePath == null) {
-            defaultCMYKColorProfilePath = path + "CoatedFOGRA27.icc";
+            defaultCMYKColorProfilePath = TEST_DIRECTORY + "CoatedFOGRA27.icc";
         }
         if (defaultRGBColorProfilePath == null) {
-            defaultRGBColorProfilePath = path + "sRGB_CS_profile.icm";
+            defaultRGBColorProfilePath = TEST_DIRECTORY + "sRGB_CS_profile.icm";
         }
     }
 
@@ -176,7 +198,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = TestUtils.getTempDir() + UUID.randomUUID().toString() +
+            pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() +
                     ".pdf";
             doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
                     pdfPath, languages, fontPath);
@@ -248,7 +270,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         String result = null;
         String txtPath = null;
         try {
-            txtPath = TestUtils.getTempDir()
+            txtPath = testDocumentsDirectory
                     + UUID.randomUUID().toString() + ".txt";
             doOcrAndSaveToTextFile(tesseractReader, input, txtPath, languages);
             result = getTextFromTextFile(new File(txtPath));
@@ -408,7 +430,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         boolean result = false;
         String resutTxtFile = null;
         try {
-            resutTxtFile = TestUtils.getTempDir()
+            resutTxtFile = testDocumentsDirectory
                             + UUID.randomUUID().toString() + ".txt";
             doOcrAndSaveToTextFile(tesseractReader, imgPath, resutTxtFile, languages);
             result = compareTxtFiles(expectedPath, resutTxtFile);
