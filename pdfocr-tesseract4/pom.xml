@@ -12,8 +12,9 @@
   <version>${parent.version}</version>
 
   <name>pdfOCR Tesseract 4</name>
-  <description>OCR is an iText 7 add-on that lets you to parse text from
-    provided images and adds it to PDF.</description>
+  <description>pdfOCR Tesseract 4 is an iText 7 add-on that lets you to
+    parse text from provided images using Tesseract 4 and to add it to PDF.
+  </description>
 
   <dependencies>
     <dependency>
