@@ -35,8 +35,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      */
     private static final Set<String> SUPPORTED_IMAGE_FORMATS =
             Collections.unmodifiableSet(new HashSet<>(
-                    Arrays.<String>asList("bmp", "png", "pnm", "pgm",
-                            "ppm", "pbm", "tiff", "tif", "jpeg",
+                    Arrays.<String>asList("bmp", "png", "tiff", "tif", "jpeg",
                             "jpg", "jpe", "jfif")));
 
     /**
