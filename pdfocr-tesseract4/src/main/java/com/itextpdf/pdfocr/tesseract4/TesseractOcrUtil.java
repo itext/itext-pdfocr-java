@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
  * preprocessing using {@link net.sourceforge.lept4j.ILeptonica}.
  * These all methods have to be ported to .Net manually.
  */
-final class TesseractOcrUtil {
+class TesseractOcrUtil {
 
     /**
      * The logger.
      */
-    static final Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractOcrUtil.class);
 
     /**

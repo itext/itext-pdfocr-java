@@ -26,7 +26,7 @@ public class ScaleModeTest extends ExtendedITextTest {
     public void testScaleWidthMode() throws IOException {
         String testName = "testScaleWidthMode";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         float pageWidthPt = 400f;
@@ -58,7 +58,7 @@ public class ScaleModeTest extends ExtendedITextTest {
     public void testScaleHeightMode() throws IOException {
         String testName = "testScaleHeightMode";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         float pageWidthPt = 400f;

@@ -2,7 +2,6 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.ImageUtil;
 import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 
@@ -280,10 +279,12 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
             // image needs to be paginated only if it's tiff
             // or preprocessing isn't required
             int realNumOfPages = !ImagePreprocessingUtil.isTiffImage(input)
-                    ? 1 : ImageUtil.getNumberOfPageTiff(input);
-            int numOfPages = getTesseract4OcrEngineProperties().isPreprocessingImages()
+                    ? 1 : ImagePreprocessingUtil.getNumberOfPageTiff(input);
+            int numOfPages =
+                    getTesseract4OcrEngineProperties().isPreprocessingImages()
                     ? realNumOfPages : 1;
-            int numOfFiles = getTesseract4OcrEngineProperties().isPreprocessingImages()
+            int numOfFiles =
+                    getTesseract4OcrEngineProperties().isPreprocessingImages()
                     ? 1 : realNumOfPages;
 
             for (int page = 1; page <= numOfPages; page++) {

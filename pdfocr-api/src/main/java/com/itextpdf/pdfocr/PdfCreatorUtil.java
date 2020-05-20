@@ -2,10 +2,6 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.io.image.TiffImageData;
-import com.itextpdf.io.source.ByteArrayOutputStream;
-import com.itextpdf.io.source.RandomAccessFileOrArray;
-import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -16,14 +12,12 @@ import com.itextpdf.layout.layout.LayoutContext;
 import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.IRenderer;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,28 +141,11 @@ class PdfCreatorUtil {
                             .create(inputImage.getAbsolutePath());
                     images.add(imageData);
                 } catch (com.itextpdf.io.IOException e) {
-                    LOGGER.info(MessageFormatUtil.format(
-                            LogMessageConstant.AttemptToConvertToPng,
-                            inputImage.getAbsolutePath(),
+                    LOGGER.error(MessageFormatUtil.format(
+                            LogMessageConstant.CannotReadInputImage,
                             e.getMessage()));
-                    try {
-                        BufferedImage bufferedImage = ImageUtil
-                                    .readImageFromFile(inputImage);
-                        ByteArrayOutputStream baos =
-                                new ByteArrayOutputStream();
-                        ImageIO.write(bufferedImage,
-                                PropertiesUtil.getPngImageFormat(), baos);
-                        ImageData imageData = ImageDataFactory
-                                .create(baos.toByteArray());
-                        images.add(imageData);
-                    } catch (com.itextpdf.io.IOException | IOException
-                            | IllegalArgumentException ex) {
-                        LOGGER.error(MessageFormatUtil.format(
-                                LogMessageConstant.CannotReadInputImage,
-                                ex.getMessage()));
-                        throw new OcrException(
-                                OcrException.CannotReadInputImage);
-                    }
+                    throw new OcrException(
+                            OcrException.CannotReadInputImage);
                 }
             }
         }

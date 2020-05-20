@@ -15,8 +15,7 @@
 
   <name>pdfOCR</name>
   <description>OCR is an iText 7 add-on that lets you to parse text from
-    provided images and adds it to PDF.
-  </description>
+    provided images and adds it to PDF.</description>
 
   <modules>
     <module>pdfocr-api</module>

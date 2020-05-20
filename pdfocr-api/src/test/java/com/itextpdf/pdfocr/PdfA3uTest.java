@@ -28,7 +28,7 @@ public class PdfA3uTest extends ExtendedITextTest {
     public void testPdfA3uWithNullIntent() throws IOException {
         String testName = "testPdfA3uWithNullIntent";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
         properties.setTextColor(DeviceCmyk.BLACK);
@@ -48,7 +48,7 @@ public class PdfA3uTest extends ExtendedITextTest {
 
         String testName = "testIncompatibleOutputIntentAndFontColorSpaceException";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
         PdfHelper.createPdfA(pdfPath, new File(path),
                 new OcrPdfCreatorProperties().setTextColor(DeviceCmyk.BLACK),
@@ -59,7 +59,7 @@ public class PdfA3uTest extends ExtendedITextTest {
     public void testPdfA3DefaultMetadata() throws IOException {
         String testName = "testPdfDefaultMetadata";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfHelper.createPdfA(pdfPath, file,
@@ -82,7 +82,7 @@ public class PdfA3uTest extends ExtendedITextTest {
     public void testPdfCustomMetadata() throws IOException {
         String testName = "testPdfCustomMetadata";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();

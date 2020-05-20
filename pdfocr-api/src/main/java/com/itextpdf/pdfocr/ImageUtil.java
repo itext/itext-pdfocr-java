@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
  * Utilities class to work with images.
  * Class provides tools for basic image preprocessing.
  */
-public final class ImageUtil {
+class ImageUtil {
 
     /**
      * Creates a new {@link ImageUtil} instance.
@@ -31,7 +31,7 @@ public final class ImageUtil {
      * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
      * string
      */
-    public static int getNumberOfPageTiff(final File inputImage)
+    static int getNumberOfPageTiff(final File inputImage)
             throws IOException {
         RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
                 new RandomAccessSourceFactory()
@@ -50,9 +50,11 @@ public final class ImageUtil {
      * @throws IllegalArgumentException if error occurred during reading a file
      * @throws IOException if error occurred during reading a file
      */
-    public static BufferedImage readImageFromFile(final File inputFile)
+    static BufferedImage readImageFromFile(final File inputFile)
             throws IllegalArgumentException, IOException {
-        return ImageIO.read(
-                new FileInputStream(inputFile.getAbsolutePath()));
+        FileInputStream is = new FileInputStream(inputFile.getAbsolutePath());
+        BufferedImage bi = ImageIO.read(is);
+        is.close();
+        return bi;
     }
 }

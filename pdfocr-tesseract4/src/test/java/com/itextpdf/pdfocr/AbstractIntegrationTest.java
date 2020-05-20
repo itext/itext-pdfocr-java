@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +52,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             .getLogger(AbstractIntegrationTest.class);
 
     // directory with test files
-    private static String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
+    public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
+    private static final String TARGET_FOLDER = "./target/test/resources/com/itextpdf/pdfocr/";
 
     // directory with trained data for tests
     protected static String langTessDataDirectory = null;
@@ -92,7 +92,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
     @Before
-    public void initTesseractProeprties() {
+    public void initTesseractProperties() {
         Tesseract4OcrEngineProperties properties =
                 new Tesseract4OcrEngineProperties();
         properties.setPreprocessingImages(true);
@@ -152,10 +152,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             testDocumentsDirectory = TEST_DIRECTORY + "documents" + java.io.File.separatorChar;
         }
         if (defaultCMYKColorProfilePath == null) {
-            defaultCMYKColorProfilePath = TEST_DIRECTORY + "CoatedFOGRA27.icc";
+            defaultCMYKColorProfilePath = TEST_DIRECTORY + "profiles/CoatedFOGRA27.icc";
         }
         if (defaultRGBColorProfilePath == null) {
-            defaultRGBColorProfilePath = TEST_DIRECTORY + "sRGB_CS_profile.icm";
+            defaultRGBColorProfilePath = TEST_DIRECTORY + "profiles/sRGB_CS_profile.icm";
         }
     }
 
@@ -182,6 +182,22 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         return os.toLowerCase().contains("win") && tesseractDir != null
                 && !tesseractDir.isEmpty()
                 ? tesseractDir + "\\tesseract.exe" : "tesseract";
+    }
+
+    /**
+     * Returns target directory (because target/test could not exist).
+     */
+    public static String getTargetDirectory() {
+        if (!Files.exists(java.nio.file.Paths.get(TARGET_FOLDER))) {
+            try {
+                Files.createDirectories(
+                        java.nio.file.Paths.get(TARGET_FOLDER));
+            } catch (IOException e) {
+                LOGGER.info(TARGET_FOLDER
+                        + " directory does not exist: " + e);
+            }
+        }
+        return TARGET_FOLDER;
     }
 
     protected static String getTessDataDirectory() {
@@ -211,15 +227,12 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = testDocumentsDirectory + UUID.randomUUID().toString() +
-                    ".pdf";
+            pdfPath = getTargetDirectory() + getImageName(file.getAbsolutePath(), languages) + ".pdf";
             doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
                     pdfPath, languages, fontPath);
             result = getTextFromPdfLayer(pdfPath, "Text Layer", page);
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-        } finally {
-            deleteFile(pdfPath);
         }
 
         return result;
@@ -283,14 +296,12 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         String result = null;
         String txtPath = null;
         try {
-            txtPath = testDocumentsDirectory
-                    + UUID.randomUUID().toString() + ".txt";
+            txtPath = getTargetDirectory()
+                    + getImageName(input, languages) + ".txt";
             doOcrAndSaveToTextFile(tesseractReader, input, txtPath, languages);
             result = getTextFromTextFile(new File(txtPath));
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
-        } finally {
-            deleteFile(txtPath);
         }
 
         return result;
@@ -418,40 +429,13 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Delete file using provided path.
-     */
-    protected void deleteFile(String filePath) {
-        try {
-            if (filePath != null && !filePath.isEmpty()
-                    && Files.exists(java.nio.file.Paths.get(filePath))) {
-                Files.delete(java.nio.file.Paths.get(filePath));
-            }
-        } catch (IOException | SecurityException e) {
-            LOGGER.info(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotDeleteFile,
-                    filePath,
-                    e.getMessage()));
-        }
-    }
-
-    /**
      * Do OCR for given image and compare result etxt file with expected one.
      */
     protected boolean doOcrAndCompareTxtFiles(Tesseract4OcrEngine tesseractReader,
-            String imgPath,
-            String expectedPath, List<String> languages) {
-        boolean result = false;
-        String resutTxtFile = null;
-        try {
-            resutTxtFile = testDocumentsDirectory
-                            + UUID.randomUUID().toString() + ".txt";
-            doOcrAndSaveToTextFile(tesseractReader, imgPath, resutTxtFile, languages);
-            result = compareTxtFiles(expectedPath, resutTxtFile);
-        } finally {
-            deleteFile(resutTxtFile);
-        }
-
-        return result;
+            String imgPath, String expectedPath, List<String> languages) {
+        String resultTxtFile = getTargetDirectory() + getImageName(imgPath, languages) + ".txt";
+        doOcrAndSaveToTextFile(tesseractReader, imgPath, resultTxtFile, languages);
+        return compareTxtFiles(expectedPath, resultTxtFile);
     }
 
     /**
@@ -524,6 +508,19 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      */
     protected PdfWriter getPdfWriter() {
        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
+    }
+
+    /**
+     * Gets image name from path.
+     */
+    private String getImageName(String path, List<String> languages) {
+        String lang = (languages != null && languages.size() > 0) ?
+                "_" + String.join("", languages) : "";
+        String img = path
+                .substring(path.lastIndexOf(java.io.File.separatorChar))
+                .substring(1)
+                .replace(".", "_");
+        return img + lang;
     }
 
     public static class ExtractionStrategy extends LocationTextExtractionStrategy {

@@ -25,47 +25,12 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testTextFromPdfLayers() throws IOException {
-        String testName = "testTextFromPdfLayers";
-        String path = testImagesDirectory + "numbers_02.jpg";
-        String pdfPath = testDocumentsDirectory +testName + ".pdf";
-        File file = new File(path);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
-
-        Assert.assertNotNull(doc);
-        List<PdfLayer> layers = doc.getCatalog()
-                .getOCProperties(true).getLayers();
-
-        Assert.assertEquals(2, layers.size());
-        Assert.assertEquals("Image Layer",
-                layers.get(0).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(0).isOn());
-        Assert.assertEquals("Text Layer",
-                layers.get(1).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertTrue(layers.get(1).isOn());
-
-        doc.close();
-
-        // Text layer should contain all text
-        // Image layer shouldn't contain any text
-        String expectedOutput = "0123456789";
-        Assert.assertEquals(expectedOutput,
-                getTextFromPdfLayer(pdfPath, "Text Layer", 1));
-        Assert.assertEquals("",
-                getTextFromPdfLayer(pdfPath,
-                        "Image Layer", 1));
-    }
-
-    @Test
     public void testTextFromPdfLayersFromMultiPageTiff() throws IOException {
         String testName = "testTextFromPdfLayersFromMultiPageTiff";
         boolean preprocess =
                 tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages();
         String path = testImagesDirectory + "multipage.tiff";
-        String pdfPath = testDocumentsDirectory + testName + ".pdf";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         tesseractReader.setTesseract4OcrEngineProperties(
@@ -105,7 +70,7 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testTextFromPdfLayersFromMultiPagePdf() throws IOException {
         String testName = "testTextFromPdfLayersFromMultiPagePdf";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
 
         List<File> files = Arrays.<File>asList(
                 new File(testImagesDirectory + "german_01.jpg"),

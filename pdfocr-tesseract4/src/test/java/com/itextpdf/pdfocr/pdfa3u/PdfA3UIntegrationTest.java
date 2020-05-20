@@ -40,28 +40,13 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         tesseractReader = getTesseractReader(type);
     }
 
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CannotReadProvidedFont, count = 1)
-    })
-    @Test
-    public void testInvalidFont() throws IOException {
-        String path = testImagesDirectory + "numbers_01.jpg";
-        File file = new File(path);
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
-                new OcrPdfCreatorProperties().setFontPath(path));
-        PdfDocument doc =
-                pdfRenderer.createPdfA(Collections.<File>singletonList(file),
-                        getPdfWriter(), getCMYKPdfOutputIntent());
-        doc.close();
-    }
-
     @Test
     public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException,
             InterruptedException {
         String testName = "comparePdfA3uCMYKColorSpaceSpanishJPG";
         String filename = "numbers_01";
         String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_a3u_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_a3u.pdf";
 
         try {
             PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
@@ -98,7 +83,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String testName = "comparePdfA3uRGBSpanishJPG";
         String filename = "spanish_01";
         String expectedPdfPath = testDocumentsDirectory + filename + "_a3u.pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_a3u_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_a3u.pdf";
 
         Tesseract4OcrEngineProperties properties =
                 new Tesseract4OcrEngineProperties(tesseractReader.getTesseract4OcrEngineProperties());

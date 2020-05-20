@@ -59,7 +59,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String testName = "compareJFIF";
         String filename = "example_02";
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
         doOcrAndSavePdfToPath(tesseractReader,
                 testImagesDirectory + filename + ".JFIF",
@@ -156,7 +156,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String testName = "compareNumbersJPG";
         String filename = "numbers_01";
         String expectedPdfPath = testDocumentsDirectory + filename + ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()

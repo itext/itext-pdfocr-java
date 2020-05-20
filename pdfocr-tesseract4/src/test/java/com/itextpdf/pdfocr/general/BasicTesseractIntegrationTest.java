@@ -54,7 +54,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     public void testFontColorInMultiPagePdf() throws IOException {
         String testName = "testFontColorInMultiPagePdf";
         String path = testImagesDirectory + "multipage.tiff";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
@@ -114,42 +114,10 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @Test
-    public void testFontColor() throws IOException {
-        String testName = "testFontColor";
-        String path = testImagesDirectory + "numbers_01.jpg";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
-        File file = new File(path);
-
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setTextLayerName("Text1");
-        com.itextpdf.kernel.colors.Color color = DeviceCmyk.CYAN;
-        properties.setTextColor(color);
-
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-        PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
-                        getPdfWriter(pdfPath));
-
-        Assert.assertNotNull(doc);
-        doc.close();
-
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-
-        ExtractionStrategy strategy = new ExtractionStrategy("Text1");
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
-
-        processor.processPageContent(pdfDocument.getFirstPage());
-        pdfDocument.close();
-
-        com.itextpdf.kernel.colors.Color fillColor = strategy.getFillColor();
-        Assert.assertEquals(color, fillColor);
-    }
-
-    @Test
     public void testImageWithoutText() throws IOException {
         String testName = "testImageWithoutText";
         String filePath = testImagesDirectory + "pantone_blue.jpg";
-        String pdfPath = testImagesDirectory + testName + ".pdf";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(filePath);
 
         PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
@@ -349,35 +317,6 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
                         .setPathToTessData(scriptTessDataDirectory));
         getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("Georgian", "Japanese", "English"));
-    }
-
-    @LogMessages(messages = {
-            @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count
-                    = 1)
-    })
-    @Test
-    public void testCorruptedImage() {
-        junitExpectedException.expect(OcrException.class);
-
-        File file = new File(testImagesDirectory
-                + "corrupted.jpg");
-        String realOutput = getTextFromPdf(tesseractReader, file);
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
-    }
-
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count = 1)
-    })
-    @Test
-    public void testCorruptedImageWithoutExtension() {
-        junitExpectedException.expect(OcrException.class);
-
-        File file = new File(testImagesDirectory
-                + "corrupted");
-        String realOutput = getTextFromPdf(tesseractReader, file);
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
     }
 
     /**

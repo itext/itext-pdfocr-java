@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class PdfHelper {
     public static final String DEFAULT_EXPECTED_RESULT = "619121";
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
+    public static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/";
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PdfHelper.class);
@@ -48,6 +50,22 @@ public class PdfHelper {
      */
     public static String getFreeSansFontPath() {
         return TEST_DIRECTORY + "fonts/FreeSans.ttf";
+    }
+
+    /**
+     * Returns target directory (because target/test could not exist).
+     */
+    public static String getTargetDirectory() {
+        if (!Files.exists(java.nio.file.Paths.get(TARGET_DIRECTORY))) {
+            try {
+                Files.createDirectories(
+                        java.nio.file.Paths.get(TARGET_DIRECTORY));
+            } catch (IOException e) {
+                LOGGER.info(TARGET_DIRECTORY
+                        + " directory does not exist: " + e);
+            }
+        }
+        return TARGET_DIRECTORY;
     }
 
     /**
@@ -138,7 +156,7 @@ public class PdfHelper {
         String result = null;
         String pdfPath = null;
         try {
-            pdfPath = TEST_DIRECTORY + testName + ".pdf";
+            pdfPath = getTargetDirectory() + testName + ".pdf";
             createPdf(pdfPath, file, new OcrPdfCreatorProperties());
             result = getTextFromPdfLayer(pdfPath, "Text Layer");
         } catch (IOException e) {

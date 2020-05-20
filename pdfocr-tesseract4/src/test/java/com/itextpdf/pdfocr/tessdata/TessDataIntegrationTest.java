@@ -96,7 +96,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String filename = "scanned_spa_01";
         String expectedPdfPath = testDocumentsDirectory + filename + testFileTypeName +
                 ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
         List<String> languages = Arrays.<String>asList("spa", "spa_old");
         if (isExecutableReaderType) {
@@ -286,7 +286,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String testName = "compareMultiLangImage";
         String filename = "multilang";
         String expectedPdfPath = testDocumentsDirectory + filename + "_" + testFileTypeName + ".pdf";
-        String resultPdfPath = testDocumentsDirectory + filename + "_" + testName + "_created.pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
         try {
             Tesseract4OcrEngineProperties properties =

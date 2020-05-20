@@ -23,7 +23,7 @@ public class PdfFontTest extends ExtendedITextTest {
     public void testFontColor() throws IOException {
         String testName = "testFontColor";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -45,7 +45,7 @@ public class PdfFontTest extends ExtendedITextTest {
     public void testInvalidFont() throws IOException {
         String testName = "testImageWithoutText";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
@@ -62,7 +62,7 @@ public class PdfFontTest extends ExtendedITextTest {
     public void testDefaultFontInPdfARgb() throws IOException {
         String testName = "testDefaultFontInPdf";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfHelper.createPdfA(pdfPath, file,
@@ -83,7 +83,7 @@ public class PdfFontTest extends ExtendedITextTest {
     public void testInvalidCustomFontInPdfACMYK() throws IOException {
         String testName = "testInvalidCustomFontInPdf";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfHelper.createPdfA(pdfPath, file,
@@ -101,7 +101,7 @@ public class PdfFontTest extends ExtendedITextTest {
     public void testCustomFontInPdf() throws IOException {
         String testName = "testDefaultFontInPdf";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfHelper.createPdfA(pdfPath, file,

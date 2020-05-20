@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class.
  */
-final class TesseractHelper {
+class TesseractHelper {
 
     /**
      * The logger.

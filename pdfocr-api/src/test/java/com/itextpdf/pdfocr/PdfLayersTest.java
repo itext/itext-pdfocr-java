@@ -74,7 +74,7 @@ public class PdfLayersTest extends ExtendedITextTest {
     public void testTextFromPdfLayers() throws IOException {
         String testName = "testTextFromPdfLayers";
         String path = PdfHelper.getDefaultImagePath();
-        String pdfPath = PdfHelper.TEST_DIRECTORY + testName + ".pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
