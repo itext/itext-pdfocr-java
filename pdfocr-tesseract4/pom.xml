@@ -57,37 +57,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.ttf</include>
-        </includes>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${failsafe.version}</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-          <forkCount>1</forkCount>
-          <reuseForks>false</reuseForks>
-          <useSystemClassLoader>false</useSystemClassLoader>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-          <forkCount>1</forkCount>
-          <reuseForks>false</reuseForks>
-          <useSystemClassLoader>false</useSystemClassLoader>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
