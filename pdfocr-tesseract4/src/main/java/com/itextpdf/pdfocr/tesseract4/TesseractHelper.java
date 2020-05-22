@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class.
  */
-class TesseractHelper {
+public class TesseractHelper {
 
     /**
      * The logger.
@@ -50,25 +50,6 @@ class TesseractHelper {
     }
 
     /**
-     * Deletes file using provided path.
-     *
-     * @param pathToFile path to the file to be deleted
-     */
-    static void deleteFile(final String pathToFile) {
-        try {
-            if (pathToFile != null && !pathToFile.isEmpty()
-                    && Files.exists(java.nio.file.Paths.get(pathToFile))) {
-                Files.delete(java.nio.file.Paths.get(pathToFile));
-            }
-        } catch (IOException | SecurityException e) {
-            LOGGER.info(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotDeleteFile,
-                    pathToFile,
-                    e.getMessage()));
-        }
-    }
-
-    /**
      * Parses each hocr file from the provided list, retrieves text, and
      * returns data in the format described below.
      *
@@ -82,7 +63,7 @@ class TesseractHelper {
      * @throws IOException if error occurred during reading one the provided
      * files
      */
-    static Map<Integer, List<TextInfo>> parseHocrFile(
+    public static Map<Integer, List<TextInfo>> parseHocrFile(
             final List<File> inputFiles,
             final TextPositioning textPositioning)
             throws IOException {
@@ -159,6 +140,25 @@ class TesseractHelper {
             }
         }
         return imageData;
+    }
+
+    /**
+     * Deletes file using provided path.
+     *
+     * @param pathToFile path to the file to be deleted
+     */
+    static void deleteFile(final String pathToFile) {
+        try {
+            if (pathToFile != null && !pathToFile.isEmpty()
+                    && Files.exists(java.nio.file.Paths.get(pathToFile))) {
+                Files.delete(java.nio.file.Paths.get(pathToFile));
+            }
+        } catch (IOException | SecurityException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CannotDeleteFile,
+                    pathToFile,
+                    e.getMessage()));
+        }
     }
 
     /**

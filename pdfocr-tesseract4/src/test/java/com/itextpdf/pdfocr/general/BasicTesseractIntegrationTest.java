@@ -8,16 +8,14 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.LogMessageConstant;
-import com.itextpdf.pdfocr.OcrException;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfRenderer;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -29,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -319,6 +316,41 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
                 Arrays.<String>asList("Georgian", "Japanese", "English"));
     }
 
+    @Test
+    public void testTesseract4OcrForOnePageWithHocrFormat()
+            throws IOException {
+        String path = testImagesDirectory + "numbers_01.jpg";
+        String expected = "619121";
+        File imgFile = new File(path);
+        File outputFile = new File(getTargetDirectory()
+                + "testTesseract4OcrForOnePage.hocr");
+
+        tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
+        Map<Integer, List<TextInfo>> pageData = TesseractHelper
+                .parseHocrFile(Collections.<File>singletonList(outputFile),
+                        tesseractReader
+                                .getTesseract4OcrEngineProperties()
+                                .getTextPositioning()
+                );
+
+        String result = getTextFromPage(pageData.get(1));
+        Assert.assertEquals(expected, result.trim());
+    }
+
+    @Test
+    public void testTesseract4OcrForOnePageWithTxtFormat() {
+        String path = testImagesDirectory + "numbers_01.jpg";
+        String expected = "619121";
+        File imgFile = new File(path);
+        File outputFile = new File(getTargetDirectory()
+                + "testTesseract4OcrForOnePage.txt");
+
+        tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.TXT);
+
+        String result = getTextFromTextFile(outputFile);
+        Assert.assertEquals(expected, result.trim());
+    }
+
     /**
      * Parse text from image and compare with expected.
      */
@@ -347,6 +379,14 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
             textInfo.setText("");
             pageText.add(textInfo);
         }
+
+        return getTextFromPage(pageText);
+    }
+
+    /**
+     * Concatenates provided text items to one string.
+     */
+    private String getTextFromPage(List<TextInfo> pageText) {
         Assert.assertEquals(4,
                 pageText.get(0).getBbox().size());
 
