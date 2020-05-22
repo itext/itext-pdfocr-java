@@ -15,8 +15,4 @@ public class LogMessageConstant {
             "Starting ocr for {0} image(s)";
     public static final String NumberOfPagesInImage =
             "Image {0} contains {1} page(s)";
-    public static final String AttemptToConvertToPng =
-            "Trying to convert {0} to png: {1}";
-    public static final String ReadingImageAsPix =
-            "Trying to read image {0} as pix: {1}";
 }

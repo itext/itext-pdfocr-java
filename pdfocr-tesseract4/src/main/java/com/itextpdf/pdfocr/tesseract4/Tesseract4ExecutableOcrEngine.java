@@ -78,37 +78,45 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
     public void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
-        List<String> command = new ArrayList<String>();
+        List<String> params = new ArrayList<String>();
+        String execPath = null;
         String imagePath = null;
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
-            addPathToExecutable(command);
+            if (getPathToExecutable() == null
+                    || getPathToExecutable().isEmpty()) {
+                throw new Tesseract4OcrException(
+                        Tesseract4OcrException
+                                .CannotFindPathToTesseractExecutable);
+            } else {
+                execPath = addQuotes(getPathToExecutable());
+            }
             // path to tess data
-            addTessData(command);
+            addTessData(params);
 
             // validate languages before preprocessing started
             validateLanguages(getTesseract4OcrEngineProperties().getLanguages());
 
             // preprocess input file if needed and add it
             imagePath = preprocessImage(inputImage, pageNumber);
-            addInputFile(command, imagePath);
+            addInputFile(params, imagePath);
             // output file
-            addOutputFile(command, outputFiles.get(0), outputFormat);
+            addOutputFile(params, outputFiles.get(0), outputFormat);
             // page segmentation mode
-            addPageSegMode(command);
+            addPageSegMode(params);
             // add user words if needed
-            addUserWords(command);
+            addUserWords(params);
             // required languages
-            addLanguages(command);
+            addLanguages(params);
             if (outputFormat.equals(OutputFormat.HOCR)) {
                 // path to hocr script
-                setHocrOutput(command);
+                setHocrOutput(params);
             }
             // set default user defined dpi
-            addDefaultDpi(command);
+            addDefaultDpi(params);
 
-            TesseractOcrUtil.runCommand(command, isWindows());
+            TesseractHelper.runCommand(execPath, params);
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
@@ -141,24 +149,6 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
                                         .getPathToUserWordsFile(),
                                 e.getMessage()));
             }
-        }
-    }
-
-    /**
-     * Adds path to tesseract executable to the command.
-     *
-     * @param command result command as list of strings
-     * @throws Tesseract4OcrException if path to tesseract executable wasn't found
-     */
-    private void addPathToExecutable(final List<String> command)
-            throws Tesseract4OcrException {
-        // path to tesseract executable cannot be uninitialized
-        if (getPathToExecutable() == null
-                || getPathToExecutable().isEmpty()) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CannotFindPathToTesseractExecutable);
-        } else {
-            command.add(addQuotes(getPathToExecutable()));
         }
     }
 

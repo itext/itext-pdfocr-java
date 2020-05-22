@@ -348,7 +348,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.TXT);
 
         String result = getTextFromTextFile(outputFile);
-        Assert.assertEquals(expected, result.trim());
+        Assert.assertTrue(result.contains(expected));
     }
 
     /**

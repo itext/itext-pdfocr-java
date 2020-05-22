@@ -14,11 +14,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.imageio.ImageIO;
+import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.lept4j.Pixa;
@@ -57,52 +60,6 @@ class TesseractOcrUtil {
     }
 
     /**
-     * Runs given command.
-     *
-     * @param command {@link java.util.List} of command line arguments
-     * @param isWindows true is current os is windows
-     * @throws Tesseract4OcrException if provided command failed
-     */
-    static void runCommand(final List<String> command,
-            final boolean isWindows) throws Tesseract4OcrException {
-        Process process = null;
-        try {
-            if (isWindows) {
-                ProcessBuilder pb = new ProcessBuilder(command); //NOSONAR
-                process = pb.start();
-            } else {
-                ProcessBuilder pb = new ProcessBuilder(
-                        "bash", "-c", //NOSONAR
-                        String.join(" ", command)); //NOSONAR
-                pb.redirectErrorStream(true);
-                process = pb.start();
-            }
-            int result = process.waitFor();
-
-            if (result != 0) {
-                LOGGER.error(MessageFormatUtil
-                        .format(Tesseract4LogMessageConstant.TesseractFailed,
-                                String.join(" ", command)));
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException
-                                .TesseractFailed);
-            }
-
-            process.destroy();
-        } catch (NullPointerException | IOException | InterruptedException e) {
-            LOGGER.error(MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.TesseractFailed,
-                            e.getMessage()));
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
-                    .TesseractFailed);
-        }
-    }
-
-    /**
      * Reads required page from provided tiff image.
      *
      * @param inputFile input image as {@link java.io.File}
@@ -121,14 +78,15 @@ class TesseractOcrUtil {
             int size = pixa.n;
             // in case page number is incorrect
             if (pageNumber >= size) {
-                LOGGER.warn(MessageFormatUtil
-                        .format(
-                                Tesseract4LogMessageConstant.PageNumberIsIncorrect,
-                                pageNumber,
-                                inputFile.getAbsolutePath()));
+                LOGGER.warn(MessageFormatUtil.format(
+                        Tesseract4LogMessageConstant.PageNumberIsIncorrect,
+                        pageNumber,
+                        inputFile.getAbsolutePath()));
                 return null;
             }
-            pix = Leptonica.INSTANCE.pixaGetPix(pixa, pageNumber, 1);
+            // copy selected pix form pixa
+            pix = Leptonica.INSTANCE.pixaGetPix(pixa, pageNumber,
+                    Leptonica.L_COPY);
         } finally {
             destroyPixa(pixa);
         }
@@ -151,8 +109,8 @@ class TesseractOcrUtil {
         try {
             // preprocess image
             pix = preprocessPix(pix);
-            int formatPng = 3;
-            Leptonica.INSTANCE.pixWritePng(tmpFileName, pix, formatPng);
+            Leptonica.INSTANCE.pixWritePng(tmpFileName, pix,
+                    ILeptonica.IFF_PNG);
         } finally {
             // destroying
             destroyPix(pix);
@@ -163,7 +121,6 @@ class TesseractOcrUtil {
     /**
      * Performs default image preprocessing.
      * It includes the following actions:
-     * removing alpha channel,
      * converting to grayscale,
      * thresholding.
      *
@@ -171,7 +128,6 @@ class TesseractOcrUtil {
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object
      */
     static Pix preprocessPix(Pix pix) {
-        pix = Leptonica.INSTANCE.pixRemoveAlpha(pix);
         pix = convertToGrayscale(pix);
         pix = otsuImageThresholding(pix);
         return pix;
@@ -195,7 +151,7 @@ class TesseractOcrUtil {
                         instance.REMOVE_CMAP_TO_GRAYSCALE);
             }
         } else {
-            return null;
+            return pix;
         }
     }
 
@@ -209,20 +165,34 @@ class TesseractOcrUtil {
      */
     static Pix otsuImageThresholding(final Pix pix) {
         if (pix != null) {
-            PointerByReference pointer = new PointerByReference();
-            Leptonica.INSTANCE
-                    .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h,
-                            0, 0, 0,
-                            null, pointer);
-            Pix thresholdPix = new Pix(pointer.getValue());
-            if (thresholdPix.w > 0 && thresholdPix.h > 0) {
-                destroyPix(pix);
-                return thresholdPix;
+            Pix thresholdPix = null;
+            if (pix.d == 8) {
+                PointerByReference pointer = new PointerByReference();
+                Leptonica.INSTANCE
+                        .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h,
+                                0, 0, 0,
+                                null, pointer);
+                thresholdPix = new Pix(pointer.getValue());
+                if (thresholdPix.w > 0 && thresholdPix.h > 0) {
+                    // destroying original pix
+                    destroyPix(pix);
+                    return thresholdPix;
+                } else {
+                    LOGGER.info(MessageFormatUtil.format(
+                            Tesseract4LogMessageConstant.CannotBinarizeImage,
+                            pix.d));
+                    // destroying created PointerByReference object
+                    Leptonica.INSTANCE.pixDestroy(pointer);
+                    return pix;
+                }
             } else {
+                LOGGER.info(MessageFormatUtil.format(
+                        Tesseract4LogMessageConstant.CannotBinarizeImage,
+                        pix.d));
                 return pix;
             }
         } else {
-            return null;
+            return pix;
         }
     }
 
@@ -356,38 +326,6 @@ class TesseractOcrUtil {
     }
 
     /**
-     * Reads {@link net.sourceforge.lept4j.Pix} from input file or, if
-     * this is not possible, reads input file as
-     * {@link java.awt.image.BufferedImage} and then converts to
-     * {@link net.sourceforge.lept4j.Pix}.
-     *
-     * @param inputFile input image {@link java.io.File}
-     * @return Pix result {@link net.sourceforge.lept4j.Pix} object from
-     * input file
-     */
-    static Pix readPix(final File inputFile) {
-        Pix pix = null;
-        try {
-            BufferedImage bufferedImage = ImagePreprocessingUtil
-                    .readImageFromFile(inputFile);
-            if (bufferedImage != null) {
-                pix = convertImageToPix(bufferedImage);
-            } else {
-                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-            }
-        } catch (IllegalArgumentException | IOException e) {
-            LoggerFactory.getLogger(ImagePreprocessingUtil.class)
-                    .info(MessageFormatUtil
-                            .format(
-                                    Tesseract4LogMessageConstant.ReadingImageAsPix,
-                                    inputFile.getAbsolutePath(),
-                                    e.getMessage()));
-            pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-        }
-        return pix;
-    }
-
-    /**
      * Converts Leptonica {@link net.sourceforge.lept4j.Pix} to
      * {@link java.awt.image.BufferedImage}.
      *
@@ -471,11 +409,17 @@ class TesseractOcrUtil {
      * @return path to system temporary directory
      */
     static String getTempDir() {
-        String tempDir = System.getProperty("java.io.tmpdir") == null
-                ? System.getProperty("TEMP")
-                : System.getProperty("java.io.tmpdir");
-        if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
-            tempDir = tempDir + java.io.File.separatorChar;
+        String tempDir = System.getProperty("java.io.tmpdir");
+        try {
+            Path tempPath = Files.createTempDirectory("pdfocr");
+            tempDir = tempPath.toString();
+        } catch (IOException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CannotGetTemporaryDirectory,
+                    e.getMessage()));
+            if (tempDir == null) {
+                tempDir = "";
+            }
         }
         return tempDir;
     }

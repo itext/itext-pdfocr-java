@@ -1,6 +1,7 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.io.util.SystemUtil;
 import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
@@ -199,6 +200,38 @@ public class TesseractHelper {
                     LogMessageConstant.CannotWriteToFile,
                     path,
                     e.getMessage()));
+        }
+    }
+
+    /**
+     * Runs given command.
+     *
+     * @param execPath path to the executable
+     * @param paramsList {@link java.util.List} of command line arguments
+     * @throws Tesseract4OcrException if provided command failed
+     */
+    static void runCommand(final String execPath,
+            final List<String> paramsList) throws Tesseract4OcrException {
+        try {
+            String params = String.join(" ", paramsList);
+            boolean cmdSucceeded = SystemUtil
+                    .runProcessAndWait(execPath, params); // NO SONAR
+
+            if (!cmdSucceeded) {
+                LOGGER.error(MessageFormatUtil
+                        .format(Tesseract4LogMessageConstant.TesseractFailed,
+                                execPath + " " + params));
+                throw new Tesseract4OcrException(
+                        Tesseract4OcrException
+                                .TesseractFailed);
+            }
+        } catch (IOException | InterruptedException e) { // NO SONAR
+            LOGGER.error(MessageFormatUtil
+                    .format(Tesseract4LogMessageConstant.TesseractFailed,
+                            e.getMessage()));
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException
+                            .TesseractFailed);
         }
     }
 }

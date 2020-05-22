@@ -29,6 +29,10 @@ public class Tesseract4LogMessageConstant extends LogMessageConstant {
             "Cannot convert to gray image with depth {0}";
     public static final String CannotBinarizeImage =
             "Cannot binarize image with depth {0}";
+    public static final String CannotConvertImageToPix =
+            "Cannot convert image to pix: {0}";
     public static final String CannotCreateBufferedImage =
             "Cannot create a buffered image from the input image: {0}";
+    public static final String CannotGetTemporaryDirectory = "Cannot get "
+            + "temporary directory: {0}";
 }
