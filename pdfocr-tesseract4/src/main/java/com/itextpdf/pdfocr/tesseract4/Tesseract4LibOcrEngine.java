@@ -38,8 +38,9 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
     public Tesseract4LibOcrEngine(
             final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
         super(tesseract4OcrEngineProperties);
-        tesseractInstance =
-                TesseractOcrUtil.initializeTesseractInstance(isWindows());
+        tesseractInstance = TesseractOcrUtil
+                .initializeTesseractInstance(isWindows(), null,
+                        null, null);
     }
 
     /**
@@ -50,15 +51,6 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} instance
      */
     public ITesseract getTesseractInstance() {
-        if (tesseractInstance == null
-                || TesseractOcrUtil
-                .isTesseractInstanceDisposed(tesseractInstance)) {
-            tesseractInstance = TesseractOcrUtil
-                    .initializeTesseractInstance(
-                    getTessData(), getLanguagesAsString(),
-                    isWindows(), getTesseract4OcrEngineProperties()
-                                    .getPathToUserWordsFile());
-        }
         return tesseractInstance;
     }
 
@@ -70,6 +62,15 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
      * @param outputFormat selected {@link OutputFormat} for tesseract
      */
     public void initializeTesseract(final OutputFormat outputFormat) {
+        if (getTesseractInstance() == null
+                || TesseractOcrUtil
+                .isTesseractInstanceDisposed(getTesseractInstance())) {
+            tesseractInstance = TesseractOcrUtil
+                    .initializeTesseractInstance(isWindows(), getTessData(),
+                            getLanguagesAsString(),
+                            getTesseract4OcrEngineProperties()
+                                    .getPathToUserWordsFile());
+        }
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
                         outputFormat.equals(OutputFormat.HOCR) ? "1" : "0");
@@ -179,21 +180,16 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
             final OutputFormat outputFormat) {
         List<String> resultList = new ArrayList<String>();
         try {
+            initializeTesseract(outputFormat);
             TesseractOcrUtil util = new TesseractOcrUtil();
             util.initializeImagesListFromTiff(inputImage);
             int numOfPages = util.getListOfPages().size();
             for (int i = 0; i < numOfPages; i++) {
-                try {
-                    initializeTesseract(outputFormat);
-                    String result = util.getOcrResultAsString(
-                            getTesseractInstance(),
-                            util.getListOfPages().get(i),
-                            outputFormat);
-                    resultList.add(result);
-                } finally {
-                    TesseractOcrUtil
-                            .disposeTesseractInstance(getTesseractInstance());
-                }
+                String result = util.getOcrResultAsString(
+                        getTesseractInstance(),
+                        util.getListOfPages().get(i),
+                        outputFormat);
+                resultList.add(result);
             }
         } catch (TesseractException e) {
             String msg = MessageFormatUtil
@@ -204,6 +200,9 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
             throw new Tesseract4OcrException(
                     Tesseract4OcrException
                             .TesseractFailed);
+        } finally {
+            TesseractOcrUtil
+                    .disposeTesseractInstance(getTesseractInstance());
         }
         return resultList;
     }

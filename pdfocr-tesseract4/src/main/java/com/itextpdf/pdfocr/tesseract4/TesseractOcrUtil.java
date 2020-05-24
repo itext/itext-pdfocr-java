@@ -182,7 +182,7 @@ class TesseractOcrUtil {
                             Tesseract4LogMessageConstant.CannotBinarizeImage,
                             pix.d));
                     // destroying created PointerByReference object
-                    Leptonica.INSTANCE.pixDestroy(pointer);
+                    destroyPix(thresholdPix);
                     return pix;
                 }
             } else {
@@ -203,9 +203,7 @@ class TesseractOcrUtil {
      */
     static void destroyPix(Pix pix) {
         if (pix != null) {
-            PointerByReference pRef = new PointerByReference();
-            pRef.setValue(pix.getPointer());
-            Leptonica.INSTANCE.pixDestroy(pRef);
+            Leptonica.INSTANCE.lept_free(pix.getPointer());
         }
     }
 
@@ -247,41 +245,32 @@ class TesseractOcrUtil {
         if (pageSegMode != null) {
             tesseractInstance.setPageSegMode(pageSegMode);
         }
-        if (userWordsFilePath != null) {
-            tesseractInstance.setOcrEngineMode(0);
-        }
+        tesseractInstance.setOcrEngineMode(userWordsFilePath != null ? 0 : 3);
     }
 
     /**
      * Creates tesseract instance with parameters.
      * Method is used to initialize tesseract instance with parameters if it
      * haven't been initialized yet.
+     * In this method in java 'tessData', 'languages' and 'userWordsFilePath'
+     * properties are unused as they will be set using setters in
+     * {@link #setTesseractProperties} method. In .Net all these properties
+     * are needed to be provided in tesseract constructor in order to
+     * initialize tesseract instance. Thus, tesseract initialization takes
+     * place in {@link Tesseract4LibOcrEngine#Tesseract4LibOcrEngine} constructor in
+     * java, but in .Net it happens only after all properties are validated,
+     * i.e. just before OCR process.
      *
+     * @param isWindows true is current os is windows
      * @param tessData path to tess data directory
      * @param languages list of languages in required format as
      *                  {@link java.lang.String}
-     * @param isWindows true is current os is windows
      * @param userWordsFilePath path to a temporary file with user words
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} object
      */
-    static ITesseract initializeTesseractInstance(
+    static ITesseract initializeTesseractInstance(final boolean isWindows,
             final String tessData, final String languages,
-            final boolean isWindows, final String userWordsFilePath) {
-        if (isWindows) {
-            return new Tesseract1();
-        } else {
-            return new Tesseract();
-        }
-    }
-
-    /**
-     * Creates tesseract instance with parameters.
-     * Method is used to initialize tesseract instance in constructor (in java).
-     *
-     * @param isWindows true is current os is windows
-     * @return initialized {@link net.sourceforge.tess4j.ITesseract} object
-     */
-    static ITesseract initializeTesseractInstance(final boolean isWindows) {
+            final String userWordsFilePath) {
         if (isWindows) {
             return new Tesseract1();
         } else {
@@ -483,10 +472,7 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance,
             final BufferedImage image, final OutputFormat outputFormat)
             throws TesseractException {
-        String result = tesseractInstance.doOCR(image);
-        // setting default oem after processing
-        tesseractInstance.setOcrEngineMode(3);
-        return result;
+        return tesseractInstance.doOCR(image);
     }
 
     /**
@@ -507,10 +493,7 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance,
             final File image, final OutputFormat outputFormat)
             throws TesseractException {
-        String result = tesseractInstance.doOCR(image);
-        // setting default oem after processing
-        tesseractInstance.setOcrEngineMode(3);
-        return result;
+        return tesseractInstance.doOCR(image);
     }
 
      /**
