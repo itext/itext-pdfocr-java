@@ -1,12 +1,10 @@
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
-import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
@@ -24,22 +22,17 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -56,64 +49,38 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     private static final String TARGET_FOLDER = "./target/test/resources/com/itextpdf/pdfocr/";
 
     // directory with trained data for tests
-    protected static String langTessDataDirectory = null;
+    protected static final String LANG_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata";
     // directory with trained data for tests
-    protected static String scriptTessDataDirectory = null;
+    protected static final String SCRIPT_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata" + File.separator + "script";
     // directory with test image files
-    protected static String testImagesDirectory = null;
+    protected static final String TEST_IMAGES_DIRECTORY = TEST_DIRECTORY + "images" + File.separator;
     // directory with fonts
-    protected static String testFontsDirectory = null;
+    protected static final String TEST_FONTS_DIRECTORY = TEST_DIRECTORY + "fonts" + File.separator;
     // directory with fonts
-    protected static String testDocumentsDirectory = null;
-    // path to default cmyk color profile
-    protected static String defaultCMYKColorProfilePath = null;
-    // path to default rgb color profile
-    protected static String defaultRGBColorProfilePath = null;
+    protected static final String TEST_DOCUMENTS_DIRECTORY = TEST_DIRECTORY + "documents" + File.separator;
 
     // path to font for hindi
-    protected static String notoSansFontPath = testFontsDirectory + "NotoSans-Regular.ttf";
+    protected static final String NOTO_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "NotoSans-Regular.ttf";
     // path to font for japanese
-    protected static String kosugiFontPath = testFontsDirectory + "Kosugi-Regular.ttf";
+    protected static final String KOSUGI_FONT_PATH = TEST_FONTS_DIRECTORY + "Kosugi-Regular.ttf";
     // path to font for chinese
-    protected static String notoSansSCFontPath = testFontsDirectory + "NotoSansSC-Regular.otf";
+    protected static final String NOTO_SANS_SC_FONT_PATH = TEST_FONTS_DIRECTORY + "NotoSansSC-Regular.otf";
     // path to font for arabic
-    protected static String cairoFontPath = testFontsDirectory + "Cairo-Regular.ttf";
+    protected static final String CAIRO_FONT_PATH = TEST_FONTS_DIRECTORY + "Cairo-Regular.ttf";
     // path to font for georgian
-    protected static String freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
-
-    protected static float delta = 1e-4f;
+    protected static final String FREE_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "FreeSans.ttf";
 
     public enum ReaderType {
         LIB,
         EXECUTABLE
     }
 
-    static Tesseract4LibOcrEngine tesseractLibReader = null;
-    static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
-
-    @Before
-    public void initTesseractProperties() {
-        Tesseract4OcrEngineProperties properties =
-                new Tesseract4OcrEngineProperties();
-        properties.setPreprocessingImages(true);
-        properties.setPathToTessData(getTessDataDirectory());
-        properties.setLanguages(new ArrayList<String>());
-        properties.setUserWords("eng", new ArrayList<String>());
-        properties.setTextPositioning(TextPositioning.BY_LINES);
-        if (tesseractLibReader != null) {
-            tesseractLibReader.setTesseract4OcrEngineProperties(properties);
-        }
-        if (tesseractExecutableReader != null) {
-            tesseractExecutableReader
-                    .setPathToExecutable(getTesseractDirectory());
-            tesseractExecutableReader
-                    .setTesseract4OcrEngineProperties(properties);
-        }
-    }
+    private static Tesseract4LibOcrEngine tesseractLibReader = null;
+    private static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
     @Test
     public void testSimpleTextOutput() {
-        String imgPath = testImagesDirectory + "numbers_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         String expectedOutput = "619121";
 
         Assert.assertTrue(
@@ -125,46 +92,12 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     public AbstractIntegrationTest() {
-        setResourceDirectories();
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());
         tesseractLibReader = new Tesseract4LibOcrEngine(ocrEngineProperties);
         tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
                     getTesseractDirectory(), ocrEngineProperties);
-    }
-
-    static void setResourceDirectories() {
-        if (testImagesDirectory == null) {
-            testImagesDirectory = TEST_DIRECTORY + "images" + java.io.File.separatorChar;
-        }
-        if (langTessDataDirectory == null) {
-            langTessDataDirectory = TEST_DIRECTORY + "tessdata";
-        }
-        if (scriptTessDataDirectory == null) {
-            scriptTessDataDirectory = TEST_DIRECTORY + "tessdata" + java.io.File.separatorChar + "script";
-        }
-        if (testFontsDirectory == null) {
-            testFontsDirectory = TEST_DIRECTORY + "fonts" + java.io.File.separatorChar;
-            updateFonts();
-        }
-        if (testDocumentsDirectory == null) {
-            testDocumentsDirectory = TEST_DIRECTORY + "documents" + java.io.File.separatorChar;
-        }
-        if (defaultCMYKColorProfilePath == null) {
-            defaultCMYKColorProfilePath = TEST_DIRECTORY + "profiles/CoatedFOGRA27.icc";
-        }
-        if (defaultRGBColorProfilePath == null) {
-            defaultRGBColorProfilePath = TEST_DIRECTORY + "profiles/sRGB_CS_profile.icm";
-        }
-    }
-
-    static void updateFonts() {
-        notoSansFontPath = testFontsDirectory + "NotoSans-Regular.ttf";
-        kosugiFontPath = testFontsDirectory + "Kosugi-Regular.ttf";
-        notoSansSCFontPath = testFontsDirectory + "NotoSansSC-Regular.otf";
-        cairoFontPath = testFontsDirectory + "Cairo-Regular.ttf";
-        freeSansFontPath = testFontsDirectory + "FreeSans.ttf";
     }
 
     protected static Tesseract4OcrEngine getTesseractReader(ReaderType type) {
@@ -201,22 +134,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     protected static String getTessDataDirectory() {
-        return langTessDataDirectory;
-    }
-
-    /**
-     * Retrieve image BBox rectangle from the first page from given pdf document.
-     */
-    protected com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangleFromPdf(String path) throws IOException {
-        PdfDocument doc = new PdfDocument(new PdfReader(path));
-
-        ExtractionStrategy extractionStrategy = new ExtractionStrategy("Image Layer");
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(extractionStrategy);
-        processor.processPageContent(doc.getFirstPage());
-
-        doc.close();
-
-        return extractionStrategy.getImageBBoxRectangle();
+        return LANG_TESS_DATA_DIRECTORY;
     }
 
     /**
@@ -252,14 +170,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file,
             List<String> languages) {
         return getTextFromPdf(tesseractReader, file, 1, languages, null);
-    }
-
-    /**
-     * Retrieve text from the required page of given pdf document.
-     */
-    protected String getTextFromPdf(Tesseract4OcrEngine tesseractReader, File file, int page,
-                          List<String> languages) {
-        return getTextFromPdf(tesseractReader, file, page, languages, null);
     }
 
     /**
@@ -429,54 +339,6 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Do OCR for given image and compare result etxt file with expected one.
-     */
-    protected boolean doOcrAndCompareTxtFiles(Tesseract4OcrEngine tesseractReader,
-            String imgPath, String expectedPath, List<String> languages) {
-        String resultTxtFile = getTargetDirectory() + getImageName(imgPath, languages) + ".txt";
-        doOcrAndSaveToTextFile(tesseractReader, imgPath, resultTxtFile, languages);
-        return compareTxtFiles(expectedPath, resultTxtFile);
-    }
-
-    /**
-     * Compare two text files using provided paths.
-     */
-    protected boolean compareTxtFiles(String expectedFilePath, String resultFilePath) {
-        boolean areEqual = true;
-        try {
-            List<String> expected = Files.readAllLines(java.nio.file.Paths.get(expectedFilePath));
-            List<String> result = Files.readAllLines(java.nio.file.Paths.get(resultFilePath));
-
-            if (expected.size() != result.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < expected.size(); i++) {
-                String exp = expected.get(i)
-                        .replace("\n", "")
-                        .replace("\f", "");
-                exp = exp.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-                String res = result.get(i)
-                        .replace("\n", "")
-                        .replace("\f", "");
-                res = res.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-                if (expected.get(i) == null || result.get(i) == null) {
-                    areEqual = false;
-                    break;
-                } else if (!exp.equals(res)) {
-                    areEqual = false;
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            areEqual = false;
-            LOGGER.error(e.getMessage());
-        }
-
-        return areEqual;
-    }
-
-    /**
      * Create pdfWriter using provided path to destination file.
      */
     protected PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
@@ -485,39 +347,13 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Creates pdf cmyk output intent for tests.
-     */
-    protected  PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
-        InputStream is = new FileInputStream(defaultCMYKColorProfilePath);
-        return new PdfOutputIntent("Custom",
-                "","http://www.color.org",
-                "Coated FOGRA27 (ISO 12647 - 2:2004)", is);
-    }
-
-    /**
-     * Creates pdf rgb output intent for tests.
-     */
-    protected  PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
-        InputStream is = new FileInputStream(defaultRGBColorProfilePath);
-        return new PdfOutputIntent("", "",
-                "", "sRGB IEC61966-2.1", is);
-    }
-
-    /**
-     * Create pdfWriter.
-     */
-    protected PdfWriter getPdfWriter() {
-       return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
-    }
-
-    /**
      * Gets image name from path.
      */
-    private String getImageName(String path, List<String> languages) {
+    protected String getImageName(String path, List<String> languages) {
         String lang = (languages != null && languages.size() > 0) ?
                 "_" + String.join("", languages) : "";
         String img = path
-                .substring(path.lastIndexOf(java.io.File.separatorChar))
+                .substring(path.lastIndexOf(java.io.File.separator))
                 .substring(1)
                 .replace(".", "_");
         return img + lang;

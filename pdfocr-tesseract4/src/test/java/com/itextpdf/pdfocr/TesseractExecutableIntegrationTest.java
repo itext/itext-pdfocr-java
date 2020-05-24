@@ -27,7 +27,7 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
     public void testNullPathToTesseractExecutable() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.CannotFindPathToTesseractExecutable);
-        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         Tesseract4ExecutableOcrEngine tesseractExecutableReader =
                 new Tesseract4ExecutableOcrEngine(
                         new Tesseract4OcrEngineProperties());
@@ -43,7 +43,7 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
     public void testEmptyPathToTesseractExecutable() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.CannotFindPathToTesseractExecutable);
-        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file);
     }
 }
