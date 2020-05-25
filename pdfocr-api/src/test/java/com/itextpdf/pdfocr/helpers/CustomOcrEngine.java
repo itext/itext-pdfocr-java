@@ -25,4 +25,8 @@ public class CustomOcrEngine implements IOcrEngine {
         result.put(1, Collections.<TextInfo>singletonList(textInfo));
         return result;
     }
+
+    @Override
+    public void createTxt(List<File> inputImages, String path) {
+    }
 }

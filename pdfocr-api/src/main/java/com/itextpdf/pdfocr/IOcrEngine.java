@@ -25,4 +25,13 @@ public interface IOcrEngine {
      * coordinates(bbox)
      */
     Map<Integer, List<TextInfo>> doImageOcr(File input);
+
+    /**
+     * Performs OCR using provided {@link IOcrEngine} for the given list of
+     * input images and saves output to a text file using provided path.
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param path path as {@link java.lang.String} to file to be created
+     */
+    void createTxt(List<File> inputImages, String path);
 }
