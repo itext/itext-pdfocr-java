@@ -31,7 +31,7 @@ public interface IOcrEngine {
      * input images and saves output to a text file using provided path.
      *
      * @param inputImages {@link java.util.List} of images to be OCRed
-     * @param path path as {@link java.lang.String} to file to be created
+     * @param txtFile file to be created
      */
-    void createTxt(List<File> inputImages, String path);
+    void createTxt(List<File> inputImages, File txtFile);
 }

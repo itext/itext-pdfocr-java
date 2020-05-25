@@ -27,6 +27,6 @@ public class CustomOcrEngine implements IOcrEngine {
     }
 
     @Override
-    public void createTxt(List<File> inputImages, String path) {
+    public void createTxt(List<File> inputImages, File txtFile) {
     }
 }

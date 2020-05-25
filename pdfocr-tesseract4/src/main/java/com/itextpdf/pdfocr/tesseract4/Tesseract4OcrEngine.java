@@ -80,10 +80,9 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      * input images and saves output to a text file using provided path.
      *
      * @param inputImages {@link java.util.List} of images to be OCRed
-     * @param path path as {@link java.lang.String} to file to be
-     *                     created
+     * @param txtFile file to be created
      */
-    public void createTxt(final List<File> inputImages, final String path) {
+    public void createTxt(final List<File> inputImages, final File txtFile) {
         LoggerFactory.getLogger(getClass())
                 .info(MessageFormatUtil.format(
                 LogMessageConstant.StartOcrForImages,
@@ -95,7 +94,8 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
         }
 
         // write to file
-        TesseractHelper.writeToTextFile(path, content.toString());
+        TesseractHelper.writeToTextFile(txtFile.getAbsolutePath(),
+                content.toString());
     }
 
     /**

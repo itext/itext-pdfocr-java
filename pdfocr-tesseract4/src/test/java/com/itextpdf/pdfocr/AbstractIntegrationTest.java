@@ -329,7 +329,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         }
 
         tesseractReader.createTxt(Collections.<File>singletonList(new File(imgPath)),
-                txtPath);
+                new File(txtPath));
 
         if (languages != null) {
             Assert.assertEquals(languages.size(),
