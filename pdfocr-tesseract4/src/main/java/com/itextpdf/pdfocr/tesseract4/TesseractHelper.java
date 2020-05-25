@@ -215,7 +215,7 @@ public class TesseractHelper {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil
-                    .runProcessAndWait(execPath, params); // NO SONAR
+                    .runProcessAndWait(execPath, params);
 
             if (!cmdSucceeded) {
                 LOGGER.error(MessageFormatUtil
@@ -225,7 +225,7 @@ public class TesseractHelper {
                         Tesseract4OcrException
                                 .TesseractFailed);
             }
-        } catch (IOException | InterruptedException e) { // NO SONAR
+        } catch (IOException | InterruptedException e) { // NOSONAR
             LOGGER.error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant.TesseractFailed,
                             e.getMessage()));

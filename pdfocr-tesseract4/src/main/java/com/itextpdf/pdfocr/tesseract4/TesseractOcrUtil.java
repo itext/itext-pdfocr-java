@@ -135,6 +135,9 @@ class TesseractOcrUtil {
 
     /**
      * Converts Leptonica {@link net.sourceforge.lept4j.Pix} to grayscale.
+     * In .Net image is converted only if this is 32bpp image. In java image is
+     * converted anyway using different Leptonica methods depending on
+     * image depth.
      *
      * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object

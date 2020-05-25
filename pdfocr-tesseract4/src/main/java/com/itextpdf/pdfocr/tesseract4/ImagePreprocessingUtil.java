@@ -144,7 +144,7 @@ class ImagePreprocessingUtil {
             if (bufferedImage != null) {
                 pix = TesseractOcrUtil.convertImageToPix(bufferedImage);
             }
-        } catch (Exception e) { // NO SONAR
+        } catch (Exception e) { // NOSONAR
             LoggerFactory.getLogger(ImagePreprocessingUtil.class)
                     .info(MessageFormatUtil.format(
                             Tesseract4LogMessageConstant
