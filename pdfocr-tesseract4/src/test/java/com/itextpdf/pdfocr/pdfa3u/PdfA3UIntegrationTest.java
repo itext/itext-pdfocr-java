@@ -1,25 +1,14 @@
 package com.itextpdf.pdfocr.pdfa3u;
 
-import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
-import com.itextpdf.pdfa.PdfAConformanceException;
-import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfRenderer;
-import com.itextpdf.pdfocr.ScaleMode;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
-import com.itextpdf.test.annotations.LogMessage;
-import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +43,8 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             tesseractReader.setTesseract4OcrEngineProperties(
                     tesseractReader.getTesseract4OcrEngineProperties()
                             .setTextPositioning(TextPositioning.BY_WORDS));
-            Assert.assertEquals(tesseractReader, pdfRenderer.getOcrReader());
-            pdfRenderer.setOcrReader(tesseractReader);
+            Assert.assertEquals(tesseractReader, pdfRenderer.getOcrEngine());
+            pdfRenderer.setOcrEngine(tesseractReader);
             PdfDocument doc =
                     pdfRenderer.createPdfA(
                             Collections.<File>singletonList(

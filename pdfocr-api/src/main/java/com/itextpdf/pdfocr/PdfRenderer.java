@@ -61,7 +61,7 @@ public class PdfRenderer {
     /**
      * Selected {@link IOcrEngine}.
      */
-    private IOcrEngine ocrReader;
+    private IOcrEngine ocrEngine;
 
     /**
      * Set of properties.
@@ -71,22 +71,22 @@ public class PdfRenderer {
     /**
      * Creates a new {@link PdfRenderer} instance.
      *
-     * @param ocrReader {@link IOcrEngine} selected OCR Reader
+     * @param ocrEngine {@link IOcrEngine} selected OCR Reader
      */
-    public PdfRenderer(final IOcrEngine ocrReader) {
-        setOcrReader(ocrReader);
+    public PdfRenderer(final IOcrEngine ocrEngine) {
+        setOcrEngine(ocrEngine);
         setOcrPdfCreatorProperties(new OcrPdfCreatorProperties());
     }
 
     /**
      * Creates a new {@link PdfRenderer} instance.
      *
-     * @param ocrReader selected OCR Reader {@link IOcrEngine}
+     * @param ocrEngine selected OCR Reader {@link IOcrEngine}
      * @param ocrPdfCreatorProperties set of properties for {@link PdfRenderer}
      */
-    public PdfRenderer(final IOcrEngine ocrReader,
+    public PdfRenderer(final IOcrEngine ocrEngine,
             final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
-        setOcrReader(ocrReader);
+        setOcrEngine(ocrEngine);
         setOcrPdfCreatorProperties(ocrPdfCreatorProperties);
     }
 
@@ -143,7 +143,7 @@ public class PdfRenderer {
                 new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
         for (File inputImage : inputImages) {
             imagesTextData.put(inputImage,
-                    ocrReader.doImageOcr(inputImage));
+                    ocrEngine.doImageOcr(inputImage));
         }
 
         // create PdfDocument
@@ -172,16 +172,16 @@ public class PdfRenderer {
      * Returns {@link IOcrEngine} reader object to perform OCR.
      * @return selected {@link IOcrEngine} instance
      */
-    public final IOcrEngine getOcrReader() {
-        return ocrReader;
+    public final IOcrEngine getOcrEngine() {
+        return ocrEngine;
     }
 
     /**
      * Sets {@link IOcrEngine} reader object to perform OCR.
      * @param reader selected {@link IOcrEngine} instance
      */
-    public final void setOcrReader(final IOcrEngine reader) {
-        ocrReader = reader;
+    public final void setOcrEngine(final IOcrEngine reader) {
+        ocrEngine = reader;
     }
 
     /**

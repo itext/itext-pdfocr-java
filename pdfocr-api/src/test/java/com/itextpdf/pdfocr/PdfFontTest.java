@@ -22,7 +22,7 @@ public class PdfFontTest extends ExtendedITextTest {
     @Test
     public void testFontColor() throws IOException {
         String testName = "testFontColor";
-        String path = PdfHelper.getDefaultImagePath();
+        String path = PdfHelper.getImagesTestDirectory() + "multipage.tiff";
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 

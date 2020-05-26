@@ -1,6 +1,7 @@
 package com.itextpdf.pdfocr.helpers;
 
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.OcrEngineProperties;
 import com.itextpdf.pdfocr.TextInfo;
 
 import java.io.File;
@@ -12,7 +13,13 @@ import java.util.Map;
 
 public class CustomOcrEngine implements IOcrEngine {
 
+    private OcrEngineProperties ocrEngineProperties;
+
     public CustomOcrEngine() {
+    }
+
+    public CustomOcrEngine(OcrEngineProperties ocrEngineProperties) {
+        this.ocrEngineProperties = new OcrEngineProperties(ocrEngineProperties);
     }
 
     @Override
@@ -28,5 +35,14 @@ public class CustomOcrEngine implements IOcrEngine {
 
     @Override
     public void createTxt(List<File> inputImages, File txtFile) {
+    }
+
+    public OcrEngineProperties getOcrEngineProperties() {
+        return ocrEngineProperties;
+    }
+
+    public void setOcrEngineProperties(
+            OcrEngineProperties ocrEngineProperties) {
+        this.ocrEngineProperties = ocrEngineProperties;
     }
 }

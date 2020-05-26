@@ -24,7 +24,12 @@ public class PdfLayersTest extends ExtendedITextTest {
         String path = PdfHelper.getDefaultImagePath();
         File file = new File(path);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
+        OcrEngineProperties ocrEngineProperties = new OcrEngineProperties();
+        ocrEngineProperties.setLanguages(
+                Collections.<String>singletonList("eng"));
+        CustomOcrEngine engine = new CustomOcrEngine(ocrEngineProperties);
+
+        PdfRenderer pdfRenderer = new PdfRenderer(engine);
         PdfDocument doc =
                 pdfRenderer.createPdf(Collections.<File>singletonList(file),
                         PdfHelper.getPdfWriter());
@@ -39,6 +44,10 @@ public class PdfLayersTest extends ExtendedITextTest {
         Assert.assertEquals("Text Layer",
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
         doc.close();
+
+        Assert.assertEquals(engine, pdfRenderer.getOcrEngine());
+        Assert.assertEquals(1, engine.getOcrEngineProperties().getLanguages().size());
+        Assert.assertEquals("eng", engine.getOcrEngineProperties().getLanguages().get(0));
     }
 
     @Test

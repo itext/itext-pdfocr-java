@@ -2,6 +2,9 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.image.TiffImageData;
+import com.itextpdf.io.source.RandomAccessFileOrArray;
+import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -126,7 +129,7 @@ class PdfCreatorUtil {
 
             if ("tiff".equals(ext.toLowerCase())
                     || "tif".equals(ext.toLowerCase())) {
-                int tiffPages = ImageUtil.getNumberOfPageTiff(inputImage);
+                int tiffPages = getNumberOfPageTiff(inputImage);
 
                 for (int page = 0; page < tiffPages; page++) {
                     byte[] bytes = Files.readAllBytes(inputImage.toPath());
@@ -223,5 +226,25 @@ class PdfCreatorUtil {
      */
     static float getPoints(final float pixels) {
         return pixels * PX_TO_PT;
+    }
+
+    /**
+     * Counts number of pages in the provided tiff image.
+     *
+     * @param inputImage input image {@link java.io.File}
+     * @return number of pages in the provided TIFF image
+     * @throws IOException if error occurred during creating a
+     * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
+     * string
+     */
+    private static int getNumberOfPageTiff(final File inputImage)
+            throws IOException {
+        RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
+                new RandomAccessSourceFactory()
+                        .createBestSource(
+                                inputImage.getAbsolutePath()));
+        int numOfPages = TiffImageData.getNumberOfPages(raf);
+        raf.close();
+        return numOfPages;
     }
 }
