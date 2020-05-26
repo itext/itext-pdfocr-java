@@ -9,7 +9,6 @@
   </parent>
 
   <artifactId>pdfocr-tesseract4</artifactId>
-  <version>${project.parent.version}</version>
 
   <name>pdfOCR Tesseract 4</name>
   <description>pdfOCR Tesseract 4 is an iText 7 add-on that lets you to
