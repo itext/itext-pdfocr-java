@@ -73,7 +73,7 @@ pipeline {
                     steps {
                         withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
                             sh 'mvn --threads 2C --no-transfer-progress clean dependency:purge-local-repository ' +
-                                    '-Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false ' + 
+                                    '-Dinclude=com.itextpdf -DresolutionFuzziness=groupId -DreResolve=false ' +
                                     "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
                         script {
@@ -133,7 +133,7 @@ pipeline {
                     }
                     steps {
                         withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
-                            sh 'mvn --threads 2C --no-transfer-progress package -Dmaven.test.skip=true -Dmaven.source.skip=true ' +
+                            sh 'mvn --threads 2C --no-transfer-progress package -Dmaven.test.skip=true ' +
                                 "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                         }
                     }
@@ -153,16 +153,16 @@ pipeline {
                 timeout time: 1, unit: 'HOURS'
             }
             steps {
-                withMaven(jdk: "${JDK_VERSION}", maven: 'M3') {
+                withMaven(jdk: "${JDK_VERSION}", maven: 'M3', mavenLocalRepo: '.repository') {
                     sh 'mvn --no-transfer-progress verify --activate-profiles qa ' +
-                            '-Dpmd.analysisCache=true -DassemblyAnalyzerEnabled=false' +
+                            '-Dpmd.analysisCache=true ' +
                             "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository"
                 }
-                recordIssues tools: [
+                recordIssues(tools: [
                         checkStyle(),
                         pmdParser(),
                         spotBugs(useRankAsPriority: true)
-                ]
+                ])
                 dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
             }
         }
@@ -233,7 +233,7 @@ pipeline {
                 script {
                     if (env.GIT_URL) {
                         repoName = ("${env.GIT_URL}" =~ /(.*\/)(.*)(\.git)/)[ 0 ][ 2 ]
-                        findFiles(glob: 'target/*.jar').each { item ->
+                        findFiles(glob: '*/target/*.jar').each { item ->
                             if (!(item ==~ /.*\/[fs]b-contrib-.*?.jar/) && !(item ==~ /.*\/findsecbugs-plugin-.*?.jar/) && !(item ==~ /.*-sources.jar/) && !(item ==~ /.*-javadoc.jar/)) {
                                 sh "./jfrog rt u \"${item.path}\" branch-artifacts/${env.BRANCH_NAME}/${repoName}/java/ --recursive=false --build-name ${env.BRANCH_NAME} --build-number ${env.BUILD_NUMBER} --props \"vcs.revision=${env.GIT_COMMIT};repo.name=${repoName}\""
                             }
