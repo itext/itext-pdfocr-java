@@ -123,7 +123,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
             } catch (SecurityException e) {
                 LoggerFactory.getLogger(getClass())
                         .error(MessageFormatUtil.format(
-                                Tesseract4LogMessageConstant.CannotDeleteFile,
+                                Tesseract4LogMessageConstant.CANNOT_DELETE_FILE,
                                 imagePath, e.getMessage()));
             }
             try {
@@ -136,7 +136,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
             } catch (SecurityException e) {
                 LoggerFactory.getLogger(getClass())
                         .error(MessageFormatUtil.format(
-                                Tesseract4LogMessageConstant.CannotDeleteFile,
+                                Tesseract4LogMessageConstant.CANNOT_DELETE_FILE,
                                 getTesseract4OcrEngineProperties()
                                         .getPathToUserWordsFile(),
                                 e.getMessage()));
@@ -156,7 +156,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
         if (getPathToExecutable() == null
                 || getPathToExecutable().isEmpty()) {
             throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CannotFindPathToTesseractExecutable);
+                    Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         } else {
             command.add(addQuotes(getPathToExecutable()));
         }
@@ -263,7 +263,7 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
                 outputFile.getAbsolutePath().indexOf(extension));
         LoggerFactory.getLogger(getClass()).info(
                 MessageFormatUtil.format(
-                        Tesseract4LogMessageConstant.CreatedTemporaryFile,
+                        Tesseract4LogMessageConstant.CREATED_TEMPORARY_FILE,
                         outputFile.getAbsolutePath()));
         command.add(addQuotes(fileName));
     }

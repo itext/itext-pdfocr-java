@@ -2,7 +2,6 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 
 import java.io.File;
@@ -85,7 +84,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
     public void createTxt(final List<File> inputImages, final File txtFile) {
         LoggerFactory.getLogger(getClass())
                 .info(MessageFormatUtil.format(
-                LogMessageConstant.StartOcrForImages,
+                Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,
                 inputImages.size()));
 
         StringBuilder content = new StringBuilder();
@@ -238,7 +237,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
                     + suffix)
                     .exists()) {
                 throw new Tesseract4OcrException(
-                        Tesseract4OcrException.IncorrectLanguage)
+                        Tesseract4OcrException.INCORRECT_LANGUAGE)
                         .setMessageParams(
                                 getTesseract4OcrEngineProperties()
                                         .getDefaultLanguage()
@@ -251,7 +250,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
                         + java.io.File.separatorChar + lang + suffix)
                         .exists()) {
                     throw new Tesseract4OcrException(
-                            Tesseract4OcrException.IncorrectLanguage)
+                            Tesseract4OcrException.INCORRECT_LANGUAGE)
                             .setMessageParams(lang + suffix, getTessData());
                 }
             }
@@ -324,7 +323,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil.format(
-                            Tesseract4LogMessageConstant.CannotOcrInputFile,
+                            Tesseract4LogMessageConstant.CANNOT_OCR_INPUT_FILE,
                             e.getMessage()));
         }
 
@@ -349,7 +348,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
             return getTesseract4OcrEngineProperties().getPathToTessData();
         } else {
             throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CannotFindPathToTessDataDirectory);
+                    Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY);
         }
     }
 
@@ -392,10 +391,11 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
         }
         if (!isValid) {
             LoggerFactory.getLogger(getClass()).error(MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.CannotReadInputImage,
+                    .format(Tesseract4LogMessageConstant
+                                    .CANNOT_READ_INPUT_IMAGE,
                             image.getAbsolutePath()));
             throw new Tesseract4OcrException(
-                    Tesseract4OcrException.IncorrectInputImageFormat)
+                    Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
         }
         return isValid;

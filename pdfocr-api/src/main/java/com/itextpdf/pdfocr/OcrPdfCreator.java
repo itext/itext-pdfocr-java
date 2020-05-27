@@ -131,7 +131,7 @@ public class OcrPdfCreator {
             final PdfOutputIntent pdfOutputIntent)
             throws OcrException {
         LOGGER.info(MessageFormatUtil.format(
-                LogMessageConstant.StartOcrForImages,
+                PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES,
                 inputImages.size()));
 
         // map contains:
@@ -196,7 +196,7 @@ public class OcrPdfCreator {
                         .get(ocrPdfCreatorProperties.getFontPath()));
             } catch (IOException | OutOfMemoryError e) {
                 LOGGER.error(MessageFormatUtil.format(
-                        LogMessageConstant.CannotReadProvidedFont,
+                        PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT,
                         e.getMessage()));
                 return getDefaultFont();
             }
@@ -217,7 +217,7 @@ public class OcrPdfCreator {
             return StreamUtil.inputStreamToArray(stream);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    LogMessageConstant.CannotReadDefaultFont,
+                    PdfOcrLogMessageConstant.CANNOT_READ_DEFAULT_FONT,
                     e.getMessage()));
             return new byte[0];
         }
@@ -302,7 +302,7 @@ public class OcrPdfCreator {
                     PdfEncodings.IDENTITY_H, true);
         } catch (com.itextpdf.io.IOException | IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    LogMessageConstant.CannotReadProvidedFont,
+                    PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT,
                     e.getMessage()));
             try {
                 defaultFont = PdfFontFactory.createFont(getDefaultFont(),
@@ -310,9 +310,9 @@ public class OcrPdfCreator {
             } catch (com.itextpdf.io.IOException
                     | IOException | NullPointerException ex) {
                 LOGGER.error(MessageFormatUtil.format(
-                        LogMessageConstant.CannotReadDefaultFont,
+                        PdfOcrLogMessageConstant.CANNOT_READ_DEFAULT_FONT,
                         ex.getMessage()));
-                throw new OcrException(OcrException.CannotReadFont);
+                throw new OcrException(OcrException.CANNOT_READ_FONT);
             }
         }
         addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont);
@@ -342,7 +342,7 @@ public class OcrPdfCreator {
                 List<ImageData> imageDataList =
                         PdfCreatorUtil.getImageData(inputImage);
                 LOGGER.info(MessageFormatUtil.format(
-                        LogMessageConstant.NumberOfPagesInImage,
+                        PdfOcrLogMessageConstant.NUMBER_OF_PAGES_IN_IMAGE,
                         inputImage.toString(), imageDataList.size()));
 
                 Map<Integer, List<TextInfo>> imageTextData = entry.getValue();
@@ -364,7 +364,7 @@ public class OcrPdfCreator {
                 }
             } catch (IOException e) {
                 LOGGER.error(MessageFormatUtil.format(
-                        LogMessageConstant.CannotAddDataToPdfDocument,
+                        PdfOcrLogMessageConstant.CANNOT_ADD_DATA_TO_PDF_DOCUMENT,
                         e.getMessage()));
             }
         }

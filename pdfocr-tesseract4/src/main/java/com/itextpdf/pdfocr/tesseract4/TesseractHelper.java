@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.pdfocr.LogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -39,11 +38,6 @@ class TesseractHelper {
             .getLogger(TesseractHelper.class);
 
     /**
-     * The Constant ENCODING_UTF_8.
-     */
-    private final static String ENCODING_UTF_8 = "UTF-8";
-
-    /**
      * Creates a new {@link TesseractHelper} instance.
      */
     private TesseractHelper() {
@@ -62,7 +56,7 @@ class TesseractHelper {
             }
         } catch (IOException | SecurityException e) {
             LOGGER.info(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotDeleteFile,
+                    Tesseract4LogMessageConstant.CANNOT_DELETE_FILE,
                     pathToFile,
                     e.getMessage()));
         }
@@ -96,7 +90,8 @@ class TesseractHelper {
                                     .get(inputFile.getAbsolutePath()))) {
                 FileInputStream fileInputStream =
                         new FileInputStream(inputFile.getAbsolutePath());
-                Document doc = Jsoup.parse(fileInputStream, ENCODING_UTF_8,
+                Document doc = Jsoup.parse(fileInputStream,
+                        java.nio.charset.StandardCharsets.UTF_8.name(),
                         inputFile.getAbsolutePath());
                 Elements pages = doc.getElementsByClass("ocr_page");
 
@@ -175,7 +170,7 @@ class TesseractHelper {
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotReadFile,
+                    Tesseract4LogMessageConstant.CANNOT_READ_FILE,
                     txtFile.getAbsolutePath(),
                     e.getMessage()));
         }
@@ -196,7 +191,7 @@ class TesseractHelper {
             writer.write(data);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    LogMessageConstant.CannotWriteToFile,
+                    Tesseract4LogMessageConstant.CANNOT_WRITE_TO_FILE,
                     path,
                     e.getMessage()));
         }

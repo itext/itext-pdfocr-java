@@ -39,7 +39,7 @@ public class PdfFontTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = LogMessageConstant.CannotReadProvidedFont, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
     })
     @Test
     public void testInvalidFont() throws IOException {

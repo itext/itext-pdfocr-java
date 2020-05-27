@@ -133,13 +133,13 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadInputImage, count = 1)
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testInputInvalidImage() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectInputImageFormat,
+                .format(Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT,
                         "txt"));
 
         File file1 = new File(testImagesDirectory + "example.txt");
@@ -156,12 +156,12 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.CannotFindPathToTessDataDirectory, count = 1)
+        @LogMessage(messageTemplate = Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY, count = 1)
     })
     @Test
     public void testNullPathToTessData() {
         junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.CannotFindPathToTessDataDirectory);
+        junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY);
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
@@ -170,14 +170,14 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage, count
+        @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE, count
                 = 1)
     })
     @Test
     public void testPathToTessDataWithoutData() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectLanguage,
+                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
                         "eng.traineddata",
                         "test/"));
 
@@ -189,13 +189,13 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.CannotFindPathToTessDataDirectory, count
+        @LogMessage(messageTemplate = Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY, count
                 = 1)
     })
     @Test
     public void testIncorrectPathToTessData3() {
         junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.CannotFindPathToTessDataDirectory);
+        junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY);
 
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         tesseractReader.setTesseract4OcrEngineProperties(
@@ -248,28 +248,28 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage,
+            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testIncorrectLanguage() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectLanguage,
+                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
                         "spa_new.traineddata", langTessDataDirectory));
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("spa_new"));
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage,
+            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testListOfLanguagesWithOneIncorrectLanguage() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectLanguage,
+                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
                         "spa_new.traineddata",
                         langTessDataDirectory));
         File file = new File(testImagesDirectory + "spanish_01.jpg");
@@ -277,14 +277,14 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage,
+            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testIncorrectScriptsName() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectLanguage,
+                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
                         "English.traineddata",
                         scriptTessDataDirectory));
 
@@ -296,14 +296,14 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.IncorrectLanguage, count
+            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE, count
                     = 1)
     })
     @Test
     public void testListOfScriptsWithOneIncorrect() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectLanguage,
+                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
                         "English.traineddata",
                         scriptTessDataDirectory));
 

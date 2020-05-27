@@ -118,7 +118,7 @@ class ImagePreprocessingUtil {
         }
         if (pix == null) {
             throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CannotReadProvidedImage)
+                    Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractOcrUtil.preprocessPixAndSave(pix);

@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.pdfocr.IOcrEngine;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,8 +37,9 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
     public Tesseract4LibOcrEngine(
             final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
         super(tesseract4OcrEngineProperties);
-        tesseractInstance =
-                TesseractOcrUtil.initializeTesseractInstance(isWindows());
+        tesseractInstance = TesseractOcrUtil
+                .initializeTesseractInstance(isWindows(), null,
+                        null, null);
     }
 
     /**
@@ -54,9 +54,9 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
                 || TesseractOcrUtil
                 .isTesseractInstanceDisposed(tesseractInstance)) {
             tesseractInstance = TesseractOcrUtil
-                    .initializeTesseractInstance(
-                    getTessData(), getLanguagesAsString(),
-                    isWindows(), getTesseract4OcrEngineProperties()
+                    .initializeTesseractInstance(isWindows(), getTessData(),
+                            getLanguagesAsString(),
+                            getTesseract4OcrEngineProperties()
                                     .getPathToUserWordsFile());
         }
         return tesseractInstance;
@@ -138,13 +138,13 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
                         writer.write(result);
                     } catch (IOException e) {
                         String msg = MessageFormatUtil.format(
-                                Tesseract4LogMessageConstant.TesseractFailed,
+                                Tesseract4LogMessageConstant.TESSERACT_FAILED,
                                 "Cannot write to file: "
                                         + e.getMessage());
                         LoggerFactory.getLogger(getClass())
                                 .error(msg);
                         throw new Tesseract4OcrException(
-                                Tesseract4OcrException.TesseractFailed);
+                                Tesseract4OcrException.TESSERACT_FAILED);
                     }
                 }
             }
@@ -197,13 +197,13 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
             }
         } catch (TesseractException e) {
             String msg = MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.TesseractFailed,
+                    .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
                             e.getMessage());
             LoggerFactory.getLogger(getClass())
                     .error(msg);
             throw new Tesseract4OcrException(
                     Tesseract4OcrException
-                            .TesseractFailed);
+                            .TESSERACT_FAILED);
         }
         return resultList;
     }
@@ -241,7 +241,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
                         LoggerFactory.getLogger(getClass()).info(
                                 MessageFormatUtil.format(
                                         Tesseract4LogMessageConstant
-                                                .CannotCreateBufferedImage,
+                                                .CANNOT_CREATE_BUFFERED_IMAGE,
                                         ex.getMessage()));
                         bufferedImage = ImagePreprocessingUtil
                                 .readAsPixAndConvertToBufferedImage(
@@ -250,7 +250,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
                 } catch (IOException ex) {
                     LoggerFactory.getLogger(getClass())
                             .info(MessageFormatUtil.format(
-                                    Tesseract4LogMessageConstant.CannotReadInputImage,
+                                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                                     ex.getMessage()));
                 }
                 if (bufferedImage != null) {
@@ -261,7 +261,7 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
                     } catch (TesseractException e) {
                         LoggerFactory.getLogger(getClass())
                                 .info(MessageFormatUtil.format(
-                                        Tesseract4LogMessageConstant.CannotProcessImage,
+                                        Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
                                         e.getMessage()));
                     }
                 }
@@ -278,11 +278,11 @@ public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
         } catch (TesseractException e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil
-                            .format(Tesseract4LogMessageConstant.TesseractFailed,
+                            .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
                                     e.getMessage()));
             throw new Tesseract4OcrException(
                     Tesseract4OcrException
-                            .TesseractFailed);
+                            .TESSERACT_FAILED);
         } finally {
             if (preprocessed != null) {
                 TesseractHelper.deleteFile(preprocessed.getAbsolutePath());

@@ -19,7 +19,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage,
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                     count = 1)
     })
     @Test
@@ -33,7 +33,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = LogMessageConstant.CannotReadInputImage, count = 1)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testCorruptedImageWithoutExtension() {

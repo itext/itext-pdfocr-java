@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -578,7 +577,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "spa"));
         String userWords = testDocumentsDirectory + "userwords.txt";
         Tesseract4OcrEngineProperties properties =
@@ -591,7 +590,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void testIncorrectLanguageForUserWordsAsList() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "eng1"));
         Tesseract4OcrEngineProperties properties =
                 tesseractReader.getTesseract4OcrEngineProperties();
@@ -604,7 +603,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             throws FileNotFoundException {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LanguageIsNotInTheList,
+                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "test"));
         String userWords = testDocumentsDirectory + "userwords.txt";
         Tesseract4OcrEngineProperties properties =

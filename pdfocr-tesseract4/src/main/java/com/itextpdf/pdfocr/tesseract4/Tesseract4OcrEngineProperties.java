@@ -221,7 +221,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
             } catch (IOException e) {
                 LoggerFactory.getLogger(getClass())
                         .warn(MessageFormatUtil.format(
-                                Tesseract4LogMessageConstant.CannotUseUserWords,
+                                Tesseract4LogMessageConstant.CANNOT_USE_USER_WORDS,
                                 e.getMessage()));
             }
         }
@@ -256,7 +256,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
                 setLanguages(languagesList);
             } else {
                 throw new Tesseract4OcrException(
-                        Tesseract4OcrException.LanguageIsNotInTheList)
+                        Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST)
                         .setMessageParams(language);
             }
         }
@@ -275,7 +275,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
             setPathToUserWordsFile(null);
             LoggerFactory.getLogger(getClass())
                     .warn(MessageFormatUtil.format(
-                            Tesseract4LogMessageConstant.CannotUseUserWords,
+                            Tesseract4LogMessageConstant.CANNOT_USE_USER_WORDS,
                             e.getMessage()));
         }
         return this;

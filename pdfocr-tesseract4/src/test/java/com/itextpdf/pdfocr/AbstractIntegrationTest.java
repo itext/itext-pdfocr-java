@@ -421,7 +421,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotReadFile,
+                    Tesseract4LogMessageConstant.CANNOT_READ_FILE,
                     file.getAbsolutePath(),
                     e.getMessage()));
         }

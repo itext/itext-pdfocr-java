@@ -1,7 +1,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.pdfocr.IOcrEngine;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
@@ -81,24 +80,24 @@ class TesseractOcrUtil {
 
             if (result != 0) {
                 LOGGER.error(MessageFormatUtil
-                        .format(Tesseract4LogMessageConstant.TesseractFailed,
+                        .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
                                 String.join(" ", command)));
                 throw new Tesseract4OcrException(
                         Tesseract4OcrException
-                                .TesseractFailed);
+                                .TESSERACT_FAILED);
             }
 
             process.destroy();
         } catch (NullPointerException | IOException | InterruptedException e) {
             LOGGER.error(MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.TesseractFailed,
+                    .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
                             e.getMessage()));
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
             throw new Tesseract4OcrException(
                     Tesseract4OcrException
-                    .TesseractFailed);
+                    .TESSERACT_FAILED);
         }
     }
 
@@ -123,7 +122,7 @@ class TesseractOcrUtil {
             if (pageNumber >= size) {
                 LOGGER.warn(MessageFormatUtil
                         .format(
-                                Tesseract4LogMessageConstant.PageNumberIsIncorrect,
+                                Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
                                 pageNumber,
                                 inputFile.getAbsolutePath()));
                 return null;
@@ -216,9 +215,16 @@ class TesseractOcrUtil {
                             null, pointer);
             Pix thresholdPix = new Pix(pointer.getValue());
             if (thresholdPix.w > 0 && thresholdPix.h > 0) {
+                // destroying original pix
                 destroyPix(pix);
                 return thresholdPix;
             } else {
+                LOGGER.info(MessageFormatUtil
+                        .format(Tesseract4LogMessageConstant
+                                        .CANNOT_BINARIZE_IMAGE,
+                                pix.d));
+                // destroying created PointerByReference object
+                Leptonica.INSTANCE.pixDestroy(pointer);
                 return pix;
             }
         } else {
@@ -286,32 +292,25 @@ class TesseractOcrUtil {
      * Creates tesseract instance with parameters.
      * Method is used to initialize tesseract instance with parameters if it
      * haven't been initialized yet.
+     * In this method in java 'tessData', 'languages' and 'userWordsFilePath'
+     * properties are unused as they will be set using setters in
+     * {@link #setTesseractProperties} method. In .Net all these properties
+     * are needed to be provided in tesseract constructor in order to
+     * initialize tesseract instance. Thus, tesseract initialization takes
+     * place in {@link Tesseract4LibOcrEngine#Tesseract4LibOcrEngine} constructor in
+     * java, but in .Net it happens only after all properties are validated,
+     * i.e. just before OCR process.
      *
+     * @param isWindows true is current os is windows
      * @param tessData path to tess data directory
      * @param languages list of languages in required format as
      *                  {@link java.lang.String}
-     * @param isWindows true is current os is windows
      * @param userWordsFilePath path to a temporary file with user words
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} object
      */
-    static ITesseract initializeTesseractInstance(
+    static ITesseract initializeTesseractInstance(final boolean isWindows,
             final String tessData, final String languages,
-            final boolean isWindows, final String userWordsFilePath) {
-        if (isWindows) {
-            return new Tesseract1();
-        } else {
-            return new Tesseract();
-        }
-    }
-
-    /**
-     * Creates tesseract instance with parameters.
-     * Method is used to initialize tesseract instance in constructor (in java).
-     *
-     * @param isWindows true is current os is windows
-     * @return initialized {@link net.sourceforge.tess4j.ITesseract} object
-     */
-    static ITesseract initializeTesseractInstance(final boolean isWindows) {
+            final String userWordsFilePath) {
         if (isWindows) {
             return new Tesseract1();
         } else {
@@ -379,7 +378,7 @@ class TesseractOcrUtil {
             LoggerFactory.getLogger(ImagePreprocessingUtil.class)
                     .info(MessageFormatUtil
                             .format(
-                                    Tesseract4LogMessageConstant.ReadingImageAsPix,
+                                    Tesseract4LogMessageConstant.READING_IMAGE_AS_PIX,
                                     inputFile.getAbsolutePath(),
                                     e.getMessage()));
             pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
@@ -496,7 +495,7 @@ class TesseractOcrUtil {
                             inputFile.getAbsolutePath()));
         } catch (ImageReadException | IOException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CannotRetrievePagesFromImage,
+                    Tesseract4LogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
                     inputFile.getAbsolutePath(),
                     e.getMessage()));
         }

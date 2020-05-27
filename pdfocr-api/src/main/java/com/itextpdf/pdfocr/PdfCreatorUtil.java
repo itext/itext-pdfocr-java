@@ -145,10 +145,10 @@ class PdfCreatorUtil {
                     images.add(imageData);
                 } catch (com.itextpdf.io.IOException e) {
                     LOGGER.error(MessageFormatUtil.format(
-                            LogMessageConstant.CannotReadInputImage,
+                            PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                             e.getMessage()));
                     throw new OcrException(
-                            OcrException.CannotReadInputImage);
+                            OcrException.CANNOT_READ_INPUT_IMAGE);
                 }
             }
         }

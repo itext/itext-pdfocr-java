@@ -10,9 +10,9 @@ import java.util.List;
  */
 public class OcrException extends RuntimeException {
 
-    public static final String CannotReadInputImage =
+    public static final String CANNOT_READ_INPUT_IMAGE =
             "Cannot read input image";
-    public static final String CannotReadFont = "Cannot read font";
+    public static final String CANNOT_READ_FONT = "Cannot read font";
     private List<String> messageParams;
 
     /**

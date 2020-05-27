@@ -3,19 +3,19 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.pdfocr.OcrException;
 
 public class Tesseract4OcrException extends OcrException {
-    public static final String IncorrectInputImageFormat =
+    public static final String INCORRECT_INPUT_IMAGE_FORMAT =
             "{0} format is not supported.";
-    public static final String IncorrectLanguage =
+    public static final String INCORRECT_LANGUAGE =
             "{0} does not exist in {1}";
-    public static final String LanguageIsNotInTheList =
+    public static final String LANGUAGE_IS_NOT_IN_THE_LIST =
             "Provided list of languages doesn't contain {0} language";
-    public static final String CannotReadProvidedImage =
+    public static final String CANNOT_READ_PROVIDED_IMAGE =
             "Cannot read input image {0}";
-    public static final String TesseractFailed = "Tesseract failed. "
+    public static final String TESSERACT_FAILED = "Tesseract failed. "
             + "Please check provided parameters";
-    public static final String CannotFindPathToTesseractExecutable =
+    public static final String CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE =
             "Cannot find path to tesseract executable.";
-    public static final String CannotFindPathToTessDataDirectory =
+    public static final String CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY =
             "Cannot find path to tess data directory";
 
     /**

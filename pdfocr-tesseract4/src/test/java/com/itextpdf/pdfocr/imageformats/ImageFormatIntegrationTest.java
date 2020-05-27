@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -139,13 +138,13 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CannotReadInputImage, count = 1)
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testInputWrongFormat() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.IncorrectInputImageFormat,
+                .format(Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT,
                         "txt"));
         File file = new File(testImagesDirectory + "example.txt");
         getTextFromPdf(tesseractReader, file);
