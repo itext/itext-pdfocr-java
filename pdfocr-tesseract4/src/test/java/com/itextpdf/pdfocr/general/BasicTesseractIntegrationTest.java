@@ -8,12 +8,12 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -40,7 +40,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
-    Tesseract4OcrEngine tesseractReader;
+    AbstractTesseract4OcrEngine tesseractReader;
 
     public BasicTesseractIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
@@ -318,7 +318,7 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
     /**
      * Parse text from image and compare with expected.
      */
-    private void testImageOcrText(Tesseract4OcrEngine tesseractReader, String path,
+    private void testImageOcrText(AbstractTesseract4OcrEngine tesseractReader, String path,
                                   String expectedOutput) {
         File ex1 = new File(path);
 

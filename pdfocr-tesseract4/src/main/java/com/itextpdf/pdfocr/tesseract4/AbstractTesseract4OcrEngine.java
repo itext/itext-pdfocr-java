@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Also there are possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems).
  */
-public abstract class Tesseract4OcrEngine implements IOcrEngine {
+public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
 
     /**
      * Supported image formats.
@@ -41,7 +41,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
      */
     private Tesseract4OcrEngineProperties tesseract4OcrEngineProperties;
 
-    public Tesseract4OcrEngine(
+    public AbstractTesseract4OcrEngine(
             Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
         this.tesseract4OcrEngineProperties = tesseract4OcrEngineProperties;
     }
@@ -98,7 +98,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
     }
 
     /**
-     * Gets properties for {@link Tesseract4OcrEngine}.
+     * Gets properties for {@link AbstractTesseract4OcrEngine}.
      *
      * @return set properties {@link Tesseract4OcrEngineProperties}
      */
@@ -107,10 +107,10 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
     }
 
     /**
-     * Sets properties for {@link Tesseract4OcrEngine}.
+     * Sets properties for {@link AbstractTesseract4OcrEngine}.
      *
      * @param tesseract4OcrEngineProperties set of properties
-     * {@link Tesseract4OcrEngineProperties} for {@link Tesseract4OcrEngine}
+     * {@link Tesseract4OcrEngineProperties} for {@link AbstractTesseract4OcrEngine}
      */
     public final void setTesseract4OcrEngineProperties(
             final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
@@ -367,7 +367,7 @@ public abstract class Tesseract4OcrEngine implements IOcrEngine {
     /**
      * Validates input image format.
      * Allowed image formats are listed
-     * in {@link Tesseract4OcrEngine#SUPPORTED_IMAGE_FORMATS}
+     * in {@link AbstractTesseract4OcrEngine#SUPPORTED_IMAGE_FORMATS}
      *
      * @param image input image {@link java.io.File}
      * @return true if image extension is valid, false - if not

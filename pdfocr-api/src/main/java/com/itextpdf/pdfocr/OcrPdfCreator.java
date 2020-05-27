@@ -385,12 +385,12 @@ public class OcrPdfCreator {
             if (ocrPdfCreatorProperties.getPageSize() == null) {
                 pdfCanvas.addImage(imageData, imageSize, false);
             } else {
-                List<Float> coordinates =
+                com.itextpdf.kernel.geom.Point coordinates =
                         PdfCreatorUtil.calculateImageCoordinates(
                         ocrPdfCreatorProperties.getPageSize(), imageSize);
                 com.itextpdf.kernel.geom.Rectangle rect =
                         new com.itextpdf.kernel.geom.Rectangle(
-                                coordinates.get(0), coordinates.get(1),
+                                (float)coordinates.x, (float)coordinates.y,
                                 imageSize.getWidth(), imageSize.getHeight());
                 pdfCanvas.addImage(imageData, rect, false);
             }
@@ -418,11 +418,9 @@ public class OcrPdfCreator {
         if (pageText == null || pageText.size() == 0) {
             pdfCanvas.beginText().setFontAndSize(font, 1);
         } else {
-            List<Float> imageCoordinates =
+            com.itextpdf.kernel.geom.Point imageCoordinates =
                     PdfCreatorUtil.calculateImageCoordinates(
                     ocrPdfCreatorProperties.getPageSize(), imageSize);
-            float x = imageCoordinates.get(0);
-            float y = imageCoordinates.get(1);
             for (TextInfo item : pageText) {
                 String line = item.getText();
                 List<Float> coordinates = item.getBbox();
@@ -444,8 +442,6 @@ public class OcrPdfCreator {
                     float deltaY = imageSize.getHeight()
                             - PdfCreatorUtil.getPoints(bottom);
 
-                    float descent = font.getDescent(line, fontSize);
-
                     Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
 
                     Text text = new Text(line)
@@ -466,8 +462,10 @@ public class OcrPdfCreator {
                                 TextRenderingMode.INVISIBLE);
                     }
 
-                    canvas.showTextAligned(paragraph, deltaX + x,
-                            deltaY + y, TextAlignment.LEFT);
+                    canvas.showTextAligned(paragraph,
+                            deltaX + (float)imageCoordinates.x,
+                            deltaY + (float)imageCoordinates.y,
+                            TextAlignment.LEFT);
                     canvas.close();
                 }
             }

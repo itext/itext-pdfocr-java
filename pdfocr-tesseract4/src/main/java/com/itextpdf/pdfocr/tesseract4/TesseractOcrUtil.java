@@ -80,7 +80,7 @@ class TesseractOcrUtil {
 
             if (result != 0) {
                 LOGGER.error(MessageFormatUtil
-                        .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
+                        .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                                 String.join(" ", command)));
                 throw new Tesseract4OcrException(
                         Tesseract4OcrException
@@ -90,7 +90,7 @@ class TesseractOcrUtil {
             process.destroy();
         } catch (NullPointerException | IOException | InterruptedException e) {
             LOGGER.error(MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
+                    .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                             e.getMessage()));
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();

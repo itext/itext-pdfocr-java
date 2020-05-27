@@ -4,18 +4,19 @@ import com.itextpdf.io.util.MessageFormatUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 
 /**
- * The implementation of {@link Tesseract4OcrEngine} for tesseract OCR.
+ * The implementation of {@link AbstractTesseract4OcrEngine} for tesseract OCR.
  *
  * This class provides possibilities to use features of "tesseract" CL tool
  * (optical character recognition engine for various operating systems).
  * Please note that it's assumed that "tesseract" has already been
  * installed locally.
  */
-public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
+public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
 
     /**
      * Path to the tesseract executable.
@@ -84,6 +85,8 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
             addPathToExecutable(command);
+            checkTesseractInstalled();
+
             // path to tess data
             addTessData(command);
 
@@ -293,5 +296,28 @@ public class Tesseract4ExecutableOcrEngine extends Tesseract4OcrEngine {
             path = ImagePreprocessingUtil.preprocessImage(inputImage, pageNumber);
         }
         return path;
+    }
+
+    /**
+     * Check whether tesseract executable is installed on the machine and
+     * provided path to tesseract executable is correct.
+     */
+    /**
+     * Check whether tesseract executable is installed on the machine and
+     * provided path to tesseract executable is correct.
+     * @throws Tesseract4OcrException if tesseract is not installed or provided
+     * path to tesseract executable is incorrect,
+     * i.e. running "{@link #getPathToExecutable()} --version" command failed.
+     */
+    private void checkTesseractInstalled() throws Tesseract4OcrException {
+        try {
+            List<String> cmd = Arrays.<String>asList(
+                    addQuotes(getPathToExecutable()),
+                    "--version");
+            TesseractOcrUtil.runCommand(cmd, isWindows());
+        } catch (Tesseract4OcrException e) {
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException.TESSERACT_NOT_FOUND, e);
+        }
     }
 }

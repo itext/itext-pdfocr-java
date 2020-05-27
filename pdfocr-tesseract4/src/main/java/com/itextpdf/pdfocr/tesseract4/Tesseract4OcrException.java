@@ -13,6 +13,9 @@ public class Tesseract4OcrException extends OcrException {
             "Cannot read input image {0}";
     public static final String TESSERACT_FAILED = "Tesseract failed. "
             + "Please check provided parameters";
+    public static final String TESSERACT_NOT_FOUND = "Tesseract failed. "
+            + "Please check that tesseract is installed and provided path to "
+            + "tesseract executable directory is correct";
     public static final String CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE =
             "Cannot find path to tesseract executable.";
     public static final String CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY =

@@ -4,9 +4,9 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrPdfCreator;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
 
-    Tesseract4OcrEngine tesseractReader;
+    AbstractTesseract4OcrEngine tesseractReader;
 
     public PdfLayersIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);

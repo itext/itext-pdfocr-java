@@ -4,7 +4,7 @@ import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
@@ -27,7 +27,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
-    Tesseract4OcrEngine tesseractReader;
+    AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
     private boolean isExecutableReaderType;
 

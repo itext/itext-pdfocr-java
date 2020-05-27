@@ -1,5 +1,6 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
@@ -45,5 +46,19 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
         junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         File file = new File(testImagesDirectory + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file);
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate =
+                Tesseract4LogMessageConstant.COMMAND_FAILED, count = 1),
+        @LogMessage(messageTemplate =
+                Tesseract4OcrException.TESSERACT_NOT_FOUND, count = 1)
+    })
+    @Test
+    public void testIncorrectPathToTesseractExecutable() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expectMessage(Tesseract4OcrException.TESSERACT_NOT_FOUND);
+        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        getTextFromPdf(new Tesseract4ExecutableOcrEngine("path\\to\\executable\\", new Tesseract4OcrEngineProperties()), file);
     }
 }

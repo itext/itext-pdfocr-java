@@ -90,7 +90,7 @@ class PdfCreatorUtil {
      * @param imageSize size of the image
      * @return list of two elements (coordinates): first - x, second - y.
      */
-    static List<Float> calculateImageCoordinates(
+    static com.itextpdf.kernel.geom.Point calculateImageCoordinates(
             final com.itextpdf.kernel.geom.Rectangle size,
             final com.itextpdf.kernel.geom.Rectangle imageSize) {
         float x = 0;
@@ -103,7 +103,7 @@ class PdfCreatorUtil {
                 x = (size.getWidth() - imageSize.getWidth()) / 2;
             }
         }
-        return Arrays.<Float>asList(x, y);
+        return new com.itextpdf.kernel.geom.Point(x, y);
     }
 
     /**
@@ -172,16 +172,6 @@ class PdfCreatorUtil {
             final ImageData imageData,
             final ScaleMode scaleMode,
             final com.itextpdf.kernel.geom.Rectangle requiredSize) {
-        // Adjust image size and dpi
-        // The resolution of a PDF file is 72pt per inch
-        float dotsPerPointX = 1.0f;
-        float dotsPerPointY = 1.0f;
-        if (imageData != null && imageData.getDpiX() > 0
-                && imageData.getDpiY() > 0) {
-            dotsPerPointX = imageData.getDpiX() / POINTS_PER_INCH;
-            dotsPerPointY = imageData.getDpiY() / POINTS_PER_INCH;
-        }
-
         if (imageData != null) {
             float imgWidthPt = getPoints(imageData.getWidth());
             float imgHeightPt = getPoints(imageData.getHeight());

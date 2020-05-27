@@ -16,12 +16,12 @@ import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
 
 /**
- * The implementation of {@link Tesseract4OcrEngine} for tesseract OCR.
+ * The implementation of {@link AbstractTesseract4OcrEngine} for tesseract OCR.
  *
  * This class provides possibilities to use features of "tesseract"
  * using tess4j.
  */
-public class Tesseract4LibOcrEngine extends Tesseract4OcrEngine {
+public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
 
     /**
      * {@link net.sourceforge.tess4j.ITesseract} Instance.

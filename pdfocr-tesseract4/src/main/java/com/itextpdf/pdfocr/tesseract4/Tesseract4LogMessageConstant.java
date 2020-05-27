@@ -3,6 +3,8 @@ package com.itextpdf.pdfocr.tesseract4;
 public class Tesseract4LogMessageConstant {
     public static final String TESSERACT_FAILED =
             "Tesseract failed: {0}";
+    public static final String COMMAND_FAILED =
+            "Command failed: {0}";
     public static final String CANNOT_READ_FILE =
             "Cannot read file {0}: {1}";
     public static final String CANNOT_OCR_INPUT_FILE =

@@ -4,8 +4,8 @@ import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
@@ -24,7 +24,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
-    Tesseract4OcrEngine tesseractReader;
+    AbstractTesseract4OcrEngine tesseractReader;
 
     public ImageFormatIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);

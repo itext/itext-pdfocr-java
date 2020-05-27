@@ -4,9 +4,9 @@ import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrPdfCreator;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 
@@ -20,7 +20,7 @@ import org.junit.rules.ExpectedException;
 
 public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
-    Tesseract4OcrEngine tesseractReader;
+    AbstractTesseract4OcrEngine tesseractReader;
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
