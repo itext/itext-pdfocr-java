@@ -4,25 +4,35 @@ import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TessDataIntegrationTest.class);
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
@@ -41,9 +51,17 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         tesseractReader = getTesseractReader(type);
     }
 
+    @Before
+    public void initTesseractProperties() {
+        Tesseract4OcrEngineProperties ocrEngineProperties =
+                new Tesseract4OcrEngineProperties();
+        ocrEngineProperties.setPathToTessData(getTessDataDirectory());
+        tesseractReader.setTesseract4OcrEngineProperties(ocrEngineProperties);
+    }
+
     @Test
     public void textGreekText() {
-        String imgPath = testImagesDirectory + "greek_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "greek_01.jpg";
         File file = new File(imgPath);
         String expected = "ΟΜΟΛΟΓΙΑ";
 
@@ -53,25 +71,25 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                             .setPreprocessingImages(false));
         }
         String real = getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("ell"), notoSansFontPath);
+                Arrays.<String>asList("ell"), NOTO_SANS_FONT_PATH);
         // correct result with specified greek language
         Assert.assertTrue(real.contains(expected));
     }
 
     @Test
     public void textJapaneseText() {
-        String imgPath = testImagesDirectory + "japanese_01.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "japanese_01.png";
         File file = new File(imgPath);
         String expected = "日 本 語\n文法";
 
         // correct result with specified japanese language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("jpn"), kosugiFontPath));
+                Arrays.<String>asList("jpn"), KOSUGI_FONT_PATH));
     }
 
     @Test
     public void testFrench() {
-        String imgPath = testImagesDirectory + "french_01.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "french_01.png";
         File file = new File(imgPath);
         String expectedFr = "RESTEZ\nCALME\nPARLEZ EN\nFRANÇAIS";
 
@@ -93,7 +111,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     public void compareSpanishPNG() throws IOException, InterruptedException {
         String testName = "compareSpanishPNG";
         String filename = "scanned_spa_01";
-        String expectedPdfPath = testDocumentsDirectory + filename + testFileTypeName +
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + testFileTypeName +
                 ".pdf";
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
@@ -109,12 +127,12 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setTextPositioning(TextPositioning.BY_WORDS));
         doOcrAndSavePdfToPath(tesseractReader,
-                testImagesDirectory + filename + ".png", resultPdfPath,
+                TEST_IMAGES_DIRECTORY + filename + ".png", resultPdfPath,
                 languages,  DeviceCmyk.BLACK);
 
         try {
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    testDocumentsDirectory, "diff_");
+                    TEST_DOCUMENTS_DIRECTORY, "diff_");
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
@@ -123,7 +141,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void textGreekOutputFromTxtFile() {
-        String imgPath = testImagesDirectory + "greek_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "greek_01.jpg";
         String expected = "ΟΜΟΛΟΓΙΑ";
 
         if (isExecutableReaderType) {
@@ -139,7 +157,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void textJapaneseOutputFromTxtFile() {
-        String imgPath = testImagesDirectory + "japanese_01.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "japanese_01.png";
         String expected = "日本語文法";
 
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
@@ -152,7 +170,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testFrenchOutputFromTxtFile() {
-        String imgPath = testImagesDirectory + "french_01.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "french_01.png";
         String expectedFr = "RESTEZ\nCALME\nPARLEZ EN\nFRANÇAIS";
 
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
@@ -177,7 +195,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testArabicOutputFromTxtFile() {
-        String imgPath = testImagesDirectory + "arabic_02.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "arabic_02.png";
         // First sentence
         String expected = "اللغة العربية";
 
@@ -202,8 +220,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testGermanAndCompareTxtFiles() {
-        String imgPath = testImagesDirectory + "german_01.jpg";
-        String expectedTxt = testDocumentsDirectory + "german_01" + testFileTypeName + ".txt";
+        String imgPath = TEST_IMAGES_DIRECTORY + "german_01.jpg";
+        String expectedTxt = TEST_DOCUMENTS_DIRECTORY + "german_01" + testFileTypeName + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
                 Collections.<String>singletonList("deu"));
@@ -212,8 +230,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testMultipageTiffAndCompareTxtFiles() {
-        String imgPath = testImagesDirectory + "multipage.tiff";
-        String expectedTxt = testDocumentsDirectory + "multipage_" + testFileTypeName + ".txt";
+        String imgPath = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String expectedTxt = TEST_DOCUMENTS_DIRECTORY + "multipage_" + testFileTypeName + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
                 Collections.<String>singletonList("eng"));
@@ -222,7 +240,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testGermanWithTessData() {
-        String imgPath = testImagesDirectory + "german_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "german_01.jpg";
         File file = new File(imgPath);
         String expectedGerman = "Das Geheimnis\ndes Könnens\nliegt im Wollen.";
 
@@ -242,49 +260,50 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testArabicTextWithEng() {
-        String imgPath = testImagesDirectory + "arabic_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "arabic_01.jpg";
         File file = new File(imgPath);
         String expected = "الحية. والضحك؛ والحب\nlive, laugh, love";
 
         String result = getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("ara", "eng"), cairoFontPath);
+                Arrays.<String>asList("ara", "eng"), CAIRO_FONT_PATH);
         // correct result with specified arabic+english languages
         Assert.assertEquals(expected, result.replaceAll("[?]", ""));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("eng"), cairoFontPath));
+                Collections.<String>singletonList("eng"), CAIRO_FONT_PATH));
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, new ArrayList<String>(), cairoFontPath));
+                getTextFromPdf(tesseractReader, file, new ArrayList<String>(),
+                        CAIRO_FONT_PATH));
     }
 
     @Test
     public void testArabicText() {
-        String imgPath = testImagesDirectory + "arabic_02.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "arabic_02.png";
         File file = new File(imgPath);
         // First sentence
         String expected = "اللغة العربية";
 
         // correct result with specified arabic language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("ara"), cairoFontPath));
+                Collections.<String>singletonList("ara"), CAIRO_FONT_PATH));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("eng"), cairoFontPath));
+                Collections.<String>singletonList("eng"), CAIRO_FONT_PATH));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("spa"), cairoFontPath));
+                Collections.<String>singletonList("spa"), CAIRO_FONT_PATH));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<String>(), cairoFontPath));
+                new ArrayList<String>(), CAIRO_FONT_PATH));
     }
 
     @Test
     public void compareMultiLangImage() throws InterruptedException, java.io.IOException {
         String testName = "compareMultiLangImage";
         String filename = "multilang";
-        String expectedPdfPath = testDocumentsDirectory + filename + "_" + testFileTypeName + ".pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + ".pdf";
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
         try {
@@ -294,20 +313,23 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             properties.setPathToTessData(getTessDataDirectory());
             tesseractReader.setTesseract4OcrEngineProperties(properties);
             doOcrAndSavePdfToPath(tesseractReader,
-                    testImagesDirectory + filename + ".png", resultPdfPath,
+                    TEST_IMAGES_DIRECTORY + filename + ".png", resultPdfPath,
                     Arrays.<String>asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
 
             new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    testDocumentsDirectory, "diff_");
+                    TEST_DOCUMENTS_DIRECTORY, "diff_");
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
         }
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 4)
+    })
     @Test
     public void testHindiTextWithUrdu() {
-        String imgPath = testImagesDirectory + "hindi_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "hindi_01.jpg";
         File file = new File(imgPath);
 
         String expectedHindi = "हिन्दुस्तानी";
@@ -316,14 +338,14 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // correct result with specified arabic+urdu languages
         // but because of specified font only hindi will be displayed
         String resultHindiFont = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("hin", "urd"), freeSansFontPath);
+                Arrays.asList("hin", "urd"), FREE_SANS_FONT_PATH);
 
         Assert.assertTrue(resultHindiFont.startsWith(expectedHindi));
         Assert.assertTrue(resultHindiFont.contains(expectedHindi));
         Assert.assertFalse(resultHindiFont.contains(expectedUrdu));
 
         String resultArabic = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("hin", "urd"), cairoFontPath);
+                Arrays.asList("hin", "urd"), CAIRO_FONT_PATH);
 
         // correct result with specified arabic+urdu languages
         // but because of default font only urdu will be displayed
@@ -334,7 +356,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // or languages were specified in the wrong order
         // with different fonts
         Assert.assertTrue(getTextFromPdf(tesseractReader ,file,
-                Collections.<String>singletonList("hin"), notoSansFontPath)
+                Collections.<String>singletonList("hin"), NOTO_SANS_FONT_PATH)
                 .contains(expectedHindi));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("hin"))
@@ -348,41 +370,44 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testHindiTextWithEng() {
-        String imgPath = testImagesDirectory + "hindi_02.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "hindi_02.jpg";
         File file = new File(imgPath);
 
         String expected = "मानक हनिदी\nHindi";
 
         // correct result with specified arabic+english languages
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("hin", "eng"), notoSansFontPath));
+                Arrays.<String>asList("hin", "eng"), NOTO_SANS_FONT_PATH));
 
         // incorrect result without specified english language
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("hin"), notoSansFontPath));
+                Collections.<String>singletonList("hin"), NOTO_SANS_FONT_PATH));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("eng"), notoSansFontPath));
+                Collections.<String>singletonList("eng"), NOTO_SANS_FONT_PATH));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<String>(), notoSansFontPath));
+                new ArrayList<String>(), NOTO_SANS_FONT_PATH));
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+    })
     @Test
     public void testGeorgianText() {
-        String imgPath = testImagesDirectory + "georgian_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence
         String expected = "ღმერთი";
 
         String result = getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("kat"), freeSansFontPath);
+                Collections.<String>singletonList("kat"), FREE_SANS_FONT_PATH);
         // correct result with specified georgian+eng language
         Assert.assertEquals(expected, result);
         result = getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("kat", "kat_old"), freeSansFontPath);
+                Arrays.<String>asList("kat", "kat_old"), FREE_SANS_FONT_PATH);
         Assert.assertEquals(expected, result);
 
         // incorrect result when languages are not specified
@@ -397,9 +422,12 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 .contains(expected));
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 4)
+    })
     @Test
     public void testBengali() {
-        String imgPath = testImagesDirectory + "bengali_01.jpeg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
         File file = new File(imgPath);
         String expected = "ইংরজে\nশখো";
 
@@ -408,50 +436,57 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                         .setTextPositioning(TextPositioning.BY_WORDS));
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("ben"), freeSansFontPath));
+                Collections.<String>singletonList("ben"), FREE_SANS_FONT_PATH));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("ben")));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("ben"), kosugiFontPath));
+                Collections.<String>singletonList("ben"), KOSUGI_FONT_PATH));
         Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
                 new ArrayList<String>()));
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 3)
+    })
     @Test
     public void testChinese() {
-        String imgPath = testImagesDirectory + "chinese_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "chinese_01.jpg";
         File file = new File(imgPath);
         String expected = "你 好\nni hao";
 
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("chi_sim", "chi_tra"), notoSansSCFontPath));
+                Arrays.<String>asList("chi_sim", "chi_tra"),
+                NOTO_SANS_SC_FONT_PATH));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("chi_sim"), notoSansSCFontPath));
+                Collections.<String>singletonList("chi_sim"),
+                NOTO_SANS_SC_FONT_PATH));
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("chi_tra"), notoSansSCFontPath));
+                Collections.<String>singletonList("chi_tra"),
+                NOTO_SANS_SC_FONT_PATH));
 
         // incorrect result when languages are not specified
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_sim")),
-                notoSansSCFontPath);
+                getTextFromPdf(tesseractReader, file,
+                        Collections.<String>singletonList("chi_sim")),
+                NOTO_SANS_SC_FONT_PATH);
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_tra")),
-                notoSansSCFontPath);
+                NOTO_SANS_SC_FONT_PATH);
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file, Arrays.<String>asList("chi_sim", "chi_tra")),
-                notoSansSCFontPath);
+                NOTO_SANS_SC_FONT_PATH);
         Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<String>())
                 .contains(expected));
     }
 
     @Test
     public void testSpanishWithTessData() {
-        String imgPath = testImagesDirectory + "spanish_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "spanish_01.jpg";
         File file = new File(imgPath);
         String expectedSpanish = "Aquí\nhablamos\nespañol";
 
@@ -471,18 +506,22 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 getTextFromPdf(tesseractReader, file, new ArrayList<String>()));
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 2)
+    })
     @Test
     public void testBengaliScript() {
-        String imgPath = testImagesDirectory + "bengali_01.jpeg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
         File file = new File(imgPath);
         String expected = "ইংরজে";
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(scriptTessDataDirectory));
+                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Bengali"), freeSansFontPath)
+                Collections.<String>singletonList("Bengali"),
+                FREE_SANS_FONT_PATH)
                 .startsWith(expected));
 
         // incorrect result when languages are not specified
@@ -491,23 +530,27 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.<String>singletonList("Bengali"))
                 .startsWith(expected));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Bengali"), kosugiFontPath)
+                Collections.<String>singletonList("Bengali"), KOSUGI_FONT_PATH)
                 .startsWith(expected));
     }
 
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+    })
     @Test
     public void testGeorgianTextWithScript() {
-        String imgPath = testImagesDirectory + "georgian_01.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence
         String expected = "ღმერთი";
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(scriptTessDataDirectory));
+                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
         // correct result with specified georgian+eng language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Georgian"), freeSansFontPath)
+                Collections.<String>singletonList("Georgian"),
+                FREE_SANS_FONT_PATH)
                 .startsWith(expected));
 
         // incorrect result when languages are not specified
@@ -522,22 +565,22 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testJapaneseScript() {
-        String imgPath = testImagesDirectory + "japanese_01.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "japanese_01.png";
         File file = new File(imgPath);
         String expected = "日 本 語\n文法";
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(scriptTessDataDirectory));
+                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
         // correct result with specified japanese language
         String result = getTextFromPdf(tesseractReader, file,
-                Arrays.<String>asList("Japanese"), kosugiFontPath);
+                Arrays.<String>asList("Japanese"), KOSUGI_FONT_PATH);
         Assert.assertEquals(expected, result);
     }
 
     @Test
     public void testCustomUserWords() {
-        String imgPath = testImagesDirectory + "wierdwords.png";
+        String imgPath = TEST_IMAGES_DIRECTORY + "wierdwords.png";
         List<String> userWords = Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty");
 
         Tesseract4OcrEngineProperties properties =
@@ -555,7 +598,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testCustomUserWordsWithListOfLanguages() {
-        String imgPath = testImagesDirectory + "bogusText.jpg";
+        String imgPath = TEST_IMAGES_DIRECTORY + "bogusText.jpg";
         String expectedOutput = "B1adeb1ab1a";
 
         Tesseract4OcrEngineProperties properties =
@@ -579,7 +622,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         junitExpectedException.expectMessage(MessageFormatUtil
                 .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "spa"));
-        String userWords = testDocumentsDirectory + "userwords.txt";
+        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
         Tesseract4OcrEngineProperties properties =
                 tesseractReader.getTesseract4OcrEngineProperties();
         properties.setUserWords("spa", new FileInputStream(userWords));
@@ -605,10 +648,58 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         junitExpectedException.expectMessage(MessageFormatUtil
                 .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "test"));
-        String userWords = testDocumentsDirectory + "userwords.txt";
+        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
         Tesseract4OcrEngineProperties properties =
                 tesseractReader.getTesseract4OcrEngineProperties();
         properties.setUserWords("test", new FileInputStream(userWords));
         properties.setLanguages(new ArrayList<String>());
+    }
+
+    /**
+     * Do OCR for given image and compare result etxt file with expected one.
+     */
+    private boolean doOcrAndCompareTxtFiles(AbstractTesseract4OcrEngine tesseractReader,
+            String imgPath, String expectedPath, List<String> languages) {
+        String resultTxtFile = getTargetDirectory() + getImageName(imgPath, languages) + ".txt";
+        doOcrAndSaveToTextFile(tesseractReader, imgPath, resultTxtFile, languages);
+        return compareTxtFiles(expectedPath, resultTxtFile);
+    }
+
+    /**
+     * Compare two text files using provided paths.
+     */
+    private boolean compareTxtFiles(String expectedFilePath, String resultFilePath) {
+        boolean areEqual = true;
+        try {
+            List<String> expected = Files.readAllLines(java.nio.file.Paths.get(expectedFilePath));
+            List<String> result = Files.readAllLines(java.nio.file.Paths.get(resultFilePath));
+
+            if (expected.size() != result.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < expected.size(); i++) {
+                String exp = expected.get(i)
+                        .replace("\n", "")
+                        .replace("\f", "");
+                exp = exp.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
+                String res = result.get(i)
+                        .replace("\n", "")
+                        .replace("\f", "");
+                res = res.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
+                if (expected.get(i) == null || result.get(i) == null) {
+                    areEqual = false;
+                    break;
+                } else if (!exp.equals(res)) {
+                    areEqual = false;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            areEqual = false;
+            LOGGER.error(e.getMessage());
+        }
+
+        return areEqual;
     }
 }

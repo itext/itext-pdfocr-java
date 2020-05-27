@@ -3,6 +3,7 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
+import com.itextpdf.io.util.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities class to work with images.
@@ -114,7 +116,7 @@ class ImagePreprocessingUtil {
             pix = TesseractOcrUtil.readPixPageFromTiff(inputFile,
                     pageNumber - 1);
         } else {
-            pix = TesseractOcrUtil.readPix(inputFile);
+            pix = readPix(inputFile);
         }
         if (pix == null) {
             throw new Tesseract4OcrException(
@@ -122,5 +124,46 @@ class ImagePreprocessingUtil {
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractOcrUtil.preprocessPixAndSave(pix);
+    }
+
+    /**
+     * Reads {@link net.sourceforge.lept4j.Pix} from input file or, if
+     * this is not possible, reads input file as
+     * {@link java.awt.image.BufferedImage} and then converts to
+     * {@link net.sourceforge.lept4j.Pix}.
+     *
+     * @param inputFile input image {@link java.io.File}
+     * @return Pix result {@link net.sourceforge.lept4j.Pix} object from
+     * input file
+     */
+    static Pix readPix(final File inputFile) {
+        Pix pix = null;
+        try {
+            BufferedImage bufferedImage = ImagePreprocessingUtil
+                    .readImageFromFile(inputFile);
+            if (bufferedImage != null) {
+                pix = TesseractOcrUtil.convertImageToPix(bufferedImage);
+            }
+        } catch (Exception e) { // NOSONAR
+            LoggerFactory.getLogger(ImagePreprocessingUtil.class)
+                    .info(MessageFormatUtil.format(
+                            Tesseract4LogMessageConstant
+                                    .CANNOT_CONVERT_IMAGE_TO_PIX,
+                            inputFile.getAbsolutePath(),
+                            e.getMessage()));
+        }
+        if (pix == null) {
+            try {
+                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
+            } catch (IllegalArgumentException e) {
+                LoggerFactory.getLogger(ImagePreprocessingUtil.class)
+                        .info(MessageFormatUtil.format(
+                                Tesseract4LogMessageConstant
+                                        .CANNOT_CONVERT_IMAGE_TO_PIX,
+                                inputFile.getAbsolutePath(),
+                                e.getMessage()));
+            }
+        }
+        return pix;
     }
 }

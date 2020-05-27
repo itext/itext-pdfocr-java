@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class PdfHelper {
 
     public static final String DEFAULT_IMAGE_NAME = "numbers_01.jpg";
+    public static final String THAI_IMAGE_NAME = "thai.PNG";
     public static final String DEFAULT_EXPECTED_RESULT = "619121";
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
@@ -46,10 +47,24 @@ public class PdfHelper {
     }
 
     /**
+     * Returns path to thai test image.
+     */
+    public static String getThaiImagePath() {
+        return getImagesTestDirectory() + THAI_IMAGE_NAME;
+    }
+
+    /**
      * Returns path to test font.
      */
     public static String getFreeSansFontPath() {
         return TEST_DIRECTORY + "fonts/FreeSans.ttf";
+    }
+
+    /**
+     * Returns path to test font.
+     */
+    public static String getKanitFontPath() {
+        return TEST_DIRECTORY + "fonts/Kanit-Regular.ttf";
     }
 
     /**

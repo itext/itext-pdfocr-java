@@ -64,15 +64,14 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
      * Performs tesseract OCR for the first (or for the only) image page.
      *
      * @param inputImage input image {@link java.io.File}
-     * @param outputFiles {@link java.util.List} of output files
-     *                                          (one per each page)
+     * @param outputFile output file for the result for the first page
      * @param outputFormat selected {@link OutputFormat} for tesseract
      */
-    public void doTesseractOcr(File inputImage,
-            List<File> outputFiles, OutputFormat outputFormat) {
-        doTesseractOcr(inputImage, outputFiles, outputFormat, 1);
+    public void doTesseractOcr(File inputImage, File outputFile,
+            OutputFormat outputFormat) {
+        doTesseractOcr(inputImage, Collections.<File>singletonList(outputFile),
+                outputFormat, 1);
     }
-
 
     /**
      * Performs OCR using provided {@link IOcrEngine} for the given list of
@@ -301,7 +300,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
                                     getTesseract4OcrEngineProperties()
                                             .getTextPositioning());
 
-                    if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
+                    if (getTesseract4OcrEngineProperties()
+                            .isPreprocessingImages()) {
                         imageData.put(page, pageData.get(1));
                     } else {
                         imageData = pageData;

@@ -4,7 +4,7 @@ import com.itextpdf.io.util.MessageFormatUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 
@@ -79,39 +79,46 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     public void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
-        List<String> command = new ArrayList<String>();
+        List<String> params = new ArrayList<String>();
+        String execPath = null;
         String imagePath = null;
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
-            addPathToExecutable(command);
-            checkTesseractInstalled();
-
+            if (getPathToExecutable() == null
+                    || getPathToExecutable().isEmpty()) {
+                throw new Tesseract4OcrException(
+                        Tesseract4OcrException
+                                .CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+            } else {
+                execPath = addQuotes(getPathToExecutable());
+            }
+            checkTesseractInstalled(execPath);
             // path to tess data
-            addTessData(command);
+            addTessData(params);
 
             // validate languages before preprocessing started
             validateLanguages(getTesseract4OcrEngineProperties().getLanguages());
 
             // preprocess input file if needed and add it
             imagePath = preprocessImage(inputImage, pageNumber);
-            addInputFile(command, imagePath);
+            addInputFile(params, imagePath);
             // output file
-            addOutputFile(command, outputFiles.get(0), outputFormat);
+            addOutputFile(params, outputFiles.get(0), outputFormat);
             // page segmentation mode
-            addPageSegMode(command);
+            addPageSegMode(params);
             // add user words if needed
-            addUserWords(command);
+            addUserWords(params);
             // required languages
-            addLanguages(command);
+            addLanguages(params);
             if (outputFormat.equals(OutputFormat.HOCR)) {
                 // path to hocr script
-                setHocrOutput(command);
+                setHocrOutput(params);
             }
             // set default user defined dpi
-            addDefaultDpi(command);
+            addDefaultDpi(params);
 
-            TesseractOcrUtil.runCommand(command, isWindows());
+            TesseractHelper.runCommand(execPath, params);
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
@@ -144,24 +151,6 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                                         .getPathToUserWordsFile(),
                                 e.getMessage()));
             }
-        }
-    }
-
-    /**
-     * Adds path to tesseract executable to the command.
-     *
-     * @param command result command as list of strings
-     * @throws Tesseract4OcrException if path to tesseract executable wasn't found
-     */
-    private void addPathToExecutable(final List<String> command)
-            throws Tesseract4OcrException {
-        // path to tesseract executable cannot be uninitialized
-        if (getPathToExecutable() == null
-                || getPathToExecutable().isEmpty()) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
-        } else {
-            command.add(addQuotes(getPathToExecutable()));
         }
     }
 
@@ -301,20 +290,16 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     /**
      * Check whether tesseract executable is installed on the machine and
      * provided path to tesseract executable is correct.
-     */
-    /**
-     * Check whether tesseract executable is installed on the machine and
-     * provided path to tesseract executable is correct.
-     * @throws Tesseract4OcrException if tesseract is not installed or provided
-     * path to tesseract executable is incorrect,
+     * @param execPath path to tesseract executable
+     * @throws Tesseract4OcrException if tesseract is not installed or
+     * provided path to tesseract executable is incorrect,
      * i.e. running "{@link #getPathToExecutable()} --version" command failed.
      */
-    private void checkTesseractInstalled() throws Tesseract4OcrException {
+    private void checkTesseractInstalled(String execPath)
+            throws Tesseract4OcrException {
         try {
-            List<String> cmd = Arrays.<String>asList(
-                    addQuotes(getPathToExecutable()),
-                    "--version");
-            TesseractOcrUtil.runCommand(cmd, isWindows());
+            TesseractHelper.runCommand(execPath,
+                    Collections.<String>singletonList("--version"));
         } catch (Tesseract4OcrException e) {
             throw new Tesseract4OcrException(
                     Tesseract4OcrException.TESSERACT_NOT_FOUND, e);

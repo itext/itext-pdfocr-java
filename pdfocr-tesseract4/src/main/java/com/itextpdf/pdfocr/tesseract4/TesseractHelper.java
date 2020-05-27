@@ -1,6 +1,7 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.io.util.SystemUtil;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class.
  */
-class TesseractHelper {
+public class TesseractHelper {
 
     /**
      * The logger.
@@ -41,25 +42,6 @@ class TesseractHelper {
      * Creates a new {@link TesseractHelper} instance.
      */
     private TesseractHelper() {
-    }
-
-    /**
-     * Deletes file using provided path.
-     *
-     * @param pathToFile path to the file to be deleted
-     */
-    static void deleteFile(final String pathToFile) {
-        try {
-            if (pathToFile != null && !pathToFile.isEmpty()
-                    && Files.exists(java.nio.file.Paths.get(pathToFile))) {
-                Files.delete(java.nio.file.Paths.get(pathToFile));
-            }
-        } catch (IOException | SecurityException e) {
-            LOGGER.info(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CANNOT_DELETE_FILE,
-                    pathToFile,
-                    e.getMessage()));
-        }
     }
 
     /**
@@ -76,7 +58,7 @@ class TesseractHelper {
      * @throws IOException if error occurred during reading one the provided
      * files
      */
-    static Map<Integer, List<TextInfo>> parseHocrFile(
+    public static Map<Integer, List<TextInfo>> parseHocrFile(
             final List<File> inputFiles,
             final TextPositioning textPositioning)
             throws IOException {
@@ -157,6 +139,25 @@ class TesseractHelper {
     }
 
     /**
+     * Deletes file using provided path.
+     *
+     * @param pathToFile path to the file to be deleted
+     */
+    static void deleteFile(final String pathToFile) {
+        try {
+            if (pathToFile != null && !pathToFile.isEmpty()
+                    && Files.exists(java.nio.file.Paths.get(pathToFile))) {
+                Files.delete(java.nio.file.Paths.get(pathToFile));
+            }
+        } catch (IOException | SecurityException e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_DELETE_FILE,
+                    pathToFile,
+                    e.getMessage()));
+        }
+    }
+
+    /**
      * Reads from text file to string.
      *
      * @param txtFile input {@link java.io.File} to be read
@@ -194,6 +195,38 @@ class TesseractHelper {
                     Tesseract4LogMessageConstant.CANNOT_WRITE_TO_FILE,
                     path,
                     e.getMessage()));
+        }
+    }
+
+    /**
+     * Runs given command.
+     *
+     * @param execPath path to the executable
+     * @param paramsList {@link java.util.List} of command line arguments
+     * @throws Tesseract4OcrException if provided command failed
+     */
+    static void runCommand(final String execPath,
+            final List<String> paramsList) throws Tesseract4OcrException {
+        try {
+            String params = String.join(" ", paramsList);
+            boolean cmdSucceeded = SystemUtil
+                    .runProcessAndWait(execPath, params);
+
+            if (!cmdSucceeded) {
+                LOGGER.error(MessageFormatUtil
+                        .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
+                                execPath + " " + params));
+                throw new Tesseract4OcrException(
+                        Tesseract4OcrException
+                                .TESSERACT_FAILED);
+            }
+        } catch (IOException | InterruptedException e) { // NOSONAR
+            LOGGER.error(MessageFormatUtil
+                    .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
+                            e.getMessage()));
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException
+                            .TESSERACT_FAILED);
         }
     }
 }

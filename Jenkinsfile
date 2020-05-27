@@ -180,7 +180,7 @@ pipeline {
                                 'org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report ' +
                                 '-Dsonar.java.spotbugs.reportPaths="target/spotbugs.xml" ' +
                                 "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository " +
-                                'sonar:sonar ' + '-Dsonar.branch.name=' + env.BRANCH_NAME + ' -Dsonar.branch.target=develop'
+                                'sonar:sonar ' + sonarBranchName + ' ' + sonarBranchTarget
                     }
                 }
             }

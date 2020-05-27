@@ -1,12 +1,19 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.font.otf.Glyph;
+import com.itextpdf.io.font.otf.GlyphLine;
+import com.itextpdf.io.font.otf.GlyphLine.GlyphLinePart;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.io.util.ResourceUtil;
 import com.itextpdf.io.util.StreamUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.font.PdfTrueTypeFont;
+import com.itextpdf.kernel.font.PdfType0Font;
+import com.itextpdf.kernel.font.PdfType1Font;
+import com.itextpdf.kernel.font.PdfType3Font;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -30,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,16 +241,20 @@ public class OcrPdfCreator {
      * @param pageText text that was found on this image (or on this page)
      * @param imageData input image if it is a single page or its one page if
      *                 this is a multi-page image
+     * @param createPdfA3u true if Pdf/A3u document is being created
+     * @throws OcrException if Pdf/A3u document is being created and provided
+     * font contains notdef glyphs
      */
     private void addToCanvas(final PdfDocument pdfDocument, final PdfFont font,
             final com.itextpdf.kernel.geom.Rectangle imageSize,
-            final List<TextInfo> pageText, final ImageData imageData) {
+            final List<TextInfo> pageText, final ImageData imageData,
+            final boolean createPdfA3u) throws OcrException {
         com.itextpdf.kernel.geom.Rectangle rectangleSize =
                 ocrPdfCreatorProperties.getPageSize() == null
                         ? imageSize : ocrPdfCreatorProperties.getPageSize();
         PageSize size = new PageSize(rectangleSize);
         PdfPage pdfPage = pdfDocument.addNewPage(size);
-        PdfCanvas canvas = new PdfCanvas(pdfPage);
+        PdfCanvas canvas = new NotDefCheckingPdfCanvas(pdfPage, createPdfA3u);
 
         PdfLayer imageLayer = new PdfLayer(
                 ocrPdfCreatorProperties.getImageLayerName(), pdfDocument);
@@ -258,8 +270,18 @@ public class OcrPdfCreator {
                 ? 1 : imageSize.getWidth()
                 / PdfCreatorUtil.getPoints(imageData.getWidth());
         canvas.beginLayer(textLayer);
-        addTextToCanvas(imageSize, pageText, canvas, font,
-                multiplier, pdfPage.getMediaBox());
+
+        try {
+            addTextToCanvas(imageSize, pageText, canvas, font,
+                    multiplier, pdfPage.getMediaBox());
+        } catch (OcrException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                    e.getMessage()));
+            throw new OcrException(MessageFormatUtil.format(
+                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                    e.getMessage()));
+        }
         canvas.endLayer();
     }
 
@@ -280,7 +302,8 @@ public class OcrPdfCreator {
             final PdfOutputIntent pdfOutputIntent,
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData) {
         PdfDocument pdfDocument;
-        if (pdfOutputIntent != null) {
+        boolean createPdfA3u = pdfOutputIntent != null;
+        if (createPdfA3u) {
             pdfDocument = new PdfADocument(pdfWriter,
                     PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
         } else {
@@ -315,7 +338,8 @@ public class OcrPdfCreator {
                 throw new OcrException(OcrException.CANNOT_READ_FONT);
             }
         }
-        addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont);
+        addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont,
+                createPdfA3u);
 
         return pdfDocument;
     }
@@ -329,12 +353,15 @@ public class OcrPdfCreator {
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
      * @param font font for the placed text (could be custom or default)
-     * @throws OcrException if input image cannot be read
+     * @param createPdfA3u true if Pdf/A3u document is being created
+     * @throws OcrException if input image cannot be read or provided font
+     * contains NOTDEF glyphs
      */
     private void addDataToPdfDocument(
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
             final PdfDocument pdfDocument,
-            final PdfFont font) throws OcrException {
+            final PdfFont font,
+            final boolean createPdfA3u) throws OcrException {
         for (Map.Entry<File, Map<Integer, List<TextInfo>>> entry
                 : imagesTextData.entrySet()) {
             try {
@@ -358,7 +385,7 @@ public class OcrPdfCreator {
                         if (imageTextData.containsKey(page + 1)) {
                             addToCanvas(pdfDocument, font, imageSize,
                                     imageTextData.get(page + 1),
-                                    imageData);
+                                    imageData, createPdfA3u);
                         }
                     }
                 }
@@ -407,6 +434,8 @@ public class OcrPdfCreator {
      * @param font font for the placed text (could be custom or default)
      * @param multiplier coefficient to adjust text placing on canvas
      * @param pageMediaBox page parameters
+     * @throws OcrException if Pdf/A3u document is being created and provided
+     * font contains notdef glyphs
      */
     private void addTextToCanvas(
             final com.itextpdf.kernel.geom.Rectangle imageSize,
@@ -414,7 +443,8 @@ public class OcrPdfCreator {
             final PdfCanvas pdfCanvas,
             final PdfFont font,
             final float multiplier,
-            final com.itextpdf.kernel.geom.Rectangle pageMediaBox) {
+            final com.itextpdf.kernel.geom.Rectangle pageMediaBox)
+            throws OcrException {
         if (pageText == null || pageText.size() == 0) {
             pdfCanvas.beginText().setFontAndSize(font, 1);
         } else {
@@ -469,6 +499,53 @@ public class OcrPdfCreator {
                     canvas.close();
                 }
             }
+        }
+    }
+
+    /**
+     * A handler for pdf canvas that validates existing glyphs.
+     */
+    private static class NotDefCheckingPdfCanvas extends PdfCanvas {
+        private final boolean createPdfA3u;
+        public NotDefCheckingPdfCanvas(PdfPage page, boolean createPdfA3u) {
+            super(page);
+            this.createPdfA3u = createPdfA3u;
+        }
+
+        @Override
+        public PdfCanvas showText(GlyphLine text,
+                Iterator<GlyphLinePart> iterator) {
+            PdfFont currentFont = getGraphicsState().getFont();
+            boolean notDefGlyphsExists = false;
+            for (int i = text.start; i < text.end; i++) {
+                if (isNotDefGlyph(currentFont, text.get(i))) {
+                    notDefGlyphsExists = true;
+                    if (this.createPdfA3u) {
+                        // exception is thrown only if Pdf/A document is
+                        // being created
+                        throw new OcrException(
+                                PdfOcrLogMessageConstant
+                                        .PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS);
+                    }
+                }
+            }
+            // Warning is logged if not Pdf/A document is being created
+            if (notDefGlyphsExists) {
+                LOGGER.warn(PdfOcrLogMessageConstant
+                        .PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS);
+            }
+            return super.showText(text, iterator);
+        }
+
+        private static boolean isNotDefGlyph(PdfFont font, Glyph glyph) {
+            if (font instanceof PdfType0Font
+                    || font instanceof PdfTrueTypeFont) {
+                return glyph.getCode() == 0;
+            } else if (font instanceof PdfType1Font
+                    || font instanceof PdfType3Font) {
+                return glyph.getCode() == -1;
+            }
+            return false;
         }
     }
 }

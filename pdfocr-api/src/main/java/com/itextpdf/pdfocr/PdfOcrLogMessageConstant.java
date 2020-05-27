@@ -13,6 +13,8 @@ public class PdfOcrLogMessageConstant {
             "Starting ocr for {0} image(s)";
     public static final String NUMBER_OF_PAGES_IN_IMAGE =
             "Image {0} contains {1} page(s)";
+    public static final String PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS =
+            "Provided font contains NOTDEF glyphs";
 
     private PdfOcrLogMessageConstant() {
     }

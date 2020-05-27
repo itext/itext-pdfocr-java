@@ -19,8 +19,6 @@ public class Tesseract4LogMessageConstant {
             "File {0} cannot be deleted: {1}";
     public static final String CANNOT_PROCESS_IMAGE = "Cannot process "
             + "image: {0}";
-    public static final String READING_IMAGE_AS_PIX =
-            "Trying to read image {0} as pix: {1}";
     public static final String CANNOT_WRITE_TO_FILE =
             "Cannot write to file {0}: {1}";
     public static final String CREATED_TEMPORARY_FILE =
@@ -35,6 +33,10 @@ public class Tesseract4LogMessageConstant {
             "Starting ocr for {0} image(s)";
     public static final String CANNOT_READ_INPUT_IMAGE =
             "Cannot read input image {0}";
+    public static final String CANNOT_GET_TEMPORARY_DIRECTORY = "Cannot get "
+            + "temporary directory: {0}";
+    public static final String CANNOT_CONVERT_IMAGE_TO_PIX =
+            "Cannot convert image to pix: {0}";
 
     private Tesseract4LogMessageConstant() {
     }

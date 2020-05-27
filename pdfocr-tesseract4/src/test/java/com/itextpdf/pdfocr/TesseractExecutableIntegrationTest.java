@@ -1,8 +1,8 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -28,7 +28,7 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
     public void testNullPathToTesseractExecutable() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
-        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         Tesseract4ExecutableOcrEngine tesseractExecutableReader =
                 new Tesseract4ExecutableOcrEngine(
                         new Tesseract4OcrEngineProperties());
@@ -44,7 +44,7 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
     public void testEmptyPathToTesseractExecutable() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
-        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file);
     }
 
@@ -58,7 +58,7 @@ public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest 
     public void testIncorrectPathToTesseractExecutable() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.TESSERACT_NOT_FOUND);
-        File file = new File(testImagesDirectory + "spanish_01.jpg");
+        File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("path\\to\\executable\\", new Tesseract4OcrEngineProperties()), file);
     }
 }

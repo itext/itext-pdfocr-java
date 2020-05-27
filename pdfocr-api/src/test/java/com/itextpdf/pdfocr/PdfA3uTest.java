@@ -1,5 +1,6 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
@@ -8,6 +9,8 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.pdfa.PdfAConformanceException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
@@ -104,5 +107,38 @@ public class PdfA3uTest extends ExtendedITextTest {
                 pdfDocument.getReader().getPdfAConformanceLevel());
 
         pdfDocument.close();
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+    })
+    @Test
+    public void testNonCompliantThaiPdfA() throws IOException {
+        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil.format(
+                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS));
+
+        String testName = "testNonCompliantThaiPdfA";
+        String path = PdfHelper.getThaiImagePath();
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdfA(pdfPath, new File(path),
+                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
+                PdfHelper.getRGBPdfOutputIntent());
+    }
+
+    @Test
+    public void testCompliantThaiPdfA() throws IOException {
+        String testName = "testCompliantThaiPdfA";
+        String path = PdfHelper.getThaiImagePath();
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
+        ocrPdfCreatorProperties.setFontPath(PdfHelper.getKanitFontPath());
+
+        PdfHelper.createPdfA(pdfPath, new File(path), ocrPdfCreatorProperties,
+                PdfHelper.getRGBPdfOutputIntent());
     }
 }

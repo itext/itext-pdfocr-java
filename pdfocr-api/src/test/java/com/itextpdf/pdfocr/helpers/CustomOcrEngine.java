@@ -24,10 +24,13 @@ public class CustomOcrEngine implements IOcrEngine {
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
-        // mocked data for "numbers_01.jpg" image
         Map<Integer, List<TextInfo>> result =
                 new HashMap<Integer, List<TextInfo>>();
-        TextInfo textInfo = new TextInfo("619121",
+        String text = "619121";
+        if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
+            text = "ป ระ เท ศ ไ";
+        }
+        TextInfo textInfo = new TextInfo(text,
                 Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f));
         result.put(1, Collections.<TextInfo>singletonList(textInfo));
         return result;
