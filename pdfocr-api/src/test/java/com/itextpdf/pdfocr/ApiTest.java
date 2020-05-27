@@ -2,6 +2,8 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.util.Arrays;
@@ -10,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class ApiTest {
+@Category(IntegrationTest.class)
+public class ApiTest extends ExtendedITextTest {
 
     @Test
     public void testTextInfo() {

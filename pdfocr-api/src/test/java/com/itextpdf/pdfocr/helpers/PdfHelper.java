@@ -7,7 +7,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.OcrPdfCreator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -123,10 +123,10 @@ public class PdfHelper {
      */
     public static void createPdf(String pdfPath, File inputFile,
             OcrPdfCreatorProperties properties) {
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(),
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(),
                 properties);
         try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
-            pdfRenderer.createPdf(Collections.<File>singletonList(inputFile),
+            ocrPdfCreator.createPdf(Collections.<File>singletonList(inputFile),
                     pdfWriter).close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -139,10 +139,10 @@ public class PdfHelper {
      */
     public static void createPdfA(String pdfPath, File inputFile,
             OcrPdfCreatorProperties properties, PdfOutputIntent outputIntent) {
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(),
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(),
                 properties);
         try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
-            pdfRenderer.createPdfA(Collections.<File>singletonList(inputFile),
+            ocrPdfCreator.createPdfA(Collections.<File>singletonList(inputFile),
                     pdfWriter, outputIntent).close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());

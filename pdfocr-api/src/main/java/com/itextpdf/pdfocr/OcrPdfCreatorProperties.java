@@ -1,7 +1,7 @@
 package com.itextpdf.pdfocr;
 
 /**
- * Properties that will be used by the {@link PdfRenderer}.
+ * Properties that will be used by the {@link OcrPdfCreator}.
  */
 public class OcrPdfCreatorProperties {
 
@@ -25,7 +25,7 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Size of the PDF document pages.
-     * NUll by default.
+     * <code>NUll</code> by default.
      * If this parameter is null, size of the page will be equal to the
      * input image size. If this parameter is not null, input image will be
      * scaled according to the selected {@link ScaleMode}.

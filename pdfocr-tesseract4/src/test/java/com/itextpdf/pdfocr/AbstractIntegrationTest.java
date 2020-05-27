@@ -364,9 +364,9 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                     tesseractReader.getTesseract4OcrEngineProperties().getLanguages().size());
         }
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
         try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
-            PdfDocument doc = pdfRenderer.createPdf(
+            PdfDocument doc = ocrPdfCreator.createPdf(
                     Collections.<File>singletonList(new File(imgPath)),
                     pdfWriter);
 

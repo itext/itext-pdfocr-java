@@ -11,8 +11,8 @@
   <artifactId>pdfocr-tesseract4</artifactId>
 
   <name>pdfOCR Tesseract 4</name>
-  <description>pdfOCR Tesseract 4 is an iText 7 add-on that lets you to
-    parse text from provided images using Tesseract 4 and to add it to PDF.
+  <description>pdfOCR Tesseract 4 is an implementation of iText 7 pdfOCR add-on
+    based on Tesseract which lets you parse recognize text from images and create searchable PDF files.
   </description>
 
   <dependencies>

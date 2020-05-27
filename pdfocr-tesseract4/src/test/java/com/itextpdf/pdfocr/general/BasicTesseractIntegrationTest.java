@@ -8,15 +8,12 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.LogMessageConstant;
-import com.itextpdf.pdfocr.OcrException;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -29,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,10 +58,10 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         com.itextpdf.kernel.colors.Color color = DeviceCmyk.MAGENTA;
         ocrPdfCreatorProperties.setTextColor(color);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader,
                 ocrPdfCreatorProperties);
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         doc.close();
@@ -120,9 +116,9 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(filePath);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
 
-        pdfRenderer.createPdf(Collections.<File>singletonList(file),
+        ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
                         new PdfWriter(pdfPath)).close();
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
@@ -154,9 +150,9 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPathToTessData(getTessDataDirectory()));
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
 
-        pdfRenderer.createPdf(Arrays.<File>asList(file3, file1, file2, file3), getPdfWriter());
+        ocrPdfCreator.createPdf(Arrays.<File>asList(file3, file1, file2, file3), getPdfWriter());
     }
 
     @LogMessages(messages = {

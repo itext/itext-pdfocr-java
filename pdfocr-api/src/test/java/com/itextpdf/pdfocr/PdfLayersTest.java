@@ -29,9 +29,9 @@ public class PdfLayersTest extends ExtendedITextTest {
                 Collections.<String>singletonList("eng"));
         CustomOcrEngine engine = new CustomOcrEngine(ocrEngineProperties);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(engine);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(engine);
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
                         PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);
@@ -45,7 +45,7 @@ public class PdfLayersTest extends ExtendedITextTest {
                 layers.get(1).getPdfObject().get(PdfName.Name).toString());
         doc.close();
 
-        Assert.assertEquals(engine, pdfRenderer.getOcrEngine());
+        Assert.assertEquals(engine, ocrPdfCreator.getOcrEngine());
         Assert.assertEquals(1, engine.getOcrEngineProperties().getLanguages().size());
         Assert.assertEquals("eng", engine.getOcrEngineProperties().getLanguages().get(0));
     }
@@ -59,9 +59,9 @@ public class PdfLayersTest extends ExtendedITextTest {
         properties.setImageLayerName("name image 1");
         properties.setTextLayerName("name text 1");
 
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine(), properties);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(), properties);
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
                         PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);
@@ -86,9 +86,9 @@ public class PdfLayersTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine());
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file), PdfHelper.getPdfWriter(pdfPath));
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file), PdfHelper.getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         List<PdfLayer> layers = doc.getCatalog()

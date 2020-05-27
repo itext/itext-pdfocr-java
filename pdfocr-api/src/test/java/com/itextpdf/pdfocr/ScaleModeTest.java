@@ -86,9 +86,9 @@ public class ScaleModeTest extends ExtendedITextTest {
         String path = PdfHelper.getDefaultImagePath();
         File file = new File(path);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(new CustomOcrEngine());
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine());
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file),
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
                         PdfHelper.getPdfWriter());
 
         Assert.assertNotNull(doc);

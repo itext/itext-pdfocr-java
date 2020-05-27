@@ -5,7 +5,7 @@ import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 
 import java.io.File;
@@ -36,9 +36,9 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPreprocessingImages(false));
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
         PdfDocument doc =
-                pdfRenderer.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
@@ -83,8 +83,8 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         properties.setImageLayerName("image");
         properties.setTextLayerName("text");
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader, properties);
-        PdfDocument doc = pdfRenderer.createPdf(files, getPdfWriter(pdfPath));
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
+        PdfDocument doc = ocrPdfCreator.createPdf(files, getPdfWriter(pdfPath));
 
         Assert.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();

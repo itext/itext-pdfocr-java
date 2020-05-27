@@ -37,26 +37,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link PdfRenderer} is the class that creates Pdf documents containing input
+ * {@link OcrPdfCreator} is the class that creates Pdf documents containing input
  * images and text that was recognized using provided {@link IOcrEngine}.
  *
- * {@link PdfRenderer} provides possibilities to set list of input images to
+ * {@link OcrPdfCreator} provides possibilities to set list of input images to
  * be used for OCR, to set scaling mode for images, to set color of text in
  * output PDF document, to set fixed size of the PDF document's page and to
  * perform OCR using given images and to return
  * {@link com.itextpdf.kernel.pdf.PdfDocument} as result.
- * PDFRenderer's OCR is based on the provided {@link IOcrEngine}
+ * OCR is based on the provided {@link IOcrEngine}
  * (e.g. tesseract reader). This parameter is obligatory and it should be
  * provided in constructor
  * or using setter.
  */
-public class PdfRenderer {
+public class OcrPdfCreator {
 
     /**
      * The logger.
      */
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(PdfRenderer.class);
+            .getLogger(OcrPdfCreator.class);
 
     /**
      * Selected {@link IOcrEngine}.
@@ -69,29 +69,28 @@ public class PdfRenderer {
     private OcrPdfCreatorProperties ocrPdfCreatorProperties;
 
     /**
-     * Creates a new {@link PdfRenderer} instance.
+     * Creates a new {@link OcrPdfCreator} instance.
      *
      * @param ocrEngine {@link IOcrEngine} selected OCR Reader
      */
-    public PdfRenderer(final IOcrEngine ocrEngine) {
-        setOcrEngine(ocrEngine);
-        setOcrPdfCreatorProperties(new OcrPdfCreatorProperties());
+    public OcrPdfCreator(final IOcrEngine ocrEngine) {
+        this(ocrEngine, new OcrPdfCreatorProperties());
     }
 
     /**
-     * Creates a new {@link PdfRenderer} instance.
+     * Creates a new {@link OcrPdfCreator} instance.
      *
      * @param ocrEngine selected OCR Reader {@link IOcrEngine}
-     * @param ocrPdfCreatorProperties set of properties for {@link PdfRenderer}
+     * @param ocrPdfCreatorProperties set of properties for {@link OcrPdfCreator}
      */
-    public PdfRenderer(final IOcrEngine ocrEngine,
+    public OcrPdfCreator(final IOcrEngine ocrEngine,
             final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
         setOcrEngine(ocrEngine);
         setOcrPdfCreatorProperties(ocrPdfCreatorProperties);
     }
 
     /**
-     * Gets properties for {@link PdfRenderer}.
+     * Gets properties for {@link OcrPdfCreator}.
      *
      * @return set properties {@link OcrPdfCreatorProperties}
      */
@@ -100,10 +99,10 @@ public class PdfRenderer {
     }
 
     /**
-     * Sets properties for {@link PdfRenderer}.
+     * Sets properties for {@link OcrPdfCreator}.
      *
      * @param ocrPdfCreatorProperties set of properties
-     * {@link OcrPdfCreatorProperties} for {@link PdfRenderer}
+     * {@link OcrPdfCreatorProperties} for {@link OcrPdfCreator}
      */
     public final void setOcrPdfCreatorProperties(
             final OcrPdfCreatorProperties ocrPdfCreatorProperties) {

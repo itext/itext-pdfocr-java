@@ -5,7 +5,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.PdfRenderer;
+import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
@@ -38,15 +38,15 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_a3u.pdf";
 
         try {
-            PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader);
+            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
 
             tesseractReader.setTesseract4OcrEngineProperties(
                     tesseractReader.getTesseract4OcrEngineProperties()
                             .setTextPositioning(TextPositioning.BY_WORDS));
-            Assert.assertEquals(tesseractReader, pdfRenderer.getOcrEngine());
-            pdfRenderer.setOcrEngine(tesseractReader);
+            Assert.assertEquals(tesseractReader, ocrPdfCreator.getOcrEngine());
+            ocrPdfCreator.setOcrEngine(tesseractReader);
             PdfDocument doc =
-                    pdfRenderer.createPdfA(
+                    ocrPdfCreator.createPdfA(
                             Collections.<File>singletonList(
                             new File(testImagesDirectory
                                     + filename + ".jpg")),
@@ -80,10 +80,10 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         properties.setLanguages(Collections.<String>singletonList("spa"));
         tesseractReader.setTesseract4OcrEngineProperties(properties);
 
-        PdfRenderer pdfRenderer = new PdfRenderer(tesseractReader,
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader,
                 new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
 
-        PdfDocument doc = pdfRenderer.createPdfA(
+        PdfDocument doc = ocrPdfCreator.createPdfA(
                 Collections.<File>singletonList(
                         new File(testImagesDirectory + filename
                                 + ".jpg")), getPdfWriter(resultPdfPath),
