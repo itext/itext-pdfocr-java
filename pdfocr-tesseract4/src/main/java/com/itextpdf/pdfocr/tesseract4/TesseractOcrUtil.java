@@ -339,7 +339,6 @@ class TesseractOcrUtil {
             throws IOException {
         if (pix != null) {
             Leptonica instance = Leptonica.INSTANCE;
-            InputStream in = null;
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();
             try {
@@ -347,12 +346,10 @@ class TesseractOcrUtil {
                 instance.pixWriteMem(pdata, psize, pix, ILeptonica.IFF_PNG);
                 byte[] b = pdata.getValue().getByteArray(0,
                         psize.getValue().intValue());
-                in = new ByteArrayInputStream(b);
-                bi = ImageIO.read(in);
-            } finally {
-                if (in != null) {
-                    in.close();
+                try (InputStream in = new ByteArrayInputStream(b)) {
+                    bi = ImageIO.read(in);
                 }
+            } finally {
                 instance.lept_free(pdata.getValue());
             }
             return bi;

@@ -91,7 +91,11 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                         Tesseract4OcrException
                                 .CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
             } else {
-                execPath = addQuotes(getPathToExecutable());
+                if (isWindows()) {
+                    execPath = addQuotes(getPathToExecutable());
+                } else {
+                    execPath = getPathToExecutable();
+                }
             }
             checkTesseractInstalled(execPath);
             // path to tess data
@@ -267,7 +271,12 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @return wrapped string
      */
     private String addQuotes(final String value) {
-        return "\"" + value + "\"";
+        // choosing correct quotes for system
+        if (isWindows()) {
+            return "\"" + value + "\"";
+        } else {
+            return "'" + value + "'";
+        }
     }
 
     /**

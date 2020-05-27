@@ -84,10 +84,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         String expectedOutput = "619121";
 
         Assert.assertTrue(
-                getRecognizedTextFromTextFile(tesseractExecutableReader, imgPath)
+                getRecognizedTextFromTextFile(getTesseractReader(ReaderType.EXECUTABLE), imgPath)
                         .contains(expectedOutput));
         Assert.assertTrue(
-                getRecognizedTextFromTextFile(tesseractExecutableReader, imgPath)
+                getRecognizedTextFromTextFile(getTesseractReader(ReaderType.LIB), imgPath)
                         .contains(expectedOutput));
     }
 

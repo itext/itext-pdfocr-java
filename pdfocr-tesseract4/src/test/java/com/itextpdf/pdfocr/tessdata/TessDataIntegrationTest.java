@@ -325,7 +325,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 4)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
     })
     @Test
     public void testHindiTextWithUrdu() {
@@ -335,20 +335,10 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expectedHindi = "हिन्दुस्तानी";
         String expectedUrdu = "وتالی";
 
-        // correct result with specified arabic+urdu languages
-        // but because of specified font only hindi will be displayed
-        String resultHindiFont = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("hin", "urd"), FREE_SANS_FONT_PATH);
-
-        Assert.assertTrue(resultHindiFont.startsWith(expectedHindi));
-        Assert.assertTrue(resultHindiFont.contains(expectedHindi));
-        Assert.assertFalse(resultHindiFont.contains(expectedUrdu));
-
         String resultArabic = getTextFromPdf(tesseractReader, file,
                 Arrays.asList("hin", "urd"), CAIRO_FONT_PATH);
 
-        // correct result with specified arabic+urdu languages
-        // but because of default font only urdu will be displayed
+        // because of default font only urdu will be displayed
         Assert.assertTrue(resultArabic.contains(expectedUrdu));
         Assert.assertFalse(resultArabic.contains(expectedHindi));
 
@@ -357,9 +347,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // with different fonts
         Assert.assertTrue(getTextFromPdf(tesseractReader ,file,
                 Collections.<String>singletonList("hin"), NOTO_SANS_FONT_PATH)
-                .contains(expectedHindi));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("hin"))
                 .contains(expectedHindi));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("eng"))
