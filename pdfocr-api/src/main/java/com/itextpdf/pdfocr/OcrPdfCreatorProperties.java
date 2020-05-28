@@ -25,7 +25,7 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Size of the PDF document pages.
-     * <code>NUll</code> by default.
+     * <code>null</code> by default.
      * If this parameter is null, size of the page will be equal to the
      * input image size. If this parameter is not null, input image will be
      * scaled according to the selected {@link ScaleMode}.
