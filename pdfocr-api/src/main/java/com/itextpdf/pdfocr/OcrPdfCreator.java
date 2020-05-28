@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link OcrPdfCreator} is the class that creates Pdf documents containing input
+ * {@link OcrPdfCreator} is the class that creates PDF documents containing input
  * images and text that was recognized using provided {@link IOcrEngine}.
  *
  * {@link OcrPdfCreator} provides possibilities to set list of input images to
@@ -119,14 +119,14 @@ public class OcrPdfCreator {
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
-     * creates pdf using provided {@link com.itextpdf.kernel.pdf.PdfWriter} and
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter} and
      * {@link com.itextpdf.kernel.pdf.PdfOutputIntent}.
      * PDF/A-3u document will be created if
      * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
      *
      * @param inputImages {@link java.util.List} of images to be OCRed
      * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final pdf document to
+     *                  to write final PDF document to
      * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
      *                        for PDF/A-3u document
      * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
@@ -159,11 +159,11 @@ public class OcrPdfCreator {
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
-     * creates pdf using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
      *
      * @param inputImages {@link java.util.List} of images to be OCRed
      * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final pdf document to
+     *                  to write final PDF document to
      * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
      * @throws OcrException if provided font is incorrect
      */
@@ -241,8 +241,8 @@ public class OcrPdfCreator {
      * @param pageText text that was found on this image (or on this page)
      * @param imageData input image if it is a single page or its one page if
      *                 this is a multi-page image
-     * @param createPdfA3u true if Pdf/A3u document is being created
-     * @throws OcrException if Pdf/A3u document is being created and provided
+     * @param createPdfA3u true if PDF/A3u document is being created
+     * @throws OcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
     private void addToCanvas(final PdfDocument pdfDocument, final PdfFont font,
@@ -278,19 +278,18 @@ public class OcrPdfCreator {
             LOGGER.error(MessageFormatUtil.format(
                     OcrException.CANNOT_CREATE_PDF_DOCUMENT,
                     e.getMessage()));
-            throw new OcrException(MessageFormatUtil.format(
-                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
-                    e.getMessage()));
+            throw new OcrException(OcrException.CANNOT_CREATE_PDF_DOCUMENT)
+                    .setMessageParams(e.getMessage());
         }
         canvas.endLayer();
     }
 
     /**
-     * Creates a new pdf document using provided properties, adds images with
+     * Creates a new PDF document using provided properties, adds images with
      * recognized text.
      *
      * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final pdf document to
+     *                  to write final PDF document to
      * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
      *                        for PDF/A-3u document
      * @param imagesTextData Map<File, Map<Integer, List<TextInfo>>> -
@@ -353,7 +352,7 @@ public class OcrPdfCreator {
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
      * @param font font for the placed text (could be custom or default)
-     * @param createPdfA3u true if Pdf/A3u document is being created
+     * @param createPdfA3u true if PDF/A3u document is being created
      * @throws OcrException if input image cannot be read or provided font
      * contains NOTDEF glyphs
      */
@@ -434,7 +433,7 @@ public class OcrPdfCreator {
      * @param font font for the placed text (could be custom or default)
      * @param multiplier coefficient to adjust text placing on canvas
      * @param pageMediaBox page parameters
-     * @throws OcrException if Pdf/A3u document is being created and provided
+     * @throws OcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
     private void addTextToCanvas(
@@ -503,7 +502,7 @@ public class OcrPdfCreator {
     }
 
     /**
-     * A handler for pdf canvas that validates existing glyphs.
+     * A handler for PDF canvas that validates existing glyphs.
      */
     private static class NotDefCheckingPdfCanvas extends PdfCanvas {
         private static final long serialVersionUID = 708713860707664107L;
@@ -518,22 +517,26 @@ public class OcrPdfCreator {
                 Iterator<GlyphLinePart> iterator) {
             PdfFont currentFont = getGraphicsState().getFont();
             boolean notDefGlyphsExists = false;
+            // default value for error message, it'll be updated with the
+            // unicode of the not found glyph
+            String message = PdfOcrLogMessageConstant
+                    .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER;
             for (int i = text.start; i < text.end; i++) {
                 if (isNotDefGlyph(currentFont, text.get(i))) {
                     notDefGlyphsExists = true;
+                    message = MessageFormatUtil.format(PdfOcrLogMessageConstant
+                            .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER,
+                            text.get(i).getUnicode());
                     if (this.createPdfA3u) {
-                        // exception is thrown only if Pdf/A document is
+                        // exception is thrown only if PDF/A document is
                         // being created
-                        throw new OcrException(
-                                PdfOcrLogMessageConstant
-                                        .PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS);
+                        throw new OcrException(message);
                     }
                 }
             }
-            // Warning is logged if not Pdf/A document is being created
+            // Warning is logged if not PDF/A document is being created
             if (notDefGlyphsExists) {
-                LOGGER.warn(PdfOcrLogMessageConstant
-                        .PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS);
+                LOGGER.warn(message);
             }
             return super.showText(text, iterator);
         }

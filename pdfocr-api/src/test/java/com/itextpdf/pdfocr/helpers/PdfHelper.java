@@ -100,7 +100,7 @@ public class PdfHelper {
     }
 
     /**
-     * Creates pdf rgb output intent for tests.
+     * Creates PDF rgb output intent for tests.
      */
     public static PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
         String defaultRGBColorProfilePath = TEST_DIRECTORY + "profiles"
@@ -111,7 +111,7 @@ public class PdfHelper {
     }
 
     /**
-     * Creates pdf cmyk output intent for tests.
+     * Creates PDF cmyk output intent for tests.
      */
     public static PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
         String defaultCMYKColorProfilePath = TEST_DIRECTORY
@@ -165,7 +165,7 @@ public class PdfHelper {
     }
 
     /**
-     * Retrieve text from specified page from given pdf document.
+     * Retrieve text from specified page from given PDF document.
      */
     public static String getTextFromPdf(File file, String testName) {
         String result = null;

@@ -325,7 +325,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
     })
     @Test
     public void testHindiTextWithUrdu() {
@@ -380,7 +380,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
     })
     @Test
     public void testGeorgianText() {
@@ -410,7 +410,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 4)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 4)
     })
     @Test
     public void testBengali() {
@@ -436,7 +436,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 3)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 3)
     })
     @Test
     public void testChinese() {
@@ -494,7 +494,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 2)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
     })
     @Test
     public void testBengaliScript() {
@@ -522,7 +522,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
     })
     @Test
     public void testGeorgianTextWithScript() {

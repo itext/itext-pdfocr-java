@@ -1,8 +1,11 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
@@ -32,5 +35,18 @@ public class ApiTest extends ExtendedITextTest {
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
         Assert.assertEquals(textInfo.getBbox().size(), result.get(page).get(0).getBbox().size());
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
+    })
+    @Test
+    public void testThaiImageWithNotDefGlyphs() {
+        String testName = "testThaiImageWithNotdefGlyphs";
+        String path = PdfHelper.getThaiImagePath();
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdf(pdfPath, new File(path),
+                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
     }
 }

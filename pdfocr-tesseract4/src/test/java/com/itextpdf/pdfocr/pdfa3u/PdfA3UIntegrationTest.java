@@ -105,7 +105,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     /**
-     * Creates pdf cmyk output intent for tests.
+     * Creates PDF cmyk output intent for tests.
      */
     protected PdfOutputIntent getCMYKPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(DEFAULT_CMYK_COLOR_PROFILE_PATH);
@@ -115,7 +115,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     /**
-     * Creates pdf rgb output intent for tests.
+     * Creates PDF rgb output intent for tests.
      */
     protected  PdfOutputIntent getRGBPdfOutputIntent() throws FileNotFoundException {
         InputStream is = new FileInputStream(DEFAULT_RGB_COLOR_PROFILE_PATH);

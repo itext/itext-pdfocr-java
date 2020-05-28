@@ -14,7 +14,7 @@ public class OcrException extends RuntimeException {
             "Cannot read input image";
     public static final String CANNOT_READ_FONT = "Cannot read font";
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create "
-            + "Pdf document: {0}";
+            + "PDF document: {0}";
     private List<String> messageParams;
 
     /**

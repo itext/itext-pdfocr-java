@@ -110,14 +110,14 @@ public class PdfA3uTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS, count = 1)
+        @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
     })
     @Test
     public void testNonCompliantThaiPdfA() throws IOException {
         junitExpectedException.expect(OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
                 OcrException.CANNOT_CREATE_PDF_DOCUMENT,
-                PdfOcrLogMessageConstant.PROVIDED_FONT_CONTAINS_NOTDEF_GLYPHS));
+                MessageFormatUtil.format(PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, 3611)));
 
         String testName = "testNonCompliantThaiPdfA";
         String path = PdfHelper.getThaiImagePath();

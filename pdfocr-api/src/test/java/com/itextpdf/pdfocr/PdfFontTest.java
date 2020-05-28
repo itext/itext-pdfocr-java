@@ -27,6 +27,7 @@ public class PdfFontTest extends ExtendedITextTest {
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
         properties.setTextLayerName("Text1");
         com.itextpdf.kernel.colors.Color color = DeviceCmyk.CYAN;
         properties.setTextColor(color);

@@ -45,7 +45,7 @@ public class OcrPdfCreatorProperties {
     private String textLayerName = "Text Layer";
 
     /**
-     * Pdf Language.
+     * PDF Language.
      * "en-US" by default.
      */
     private String pdfLang = "en-US";
@@ -202,20 +202,20 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Gets pdf language.
+     * Gets PDF language.
      *
-     * @return pdf document language as {@link java.lang.String}
+     * @return PDF document language as {@link java.lang.String}
      */
     public final String getPdfLang() {
         return pdfLang;
     }
 
     /**
-     * Specify pdf natural language, and optionally locale.
+     * Specify PDF natural language, and optionally locale.
      * For the content usage dictionary use
      * {@link com.itextpdf.kernel.pdf.PdfName#Language}
      *
-     * @param language pdf document language as {@link java.lang.String},
+     * @param language PDF document language as {@link java.lang.String},
      *                 e.g. "en-US", etc.
      * @return the {@link OcrPdfCreatorProperties} instance
      */
@@ -226,18 +226,18 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Gets pdf document title.
+     * Gets PDF document title.
      *
-     * @return pdf title as {@link java.lang.String}
+     * @return PDF title as {@link java.lang.String}
      */
     public final String getTitle() {
         return title;
     }
 
     /**
-     * Sets pdf document title.
+     * Sets PDF document title.
      *
-     * @param title pdf title as {@link java.lang.String}
+     * @param title PDF title as {@link java.lang.String}
      * @return the {@link OcrPdfCreatorProperties} instance
      */
     public final OcrPdfCreatorProperties setTitle(
@@ -247,7 +247,7 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Returns path to the font to be used in pdf document.
+     * Returns path to the font to be used in PDF document.
      * @return path to the required font
      */
     public String getFontPath() {
@@ -255,7 +255,7 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Sets path to the font to be used in pdf document.
+     * Sets path to the font to be used in PDF document.
      *
      * @param path path to the required font
      * @return the {@link OcrPdfCreatorProperties} instance

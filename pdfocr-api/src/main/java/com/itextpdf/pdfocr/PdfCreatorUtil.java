@@ -46,7 +46,7 @@ class PdfCreatorUtil {
      * Calculates font size according to given bbox height, width and selected
      * font.
      *
-     * @param document pdf document as a {@link com.itextpdf.layout.Document}
+     * @param document PDF document as a {@link com.itextpdf.layout.Document}
      *                object
      * @param line text line
      * @param font font for the placed text (could be custom or default)
@@ -148,7 +148,7 @@ class PdfCreatorUtil {
                             PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                             e.getMessage()));
                     throw new OcrException(
-                            OcrException.CANNOT_READ_INPUT_IMAGE);
+                            OcrException.CANNOT_READ_INPUT_IMAGE, e);
                 }
             }
         }

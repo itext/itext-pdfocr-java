@@ -138,7 +138,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from specified page from given pdf document.
+     * Retrieve text from specified page from given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader,
             File file, int page, List<String> languages, String fontPath) {
@@ -157,7 +157,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from the first page of given pdf document setting font.
+     * Retrieve text from the first page of given PDF document setting font.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
                           List<String> languages, String fontPath) {
@@ -165,7 +165,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from the first page of given pdf document.
+     * Retrieve text from the first page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
             List<String> languages) {
@@ -173,7 +173,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from the required page of given pdf document.
+     * Retrieve text from the required page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file, int page,
                           List<String> languages) {
@@ -181,7 +181,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve text from the first page of given pdf document.
+     * Retrieve text from the first page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file) {
         return getTextFromPdf(tesseractReader, file, 1, null, null);
@@ -260,7 +260,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
+     * and save result PDF document to "pdfPath".
      * (Method is used for compare tool)
      */
     protected void doOcrAndSavePdfToPath(
@@ -301,7 +301,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
+     * and save result PDF document to "pdfPath".
      */
     protected void doOcrAndSavePdfToPath(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
@@ -313,7 +313,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
+     * and save result PDF document to "pdfPath".
      * (Text will be invisible)
      */
     protected void doOcrAndSavePdfToPath(AbstractTesseract4OcrEngine tesseractReader, String imgPath,
@@ -324,7 +324,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
     /**
      * Perform OCR using provided path to image (imgPath)
-     * and save result pdf document to "pdfPath".
+     * and save result PDF document to "pdfPath".
      * (Method is used for compare tool)
      */
     protected void doOcrAndSavePdfToPath(

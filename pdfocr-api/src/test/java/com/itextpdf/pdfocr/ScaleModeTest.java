@@ -117,7 +117,7 @@ public class ScaleModeTest extends ExtendedITextTest {
     }
 
     /**
-     * Retrieve image BBox rectangle from the first page from given pdf document.
+     * Retrieve image BBox rectangle from the first page from given PDF document.
      */
     public static Rectangle getImageBBoxRectangleFromPdf(String path)
             throws IOException {
