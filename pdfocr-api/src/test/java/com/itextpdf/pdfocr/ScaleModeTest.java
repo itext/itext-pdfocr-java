@@ -122,7 +122,7 @@ public class ScaleModeTest extends ExtendedITextTest {
     public static Rectangle getImageBBoxRectangleFromPdf(String path)
             throws IOException {
         ExtractionStrategy extractionStrategy =
-                PdfHelper.getExtractionStrategy(path, "Image Layer");
+                PdfHelper.getExtractionStrategy(path);
         return extractionStrategy.getImageBBoxRectangle();
     }
 }

@@ -54,7 +54,7 @@ public class PdfFontTest extends ExtendedITextTest {
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
 
         PdfHelper.createPdf(pdfPath, file, properties);
-        String result = PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer");
+        String result = PdfHelper.getTextFromPdfLayer(pdfPath, null);
         Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }

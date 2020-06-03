@@ -256,20 +256,25 @@ public class OcrPdfCreator {
         PdfPage pdfPage = pdfDocument.addNewPage(size);
         PdfCanvas canvas = new NotDefCheckingPdfCanvas(pdfPage, createPdfA3u);
 
-        PdfLayer imageLayer = new PdfLayer(
-                ocrPdfCreatorProperties.getImageLayerName(), pdfDocument);
-        PdfLayer textLayer = new PdfLayer(
-                ocrPdfCreatorProperties.getTextLayerName(), pdfDocument);
+        PdfLayer[] layers = createPdfLayers(ocrPdfCreatorProperties.getImageLayerName(),
+                ocrPdfCreatorProperties.getTextLayerName(),
+                pdfDocument);
 
-        canvas.beginLayer(imageLayer);
+        if (layers[0] != null) {
+            canvas.beginLayer(layers[0]);
+        }
         addImageToCanvas(imageData, imageSize, canvas);
-        canvas.endLayer();
+        if (layers[0] != null && layers[0] != layers[1]) {
+            canvas.endLayer();
+        }
 
         // how much the original image size changed
         float multiplier = imageData == null
                 ? 1 : imageSize.getWidth()
                 / PdfCreatorUtil.getPoints(imageData.getWidth());
-        canvas.beginLayer(textLayer);
+        if (layers[1] != null && layers[0] != layers[1]) {
+            canvas.beginLayer(layers[1]);
+        }
 
         try {
             addTextToCanvas(imageSize, pageText, canvas, font,
@@ -281,7 +286,9 @@ public class OcrPdfCreator {
             throw new OcrException(OcrException.CANNOT_CREATE_PDF_DOCUMENT)
                     .setMessageParams(e.getMessage());
         }
-        canvas.endLayer();
+        if (layers[1] != null) {
+            canvas.endLayer();
+        }
     }
 
     /**
@@ -498,6 +505,34 @@ public class OcrPdfCreator {
                     canvas.close();
                 }
             }
+        }
+    }
+
+    /**
+     * Creates layers for image and text according rules set in {@link OcrPdfCreatorProperties}.
+     *
+     * @param imageLayerName name of the image layer
+     * @param textLayerName name of the text layer
+     * @param pdfDocument document to add layers to
+     *
+     * @return array of two layers: first layer is for image, second layer is for text.
+     * Elements may be null meaning that layer creation is not requested
+     */
+    private static PdfLayer[] createPdfLayers(
+            String imageLayerName,
+            String textLayerName,
+            PdfDocument pdfDocument) {
+        if (imageLayerName == null && textLayerName == null) {
+            return new PdfLayer[] {null, null};
+        } else if (imageLayerName == null) {
+            return new PdfLayer[]{null, new PdfLayer(textLayerName, pdfDocument)};
+        } else if (textLayerName == null) {
+            return new PdfLayer[]{new PdfLayer(imageLayerName, pdfDocument), null};
+        } else if (imageLayerName.equals(textLayerName)) {
+            PdfLayer pdfLayer = new PdfLayer(imageLayerName, pdfDocument);
+            return new PdfLayer[] {pdfLayer, pdfLayer};
+        } else {
+            return new PdfLayer[] {new PdfLayer(imageLayerName, pdfDocument), new PdfLayer(textLayerName, pdfDocument)};
         }
     }
 

@@ -36,7 +36,10 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPreprocessingImages(false));
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setTextLayerName("Text Layer");
+        properties.setImageLayerName("Image Layer");
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
         PdfDocument doc =
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
@@ -61,6 +64,44 @@ public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
         Assert.assertEquals("",
                 getTextFromPdfLayer(pdfPath,
                         "Image Layer", 5));
+        Assert.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(preprocess));
+    }
+
+    @Test
+    public void testTextFromMultiPageTiff() throws IOException {
+        String testName = "testTextFromMultiPageTiff";
+        boolean preprocess =
+                tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages();
+        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
+        File file = new File(path);
+
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
+        PdfDocument doc =
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
+
+        Assert.assertNotNull(doc);
+        int numOfPages = doc.getNumberOfPages();
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
+
+        Assert.assertEquals(0, layers.size());
+
+
+        doc.close();
+
+        // Text layer should contain all text
+        // Image layer shouldn't contain any text
+        String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
+        Assert.assertEquals(expectedOutput,
+                getTextFromPdfLayer(pdfPath, null, 5));
         Assert.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()

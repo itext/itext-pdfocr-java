@@ -38,11 +38,7 @@ public class PdfLayersTest extends ExtendedITextTest {
         List<PdfLayer> layers = doc.getCatalog()
                 .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(2, layers.size());
-        Assert.assertEquals("Image Layer",
-                layers.get(0).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals("Text Layer",
-                layers.get(1).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertEquals(0, layers.size());
         doc.close();
 
         Assert.assertEquals(engine, ocrPdfCreator.getOcrEngine());
@@ -86,7 +82,10 @@ public class PdfLayersTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine());
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageLayerName("Image Layer");
+        properties.setTextLayerName("Text Layer");
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(), properties);
         PdfDocument doc =
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file), PdfHelper.getPdfWriter(pdfPath));
 
@@ -109,4 +108,82 @@ public class PdfLayersTest extends ExtendedITextTest {
         Assert.assertEquals("",
                 PdfHelper.getTextFromPdfLayer(pdfPath, "Image Layer"));
     }
+
+    @Test
+    public void testPdfLayersWithImageLayerOnly() {
+        String path = PdfHelper.getDefaultImagePath();
+        File file = new File(path);
+
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageLayerName("Image Layer");
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(), properties);
+        PdfDocument doc =
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
+                        PdfHelper.getPdfWriter());
+
+        Assert.assertNotNull(doc);
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
+
+        Assert.assertEquals(1, layers.size());
+        Assert.assertEquals("Image Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+
+        doc.close();
+    }
+
+    @Test
+    public void testPdfLayersWithTextLayerOnly() {
+        String path = PdfHelper.getDefaultImagePath();
+        File file = new File(path);
+
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setTextLayerName("Text Layer");
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(), properties);
+        PdfDocument doc =
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
+                        PdfHelper.getPdfWriter());
+
+        Assert.assertNotNull(doc);
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
+
+        Assert.assertEquals(1, layers.size());
+        Assert.assertEquals("Text Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+
+        doc.close();
+    }
+
+    @Test
+    public void testPdfLayersWithTextAndImageLayerWithTheSameName() {
+        String path = PdfHelper.getDefaultImagePath();
+        File file = new File(path);
+
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setTextLayerName("Mixed Layer");
+        properties.setImageLayerName("Mixed Layer");
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(), properties);
+        PdfDocument doc =
+                ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
+                        PdfHelper.getPdfWriter());
+
+        Assert.assertNotNull(doc);
+        List<PdfLayer> layers = doc.getCatalog()
+                .getOCProperties(true).getLayers();
+
+        Assert.assertEquals(1, layers.size());
+        Assert.assertEquals("Mixed Layer",
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
+        Assert.assertTrue(layers.get(0).isOn());
+
+        doc.close();
+    }
+
+
 }

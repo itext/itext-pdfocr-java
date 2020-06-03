@@ -43,36 +43,21 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
 
     @Override
     public void eventOccurred(IEventData data, EventType type) {
-        java.util.List<CanvasTag> tagHierarchy = null;
-        if (type.equals(EventType.RENDER_TEXT)) {
-            TextRenderInfo textRenderInfo = (TextRenderInfo) data;
-            tagHierarchy = textRenderInfo.getCanvasTagHierarchy();
-        }
-        else if (type.equals(EventType.RENDER_IMAGE)) {
-            ImageRenderInfo imageRenderInfo = (ImageRenderInfo) data;
-            tagHierarchy = imageRenderInfo.getCanvasTagHierarchy();
-        }
-
-        if (tagHierarchy != null) {
-            for (CanvasTag tag : tagHierarchy) {
-                PdfDictionary dict = tag.getProperties();
-                String name = dict.get(PdfName.Name).toString();
-                if (name.equals(layerName)) {
-                    if (type.equals(EventType.RENDER_TEXT)) {
-                        TextRenderInfo renderInfo = (TextRenderInfo) data;
-                        setFillColor(renderInfo.getGraphicsState()
-                                .getFillColor());
-                        setPdfFont(renderInfo.getGraphicsState().getFont());
-                        super.eventOccurred(data, type);
-                        break;
-                    }
-                    else if (type.equals(EventType.RENDER_IMAGE)) {
-                        ImageRenderInfo renderInfo = (ImageRenderInfo) data;
-                        com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
-                        this.imageBBoxRectangle = new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
-                                ctm.get(0), ctm.get(4));
-                        break;
-                    }
+        if (type.equals(EventType.RENDER_TEXT) || type.equals(EventType.RENDER_IMAGE)) {
+            String tagName = getTagName(data, type);
+            if ((tagName == null && layerName == null) || (layerName != null && layerName.equals(tagName))) {
+                if (type.equals(EventType.RENDER_TEXT)) {
+                    TextRenderInfo renderInfo = (TextRenderInfo) data;
+                    setFillColor(renderInfo.getGraphicsState()
+                            .getFillColor());
+                    setPdfFont(renderInfo.getGraphicsState().getFont());
+                    super.eventOccurred(data, type);
+                }
+                else if (type.equals(EventType.RENDER_IMAGE)) {
+                    ImageRenderInfo renderInfo = (ImageRenderInfo) data;
+                    com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
+                    this.imageBBoxRectangle = new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
+                            ctm.get(0), ctm.get(4));
                 }
             }
         }
@@ -94,4 +79,19 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
                 (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth())
                         / 2.0f;
     }
+
+    private String getTagName(IEventData data, EventType type) {
+        java.util.List<CanvasTag> tagHierarchy = null;
+        if (type.equals(EventType.RENDER_TEXT)) {
+            TextRenderInfo textRenderInfo = (TextRenderInfo) data;
+            tagHierarchy = textRenderInfo.getCanvasTagHierarchy();
+        }
+        else if (type.equals(EventType.RENDER_IMAGE)) {
+            ImageRenderInfo imageRenderInfo = (ImageRenderInfo) data;
+            tagHierarchy = imageRenderInfo.getCanvasTagHierarchy();
+        }
+        return (tagHierarchy == null || tagHierarchy.size() == 0) ? null :
+                tagHierarchy.get(0).getProperties().get(PdfName.Name).toString();
+    }
+
 }

@@ -186,7 +186,7 @@ public class PdfHelper {
      */
     public static ExtractionStrategy getExtractionStrategy(String pdfPath)
             throws IOException {
-        return getExtractionStrategy(pdfPath, "Text Layer");
+        return getExtractionStrategy(pdfPath, null);
     }
 
     /**

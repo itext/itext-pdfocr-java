@@ -38,7 +38,7 @@ public class PdfA3uTest extends ExtendedITextTest {
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
 
         PdfHelper.createPdfA(pdfPath, new File(path), properties, null);
-        String result = PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer");
+        String result = PdfHelper.getTextFromPdfLayer(pdfPath, null);
         Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }

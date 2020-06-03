@@ -34,15 +34,19 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Name of the image layer.
-     * "Image Layer" by default.
+     * <code>null</code> by default.
+     * If this parameter is null then image is placed directly in canvas instead of layer.
+     * If value of imageLayerName is equal to value of textLayerName then image and text placed in one layer.
      */
-    private String imageLayerName = "Image Layer";
+    private String imageLayerName = null;
 
     /**
      * Name of the text layer.
-     * "Text Layer" by default.
+     * <code>null</code> by default.
+     * If this parameter is null then text is placed directly in canvas instead of layer.
+     * If value of textLayerName is equal to value of imageLayerName then text and image placed in one layer.
      */
-    private String textLayerName = "Text Layer";
+    private String textLayerName = null;
 
     /**
      * PDF Language.
@@ -158,7 +162,7 @@ public class OcrPdfCreatorProperties {
      * Gets name of image layer.
      *
      * @return image layer's name as {@link java.lang.String} if it was
-     * manually set, otherwise - the default name ("Image layer")
+     * manually set, otherwise - <code>null</code>
      */
     public final String getImageLayerName() {
         return imageLayerName;
@@ -166,7 +170,9 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Sets name for the image layer.
-     * "Image layer" by default.
+     * <code>null</code> by default.
+     * If null then image is placed directly in canvas instead of layer.
+     * If image layer name is equal to text layer name then text and image placed in one layer.
      *
      * @param layerName name of the image layer
      *                       as {@link java.lang.String}
@@ -182,7 +188,7 @@ public class OcrPdfCreatorProperties {
      * Gets name of text layer.
      *
      * @return text layer's name as {@link java.lang.String} if it was
-     * manually set, otherwise - the default name ("Text layer")
+     * manually set, otherwise - <code>null</code>
      */
     public final String getTextLayerName() {
         return textLayerName;
@@ -190,7 +196,9 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Sets name for the text layer.
-     * "Text layer" by default.
+     * <code>null</code> by default.
+     * If null then text is placed directly in canvas instead of layer.
+     * If text layer name is equal to image layer name then text and image placed in one layer.
      *
      * @param layerName of the text layer as {@link java.lang.String}
      * @return the {@link OcrPdfCreatorProperties} instance
