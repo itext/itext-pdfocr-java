@@ -6,8 +6,8 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,8 +23,9 @@ import org.slf4j.LoggerFactory;
 public class PdfHelper {
 
     public static final String DEFAULT_IMAGE_NAME = "numbers_01.jpg";
+    public static final String DEFAULT_TEXT = "619121";
     public static final String THAI_IMAGE_NAME = "thai.PNG";
-    public static final String DEFAULT_EXPECTED_RESULT = "619121";
+    public static final String THAI_TEXT = "ป ระ เท ศ ไ";
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     public static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/";
@@ -128,7 +129,17 @@ public class PdfHelper {
     public static String getTextFromPdfLayer(String pdfPath,
             String layerName)
             throws IOException {
-        ExtractionStrategy textExtractionStrategy = getExtractionStrategy(pdfPath, layerName);
+        ExtractionStrategy textExtractionStrategy = getExtractionStrategy(pdfPath, layerName, false);
+        return textExtractionStrategy.getResultantText();
+    }
+
+    /**
+     * Get text from layer specified by name from the first page.
+     */
+    public static String getTextFromPdfLayerUseActualText(String pdfPath,
+            String layerName)
+            throws IOException {
+        ExtractionStrategy textExtractionStrategy = getExtractionStrategy(pdfPath, layerName, true);
         return textExtractionStrategy.getResultantText();
     }
 
@@ -193,12 +204,29 @@ public class PdfHelper {
      * Get extraction strategy for given document.
      */
     public static ExtractionStrategy getExtractionStrategy(String pdfPath,
-            String layerName)
+            boolean useActualText)
+            throws IOException {
+        return getExtractionStrategy(pdfPath, "Text Layer", useActualText);
+    }
+
+    /**
+     * Get extraction strategy for given document.
+     */
+    public static ExtractionStrategy getExtractionStrategy(String pdfPath,
+            String layerName) throws IOException {
+        return getExtractionStrategy(pdfPath, layerName, false);
+    }
+
+    /**
+     * Get extraction strategy for given document.
+     */
+    public static ExtractionStrategy getExtractionStrategy(String pdfPath,
+            String layerName, boolean useActualText)
             throws IOException {
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
         ExtractionStrategy strategy = new ExtractionStrategy(layerName);
+        strategy.setUseActualText(useActualText);
         PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
-
         processor.processPageContent(pdfDocument.getFirstPage());
         pdfDocument.close();
         return strategy;

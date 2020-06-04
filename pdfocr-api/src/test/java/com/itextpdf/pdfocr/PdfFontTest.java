@@ -55,7 +55,7 @@ public class PdfFontTest extends ExtendedITextTest {
 
         PdfHelper.createPdf(pdfPath, file, properties);
         String result = PdfHelper.getTextFromPdfLayer(pdfPath, null);
-        Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT, result);
+        Assert.assertEquals(PdfHelper.DEFAULT_TEXT, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }
 
@@ -115,5 +115,28 @@ public class PdfFontTest extends ExtendedITextTest {
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("FreeSans"));
         Assert.assertTrue(font.isEmbedded());
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
+    })
+    @Test
+    public void testThaiImageWithNotDefGlyphs() throws IOException {
+        String testName = "testThaiImageWithNotDefGlyphs";
+        String path = PdfHelper.getThaiImagePath();
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdf(pdfPath, new File(path),
+                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
+
+        String resultWithActualText = PdfHelper
+                .getTextFromPdfLayerUseActualText(pdfPath, null);
+        Assert.assertEquals(PdfHelper.THAI_TEXT.replace(" ", ""),
+                resultWithActualText.replace(" ", ""));
+
+        String resultWithoutUseActualText = PdfHelper.getTextFromPdfLayer(pdfPath,
+                null);
+        Assert.assertNotEquals(PdfHelper.THAI_TEXT, resultWithoutUseActualText);
+        Assert.assertNotEquals(resultWithoutUseActualText, resultWithActualText);
     }
 }

@@ -39,7 +39,7 @@ public class PdfA3uTest extends ExtendedITextTest {
 
         PdfHelper.createPdfA(pdfPath, new File(path), properties, null);
         String result = PdfHelper.getTextFromPdfLayer(pdfPath, null);
-        Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT, result);
+        Assert.assertEquals(PdfHelper.DEFAULT_TEXT, result);
         Assert.assertEquals(ScaleMode.SCALE_TO_FIT, properties.getScaleMode());
     }
 
@@ -140,5 +140,14 @@ public class PdfA3uTest extends ExtendedITextTest {
 
         PdfHelper.createPdfA(pdfPath, new File(path), ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
+
+        String resultWithActualText = PdfHelper
+                .getTextFromPdfLayerUseActualText(pdfPath, null);
+        Assert.assertEquals(PdfHelper.THAI_TEXT, resultWithActualText);
+
+        String resultWithoutUseActualText = PdfHelper.getTextFromPdfLayer(pdfPath,
+                null);
+        Assert.assertEquals(PdfHelper.THAI_TEXT, resultWithoutUseActualText);
+        Assert.assertEquals(resultWithoutUseActualText, resultWithActualText);
     }
 }

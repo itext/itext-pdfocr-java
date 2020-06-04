@@ -103,7 +103,7 @@ public class PdfLayersTest extends ExtendedITextTest {
 
         doc.close();
 
-        Assert.assertEquals(PdfHelper.DEFAULT_EXPECTED_RESULT,
+        Assert.assertEquals(PdfHelper.DEFAULT_TEXT,
                 PdfHelper.getTextFromPdfLayer(pdfPath, "Text Layer"));
         Assert.assertEquals("",
                 PdfHelper.getTextFromPdfLayer(pdfPath, "Image Layer"));

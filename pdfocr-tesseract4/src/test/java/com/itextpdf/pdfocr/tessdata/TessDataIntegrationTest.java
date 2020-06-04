@@ -328,31 +328,54 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
     })
     @Test
-    public void testHindiTextWithUrdu() {
+    public void testHindiTextWithUrdu() throws IOException {
+        String testName = "testHindiTextWithUrdu";
         String imgPath = TEST_IMAGES_DIRECTORY + "hindi_01.jpg";
         File file = new File(imgPath);
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
 
         String expectedHindi = "हिन्दुस्तानी";
         String expectedUrdu = "وتالی";
 
-        String resultArabic = getTextFromPdf(tesseractReader, file,
-                Arrays.asList("hin", "urd"), CAIRO_FONT_PATH);
+        doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
+                pdfPath, Arrays.asList("hin", "urd"), CAIRO_FONT_PATH);
 
-        // because of default font only urdu will be displayed
-        Assert.assertTrue(resultArabic.contains(expectedUrdu));
-        Assert.assertFalse(resultArabic.contains(expectedHindi));
+        String resultWithoutActualText = getTextFromPdfLayer(pdfPath, null, 1);
+        // because of provided font only urdu will be displayed correctly
+        Assert.assertTrue(resultWithoutActualText.contains(expectedUrdu));
+        Assert.assertFalse(resultWithoutActualText.contains(expectedHindi));
 
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        // with different fonts
-        Assert.assertTrue(getTextFromPdf(tesseractReader ,file,
-                Collections.<String>singletonList("hin"), NOTO_SANS_FONT_PATH)
-                .contains(expectedHindi));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("eng"))
-                .contains(expectedHindi));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file)
-                .contains(expectedHindi));
+        String resultWithActualText = getTextFromPdfLayerUsingActualText(pdfPath, null, 1);
+        // actual text should contain all text
+        Assert.assertTrue(resultWithActualText.contains(expectedUrdu));
+        Assert.assertTrue(resultWithActualText.contains(expectedHindi));
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER)
+    }, ignore = true)
+    @Test
+    public void testHindiTextWithUrduActualTextWithIncorrectFont() throws IOException {
+        String testName = "testHindiTextWithUrduActualTextWithIncorrectFont";
+        String imgPath = TEST_IMAGES_DIRECTORY + "hindi_01.jpg";
+        File file = new File(imgPath);
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
+
+        String expectedHindi = "हिन्दुस्तानी";
+        String expectedUrdu = "وتالی";
+
+        doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
+                pdfPath, Arrays.asList("hin", "urd"), null, null);
+
+        String resultWithoutActualText = getTextFromPdfLayer(pdfPath, null, 1);
+        // because of provided font only urdu will be displayed correctly
+        Assert.assertFalse(resultWithoutActualText.contains(expectedUrdu));
+        Assert.assertFalse(resultWithoutActualText.contains(expectedHindi));
+
+        String resultWithActualText = getTextFromPdfLayerUsingActualText(pdfPath, null, 1);
+        // actual text should contain all text
+        Assert.assertTrue(resultWithActualText.contains(expectedUrdu));
+        Assert.assertTrue(resultWithActualText.contains(expectedHindi));
     }
 
     @Test
@@ -379,11 +402,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 new ArrayList<String>(), NOTO_SANS_FONT_PATH));
     }
 
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
-    })
     @Test
-    public void testGeorgianText() {
+    public void testGeorgianText() throws IOException {
         String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence
@@ -396,22 +416,30 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         result = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("kat", "kat_old"), FREE_SANS_FONT_PATH);
         Assert.assertEquals(expected, result);
-
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("kat")).contains(expected));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("eng"))
-                .contains(expected));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                new ArrayList<String>())
-                .contains(expected));
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 4)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
     })
+    @Test
+    public void testGeorgianActualTextWithDefaultFont() throws IOException {
+        String testName = "testGeorgianActualTextWithDefaultFont";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
+        String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
+        File file = new File(imgPath);
+        // First sentence
+        String expected = "ღმერთი";
+
+        doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
+                pdfPath, Collections.<String>singletonList("kat"), null, null);
+
+        String resultWithoutActualText = getTextFromPdfLayer(pdfPath, null, 1);
+        Assert.assertNotEquals(expected, resultWithoutActualText);
+
+        String resultWithActualText = getTextFromPdfLayerUsingActualText(pdfPath, null, 1);
+        Assert.assertEquals(expected, resultWithActualText);
+    }
+
     @Test
     public void testBengali() {
         String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
@@ -424,15 +452,31 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // correct result with specified spanish language
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("ben"), FREE_SANS_FONT_PATH));
+    }
 
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("ben")));
-        Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("ben"), KOSUGI_FONT_PATH));
-        Assert.assertNotEquals(expected, getTextFromPdf(tesseractReader, file,
-                new ArrayList<String>()));
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
+    })
+    @Test
+    public void testBengaliActualTextWithDefaultFont() throws IOException {
+        String testName = "testBengaliActualTextWithDefaultFont";
+        String pdfPath = getTargetDirectory() + testName + ".pdf";
+        String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
+        File file = new File(imgPath);
+        String expected = "ইংরজে\nশখো";
+
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setTextPositioning(TextPositioning.BY_WORDS));
+
+        doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
+                pdfPath, Collections.<String>singletonList("ben"), null, null);
+
+        String resultWithoutActualText = getTextFromPdfLayer(pdfPath, null, 1);
+        Assert.assertNotEquals(expected, resultWithoutActualText);
+
+        String resultWithActualText = getTextFromPdfLayerUsingActualText(pdfPath, null, 1);
+        Assert.assertEquals(expected, resultWithActualText);
     }
 
     @LogMessages(messages = {
@@ -493,9 +537,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 getTextFromPdf(tesseractReader, file, new ArrayList<String>()));
     }
 
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
-    })
     @Test
     public void testBengaliScript() {
         String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
@@ -510,20 +551,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.<String>singletonList("Bengali"),
                 FREE_SANS_FONT_PATH)
                 .startsWith(expected));
-
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Bengali"))
-                .startsWith(expected));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Bengali"), KOSUGI_FONT_PATH)
-                .startsWith(expected));
     }
 
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
-    })
     @Test
     public void testGeorgianTextWithScript() {
         String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
@@ -539,15 +568,6 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 Collections.<String>singletonList("Georgian"),
                 FREE_SANS_FONT_PATH)
                 .startsWith(expected));
-
-        // incorrect result when languages are not specified
-        // or languages were specified in the wrong order
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Georgian"))
-                .contains(expected));
-        Assert.assertFalse(getTextFromPdf(tesseractReader, file,
-                Collections.<String>singletonList("Japanese"))
-                .contains(expected));
     }
 
     @Test

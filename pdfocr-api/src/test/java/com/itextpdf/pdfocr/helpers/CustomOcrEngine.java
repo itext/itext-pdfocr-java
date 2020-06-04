@@ -26,9 +26,9 @@ public class CustomOcrEngine implements IOcrEngine {
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
         Map<Integer, List<TextInfo>> result =
                 new HashMap<Integer, List<TextInfo>>();
-        String text = "619121";
+        String text = PdfHelper.DEFAULT_TEXT;
         if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
-            text = "ป ระ เท ศ ไ";
+            text = PdfHelper.THAI_TEXT;
         }
         TextInfo textInfo = new TextInfo(text,
                 Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f));

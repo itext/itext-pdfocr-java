@@ -1,6 +1,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.font.otf.ActualTextIterator;
 import com.itextpdf.io.font.otf.Glyph;
 import com.itextpdf.io.font.otf.GlyphLine;
 import com.itextpdf.io.font.otf.GlyphLine.GlyphLinePart;
@@ -548,32 +549,42 @@ public class OcrPdfCreator {
         }
 
         @Override
-        public PdfCanvas showText(GlyphLine text,
-                Iterator<GlyphLinePart> iterator) {
+        public PdfCanvas showText(GlyphLine text) {
+            ActualTextCheckingGlyphLine glyphLine =
+                    new ActualTextCheckingGlyphLine(text);
             PdfFont currentFont = getGraphicsState().getFont();
             boolean notDefGlyphsExists = false;
             // default value for error message, it'll be updated with the
             // unicode of the not found glyph
             String message = PdfOcrLogMessageConstant
                     .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER;
-            for (int i = text.start; i < text.end; i++) {
-                if (isNotDefGlyph(currentFont, text.get(i))) {
+            for (int i = glyphLine.start; i < glyphLine.end; i++) {
+                if (isNotDefGlyph(currentFont, glyphLine.get(i))) {
                     notDefGlyphsExists = true;
                     message = MessageFormatUtil.format(PdfOcrLogMessageConstant
-                            .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER,
-                            text.get(i).getUnicode());
+                                    .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER,
+                            glyphLine.get(i).getUnicode());
                     if (this.createPdfA3u) {
                         // exception is thrown only if PDF/A document is
                         // being created
                         throw new OcrException(message);
                     }
+                    // setting actual text to NotDef glyph
+                    glyphLine.setActualTextToGlyph(i,
+                            glyphLine.toUnicodeString(i, i + 1));
+                    // setting a fake unicode deliberately to pass further
+                    // checks for actual text necessity during iterating over
+                    // glyphline chunks with ActualTextIterator
+                    Glyph glyph = new Glyph(glyphLine.get(i));
+                    glyph.setUnicode(-1);
+                    glyphLine.set(i, glyph);
                 }
             }
             // Warning is logged if not PDF/A document is being created
             if (notDefGlyphsExists) {
                 LOGGER.warn(message);
             }
-            return super.showText(text, iterator);
+            return this.showText(glyphLine, new ActualTextIterator(glyphLine));
         }
 
         private static boolean isNotDefGlyph(PdfFont font, Glyph glyph) {
@@ -585,6 +596,26 @@ public class OcrPdfCreator {
                 return glyph.getCode() == -1;
             }
             return false;
+        }
+    }
+
+    /**
+     * A handler for GlyphLine that checks existing actual text not to
+     * overwrite it.
+     */
+    private static class ActualTextCheckingGlyphLine extends GlyphLine {
+        private static final long serialVersionUID = -946356392098459518L;
+
+        public ActualTextCheckingGlyphLine(GlyphLine other) {
+            super(other);
+        }
+
+        public void setActualTextToGlyph(int i, String text) {
+            // set actual text if it doesn't exist for i-th glyph
+            if ((this.actualText == null || this.actualText.size() <= i
+                    || this.actualText.get(i) == null)) {
+                super.setActualText(i, i + 1, text);
+            }
         }
     }
 }

@@ -39,7 +39,13 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         pdfFont = font;
     }
 
-    public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() { return this.imageBBoxRectangle; }
+    public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() {
+        return this.imageBBoxRectangle;
+    }
+
+    public void setImageBBoxRectangle(com.itextpdf.kernel.geom.Rectangle imageBBoxRectangle) {
+        this.imageBBoxRectangle = imageBBoxRectangle;
+    }
 
     @Override
     public void eventOccurred(IEventData data, EventType type) {
@@ -56,8 +62,8 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
                 else if (type.equals(EventType.RENDER_IMAGE)) {
                     ImageRenderInfo renderInfo = (ImageRenderInfo) data;
                     com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
-                    this.imageBBoxRectangle = new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
-                            ctm.get(0), ctm.get(4));
+                    setImageBBoxRectangle(new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
+                            ctm.get(0), ctm.get(4)));
                 }
             }
         }
@@ -90,8 +96,10 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
             ImageRenderInfo imageRenderInfo = (ImageRenderInfo) data;
             tagHierarchy = imageRenderInfo.getCanvasTagHierarchy();
         }
-        return (tagHierarchy == null || tagHierarchy.size() == 0) ? null :
-                tagHierarchy.get(0).getProperties().get(PdfName.Name).toString();
+        return (tagHierarchy == null || tagHierarchy.size() == 0
+                || tagHierarchy.get(0).getProperties().get(PdfName.Name) == null)
+                ? null
+                : tagHierarchy.get(0).getProperties().get(PdfName.Name).toString();
     }
 
 }

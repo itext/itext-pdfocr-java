@@ -9,6 +9,7 @@ import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,18 +36,5 @@ public class ApiTest extends ExtendedITextTest {
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
         Assert.assertEquals(textInfo.getBbox().size(), result.get(page).get(0).getBbox().size());
-    }
-
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
-    })
-    @Test
-    public void testThaiImageWithNotDefGlyphs() {
-        String testName = "testThaiImageWithNotdefGlyphs";
-        String path = PdfHelper.getThaiImagePath();
-        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
-
-        PdfHelper.createPdf(pdfPath, new File(path),
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
     }
 }

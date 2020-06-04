@@ -191,18 +191,37 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Get text from layer specified by name from page.
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
-                                       int page) throws IOException {
+            int page, boolean useActualText) throws IOException {
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
         ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
                 layerName);
-
+        textExtractionStrategy.setUseActualText(useActualText);
         PdfCanvasProcessor processor = new PdfCanvasProcessor(
                 textExtractionStrategy);
         processor.processPageContent(pdfDocument.getPage(page));
 
         pdfDocument.close();
         return textExtractionStrategy.getResultantText();
+    }
+
+    /**
+     * Get text from layer specified by name from page.
+     */
+    protected String getTextFromPdfLayer(String pdfPath, String layerName,
+            int page) throws IOException {
+        return getTextFromPdfLayer(pdfPath, layerName, page, false);
+    }
+
+    /**
+     * Get text from layer specified by name from page
+     * removing unnecessary space that were added after each glyph in
+     * {@link LocationTextExtractionStrategy#getResultantText()}.
+     */
+    protected String getTextFromPdfLayerUsingActualText(String pdfPath,
+            String layerName, int page) throws IOException {
+        return getTextFromPdfLayer(pdfPath, layerName, page, true)
+                .replace(" ", "");
     }
 
     /**
@@ -402,6 +421,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
 
         public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() { return this.imageBBoxRectangle; }
 
+        public void setImageBBoxRectangle(com.itextpdf.kernel.geom.Rectangle imageBBoxRectangle) {
+            this.imageBBoxRectangle = imageBBoxRectangle;
+        }
+
         @Override
         protected boolean isChunkAtWordBoundary(TextChunk chunk,
                                                 TextChunk previousChunk) {
@@ -434,8 +457,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                     else if (type.equals(EventType.RENDER_IMAGE)) {
                         ImageRenderInfo renderInfo = (ImageRenderInfo) data;
                         com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
-                        this.imageBBoxRectangle = new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
-                                ctm.get(0), ctm.get(4));
+                        setImageBBoxRectangle(new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
+                                ctm.get(0), ctm.get(4)));
                     }
                 }
             }
@@ -451,8 +474,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
                 ImageRenderInfo imageRenderInfo = (ImageRenderInfo) data;
                 tagHierarchy = imageRenderInfo.getCanvasTagHierarchy();
             }
-            return (tagHierarchy == null || tagHierarchy.size() == 0) ? null :
-                    tagHierarchy.get(0).getProperties().get(PdfName.Name).toString();
+            return (tagHierarchy == null || tagHierarchy.size() == 0
+                    || tagHierarchy.get(0).getProperties().get(PdfName.Name) == null)
+                    ? null
+                    : tagHierarchy.get(0).getProperties().get(PdfName.Name).toString();
         }
     }
 }
