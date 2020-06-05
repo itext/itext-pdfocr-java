@@ -311,6 +311,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                     tesseractReader.getTesseract4OcrEngineProperties();
             properties.setTextPositioning(TextPositioning.BY_WORDS);
             properties.setPathToTessData(getTessDataDirectory());
+            properties.setPageSegMode(3);
             tesseractReader.setTesseract4OcrEngineProperties(properties);
             doOcrAndSavePdfToPath(tesseractReader,
                     TEST_IMAGES_DIRECTORY + filename + ".png", resultPdfPath,
@@ -321,6 +322,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
+            Assert.assertEquals(3, tesseractReader
+                    .getTesseract4OcrEngineProperties().getPageSegMode().intValue());
         }
     }
 
@@ -545,7 +548,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
+                        .setPathToTessData(new File(SCRIPT_TESS_DATA_DIRECTORY)));
         // correct result with specified spanish language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Bengali"),
@@ -562,7 +565,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
+                        .setPathToTessData(new File(SCRIPT_TESS_DATA_DIRECTORY)));
         // correct result with specified georgian+eng language
         Assert.assertTrue(getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("Georgian"),
@@ -578,7 +581,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPathToTessData(SCRIPT_TESS_DATA_DIRECTORY));
+                        .setPathToTessData(new File(SCRIPT_TESS_DATA_DIRECTORY)));
         // correct result with specified japanese language
         String result = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("Japanese"), KOSUGI_FONT_PATH);
@@ -649,16 +652,12 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testIncorrectLanguageForUserWordsAsInputStream()
+    public void testUserWordsWithDefaultLanguageNotInList()
             throws FileNotFoundException {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                        "test"));
         String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
         Tesseract4OcrEngineProperties properties =
                 tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("test", new FileInputStream(userWords));
+        properties.setUserWords("eng", new FileInputStream(userWords));
         properties.setLanguages(new ArrayList<String>());
     }
 

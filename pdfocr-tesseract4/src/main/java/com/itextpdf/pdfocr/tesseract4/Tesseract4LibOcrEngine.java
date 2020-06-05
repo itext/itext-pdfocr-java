@@ -229,34 +229,14 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             }
             if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
                     || preprocessed == null) {
-                // try to open as buffered image if it's not a tiff image
-                BufferedImage bufferedImage = null;
-                try {
-                    try {
-                        bufferedImage = ImagePreprocessingUtil
-                                .readImageFromFile(inputImage);
-                    } catch (IllegalArgumentException | IOException ex) {
-                        LoggerFactory.getLogger(getClass()).info(
-                                MessageFormatUtil.format(
-                                        Tesseract4LogMessageConstant
-                                                .CANNOT_CREATE_BUFFERED_IMAGE,
-                                        ex.getMessage()));
-                        bufferedImage = ImagePreprocessingUtil
-                                .readAsPixAndConvertToBufferedImage(
-                                        inputImage);
-                    }
-                } catch (IOException ex) {
-                    LoggerFactory.getLogger(getClass())
-                            .info(MessageFormatUtil.format(
-                                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
-                                    ex.getMessage()));
-                }
+                BufferedImage bufferedImage = ImagePreprocessingUtil
+                        .readImage(inputImage);
                 if (bufferedImage != null) {
                     try {
                         result = new TesseractOcrUtil()
                                 .getOcrResultAsString(getTesseractInstance(),
                                         bufferedImage, outputFormat);
-                    } catch (TesseractException e) {
+                    } catch (Exception e) { // NOSONAR
                         LoggerFactory.getLogger(getClass())
                                 .info(MessageFormatUtil.format(
                                         Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
@@ -264,11 +244,13 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                     }
                 }
                 if (result == null) {
+                    // perform ocr using original input image
                     result = new TesseractOcrUtil()
                             .getOcrResultAsString(getTesseractInstance(),
                                     inputImage, outputFormat);
                 }
             } else {
+                // perform ocr using preprocessed image
                 result = new TesseractOcrUtil()
                         .getOcrResultAsString(getTesseractInstance(),
                                 preprocessed, outputFormat);
@@ -276,7 +258,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         } catch (TesseractException e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil
-                            .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
+                            .format(Tesseract4LogMessageConstant
+                                            .TESSERACT_FAILED,
                                     e.getMessage()));
             throw new Tesseract4OcrException(
                     Tesseract4OcrException

@@ -18,8 +18,12 @@ public class Tesseract4OcrException extends OcrException {
             + "tesseract executable directory is correct";
     public static final String CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE =
             "Cannot find path to tesseract executable.";
-    public static final String CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY =
-            "Cannot find path to tess data directory";
+    public static final String PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID =
+            "Provided path to tess data directory does not exist or it is "
+                    + "an invalid directory";
+    public static final String PATH_TO_TESS_DATA_IS_NOT_SET =
+            "Path to tess data directory cannot be null and must be set "
+                    + "to a valid directory";
 
     /**
      * Creates a new TesseractException.

@@ -43,9 +43,4 @@ public class CustomOcrEngine implements IOcrEngine {
     public OcrEngineProperties getOcrEngineProperties() {
         return ocrEngineProperties;
     }
-
-    public void setOcrEngineProperties(
-            OcrEngineProperties ocrEngineProperties) {
-        this.ocrEngineProperties = ocrEngineProperties;
-    }
 }

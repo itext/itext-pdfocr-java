@@ -1,11 +1,13 @@
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.util.FileUtil;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +37,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     /**
      * Path to directory with tess data.
      */
-    private String tessDataDir;
+    private File tessDataDir;
 
     /**
      * Page Segmentation Mode.
@@ -106,18 +108,29 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      *
      * @return path to directory with tess data
      */
-    public final String getPathToTessData() {
+    public final File getPathToTessData() {
         return tessDataDir;
     }
 
     /**
      * Sets path to directory with tess data.
      *
-     * @param tessData path to train directory as {@link java.lang.String}
+     * @param tessData path to train directory as {@link java.io.File}
      * @return the {@link Tesseract4OcrEngineProperties} instance
+     * @throws Tesseract4OcrException if path to tess data directory is
+     * null or empty, or provided directory does not exist? or it is not
+     * a directory
      */
-    public final Tesseract4OcrEngineProperties setPathToTessData(final String tessData) {
-        tessDataDir = tessData;
+    public final Tesseract4OcrEngineProperties setPathToTessData(
+            final File tessData) {
+        if (tessData == null
+                || !FileUtil.directoryExists(tessData.getAbsolutePath())) {
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException
+                            .PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
+        }
+        this.tessDataDir = tessData;
+
         return this;
     }
 
@@ -138,7 +151,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * @param mode psm mode as {@link java.lang.Integer}
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
-    public final Tesseract4OcrEngineProperties setPageSegMode(final Integer mode) {
+    public final Tesseract4OcrEngineProperties setPageSegMode(
+            final Integer mode) {
         pageSegMode = mode;
         return this;
     }
@@ -159,7 +173,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      *                   otherwise - false
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
-    public final Tesseract4OcrEngineProperties setPreprocessingImages(final boolean preprocess) {
+    public final Tesseract4OcrEngineProperties setPreprocessingImages(
+            final boolean preprocess) {
         preprocessingImages = preprocess;
         return this;
     }

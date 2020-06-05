@@ -145,14 +145,13 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
             final File input) {
         Map<Integer, List<TextInfo>> result = new LinkedHashMap<Integer,
                 List<TextInfo>>();
-        if (isValidImageFormat(input)) {
-            Map<String, Map<Integer, List<TextInfo>>> processedData =
-                    processInputFiles(input, OutputFormat.HOCR);
-            if (processedData != null && processedData.size() > 0) {
-                List<String> keys = new ArrayList<String>(
-                        processedData.keySet());
-                result = processedData.get(keys.get(0));
-            }
+        verifyImageFormatValidity(input);
+        Map<String, Map<Integer, List<TextInfo>>> processedData =
+                processInputFiles(input, OutputFormat.HOCR);
+        if (processedData != null && processedData.size() > 0) {
+            List<String> keys = new ArrayList<String>(
+                    processedData.keySet());
+            result = processedData.get(keys.get(0));
         }
         return result;
     }
@@ -170,29 +169,28 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
     public final String doImageOcr(final File input,
             final OutputFormat outputFormat) {
         String result = "";
-        if (isValidImageFormat(input)) {
-            Map<String, Map<Integer, List<TextInfo>>> processedData =
-                    processInputFiles(input, outputFormat);
-            if (processedData != null && processedData.size() > 0) {
-                List<String> keys = new ArrayList<String>(
-                        processedData.keySet());
-                if (outputFormat.equals(OutputFormat.TXT)) {
-                    result = keys.get(0);
-                } else {
-                    StringBuilder outputText = new StringBuilder();
-                    Map<Integer, List<TextInfo>> outputMap =
-                            processedData.get(keys.get(0));
-                    for (int page : outputMap.keySet()) {
-                        StringBuilder pageText = new StringBuilder();
-                        for (TextInfo textInfo : outputMap.get(page)) {
-                            pageText.append(textInfo.getText());
-                            pageText.append(System.lineSeparator());
-                        }
-                        outputText.append(pageText);
-                        outputText.append(System.lineSeparator());
+        verifyImageFormatValidity(input);
+        Map<String, Map<Integer, List<TextInfo>>> processedData =
+                processInputFiles(input, outputFormat);
+        if (processedData != null && processedData.size() > 0) {
+            List<String> keys = new ArrayList<String>(
+                    processedData.keySet());
+            if (outputFormat.equals(OutputFormat.TXT)) {
+                result = keys.get(0);
+            } else {
+                StringBuilder outputText = new StringBuilder();
+                Map<Integer, List<TextInfo>> outputMap =
+                        processedData.get(keys.get(0));
+                for (int page : outputMap.keySet()) {
+                    StringBuilder pageText = new StringBuilder();
+                    for (TextInfo textInfo : outputMap.get(page)) {
+                        pageText.append(textInfo.getText());
+                        pageText.append(System.lineSeparator());
                     }
-                    result = outputText.toString();
+                    outputText.append(pageText);
+                    outputText.append(System.lineSeparator());
                 }
+                result = outputText.toString();
             }
         }
         return result;
@@ -337,18 +335,15 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
      * Gets path to provided tess data directory.
      *
      * @return path to provided tess data directory as
-     * {@link java.lang.String}, otherwise - the default one
-     * @throws Tesseract4OcrException if path to tess data directory is
-     * empty or null
+     * {@link java.lang.String}
      */
-    String getTessData() throws Tesseract4OcrException {
-        if (getTesseract4OcrEngineProperties().getPathToTessData() != null
-                && !getTesseract4OcrEngineProperties().getPathToTessData()
-                .isEmpty()) {
-            return getTesseract4OcrEngineProperties().getPathToTessData();
+    String getTessData() {
+        if (getTesseract4OcrEngineProperties().getPathToTessData() == null) {
+            throw new Tesseract4OcrException(Tesseract4OcrException
+                    .PATH_TO_TESS_DATA_IS_NOT_SET);
         } else {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESS_DATA_DIRECTORY);
+            return getTesseract4OcrEngineProperties().getPathToTessData()
+                    .getAbsolutePath();
         }
     }
 
@@ -370,10 +365,9 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
      * in {@link AbstractTesseract4OcrEngine#SUPPORTED_IMAGE_FORMATS}
      *
      * @param image input image {@link java.io.File}
-     * @return true if image extension is valid, false - if not
      * @throws Tesseract4OcrException if image format is invalid
      */
-    private boolean isValidImageFormat(final File image)
+    private void verifyImageFormatValidity(final File image)
             throws Tesseract4OcrException {
         boolean isValid = false;
         String extension = "incorrect extension";
@@ -398,6 +392,5 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
                     Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
         }
-        return isValid;
     }
 }

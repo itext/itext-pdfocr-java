@@ -148,7 +148,7 @@ public class OcrPdfCreatorProperties {
      * Sets required size for output PDF document. Real size of the page will
      * be calculated according to the selected {@link ScaleMode}.
      *
-     * @param pageSize required page
+     * @param pageSize requested page
      *                size as {@link com.itextpdf.kernel.geom.Rectangle}
      * @return the {@link OcrPdfCreatorProperties} instance
      */

@@ -85,7 +85,7 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
 
         Tesseract4OcrEngineProperties properties =
                 new Tesseract4OcrEngineProperties(tesseractReader.getTesseract4OcrEngineProperties());
-        properties.setPathToTessData(LANG_TESS_DATA_DIRECTORY);
+        properties.setPathToTessData(getTessDataDirectory());
         properties.setLanguages(Collections.<String>singletonList("spa"));
         tesseractReader.setTesseract4OcrEngineProperties(properties);
 

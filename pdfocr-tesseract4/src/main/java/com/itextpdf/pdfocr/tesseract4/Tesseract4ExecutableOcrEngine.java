@@ -201,11 +201,8 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param command result command as list of strings
      */
     private void addTessData(final List<String> command) {
-        if (getTesseract4OcrEngineProperties().getPathToTessData() != null
-                && !getTesseract4OcrEngineProperties().getPathToTessData().isEmpty()) {
-            command.add("--tessdata-dir");
-            command.add(addQuotes(getTessData()));
-        }
+        command.add("--tessdata-dir");
+        command.add(addQuotes(getTessData()));
     }
 
     /**

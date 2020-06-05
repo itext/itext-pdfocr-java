@@ -155,7 +155,7 @@ class ImagePreprocessingUtil {
         if (pix == null) {
             try {
                 pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) { // NOSONAR
                 LoggerFactory.getLogger(ImagePreprocessingUtil.class)
                         .info(MessageFormatUtil.format(
                                 Tesseract4LogMessageConstant
@@ -165,5 +165,41 @@ class ImagePreprocessingUtil {
             }
         }
         return pix;
+    }
+
+    /**
+     * Reads input image as a {@link java.awt.image.BufferedImage}.
+     * If it is not possible to read {@link java.awt.image.BufferedImage} from
+     * input file, image will be read as a {@link net.sourceforge.lept4j.Pix}
+     * and then converted to {@link java.awt.image.BufferedImage}.
+     * @param inputImage original input image
+     * @return input image as a {@link java.awt.image.BufferedImage}
+     */
+    static BufferedImage readImage(File inputImage) {
+        BufferedImage bufferedImage = null;
+        try {
+            bufferedImage = ImagePreprocessingUtil
+                    .readImageFromFile(inputImage);
+        } catch (IllegalArgumentException | IOException ex) {
+            LoggerFactory.getLogger(ImagePreprocessingUtil.class).info(
+                    MessageFormatUtil.format(
+                            Tesseract4LogMessageConstant
+                                    .CANNOT_CREATE_BUFFERED_IMAGE,
+                            ex.getMessage()));
+        }
+        if (bufferedImage == null) {
+            try {
+                bufferedImage = ImagePreprocessingUtil
+                        .readAsPixAndConvertToBufferedImage(
+                                inputImage);
+            } catch (IOException ex) {
+                LoggerFactory.getLogger(ImagePreprocessingUtil.class)
+                        .info(MessageFormatUtil.format(
+                                Tesseract4LogMessageConstant
+                                        .CANNOT_READ_INPUT_IMAGE,
+                                ex.getMessage()));
+            }
+        }
+        return bufferedImage;
     }
 }

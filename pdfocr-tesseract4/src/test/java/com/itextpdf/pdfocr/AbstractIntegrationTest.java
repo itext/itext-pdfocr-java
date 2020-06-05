@@ -108,6 +108,10 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         }
     }
 
+    protected static Tesseract4LibOcrEngine getTesseract4LibOcrEngine() {
+        return tesseractLibReader;
+    }
+
     protected static String getTesseractDirectory() {
         String tesseractDir = System.getProperty("tesseractDir");
         String os = System.getProperty("os.name") == null
@@ -133,8 +137,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
         return TARGET_FOLDER;
     }
 
-    protected static String getTessDataDirectory() {
-        return LANG_TESS_DATA_DIRECTORY;
+    protected static File getTessDataDirectory() {
+        return new File(LANG_TESS_DATA_DIRECTORY);
     }
 
     /**

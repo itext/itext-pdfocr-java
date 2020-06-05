@@ -83,6 +83,10 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String path = TEST_IMAGES_DIRECTORY + "numbers_02.jpg";
         String expectedOutput = "0123456789";
 
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader
+                        .getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
