@@ -39,9 +39,9 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void comparePdfA3uCMYKColorSpaceSpanishJPG() throws IOException,
+    public void comparePdfA3uCMYKColorSpaceJPG() throws IOException,
             InterruptedException {
-        String testName = "comparePdfA3uCMYKColorSpaceSpanishJPG";
+        String testName = "comparePdfA3uCMYKColorSpaceJPG";
         String filename = "numbers_01";
         String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + "_a3u.pdf";
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_a3u.pdf";
@@ -64,8 +64,9 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
             Assert.assertNotNull(doc);
             doc.close();
 
-            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_");
+            Assert.assertNull(new CompareTool()
+                    .compareByContent(resultPdfPath, expectedPdfPath,
+                            getTargetDirectory(), "diff_"));
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
@@ -100,8 +101,8 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         Assert.assertNotNull(doc);
         doc.close();
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                TEST_DOCUMENTS_DIRECTORY, "diff_");
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     /**

@@ -27,9 +27,11 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     AbstractTesseract4OcrEngine tesseractReader;
+    String testType;
 
     public ImageFormatIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
+        this.testType = type.toString().toLowerCase();
     }
 
     @Before
@@ -38,6 +40,21 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
                 new Tesseract4OcrEngineProperties();
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());
         tesseractReader.setTesseract4OcrEngineProperties(ocrEngineProperties);
+    }
+
+    @Test
+    public void compareBmp() throws IOException, InterruptedException {
+        String testName = "compareBmp";
+        String fileName = "example_01";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".BMP";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + fileName + "_" + testType + ".pdf";
+        String resultPdfPath = getTargetDirectory() + fileName + "_" + testName + "_" + testType + ".pdf";
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                Collections.<String>singletonList("eng"), DeviceCmyk.MAGENTA);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     @Test
@@ -50,6 +67,21 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
         realOutputHocr = realOutputHocr.replaceAll("[‘]", "");
         Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
+    }
+
+    @Test
+    public void compareBmp02() throws IOException, InterruptedException {
+        String testName = "compareBmp02";
+        String fileName = "englishText";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".bmp";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + fileName + "_" + testType + ".pdf";
+        String resultPdfPath = getTargetDirectory() + fileName + "_" + testName + "_" + testType + ".pdf";
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                Collections.<String>singletonList("eng"), DeviceCmyk.MAGENTA);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     @Test
@@ -74,8 +106,24 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
                 TEST_IMAGES_DIRECTORY + filename + ".JFIF",
                 resultPdfPath, null, DeviceCmyk.MAGENTA);
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                TEST_DOCUMENTS_DIRECTORY, "diff_");
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
+    }
+
+    @Test
+    public void compareJpg() throws IOException, InterruptedException {
+        String testName = "compareJpg";
+        String fileName = "numbers_02";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".jpg";
+        String pdfName = fileName + "_" + testName + "_" + testType + ".pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + pdfName;
+        String resultPdfPath = getTargetDirectory() + pdfName;
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                null, DeviceCmyk.BLACK);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     @Test
@@ -92,12 +140,44 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void compareJpe() throws IOException, InterruptedException {
+        String testName = "compareJpe";
+        String fileName = "numbers_01";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".jpe";
+        String pdfName = fileName + "_" + testName + "_" + testType + ".pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + pdfName;
+        String resultPdfPath = getTargetDirectory() + pdfName;
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                null, DeviceCmyk.BLACK);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
+    }
+
+    @Test
     public void testTextFromJPE() {
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpe";
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void compareTif() throws IOException, InterruptedException {
+        String testName = "compareTif";
+        String fileName = "numbers_01";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".tif";
+        String pdfName = fileName + "_" + testName + "_" + testType + ".pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + pdfName;
+        String resultPdfPath = getTargetDirectory() + pdfName;
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                null, DeviceCmyk.BLACK);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     @Test
@@ -120,6 +200,21 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
+    public void compareMultipagesTIFFWithPreprocessing() throws IOException, InterruptedException {
+        String testName = "compareMultipagesTIFFWithPreprocessing";
+        String fileName = "multipage";
+        String path = TEST_IMAGES_DIRECTORY + fileName + ".tiff";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + fileName + "_" + testType + ".pdf";
+        String resultPdfPath = getTargetDirectory() + fileName + "_" + testName + "_" + testType + ".pdf";
+
+        doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
+                Collections.<String>singletonList("eng"), DeviceCmyk.BLACK);
+
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
     @Test
@@ -181,7 +276,7 @@ public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setTextPositioning(TextPositioning.BY_LINES));
 
-        new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                TEST_DOCUMENTS_DIRECTORY, "diff_");
+        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+                expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 }

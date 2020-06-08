@@ -1,12 +1,18 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.layout.font.FontProvider;
+import com.itextpdf.layout.font.FontSelector;
 import com.itextpdf.pdfa.PdfAConformanceException;
+import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
@@ -20,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.verapdf.gf.model.factory.fonts.FontFactory;
 
 @Category(IntegrationTest.class)
 public class PdfA3uTest extends ExtendedITextTest {
@@ -136,7 +143,12 @@ public class PdfA3uTest extends ExtendedITextTest {
 
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
         ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
-        ocrPdfCreatorProperties.setFontPath(PdfHelper.getKanitFontPath());
+
+        FontProvider fontProvider = new FontProvider("Kanit");
+        fontProvider.addFont(PdfHelper.getKanitFontPath());
+        PdfOcrFontProvider pdfOcrFontProvider = new PdfOcrFontProvider(
+                fontProvider.getFontSet(), "Kanit");
+        ocrPdfCreatorProperties.setFontProvider(pdfOcrFontProvider);
 
         PdfHelper.createPdfA(pdfPath, new File(path), ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
@@ -149,5 +161,11 @@ public class PdfA3uTest extends ExtendedITextTest {
                 null);
         Assert.assertEquals(PdfHelper.THAI_TEXT, resultWithoutUseActualText);
         Assert.assertEquals(resultWithoutUseActualText, resultWithActualText);
+
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
+        PdfFont font = strategy.getPdfFont();
+        String fontName = font.getFontProgram().getFontNames().getFontName();
+        Assert.assertTrue(fontName.contains("Kanit"));
+        Assert.assertTrue(font.isEmbedded());
     }
 }

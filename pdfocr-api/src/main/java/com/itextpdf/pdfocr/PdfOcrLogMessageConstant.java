@@ -3,8 +3,9 @@ package com.itextpdf.pdfocr;
 public class PdfOcrLogMessageConstant {
     public static final String CANNOT_READ_INPUT_IMAGE =
             "Cannot read input image {0}";
-    public static final String CANNOT_READ_PROVIDED_FONT =
-            "Cannot read given font or it was not provided: {0}";
+    public static final String PROVIDED_FONT_PROVIDER_IS_INVALID =
+            "Provided FontProvider is invalid. Please check that it contains "
+                    + "valid fonts and default font family name.";
     public static final String CANNOT_READ_DEFAULT_FONT =
             "Cannot default read font: {0}";
     public static final String CANNOT_ADD_DATA_TO_PDF_DOCUMENT =

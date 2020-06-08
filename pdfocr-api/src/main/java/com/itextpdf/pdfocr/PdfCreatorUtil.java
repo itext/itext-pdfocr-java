@@ -6,7 +6,6 @@ import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -14,12 +13,12 @@ import com.itextpdf.layout.layout.LayoutArea;
 import com.itextpdf.layout.layout.LayoutContext;
 import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.IRenderer;
+import com.itextpdf.layout.renderer.ParagraphRenderer;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,38 +48,68 @@ class PdfCreatorUtil {
      * @param document PDF document as a {@link com.itextpdf.layout.Document}
      *                object
      * @param line text line
-     * @param font font for the placed text (could be custom or default)
+     * @param fontFamily default font family
      * @param bboxHeightPt height of bbox calculated by OCR Reader
      * @param bboxWidthPt width of bbox calculated by OCR Reader
      * @return font size
+     * @throws OcrException if set font provider is invalid and/or fonts that
+     * it contains are invalid
      */
-    static float calculateFontSize(Document document, final String line,
-            final PdfFont font,
-            final float bboxHeightPt, final float bboxWidthPt) {
+    static float calculateFontSize(final Document document, final String line,
+            final String fontFamily, final float bboxHeightPt,
+            final float bboxWidthPt) throws OcrException {
         Rectangle bbox = new Rectangle(bboxWidthPt * 1.5f,
                 bboxHeightPt * 1.5f);
-        Paragraph paragraph = new Paragraph(line);
-        paragraph.setWidth(bboxWidthPt);
-        paragraph.setFont(font);
-
         // setting minimum and maximum (approx.) values for font size
         float fontSize = 1;
-        float maxFontSize = bboxHeightPt * 2;
+        float maxFontSize = bbox.getHeight();
 
-        while (Math.abs(fontSize - maxFontSize) > 1e-1) {
-            float curFontSize = (fontSize + maxFontSize) / 2;
-            paragraph.setFontSize(curFontSize);
-            IRenderer renderer = paragraph.createRendererSubTree()
-                    .setParent(document.getRenderer());
-            LayoutContext context = new LayoutContext(
-                    new LayoutArea(1, bbox));
-            if (renderer.layout(context).getStatus() == LayoutResult.FULL) {
-                fontSize = curFontSize;
-            } else {
-                maxFontSize = curFontSize;
+        try {
+            Paragraph paragraph = new Paragraph(line);
+            paragraph.setWidth(bbox.getWidth());
+            paragraph.setFontFamily(fontFamily);
+
+            while (Math.abs(fontSize - maxFontSize) > 1e-1) {
+                float curFontSize = (fontSize + maxFontSize) / 2;
+                paragraph.setFontSize(curFontSize);
+                IRenderer renderer = paragraph.createRendererSubTree()
+                        .setParent(document.getRenderer());
+                LayoutContext context = new LayoutContext(
+                        new LayoutArea(1, bbox));
+                if (renderer.layout(context).getStatus() == LayoutResult.FULL) {
+                    fontSize = curFontSize;
+                } else {
+                    maxFontSize = curFontSize;
+                }
             }
+        } catch (IllegalStateException e) {
+            LOGGER.error(PdfOcrLogMessageConstant
+                    .PROVIDED_FONT_PROVIDER_IS_INVALID);
+            throw new OcrException(
+                    OcrException.CANNOT_RESOLVE_PROVIDED_FONTS, e);
         }
         return fontSize;
+    }
+
+    /**
+     * Calculated real width of a paragraph with given text line, font provider
+     * and font size.
+     *
+     * @param document PDF document as a {@link com.itextpdf.layout.Document}
+     *                 object
+     * @param line text line
+     * @param fontFamily default font family
+     * @param fontSize calculated font size
+     * @return real width of text line in paragraph
+     */
+    static float getRealLineWidth(Document document, final String line,
+            final String fontFamily, float fontSize) {
+        Paragraph paragraph = new Paragraph(line);
+        paragraph.setFontFamily(fontFamily);
+        paragraph.setFontSize(fontSize);
+        IRenderer renderer = paragraph.createRendererSubTree()
+                .setParent(document.getRenderer());
+        return ((ParagraphRenderer) renderer).getMinMaxWidth().getMaxWidth();
     }
 
     /**

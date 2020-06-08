@@ -1,14 +1,24 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.layout.font.FontProvider;
+
 /**
  * Properties that will be used by the {@link OcrPdfCreator}.
  */
 public class OcrPdfCreatorProperties {
 
     /**
-     * Path to the default font.
+     * Font provider.
+     * By default it is {@link PdfOcrFontProvider} object with default font
+     * family {@link PdfOcrFontProvider#getDefaultFontFamily()}.
      */
-    private static final String DEFAULT_FONT_PATH = "com/itextpdf/pdfocr/fonts/LiberationSans-Regular.ttf";
+    private FontProvider fontProvider = null;
+
+    /**
+     * Default font family.
+     * {@link PdfOcrFontProvider#getDefaultFontFamily()} by default.
+     */
+    private String defaultFontFamily = null;
 
     /**
      * Color of the text in the output PDF document.
@@ -61,12 +71,6 @@ public class OcrPdfCreatorProperties {
     private String title = "";
 
     /**
-     * Path to the used font.
-     * It should be set explicitly or the default font will be used.
-     */
-    private String fontPath;
-
-    /**
      * Creates a new {@link OcrPdfCreatorProperties} instance.
      */
     public OcrPdfCreatorProperties() {
@@ -87,7 +91,8 @@ public class OcrPdfCreatorProperties {
         this.textColor = other.textColor;
         this.pdfLang = other.pdfLang;
         this.title = other.title;
-        this.fontPath = other.fontPath;
+        this.fontProvider = other.fontProvider;
+        this.defaultFontFamily = other.defaultFontFamily;
     }
 
     /**
@@ -255,30 +260,60 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Returns path to the font to be used in PDF document.
-     * @return path to the required font
+     * Returns FontProvider that was set previously or if it is
+     * <code>null<code/> a new instance of {@link PdfOcrFontProvider} is
+     * returned.
+     * @return {@link com.itextpdf.layout.font.FontProvider} object
      */
-    public String getFontPath() {
-        return fontPath;
+    public FontProvider getFontProvider() {
+        if (fontProvider == null) {
+            fontProvider = new PdfOcrFontProvider();
+        }
+        return fontProvider;
     }
 
     /**
-     * Sets path to the font to be used in PDF document.
-     *
-     * @param path path to the required font
+     * Sets font provider.
+     * Please note that passed FontProvider is not to be used in multithreaded
+     * environments or for any parallel processing.
+     * There will be set the following default font family:
+     * {@link PdfOcrFontProvider#getDefaultFontFamily()}
+     * @param fontProvider selected
+     * {@link com.itextpdf.layout.font.FontProvider} instance
      * @return the {@link OcrPdfCreatorProperties} instance
      */
-    public OcrPdfCreatorProperties setFontPath(final String path) {
-        fontPath = path;
+    public OcrPdfCreatorProperties setFontProvider(FontProvider fontProvider) {
+        this.fontProvider = fontProvider;
         return this;
     }
 
     /**
-     * Gets path to the default font.
-     *
-     * @return {@link java.lang.String} path to default font
+     * Sets font provider and default font family.
+     * Please note that passed FontProvider is not to be used in multithreaded
+     * environments or for any parallel processing.
+     * @param fontProvider selected
+     * {@link com.itextpdf.layout.font.FontProvider} instance
+     * @param defaultFontFamily preferred font family to be used when selecting
+     *                          font from
+     *                          {@link com.itextpdf.layout.font.FontProvider}.
+     * @return the {@link OcrPdfCreatorProperties} instance
      */
-    public String getDefaultFontName() {
-        return com.itextpdf.pdfocr.OcrPdfCreatorProperties.DEFAULT_FONT_PATH;
+    public OcrPdfCreatorProperties setFontProvider(FontProvider fontProvider,
+            String defaultFontFamily) {
+        this.fontProvider = fontProvider;
+        this.defaultFontFamily = defaultFontFamily;
+        return this;
+    }
+
+    /**
+     * Gets preferred font family to be used when selecting font from
+     * {@link com.itextpdf.layout.font.FontProvider}.
+     *
+     * @return if default font family is not set or it is null or empty
+     * {@link PdfOcrFontProvider#getDefaultFontFamily()} is returned
+     */
+    public String getDefaultFontFamily() {
+        return defaultFontFamily == null || defaultFontFamily.length() == 0
+                ? getFontProvider().getDefaultFontFamily() : defaultFontFamily;
     }
 }

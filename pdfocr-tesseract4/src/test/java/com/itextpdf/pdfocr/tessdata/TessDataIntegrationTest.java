@@ -2,8 +2,11 @@ package com.itextpdf.pdfocr.tessdata;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
@@ -108,31 +111,42 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void compareSpanishPNG() throws IOException, InterruptedException {
+    public void testSpanishPNG() throws IOException {
         String testName = "compareSpanishPNG";
         String filename = "scanned_spa_01";
-        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + testFileTypeName +
-                ".pdf";
-        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
+        String expectedText1 = "¿Y SI ENSAYARA COMO ACTUAR?";
+        String expectedText2 = "¿Y SI ENSAYARA ACTUAR?";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName
+                + "_" + testFileTypeName + ".pdf";
 
         List<String> languages = Arrays.<String>asList("spa", "spa_old");
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
         if (isExecutableReaderType) {
-            tesseractReader.setTesseract4OcrEngineProperties(
-                    tesseractReader.getTesseract4OcrEngineProperties()
-                            .setPreprocessingImages(false));
+            properties.setPreprocessingImages(false);
         }
 
         // locate text by words
-        tesseractReader.setTesseract4OcrEngineProperties(
-                tesseractReader.getTesseract4OcrEngineProperties()
-                        .setTextPositioning(TextPositioning.BY_WORDS));
-        doOcrAndSavePdfToPath(tesseractReader,
-                TEST_IMAGES_DIRECTORY + filename + ".png", resultPdfPath,
-                languages,  DeviceCmyk.BLACK);
+        properties.setTextPositioning(TextPositioning.BY_WORDS);
+        properties.setLanguages(languages);
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setTextColor(DeviceCmyk.BLACK);
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, ocrPdfCreatorProperties);
+        try (PdfWriter pdfWriter = getPdfWriter(resultPdfPath)) {
+            ocrPdfCreator.createPdf(Collections.<File>singletonList(
+                    new File(TEST_IMAGES_DIRECTORY + filename + ".png")),
+                    pdfWriter)
+                    .close();
+        }
 
         try {
-            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_");
+            String result = getTextFromPdfLayer(resultPdfPath, null, 1)
+                    .replace("\n", " ");
+            Assert.assertTrue(result.contains(expectedText1)
+                    || result.contains(expectedText2));
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
@@ -304,7 +318,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String testName = "compareMultiLangImage";
         String filename = "multilang";
         String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + ".pdf";
-        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_" + testFileTypeName + ".pdf";
 
         try {
             Tesseract4OcrEngineProperties properties =
@@ -314,11 +328,11 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
             properties.setPageSegMode(3);
             tesseractReader.setTesseract4OcrEngineProperties(properties);
             doOcrAndSavePdfToPath(tesseractReader,
-                    TEST_IMAGES_DIRECTORY + filename + ".png", resultPdfPath,
+                    TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                     Arrays.<String>asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
 
-            new CompareTool().compareByContent(expectedPdfPath, resultPdfPath,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_");
+            Assert.assertNull(new CompareTool().compareByContent(resultPdfPath, expectedPdfPath,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_"));
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
@@ -328,7 +342,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 12)
     })
     @Test
     public void testHindiTextWithUrdu() throws IOException {
@@ -341,7 +355,8 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         String expectedUrdu = "وتالی";
 
         doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
-                pdfPath, Arrays.asList("hin", "urd"), CAIRO_FONT_PATH);
+                pdfPath, Arrays.asList("hin", "urd"),
+                Collections.singletonList(CAIRO_FONT_PATH));
 
         String resultWithoutActualText = getTextFromPdfLayer(pdfPath, null, 1);
         // because of provided font only urdu will be displayed correctly
@@ -422,7 +437,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 6)
     })
     @Test
     public void testGeorgianActualTextWithDefaultFont() throws IOException {
@@ -453,12 +468,17 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setTextPositioning(TextPositioning.BY_WORDS));
         // correct result with specified spanish language
+        String result = getTextFromPdf(tesseractReader, file, 1,
+                Collections.<String>singletonList("ben"),
+                Arrays.<String>asList(FREE_SANS_FONT_PATH, KOSUGI_FONT_PATH));
+        Assert.assertEquals(expected, result);
+
         Assert.assertEquals(expected, getTextFromPdf(tesseractReader, file,
                 Collections.<String>singletonList("ben"), FREE_SANS_FONT_PATH));
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 8)
     })
     @Test
     public void testBengaliActualTextWithDefaultFont() throws IOException {
@@ -483,7 +503,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 3)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 6)
     })
     @Test
     public void testChinese() {
@@ -506,14 +526,11 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
         // or languages were specified in the wrong order
         Assert.assertNotEquals(expected,
                 getTextFromPdf(tesseractReader, file,
-                        Collections.<String>singletonList("chi_sim")),
-                NOTO_SANS_SC_FONT_PATH);
+                        Collections.<String>singletonList("chi_sim")));
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_tra")),
-                NOTO_SANS_SC_FONT_PATH);
+                getTextFromPdf(tesseractReader, file, Collections.<String>singletonList("chi_tra")));
         Assert.assertNotEquals(expected,
-                getTextFromPdf(tesseractReader, file, Arrays.<String>asList("chi_sim", "chi_tra")),
-                NOTO_SANS_SC_FONT_PATH);
+                getTextFromPdf(tesseractReader, file, Arrays.<String>asList("chi_sim", "chi_tra")));
         Assert.assertFalse(getTextFromPdf(tesseractReader, file, new ArrayList<String>())
                 .contains(expected));
     }
@@ -550,9 +567,9 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPathToTessData(new File(SCRIPT_TESS_DATA_DIRECTORY)));
         // correct result with specified spanish language
-        Assert.assertTrue(getTextFromPdf(tesseractReader, file,
+        Assert.assertTrue(getTextFromPdf(tesseractReader, file, 1,
                 Collections.<String>singletonList("Bengali"),
-                FREE_SANS_FONT_PATH)
+                Arrays.<String>asList(FREE_SANS_FONT_PATH, KOSUGI_FONT_PATH))
                 .startsWith(expected));
     }
 
@@ -662,7 +679,7 @@ public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     /**
-     * Do OCR for given image and compare result etxt file with expected one.
+     * Do OCR for given image and compare result text file with expected one.
      */
     private boolean doOcrAndCompareTxtFiles(AbstractTesseract4OcrEngine tesseractReader,
             String imgPath, String expectedPath, List<String> languages) {

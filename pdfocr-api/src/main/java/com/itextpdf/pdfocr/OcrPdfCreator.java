@@ -7,10 +7,7 @@ import com.itextpdf.io.font.otf.GlyphLine;
 import com.itextpdf.io.font.otf.GlyphLine.GlyphLinePart;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.io.util.ResourceUtil;
-import com.itextpdf.io.util.StreamUtil;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.font.PdfTrueTypeFont;
 import com.itextpdf.kernel.font.PdfType0Font;
 import com.itextpdf.kernel.font.PdfType1Font;
@@ -31,17 +28,20 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.font.FontInfo;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.pdfa.PdfADocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,50 +193,9 @@ public class OcrPdfCreator {
     }
 
     /**
-     * Gets font as a byte array using provided fontp ath or the default one.
-     *
-     * @return selected font as byte[]
-     */
-    private byte[] getFont() {
-        if (ocrPdfCreatorProperties.getFontPath() != null
-                && !ocrPdfCreatorProperties.getFontPath().isEmpty()) {
-            try {
-                return Files.readAllBytes(java.nio.file.Paths
-                        .get(ocrPdfCreatorProperties.getFontPath()));
-            } catch (IOException | OutOfMemoryError e) {
-                LOGGER.error(MessageFormatUtil.format(
-                        PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT,
-                        e.getMessage()));
-                return getDefaultFont();
-            }
-        } else {
-            return getDefaultFont();
-        }
-    }
-
-    /**
-     * Gets default font as a byte array.
-     *
-     * @return default font as byte[]
-     */
-    private byte[] getDefaultFont() {
-        try (InputStream stream = ResourceUtil
-                .getResourceStream(getOcrPdfCreatorProperties()
-                        .getDefaultFontName())) {
-            return StreamUtil.inputStreamToArray(stream);
-        } catch (IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    PdfOcrLogMessageConstant.CANNOT_READ_DEFAULT_FONT,
-                    e.getMessage()));
-            return new byte[0];
-        }
-    }
-
-    /**
      * Adds image (or its one page) and text that was found there to canvas.
      *
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
-     * @param font font for the placed text (could be custom or default)
      * @param imageSize size of the image according to the selected
      *                  {@link ScaleMode}
      * @param pageText text that was found on this image (or on this page)
@@ -246,7 +205,7 @@ public class OcrPdfCreator {
      * @throws OcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
-    private void addToCanvas(final PdfDocument pdfDocument, final PdfFont font,
+    private void addToCanvas(final PdfDocument pdfDocument,
             final com.itextpdf.kernel.geom.Rectangle imageSize,
             final List<TextInfo> pageText, final ImageData imageData,
             final boolean createPdfA3u) throws OcrException {
@@ -278,8 +237,8 @@ public class OcrPdfCreator {
         }
 
         try {
-            addTextToCanvas(imageSize, pageText, canvas, font,
-                    multiplier, pdfPage.getMediaBox());
+            addTextToCanvas(imageSize, pageText, canvas, multiplier,
+                    pdfPage.getMediaBox());
         } catch (OcrException e) {
             LOGGER.error(MessageFormatUtil.format(
                     OcrException.CANNOT_CREATE_PDF_DOCUMENT,
@@ -325,28 +284,10 @@ public class OcrPdfCreator {
         PdfDocumentInfo info = pdfDocument.getDocumentInfo();
         info.setTitle(ocrPdfCreatorProperties.getTitle());
 
-        // create PdfFont
-        PdfFont defaultFont = null;
-        try {
-            defaultFont = PdfFontFactory.createFont(getFont(),
-                    PdfEncodings.IDENTITY_H, true);
-        } catch (com.itextpdf.io.IOException | IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT,
-                    e.getMessage()));
-            try {
-                defaultFont = PdfFontFactory.createFont(getDefaultFont(),
-                        PdfEncodings.IDENTITY_H, true);
-            } catch (com.itextpdf.io.IOException
-                    | IOException | NullPointerException ex) {
-                LOGGER.error(MessageFormatUtil.format(
-                        PdfOcrLogMessageConstant.CANNOT_READ_DEFAULT_FONT,
-                        ex.getMessage()));
-                throw new OcrException(OcrException.CANNOT_READ_FONT);
-            }
-        }
-        addDataToPdfDocument(imagesTextData, pdfDocument, defaultFont,
-                createPdfA3u);
+        // reset passed font provider
+        ocrPdfCreatorProperties.getFontProvider().reset();
+
+        addDataToPdfDocument(imagesTextData, pdfDocument, createPdfA3u);
 
         return pdfDocument;
     }
@@ -359,7 +300,6 @@ public class OcrPdfCreator {
      *                       files as keys, and as value:
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
-     * @param font font for the placed text (could be custom or default)
      * @param createPdfA3u true if PDF/A3u document is being created
      * @throws OcrException if input image cannot be read or provided font
      * contains NOTDEF glyphs
@@ -367,7 +307,6 @@ public class OcrPdfCreator {
     private void addDataToPdfDocument(
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
             final PdfDocument pdfDocument,
-            final PdfFont font,
             final boolean createPdfA3u) throws OcrException {
         for (Map.Entry<File, Map<Integer, List<TextInfo>>> entry
                 : imagesTextData.entrySet()) {
@@ -390,7 +329,7 @@ public class OcrPdfCreator {
                                         ocrPdfCreatorProperties.getPageSize());
 
                         if (imageTextData.containsKey(page + 1)) {
-                            addToCanvas(pdfDocument, font, imageSize,
+                            addToCanvas(pdfDocument, imageSize,
                                     imageTextData.get(page + 1),
                                     imageData, createPdfA3u);
                         }
@@ -438,7 +377,6 @@ public class OcrPdfCreator {
      *                  {@link ScaleMode}
      * @param pageText text that was found on this image (or on this page)
      * @param pdfCanvas canvas to place the text
-     * @param font font for the placed text (could be custom or default)
      * @param multiplier coefficient to adjust text placing on canvas
      * @param pageMediaBox page parameters
      * @throws OcrException if PDF/A3u document is being created and provided
@@ -448,13 +386,10 @@ public class OcrPdfCreator {
             final com.itextpdf.kernel.geom.Rectangle imageSize,
             final List<TextInfo> pageText,
             final PdfCanvas pdfCanvas,
-            final PdfFont font,
             final float multiplier,
             final com.itextpdf.kernel.geom.Rectangle pageMediaBox)
             throws OcrException {
-        if (pageText == null || pageText.size() == 0) {
-            pdfCanvas.beginText().setFontAndSize(font, 1);
-        } else {
+        if (pageText != null && pageText.size() > 0) {
             com.itextpdf.kernel.geom.Point imageCoordinates =
                     PdfCreatorUtil.calculateImageCoordinates(
                     ocrPdfCreatorProperties.getPageSize(), imageSize);
@@ -466,20 +401,32 @@ public class OcrPdfCreator {
                 final float top = coordinates.get(1) * multiplier;
                 final float bottom = (coordinates.get(3) + 1) * multiplier - 1;
 
-                float bboxWidthPt = PdfCreatorUtil.getPoints(right - left);
-                float bboxHeightPt = PdfCreatorUtil.getPoints(bottom - top);
+                float bboxWidthPt = PdfCreatorUtil
+                        .getPoints(right - left);
+                float bboxHeightPt = PdfCreatorUtil
+                        .getPoints(bottom - top);
+                FontProvider fontProvider = getOcrPdfCreatorProperties()
+                        .getFontProvider();
+                String fontFamily = getOcrPdfCreatorProperties()
+                        .getDefaultFontFamily();
                 if (!line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0) {
+                    Document document = new Document(pdfCanvas.getDocument());
+                    document.setFontProvider(fontProvider);
+
                     // Scale the text width to fit the OCR bbox
                     float fontSize = PdfCreatorUtil.calculateFontSize(
-                            new Document(pdfCanvas.getDocument()),
-                            line, font, bboxHeightPt, bboxWidthPt);
-                    float lineWidth = font.getWidth(line, fontSize);
+                            document, line, fontFamily,
+                            bboxHeightPt, bboxWidthPt);
+
+                    float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
+                            line, fontFamily, fontSize);
 
                     float deltaX = PdfCreatorUtil.getPoints(left);
                     float deltaY = imageSize.getHeight()
                             - PdfCreatorUtil.getPoints(bottom);
 
                     Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
+                    canvas.setFontProvider(fontProvider);
 
                     Text text = new Text(line)
                             .setHorizontalScaling(bboxWidthPt / lineWidth);
@@ -487,7 +434,7 @@ public class OcrPdfCreator {
                     Paragraph paragraph = new Paragraph(text)
                             .setMargin(0)
                             .setMultipliedLeading(1.2f);
-                    paragraph.setFont(font)
+                    paragraph.setFontFamily(fontFamily)
                             .setFontSize(fontSize);
                     paragraph.setWidth(bboxWidthPt * 1.5f);
 

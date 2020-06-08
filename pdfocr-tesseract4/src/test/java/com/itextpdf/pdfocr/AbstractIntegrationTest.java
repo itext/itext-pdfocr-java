@@ -1,5 +1,6 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfDictionary;
@@ -17,6 +18,7 @@ import com.itextpdf.kernel.pdf.canvas.parser.data.TextRenderInfo;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextChunkLocation;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
@@ -30,8 +32,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -69,6 +74,14 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     protected static final String CAIRO_FONT_PATH = TEST_FONTS_DIRECTORY + "Cairo-Regular.ttf";
     // path to font for georgian
     protected static final String FREE_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "FreeSans.ttf";
+
+    protected static final Map<String, String> FONT_PATH_TO_FONT_NAME_MAP = new HashMap<String, String>() {{
+        put(NOTO_SANS_FONT_PATH, "NotoSans");
+        put(KOSUGI_FONT_PATH, "Kosugi");
+        put(NOTO_SANS_SC_FONT_PATH, "NotoSansSC");
+        put(CAIRO_FONT_PATH, "Cairo");
+        put(FREE_SANS_FONT_PATH, "FreeSans");
+    }};
 
     public enum ReaderType {
         LIB,
@@ -145,19 +158,28 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * Retrieve text from specified page from given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader,
-            File file, int page, List<String> languages, String fontPath) {
+            File file, int page, List<String> languages, List<String> fonts) {
         String result = null;
         String pdfPath = null;
         try {
             pdfPath = getTargetDirectory() + getImageName(file.getAbsolutePath(), languages) + ".pdf";
             doOcrAndSavePdfToPath(tesseractReader, file.getAbsolutePath(),
-                    pdfPath, languages, fontPath);
+                    pdfPath, languages, fonts);
             result = getTextFromPdfLayer(pdfPath, null, page);
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         }
 
         return result;
+    }
+
+    /**
+     * Retrieve text from specified page from given PDF document.
+     */
+    protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader,
+            File file, int page, List<String> languages, String fontPath) {
+        return getTextFromPdf(tesseractReader, file, page, languages,
+                Collections.<String>singletonList(fontPath));
     }
 
     /**
@@ -173,7 +195,8 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
             List<String> languages) {
-        return getTextFromPdf(tesseractReader, file, 1, languages, null);
+        return getTextFromPdf(tesseractReader, file, 1, languages,
+                new ArrayList<String>());
     }
 
     /**
@@ -181,14 +204,14 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file, int page,
                           List<String> languages) {
-        return getTextFromPdf(tesseractReader, file, page, languages, null);
+        return getTextFromPdf(tesseractReader, file, page, languages, new ArrayList<String>());
     }
 
     /**
      * Retrieve text from the first page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file) {
-        return getTextFromPdf(tesseractReader, file, 1, null, null);
+        return getTextFromPdf(tesseractReader, file, 1, null, new ArrayList<String>());
     }
 
     /**
@@ -289,8 +312,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     protected void doOcrAndSavePdfToPath(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
-            String fontPath,
-            com.itextpdf.kernel.colors.Color color) {
+            List<String> fonts, com.itextpdf.kernel.colors.Color color) {
         if (languages != null) {
             Tesseract4OcrEngineProperties properties =
                     tesseractReader.getTesseract4OcrEngineProperties();
@@ -298,8 +320,13 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             tesseractReader.setTesseract4OcrEngineProperties(properties);
         }
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
-        if (fontPath != null && !fontPath.isEmpty()) {
-            properties.setFontPath(fontPath);
+        if (fonts != null && fonts.size() > 0) {
+            FontProvider fontProvider = new FontProvider();
+            for (String fontPath : fonts) {
+                String name = FONT_PATH_TO_FONT_NAME_MAP.get(fontPath);
+                fontProvider.getFontSet().addFont(fontPath, PdfEncodings.IDENTITY_H, name);
+            }
+            properties.setFontProvider(fontProvider);
         }
         if (color != null) {
             properties.setTextColor(color);
@@ -340,9 +367,9 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
      * (Text will be invisible)
      */
     protected void doOcrAndSavePdfToPath(AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-                               String pdfPath, List<String> languages, String fontPath) {
+                               String pdfPath, List<String> languages, List<String> fonts) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
-                languages, fontPath, null);
+                languages, fonts, null);
     }
 
     /**

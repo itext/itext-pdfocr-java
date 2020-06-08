@@ -13,8 +13,7 @@
   <name>pdfOCR API</name>
   <description>pdfOCR is an iText 7 add-on that lets you recognize text from
     images and create searchable PDF files. This artifact contains API for
-    implementations based on different OCR engines.
-  </description>
+    implementations based on different OCR engines.</description>
 
   <dependencies>
     <dependency>

@@ -1,8 +1,11 @@
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
@@ -13,11 +16,16 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import java.io.File;
 import java.io.IOException;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 
 @Category(IntegrationTest.class)
 public class PdfFontTest extends ExtendedITextTest {
+
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @Test
     public void testFontColor() throws IOException {
@@ -40,17 +48,27 @@ public class PdfFontTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_PROVIDED_FONT, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_PROVIDER_IS_INVALID, count = 1),
+        @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
     })
     @Test
-    public void testInvalidFont() throws IOException {
-        String testName = "testImageWithoutText";
+    public void testInvalidFontWithInvalidDefaultFontFamily()
+            throws IOException {
+        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil.format(
+                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                OcrException.CANNOT_RESOLVE_PROVIDED_FONTS));
+
+        String testName = "testInvalidFontWithInvalidDefaultFontFamily";
         String path = PdfHelper.getDefaultImagePath();
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
         OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setFontPath("font.ttf");
+        FontProvider pdfOcrFontProvider = new FontProvider("Font");
+        pdfOcrFontProvider.getFontSet().addFont("font.ttf", PdfEncodings.IDENTITY_H, "Font");
+
+        properties.setFontProvider(pdfOcrFontProvider, "Font");
         properties.setScaleMode(ScaleMode.SCALE_TO_FIT);
 
         PdfHelper.createPdf(pdfPath, file, properties);
@@ -77,9 +95,6 @@ public class PdfFontTest extends ExtendedITextTest {
         Assert.assertTrue(font.isEmbedded());
     }
 
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = com.itextpdf.io.IOException.TypeOfFontIsNotRecognized, count = 1)
-    })
     @Test
     public void testInvalidCustomFontInPdfACMYK() throws IOException {
         String testName = "testInvalidCustomFontInPdf";
@@ -88,7 +103,8 @@ public class PdfFontTest extends ExtendedITextTest {
         File file = new File(path);
 
         PdfHelper.createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties().setFontPath(path),
+                new OcrPdfCreatorProperties()
+                        .setFontProvider(new PdfOcrFontProvider()),
                 PdfHelper.getCMYKPdfOutputIntent());
 
         ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
@@ -105,9 +121,11 @@ public class PdfFontTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
+        FontProvider fontProvider = new FontProvider("FreeSans");
+        fontProvider.getFontSet().addFont(PdfHelper.getFreeSansFontPath(), PdfEncodings.IDENTITY_H, "FreeSans");
         PdfHelper.createPdfA(pdfPath, file,
                 new OcrPdfCreatorProperties()
-                        .setFontPath(PdfHelper.getFreeSansFontPath()),
+                        .setFontProvider(fontProvider, "FreeSans"),
                 PdfHelper.getCMYKPdfOutputIntent());
 
         ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
@@ -118,7 +136,7 @@ public class PdfFontTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 1)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 7)
     })
     @Test
     public void testThaiImageWithNotDefGlyphs() throws IOException {
@@ -138,5 +156,40 @@ public class PdfFontTest extends ExtendedITextTest {
                 null);
         Assert.assertNotEquals(PdfHelper.THAI_TEXT, resultWithoutUseActualText);
         Assert.assertNotEquals(resultWithoutUseActualText, resultWithActualText);
+    }
+
+    @Test
+    public void testReusingFontProvider() throws IOException {
+        String testName = "testReusingFontProvider";
+        String path = PdfHelper.getDefaultImagePath();
+        String pdfPathA3u = PdfHelper.getTargetDirectory() + testName + "_a3u.pdf";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+        File file = new File(path);
+
+        FontProvider fontProvider = new FontProvider("FreeSans");
+        fontProvider.addFont(PdfHelper.getFreeSansFontPath());
+        PdfOcrFontProvider pdfOcrFontProvider = new PdfOcrFontProvider(
+                fontProvider.getFontSet(), "FreeSans");
+
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setFontProvider(pdfOcrFontProvider);
+        PdfHelper.createPdfA(pdfPathA3u, file, ocrPdfCreatorProperties,
+                PdfHelper.getCMYKPdfOutputIntent());
+
+        PdfHelper.createPdf(pdfPath, file, ocrPdfCreatorProperties);
+
+        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPathA3u);
+        PdfFont font = strategy.getPdfFont();
+        String fontName = font.getFontProgram().getFontNames().getFontName();
+        Assert.assertTrue(fontName.contains("FreeSans"));
+        Assert.assertTrue(font.isEmbedded());
+        Assert.assertEquals(PdfHelper.DEFAULT_TEXT, strategy.getResultantText());
+
+        strategy = PdfHelper.getExtractionStrategy(pdfPath);
+        font = strategy.getPdfFont();
+        fontName = font.getFontProgram().getFontNames().getFontName();
+        Assert.assertTrue(fontName.contains("FreeSans"));
+        Assert.assertTrue(font.isEmbedded());
+        Assert.assertEquals(PdfHelper.DEFAULT_TEXT, strategy.getResultantText());
     }
 }
