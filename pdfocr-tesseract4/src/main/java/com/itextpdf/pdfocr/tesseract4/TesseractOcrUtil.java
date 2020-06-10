@@ -273,10 +273,16 @@ class TesseractOcrUtil {
     static ITesseract initializeTesseractInstance(final boolean isWindows,
             final String tessData, final String languages,
             final String userWordsFilePath) {
-        if (isWindows) {
-            return new Tesseract1();
-        } else {
-            return new Tesseract();
+        try {
+            if (isWindows) {
+                return new Tesseract1();
+            } else {
+                return new Tesseract();
+            }
+        } catch (LinkageError e) {
+            throw new Tesseract4OcrException(isWindows ?
+                    Tesseract4OcrException.TESSERACT_LIB_NOT_INSTALLED_WIN :
+                    Tesseract4OcrException.TESSERACT_LIB_NOT_INSTALLED, e);
         }
     }
 

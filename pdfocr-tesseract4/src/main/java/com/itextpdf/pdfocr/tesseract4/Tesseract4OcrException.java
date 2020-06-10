@@ -13,6 +13,10 @@ public class Tesseract4OcrException extends OcrException {
             "Cannot read input image {0}";
     public static final String TESSERACT_FAILED = "Tesseract failed. "
             + "Please check provided parameters";
+    public static final String TESSERACT_LIB_NOT_INSTALLED = "Tesseract failed. "
+            + "Please ensure you have tesseract library installed";
+    public static final String TESSERACT_LIB_NOT_INSTALLED_WIN = "Tesseract failed. "
+            + "Please ensure you have latest Visual C++ Redistributable installed";
     public static final String TESSERACT_NOT_FOUND = "Tesseract failed. "
             + "Please check that tesseract is installed and provided path to "
             + "tesseract executable directory is correct";
