@@ -20,33 +20,15 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.pdfocr.events.multithreading;
 
-import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import java.io.File;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.experimental.categories.Category;
 
-public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
-    @Test
-    public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
+@Category(IntegrationTest.class)
+public class MultiThreadingExecutableTest extends MultiThreadingTest {
+    public MultiThreadingExecutableTest() {
+        super(ReaderType.EXECUTABLE);
     }
 }

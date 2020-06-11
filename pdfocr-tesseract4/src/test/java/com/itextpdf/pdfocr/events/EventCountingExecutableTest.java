@@ -20,33 +20,34 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.pdfocr.events;
 
-import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.experimental.categories.Category;
 
-public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
+@Category(IntegrationTest.class)
+public class EventCountingExecutableTest extends EventCountingTest {
+    public EventCountingExecutableTest() {
+        super(ReaderType.EXECUTABLE);
     }
 
     @Test
-    public void testReadingInvalidImagePath() {
+    @LogMessages(messages = {@LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)})
+    public void testEventCountingCustomMetaInfoError() {
+        String imgPath = new File(TEST_IMAGES_DIRECTORY + "numbers_101.jpg").getAbsolutePath();
+
         junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
+        junitExpectedException
+                .expectMessage(MessageFormatUtil.format(Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, imgPath));
+
+        super.testEventCountingCustomMetaInfoError();
     }
 }

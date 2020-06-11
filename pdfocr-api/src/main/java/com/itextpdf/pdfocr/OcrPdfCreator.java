@@ -22,19 +22,19 @@
  */
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.font.otf.ActualTextIterator;
 import com.itextpdf.io.font.otf.Glyph;
 import com.itextpdf.io.font.otf.GlyphLine;
-import com.itextpdf.io.font.otf.GlyphLine.GlyphLinePart;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.kernel.counter.event.IMetaInfo;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfTrueTypeFont;
 import com.itextpdf.kernel.font.PdfType0Font;
 import com.itextpdf.kernel.font.PdfType1Font;
 import com.itextpdf.kernel.font.PdfType3Font;
 import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;
@@ -50,20 +50,18 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
-import com.itextpdf.layout.font.FontInfo;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.pdfa.PdfADocument;
+import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo.PdfDocumentType;
+import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,16 +163,32 @@ public class OcrPdfCreator {
                 PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES,
                 inputImages.size()));
 
+        IMetaInfo storedMetaInfo = null;
+        if (ocrEngine instanceof IThreadLocalMetaInfoAware) {
+            storedMetaInfo = ((IThreadLocalMetaInfoAware)ocrEngine).getThreadLocalMetaInfo();
+            ((IThreadLocalMetaInfoAware)ocrEngine).setThreadLocalMetaInfo(
+                    new OcrPdfCreatorMetaInfo(((IThreadLocalMetaInfoAware)ocrEngine).getThreadLocalMetaInfo(),
+                            UUID.randomUUID(),
+                            null != pdfOutputIntent ? PdfDocumentType.PDFA : PdfDocumentType.PDF));
+        }
+
         // map contains:
         // keys: image files
         // values:
         // map pageNumber -> retrieved text data(text and its coordinates)
         Map<File, Map<Integer, List<TextInfo>>> imagesTextData =
                 new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
-        for (File inputImage : inputImages) {
-            imagesTextData.put(inputImage,
-                    ocrEngine.doImageOcr(inputImage));
+        try {
+            for (File inputImage : inputImages) {
+                imagesTextData.put(inputImage,
+                        ocrEngine.doImageOcr(inputImage));
+            }
+        } finally {
+            if (ocrEngine instanceof IThreadLocalMetaInfoAware) {
+                ((IThreadLocalMetaInfoAware)ocrEngine).setThreadLocalMetaInfo(storedMetaInfo);
+            }
         }
+
 
         // create PdfDocument
         return createPdfDocument(pdfWriter, pdfOutputIntent, imagesTextData);
@@ -293,9 +307,11 @@ public class OcrPdfCreator {
         boolean createPdfA3u = pdfOutputIntent != null;
         if (createPdfA3u) {
             pdfDocument = new PdfADocument(pdfWriter,
-                    PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent);
+                    PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent,
+                    new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
         } else {
-            pdfDocument = new PdfDocument(pdfWriter);
+            pdfDocument = new PdfDocument(pdfWriter,
+                    new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
         }
 
         // pdfLang should be set in PDF/A mode

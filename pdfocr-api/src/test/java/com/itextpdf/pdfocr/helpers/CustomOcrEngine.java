@@ -22,9 +22,11 @@
  */
 package com.itextpdf.pdfocr.helpers;
 
+import com.itextpdf.kernel.counter.event.IMetaInfo;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
 
 import java.io.File;
 import java.util.Arrays;
@@ -33,9 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomOcrEngine implements IOcrEngine {
+public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
 
     private OcrEngineProperties ocrEngineProperties;
+    private IMetaInfo threadLocalMetaInfo;
 
     public CustomOcrEngine() {
     }
@@ -60,6 +63,17 @@ public class CustomOcrEngine implements IOcrEngine {
 
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
+    }
+
+    @Override
+    public IMetaInfo getThreadLocalMetaInfo() {
+        return threadLocalMetaInfo;
+    }
+
+    @Override
+    public IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo) {
+        this.threadLocalMetaInfo = metaInfo;
+        return this;
     }
 
     public OcrEngineProperties getOcrEngineProperties() {

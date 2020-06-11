@@ -20,33 +20,26 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.pdfocr.events;
 
-import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.kernel.counter.event.IMetaInfo;
 
-import java.io.File;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+/**
+ * The interface which holds a thread local meta info,
+ * meaning different threads operate with independent and different meta infos.
+ */
+public interface IThreadLocalMetaInfoAware {
 
-public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
+    /**
+     * Gets the meta info which is held by the interface.
+     * @return the held thread local meta info
+     */
+    IMetaInfo getThreadLocalMetaInfo();
 
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
-    @Test
-    public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
-    }
+    /**
+     * Sets a thread local meta info.
+     * @param metaInfo a thread local meta info to be held
+     * @return this {@link IThreadLocalMetaInfoAware}
+     */
+    IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo);
 }

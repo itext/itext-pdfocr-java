@@ -113,6 +113,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
+        scheduledCheck();
         List<String> params = new ArrayList<String>();
         String execPath = null;
         String imagePath = null;
@@ -162,7 +163,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             }
             // set default user defined dpi
             addDefaultDpi(params);
-
+            onEvent();
             TesseractHelper.runCommand(isWindows() ? "cmd" : "bash",
                     createCommandList(moveToDirectoryParams, params));
         } catch (Tesseract4OcrException e) {

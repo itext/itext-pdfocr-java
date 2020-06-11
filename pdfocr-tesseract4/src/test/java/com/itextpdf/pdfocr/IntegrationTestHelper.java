@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -121,7 +122,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());
         tesseractLibReader = new Tesseract4LibOcrEngine(ocrEngineProperties);
         tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
-                    getTesseractDirectory(), ocrEngineProperties);
+                getTesseractDirectory(), ocrEngineProperties);
     }
 
     protected static AbstractTesseract4OcrEngine getTesseractReader(ReaderType type) {
@@ -191,7 +192,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from the first page of given PDF document setting font.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
-                          List<String> languages, String fontPath) {
+            List<String> languages, String fontPath) {
         return getTextFromPdf(tesseractReader, file, 1, languages, fontPath);
     }
 
@@ -208,7 +209,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from the required page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file, int page,
-                          List<String> languages) {
+            List<String> languages) {
         return getTextFromPdf(tesseractReader, file, page, languages, new ArrayList<String>());
     }
 
@@ -224,7 +225,8 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
             int page, boolean useActualText) throws IOException {
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath),
+                new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
 
         ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
                 layerName);
@@ -292,7 +294,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected void doOcrAndSaveToTextFile(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-                               String txtPath, List<String> languages) {
+            String txtPath, List<String> languages) {
         if (languages != null) {
             Tesseract4OcrEngineProperties properties =
                     tesseractReader.getTesseract4OcrEngineProperties();
@@ -364,7 +366,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected void doOcrAndSavePdfToPath(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-                               String pdfPath, List<String> languages,
+            String pdfPath, List<String> languages,
             com.itextpdf.kernel.colors.Color color) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, null, color);
@@ -376,7 +378,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * (Text will be invisible)
      */
     protected void doOcrAndSavePdfToPath(AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-                               String pdfPath, List<String> languages, List<String> fonts) {
+            String pdfPath, List<String> languages, List<String> fonts) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, fonts, null);
     }
@@ -388,7 +390,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected void doOcrAndSavePdfToPath(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-                               String pdfPath) {
+            String pdfPath) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath, null,
                 null, null);
     }
@@ -467,7 +469,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
 
         @Override
         protected boolean isChunkAtWordBoundary(TextChunk chunk,
-                                                TextChunk previousChunk) {
+                TextChunk previousChunk) {
             ITextChunkLocation curLoc = chunk.getLocation();
             ITextChunkLocation prevLoc = previousChunk.getLocation();
 

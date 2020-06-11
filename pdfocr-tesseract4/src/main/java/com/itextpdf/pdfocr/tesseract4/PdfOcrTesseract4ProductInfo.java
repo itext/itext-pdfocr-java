@@ -22,31 +22,17 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.pdfocr.IntegrationTestHelper;
+/**
+ * Product info about this iText add-on.
+ */
+public class PdfOcrTesseract4ProductInfo {
 
-import java.io.File;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+    /** The product name. */
+    public static final String PRODUCT_NAME = "pdfOcr-Tesseract4";
 
-public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
+    /** The major version number. */
+    public static final int MAJOR_VERSION = 1;
 
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
-    @Test
-    public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
-    }
+    /** The minor version number. */
+    public static final int MINOR_VERSION = 0;
 }

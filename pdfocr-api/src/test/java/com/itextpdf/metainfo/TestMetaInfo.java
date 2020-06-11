@@ -20,33 +20,15 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.metainfo;
 
-import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.kernel.counter.event.IMetaInfo;
 
-import java.io.File;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
-    @Test
-    public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
-    }
+/**
+ * This class is used for test purposes.
+ * Please be aware that it's put in the com.itextpdf.metainfo deliberately,
+ * so that it belongs neither to com.itextpdf.pdfocr nor com.itextpdf.pdfocr.tesseract4 packages
+ */
+public class TestMetaInfo implements IMetaInfo {
+    private static final long serialVersionUID = 5521060335175170386L;
 }

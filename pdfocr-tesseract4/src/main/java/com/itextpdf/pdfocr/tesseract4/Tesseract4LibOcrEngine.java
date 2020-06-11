@@ -138,11 +138,12 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
+        scheduledCheck();
         try {
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
-
+            onEvent();
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();

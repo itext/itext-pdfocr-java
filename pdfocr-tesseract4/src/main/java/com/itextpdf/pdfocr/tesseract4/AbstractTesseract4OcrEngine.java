@@ -23,8 +23,14 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.kernel.counter.EventCounterHandler;
+import com.itextpdf.kernel.counter.event.IMetaInfo;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo;
+import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo.PdfDocumentType;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
+import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * Also there are possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems).
  */
-public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
+public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
 
     /**
      * Supported image formats.
@@ -58,10 +64,14 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
                     Arrays.<String>asList("bmp", "png", "tiff", "tif", "jpeg",
                             "jpg", "jpe", "jfif")));
 
+    Set<UUID> processedUUID = new HashSet<>();
+
     /**
      * Set of properties.
      */
     private Tesseract4OcrEngineProperties tesseract4OcrEngineProperties;
+
+    private ThreadLocal<IMetaInfo> threadLocalMetaInfo = new ThreadLocal<>();
 
     public AbstractTesseract4OcrEngine(
             Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
@@ -263,6 +273,23 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IMetaInfo getThreadLocalMetaInfo() {
+        return threadLocalMetaInfo.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo) {
+        this.threadLocalMetaInfo.set(metaInfo);
+        return this;
+    }
+
+    /**
      * Performs tesseract OCR using command line tool
      * or a wrapper for Tesseract OCR API.
      *
@@ -371,6 +398,29 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
         } else {
             return getTesseract4OcrEngineProperties().getPathToTessData()
                     .getAbsolutePath();
+        }
+    }
+
+    void scheduledCheck() {
+        ReflectionUtils.scheduledCheck();
+    }
+
+    void onEvent() {
+        IMetaInfo metaInfo = this.getThreadLocalMetaInfo();
+        if (!(metaInfo instanceof OcrPdfCreatorMetaInfo)) {
+            EventCounterHandler.getInstance()
+                    .onEvent(PdfOcrTesseract4Event.TESSERACT4_IMAGE_OCR, this.getThreadLocalMetaInfo(), getClass());
+        } else {
+            UUID uuid = ((OcrPdfCreatorMetaInfo) metaInfo).getDocumentId();
+            if (!processedUUID.contains(uuid)) {
+                processedUUID.add(uuid);
+                EventCounterHandler.getInstance()
+                        .onEvent(PdfDocumentType.PDFA.equals(((OcrPdfCreatorMetaInfo) metaInfo).getPdfDocumentType())
+                                        ? PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDFA
+                                        : PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDF,
+                                ((OcrPdfCreatorMetaInfo) metaInfo).getWrappedMetaInfo(), getClass());
+
+            }
         }
     }
 
