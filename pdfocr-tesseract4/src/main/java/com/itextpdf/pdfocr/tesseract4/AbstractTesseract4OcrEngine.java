@@ -78,7 +78,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
-    public abstract void doTesseractOcr(File inputImage,
+    abstract void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat,
             int pageNumber);
 

@@ -117,7 +117,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
     }
 
     /**
-     * Performs tesseract OCR using command line tool for the selected page
+     * Performs tesseract OCR using wrapper for Tesseract OCR API for the selected page
      * of input image (by default 1st).
      *
      * @param inputImage input image {@link java.io.File}
@@ -126,7 +126,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
-    public void doTesseractOcr(final File inputImage,
+    void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
         try {

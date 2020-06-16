@@ -98,7 +98,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
-    public void doTesseractOcr(final File inputImage,
+    void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber) {
         List<String> params = new ArrayList<String>();
