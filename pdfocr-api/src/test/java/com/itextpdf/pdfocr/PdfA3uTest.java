@@ -60,8 +60,12 @@ public class PdfA3uTest extends ExtendedITextTest {
         String path = PdfHelper.getDefaultImagePath();
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setTextColor(DeviceCmyk.BLACK);
+
         PdfHelper.createPdfA(pdfPath, new File(path),
-                new OcrPdfCreatorProperties().setTextColor(DeviceCmyk.BLACK),
+                ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
     }
 
@@ -72,15 +76,19 @@ public class PdfA3uTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
+
         PdfHelper.createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
+                ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
         Assert.assertEquals("en-US",
                 pdfDocument.getCatalog().getLang().toString());
-        Assert.assertEquals("",
+        Assert.assertEquals(null,
                 pdfDocument.getDocumentInfo().getTitle());
         Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U,
                 pdfDocument.getReader().getPdfAConformanceLevel());
@@ -130,8 +138,12 @@ public class PdfA3uTest extends ExtendedITextTest {
         String path = PdfHelper.getThaiImagePath();
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
+
         PdfHelper.createPdfA(pdfPath, new File(path),
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
+                ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
     }
 
@@ -142,6 +154,7 @@ public class PdfA3uTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
         ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
 
         FontProvider fontProvider = new FontProvider("Kanit");
@@ -167,5 +180,25 @@ public class PdfA3uTest extends ExtendedITextTest {
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("Kanit"));
         Assert.assertTrue(font.isEmbedded());
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+    })
+    @Test
+    public void testPdfACreateWithoutPdfLangProperty()
+            throws IOException {
+        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil.format(
+                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET));
+
+        String testName = "testPdfACreateWithoutPdfLangProperty";
+        String path = PdfHelper.getThaiImagePath();
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdfA(pdfPath, new File(path),
+                new OcrPdfCreatorProperties(),
+                PdfHelper.getRGBPdfOutputIntent());
     }
 }

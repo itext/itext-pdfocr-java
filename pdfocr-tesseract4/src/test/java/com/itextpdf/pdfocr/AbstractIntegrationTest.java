@@ -295,7 +295,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             tesseractReader.setTesseract4OcrEngineProperties(properties);
         }
 
-        tesseractReader.createTxt(Collections.<File>singletonList(new File(imgPath)),
+        tesseractReader.createTxtFile(Collections.<File>singletonList(new File(imgPath)),
                 new File(txtPath));
 
         if (languages != null) {
@@ -319,7 +319,11 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
             properties.setLanguages(languages);
             tesseractReader.setTesseract4OcrEngineProperties(properties);
         }
+
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
+        properties.setPdfLang("en-US");
+        properties.setTitle("");
+
         if (fonts != null && fonts.size() > 0) {
             FontProvider fontProvider = new FontProvider();
             for (String fontPath : fonts) {

@@ -29,9 +29,11 @@ public interface IOcrEngine {
     /**
      * Performs OCR using provided {@link IOcrEngine} for the given list of
      * input images and saves output to a text file using provided path.
+     * Note that a human reading order is not guaranteed
+     * due to possible specifics of input images (multi column layout, tables etc)
      *
      * @param inputImages {@link java.util.List} of images to be OCRed
      * @param txtFile file to be created
      */
-    void createTxt(List<File> inputImages, File txtFile);
+    void createTxtFile(List<File> inputImages, File txtFile);
 }

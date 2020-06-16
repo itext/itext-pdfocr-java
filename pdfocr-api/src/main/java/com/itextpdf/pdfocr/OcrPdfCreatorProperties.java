@@ -60,15 +60,14 @@ public class OcrPdfCreatorProperties {
 
     /**
      * PDF Language.
-     * "en-US" by default.
      */
-    private String pdfLang = "en-US";
+    private String pdfLang = "";
 
     /**
      * Title of the created document.
-     * It is empty by default.
+     * It is not set by default.
      */
-    private String title = "";
+    private String title = null;
 
     /**
      * Creates a new {@link OcrPdfCreatorProperties} instance.
@@ -106,6 +105,7 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Sets text color in output PDF document.
+     * Text will be transparent by default.
      *
      * @param textColor required text {@link com.itextpdf.kernel.colors.Color}
      * @return the {@link OcrPdfCreatorProperties} instance
@@ -150,8 +150,7 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Sets required size for output PDF document. Real size of the page will
-     * be calculated according to the selected {@link ScaleMode}.
+     * Sets required size for output PDF document.
      *
      * @param pageSize requested page
      *                size as {@link com.itextpdf.kernel.geom.Rectangle}
@@ -225,8 +224,8 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Specify PDF natural language, and optionally locale.
-     * For the content usage dictionary use
-     * {@link com.itextpdf.kernel.pdf.PdfName#Language}
+     * Language identifier shall either be the empty text string, to indicate that the language is unknown,
+     * or a Language-Tag as defined in BCP 47 (2009), Tags for the Identification of Languages.
      *
      * @param language PDF document language as {@link java.lang.String},
      *                 e.g. "en-US", etc.

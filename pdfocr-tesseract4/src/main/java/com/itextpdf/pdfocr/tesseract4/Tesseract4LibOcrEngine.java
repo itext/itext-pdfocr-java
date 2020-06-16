@@ -43,9 +43,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
     }
 
     /**
-     * Gets tesseract instance depending on the OS type.
-     * If instance is null or it was already disposed, it will be initialized
-     * with parameters.
+     * Gets tesseract instance.
      *
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} instance
      */

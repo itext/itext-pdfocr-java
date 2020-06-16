@@ -37,7 +37,7 @@ public class CustomOcrEngine implements IOcrEngine {
     }
 
     @Override
-    public void createTxt(List<File> inputImages, File txtFile) {
+    public void createTxtFile(List<File> inputImages, File txtFile) {
     }
 
     public OcrEngineProperties getOcrEngineProperties() {

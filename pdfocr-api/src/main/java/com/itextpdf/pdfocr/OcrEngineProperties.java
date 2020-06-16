@@ -39,6 +39,8 @@ public class OcrEngineProperties {
 
     /**
      * Sets list of languages to be recognized in provided images.
+     * Consult with documentation of specific engine implementations
+     * to check on which format to give the language in.
      *
      * @param requiredLanguages {@link List} of languages in string
      *                                               format

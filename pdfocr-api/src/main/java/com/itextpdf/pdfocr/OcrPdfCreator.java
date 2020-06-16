@@ -276,13 +276,30 @@ public class OcrPdfCreator {
             pdfDocument = new PdfDocument(pdfWriter);
         }
 
+        // pdfLang should be set in PDF/A mode
+        boolean hasPdfLangProperty = ocrPdfCreatorProperties.getPdfLang() != null
+                && !ocrPdfCreatorProperties.getPdfLang().equals("");
+        if (createPdfA3u && !hasPdfLangProperty) {
+            LOGGER.error(MessageFormatUtil.format(
+                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                    PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET));
+            throw new OcrException(OcrException.CANNOT_CREATE_PDF_DOCUMENT)
+                    .setMessageParams(PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET);
+        }
+
         // add metadata
-        pdfDocument.getCatalog()
-                .setLang(new PdfString(ocrPdfCreatorProperties.getPdfLang()));
-        pdfDocument.getCatalog().setViewerPreferences(
-                new PdfViewerPreferences().setDisplayDocTitle(true));
-        PdfDocumentInfo info = pdfDocument.getDocumentInfo();
-        info.setTitle(ocrPdfCreatorProperties.getTitle());
+        if (hasPdfLangProperty) {
+            pdfDocument.getCatalog()
+                    .setLang(new PdfString(ocrPdfCreatorProperties.getPdfLang()));
+        }
+
+        // set title if it is not empty
+        if (ocrPdfCreatorProperties.getTitle() != null) {
+            pdfDocument.getCatalog().setViewerPreferences(
+                    new PdfViewerPreferences().setDisplayDocTitle(true));
+            PdfDocumentInfo info = pdfDocument.getDocumentInfo();
+            info.setTitle(ocrPdfCreatorProperties.getTitle());
+        }
 
         // reset passed font provider
         ocrPdfCreatorProperties.getFontProvider().reset();

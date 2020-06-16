@@ -80,7 +80,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
      * @param inputImages {@link java.util.List} of images to be OCRed
      * @param txtFile file to be created
      */
-    public void createTxt(final List<File> inputImages, final File txtFile) {
+    public void createTxtFile(final List<File> inputImages, final File txtFile) {
         LoggerFactory.getLogger(getClass())
                 .info(MessageFormatUtil.format(
                 Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,

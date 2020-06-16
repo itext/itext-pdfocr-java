@@ -84,8 +84,12 @@ public class PdfFontTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
+
         PdfHelper.createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK),
+                ocrPdfCreatorProperties,
                 PdfHelper.getRGBPdfOutputIntent());
         ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
 
@@ -102,9 +106,12 @@ public class PdfFontTest extends ExtendedITextTest {
         String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setFontProvider(new PdfOcrFontProvider());
+
         PdfHelper.createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties()
-                        .setFontProvider(new PdfOcrFontProvider()),
+                ocrPdfCreatorProperties,
                 PdfHelper.getCMYKPdfOutputIntent());
 
         ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
@@ -123,9 +130,13 @@ public class PdfFontTest extends ExtendedITextTest {
 
         FontProvider fontProvider = new FontProvider("FreeSans");
         fontProvider.getFontSet().addFont(PdfHelper.getFreeSansFontPath(), PdfEncodings.IDENTITY_H, "FreeSans");
+
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setFontProvider(fontProvider, "FreeSans");
+
         PdfHelper.createPdfA(pdfPath, file,
-                new OcrPdfCreatorProperties()
-                        .setFontProvider(fontProvider, "FreeSans"),
+                ocrPdfCreatorProperties,
                 PdfHelper.getCMYKPdfOutputIntent());
 
         ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
@@ -172,7 +183,9 @@ public class PdfFontTest extends ExtendedITextTest {
                 fontProvider.getFontSet(), "FreeSans");
 
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
         ocrPdfCreatorProperties.setFontProvider(pdfOcrFontProvider);
+
         PdfHelper.createPdfA(pdfPathA3u, file, ocrPdfCreatorProperties,
                 PdfHelper.getCMYKPdfOutputIntent());
 

@@ -72,11 +72,11 @@ class PdfCreatorUtil {
             while (Math.abs(fontSize - maxFontSize) > 1e-1) {
                 float curFontSize = (fontSize + maxFontSize) / 2;
                 paragraph.setFontSize(curFontSize);
-                IRenderer renderer = paragraph.createRendererSubTree()
+                ParagraphRenderer renderer = (ParagraphRenderer) paragraph.createRendererSubTree()
                         .setParent(document.getRenderer());
                 LayoutContext context = new LayoutContext(
                         new LayoutArea(1, bbox));
-                if (renderer.layout(context).getStatus() == LayoutResult.FULL) {
+                if (renderer.layout(context).getStatus() == LayoutResult.FULL && renderer.getLines().size() == 1) {
                     fontSize = curFontSize;
                 } else {
                     maxFontSize = curFontSize;

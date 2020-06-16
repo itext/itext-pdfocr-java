@@ -47,7 +47,12 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_a3u.pdf";
 
         try {
-            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
+            OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+            ocrPdfCreatorProperties.setPdfLang("en-US");
+            ocrPdfCreatorProperties.setTitle("");
+
+            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader,
+                    ocrPdfCreatorProperties);
 
             tesseractReader.setTesseract4OcrEngineProperties(
                     tesseractReader.getTesseract4OcrEngineProperties()
@@ -90,8 +95,13 @@ public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
         properties.setLanguages(Collections.<String>singletonList("spa"));
         tesseractReader.setTesseract4OcrEngineProperties(properties);
 
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setPdfLang("en-US");
+        ocrPdfCreatorProperties.setTitle("");
+        ocrPdfCreatorProperties.setTextColor(DeviceRgb.BLACK);
+
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader,
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK));
+                ocrPdfCreatorProperties);
 
         PdfDocument doc = ocrPdfCreator.createPdfA(
                 Collections.<File>singletonList(
