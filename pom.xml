@@ -25,7 +25,6 @@
     <itext.version>7.1.11</itext.version>
     <java.version>1.8</java.version>
     <jdkLevel>${java.version}</jdkLevel>
-    <licensekey.version>3.0.0</licensekey.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <skipTests>false</skipTests>
