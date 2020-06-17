@@ -25,7 +25,7 @@ package com.itextpdf.pdfocr.pdflayers;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
@@ -38,7 +38,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class PdfLayersIntegrationTest extends AbstractIntegrationTest {
+public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
 
     AbstractTesseract4OcrEngine tesseractReader;
 

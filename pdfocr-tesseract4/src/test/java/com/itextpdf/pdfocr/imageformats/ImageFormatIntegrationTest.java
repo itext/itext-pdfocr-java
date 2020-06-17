@@ -25,7 +25,7 @@ package com.itextpdf.pdfocr.imageformats;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
@@ -43,7 +43,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public abstract class ImageFormatIntegrationTest extends AbstractIntegrationTest {
+public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();

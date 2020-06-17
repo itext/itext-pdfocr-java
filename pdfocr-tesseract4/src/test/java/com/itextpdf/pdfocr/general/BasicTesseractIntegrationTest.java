@@ -30,7 +30,7 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
@@ -57,7 +57,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationTest {
+public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelper {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
@@ -372,6 +372,16 @@ public abstract class BasicTesseractIntegrationTest extends AbstractIntegrationT
 
         String result = getTextFromTextFile(outputFile);
         Assert.assertTrue(result.contains(expected));
+    }
+
+    @Test
+    public void testSimpleTextOutput() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+        String expectedOutput = "619121";
+
+        Assert.assertTrue(
+                getRecognizedTextFromTextFile(tesseractReader, imgPath)
+                        .contains(expectedOutput));
     }
 
     /**

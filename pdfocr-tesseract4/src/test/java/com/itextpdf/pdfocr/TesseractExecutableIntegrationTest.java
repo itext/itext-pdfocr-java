@@ -37,7 +37,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 @Category(IntegrationTest.class)
-public class TesseractExecutableIntegrationTest extends AbstractIntegrationTest {
+public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();

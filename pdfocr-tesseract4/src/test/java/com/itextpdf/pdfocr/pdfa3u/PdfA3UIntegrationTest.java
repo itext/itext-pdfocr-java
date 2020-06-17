@@ -26,7 +26,7 @@ import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
@@ -44,7 +44,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public abstract class PdfA3UIntegrationTest extends AbstractIntegrationTest {
+public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
 
     // path to default cmyk color profile
     private static final String DEFAULT_CMYK_COLOR_PROFILE_PATH = TEST_DIRECTORY + "profiles/CoatedFOGRA27.icc";

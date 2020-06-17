@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class ApiTest extends AbstractIntegrationTest {
+public class ApiTest extends IntegrationTestHelper {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();

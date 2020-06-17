@@ -25,7 +25,6 @@ package com.itextpdf.pdfocr;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -60,16 +59,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Category(IntegrationTest.class)
-public class AbstractIntegrationTest extends ExtendedITextTest {
+public class IntegrationTestHelper extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractIntegrationTest.class);
+            .getLogger(IntegrationTestHelper.class);
 
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
@@ -113,20 +111,7 @@ public class AbstractIntegrationTest extends ExtendedITextTest {
     private static Tesseract4LibOcrEngine tesseractLibReader = null;
     private static Tesseract4ExecutableOcrEngine tesseractExecutableReader = null;
 
-    @Test
-    public void testSimpleTextOutput() {
-        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        String expectedOutput = "619121";
-
-        Assert.assertTrue(
-                getRecognizedTextFromTextFile(getTesseractReader(ReaderType.EXECUTABLE), imgPath)
-                        .contains(expectedOutput));
-        Assert.assertTrue(
-                getRecognizedTextFromTextFile(getTesseractReader(ReaderType.LIB), imgPath)
-                        .contains(expectedOutput));
-    }
-
-    public AbstractIntegrationTest() {
+    public IntegrationTestHelper() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());

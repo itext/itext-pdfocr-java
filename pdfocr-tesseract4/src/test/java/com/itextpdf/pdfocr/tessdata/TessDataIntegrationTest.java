@@ -26,7 +26,7 @@ import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.AbstractIntegrationTest;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
@@ -54,7 +54,7 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class TessDataIntegrationTest extends AbstractIntegrationTest {
+public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TessDataIntegrationTest.class);
