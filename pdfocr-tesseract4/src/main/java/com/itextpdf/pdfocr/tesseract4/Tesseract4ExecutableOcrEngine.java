@@ -240,8 +240,8 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      */
     private void addPageSegMode(final List<String> command) {
         if (getTesseract4OcrEngineProperties().getPageSegMode() != null) {
-            command.add("--psm");
-            command.add(String.valueOf(getTesseract4OcrEngineProperties().getPageSegMode()));
+            command.add("-c");
+            command.add("tessedit_pageseg_mode=" + getTesseract4OcrEngineProperties().getPageSegMode());
         }
     }
 

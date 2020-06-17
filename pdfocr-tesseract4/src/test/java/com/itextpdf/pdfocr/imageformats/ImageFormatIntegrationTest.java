@@ -218,7 +218,8 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
-                        .setPreprocessingImages(false));
+                        .setPreprocessingImages(false)
+                        .setPageSegMode(null));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         Assert.assertTrue(realOutputHocr.contains(expectedOutput));

@@ -22,13 +22,91 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
+import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.tesseract4.OutputFormat;
+import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Category(IntegrationTest.class)
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     public TessDataIntegrationLibTest() {
         super(ReaderType.LIB);
     }
+
+    @Test(timeout = 30000)
+    public void textOutputFromHalftoneFile() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "halftone.jpg";
+        String expected01 = "Silliness Enablers";
+        String expected02 = "You dream it, we enable it";
+        String expected03 = "QUANTITY";
+
+        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath,
+                Collections.<String>singletonList("eng"));
+
+        // correct result for a halftone input image
+        Assert.assertTrue(result.contains(expected01));
+        Assert.assertTrue(result.contains(expected02));
+        Assert.assertTrue(result.contains(expected03));
+    }
+
+    @Test(timeout = 30000)
+    public void hocrOutputFromHalftoneFile() throws java.io.IOException {
+        String path = TEST_IMAGES_DIRECTORY + "halftone.jpg";
+        String expected01 = "Silliness";
+        String expected02 = "Enablers";
+        String expected03 = "You";
+        String expected04 = "Middle";
+        String expected05 = "André";
+        String expected06 = "QUANTITY";
+        String expected07 = "DESCRIPTION";
+        String expected08 = "Silliness Enablers";
+        String expected09 = "QUANTITY DESCRIPTION UNIT PRICE TOTAL";
+
+        File imgFile = new File(path);
+        File outputFile = new File(getTargetDirectory()
+                + "hocrOutputFromHalftoneFile.hocr");
+
+        tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
+        Map<Integer, List<TextInfo>> pageData = TesseractHelper
+                .parseHocrFile(Collections.<File>singletonList(outputFile),
+                        TextPositioning.BY_WORDS
+                );
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected01));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected02));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected03));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected04));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected05));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected06));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected07));
+
+        pageData = TesseractHelper
+                .parseHocrFile(Collections.<File>singletonList(outputFile),
+                        TextPositioning.BY_LINES
+                );
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected08));
+        Assert.assertTrue(findTextInPageData(pageData, 1, expected09));
+    }
+
+    /**
+     * Searches for certain text in page data.
+     */
+    private boolean findTextInPageData(Map<Integer, List<TextInfo>> pageData, int page, String textToSearchFor) {
+        for (TextInfo textInfo : pageData.get(page)) {
+            if (textToSearchFor.equals(textInfo.getText())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

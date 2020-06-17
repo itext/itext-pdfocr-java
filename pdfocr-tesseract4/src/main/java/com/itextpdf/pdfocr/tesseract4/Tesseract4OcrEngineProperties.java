@@ -64,7 +64,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     /**
      * Page Segmentation Mode.
      */
-    private Integer pageSegMode;
+    private Integer pageSegMode = 3;
 
     /**
      * "True" - if images need to be preprocessed, otherwise - false.
@@ -169,6 +169,10 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * Sets Page Segmentation Mode.
      * More detailed explanation about psm modes could be found
      * here https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#options
+     * Note that in documentation it is stated that default value of PSM is 3.
+     * This is true for tesseract executable,
+     * but for tesseract lib it is -1 which has negative impact on some documents.
+     * That's why in the code we set it explicitly to 3.
      *
      * @param mode psm mode as {@link java.lang.Integer}
      * @return the {@link Tesseract4OcrEngineProperties} instance
