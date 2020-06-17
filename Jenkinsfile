@@ -52,10 +52,10 @@ pipeline {
             steps {
                 script {
                     properties[[
-                            $class: 'BuildBlockerProperty',
-                            blockLevel: 'GLOBAL',
-                            blockingJobs: ".*/itextcore/${env.JOB_BASE_NAME}",
-                            scanQueueFor: 'ALL',
+                            $class         : 'BuildBlockerProperty',
+                            blockLevel     : 'GLOBAL',
+                            blockingJobs   : "^iText_7_Java/itextcore/$env.JOB_BASE_NAME\$",
+                            scanQueueFor   : 'ALL',
                             useBuildBlocker: true
                     ]]
                 }
