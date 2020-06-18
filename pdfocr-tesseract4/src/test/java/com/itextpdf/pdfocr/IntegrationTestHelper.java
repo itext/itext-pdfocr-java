@@ -95,14 +95,18 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     // path to font for georgian
     protected static final String FREE_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "FreeSans.ttf";
 
-    protected static final Map<String, String> FONT_PATH_TO_FONT_NAME_MAP = new HashMap<String, String>() {{
-        put(NOTO_SANS_FONT_PATH, "NotoSans");
-        put(KOSUGI_FONT_PATH, "Kosugi");
-        put(NOTO_SANS_SC_FONT_PATH, "NotoSansSC");
-        put(CAIRO_FONT_PATH, "Cairo");
-        put(FREE_SANS_FONT_PATH, "FreeSans");
-    }};
+    protected static final Map<String, String> FONT_PATH_TO_FONT_NAME_MAP;
 
+    static {
+        Map<String, String> fontPathToNameMap = new HashMap<>();
+        fontPathToNameMap.put(NOTO_SANS_FONT_PATH, "NotoSans");
+        fontPathToNameMap.put(KOSUGI_FONT_PATH, "Kosugi");
+        fontPathToNameMap.put(NOTO_SANS_SC_FONT_PATH, "NotoSansSC");
+        fontPathToNameMap.put(CAIRO_FONT_PATH, "Cairo");
+        fontPathToNameMap.put(FREE_SANS_FONT_PATH, "FreeSans");
+        FONT_PATH_TO_FONT_NAME_MAP = Collections.unmodifiableMap(fontPathToNameMap);
+    }
+    
     public enum ReaderType {
         LIB,
         EXECUTABLE
