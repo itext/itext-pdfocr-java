@@ -92,6 +92,12 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * Performs tesseract OCR using command line tool for the selected page
      * of input image (by default 1st).
      *
+     * Please note that list of output files is accepted instead of a single file because
+     * page number parameter is not respected in case of TIFF images not requiring preprocessing.
+     * In other words, if the passed image is the TIFF image and according to the {@link Tesseract4OcrEngineProperties}
+     * no preprocessing is needed, each page of the TIFF image is OCRed and the number of output files in the list
+     * is expected to be same as number of pages in the image, otherwise, only one file is expected
+     *
      * @param inputImage input image {@link java.io.File}
      * @param outputFiles {@link java.util.List} of output files
      *                                          (one per each page)
