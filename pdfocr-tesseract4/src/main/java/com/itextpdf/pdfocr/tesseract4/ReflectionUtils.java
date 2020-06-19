@@ -64,7 +64,7 @@ final class ReflectionUtils {
             callMethod(KERNEL_PACKAGE + CONTEXT_MANAGER, REGISTER_GENERIC_CONTEXT, contextManager,
                     new Class[] {Collection.class, Collection.class},
                     Collections.singletonList("com.itextpdf.pdfocr"),
-                    Collections.emptyList());
+                    Collections.singletonList("com.itextpdf.pdfocr.tesseract4"));
             callMethod(KERNEL_PACKAGE + CONTEXT_MANAGER, REGISTER_GENERIC_CONTEXT, contextManager,
                     new Class[] {Collection.class, Collection.class},
                     Collections.singletonList("com.itextpdf.pdfocr.tesseract4"),
