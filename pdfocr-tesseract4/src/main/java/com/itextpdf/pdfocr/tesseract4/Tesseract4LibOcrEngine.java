@@ -248,16 +248,17 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             final OutputFormat outputFormat,
             final int pageNumber) {
         String result = null;
-        File preprocessed = null;
         try {
             // preprocess if required
             if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
-                preprocessed = new File(
+                // preprocess and try to ocr
+                result = new TesseractOcrUtil().getOcrResultAsString(
+                        getTesseractInstance(),
                         ImagePreprocessingUtil
-                                .preprocessImage(inputImage, pageNumber));
+                                .preprocessImage(inputImage, pageNumber),
+                        outputFormat);
             }
-            if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    || preprocessed == null) {
+            if (result == null) {
                 BufferedImage bufferedImage = ImagePreprocessingUtil
                         .readImage(inputImage);
                 if (bufferedImage != null) {
@@ -268,7 +269,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                     } catch (Exception e) { // NOSONAR
                         LoggerFactory.getLogger(getClass())
                                 .info(MessageFormatUtil.format(
-                                        Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
+                                        Tesseract4LogMessageConstant
+                                                .CANNOT_PROCESS_IMAGE,
                                         e.getMessage()));
                     }
                 }
@@ -278,13 +280,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             .getOcrResultAsString(getTesseractInstance(),
                                     inputImage, outputFormat);
                 }
-            } else {
-                // perform ocr using preprocessed image
-                result = new TesseractOcrUtil()
-                        .getOcrResultAsString(getTesseractInstance(),
-                                preprocessed, outputFormat);
             }
-        } catch (TesseractException e) {
+        } catch (Exception e) { // NOSONAR
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil
                             .format(Tesseract4LogMessageConstant
@@ -293,10 +290,6 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             throw new Tesseract4OcrException(
                     Tesseract4OcrException
                             .TESSERACT_FAILED);
-        } finally {
-            if (preprocessed != null) {
-                TesseractHelper.deleteFile(preprocessed.getAbsolutePath());
-            }
         }
 
         return result;

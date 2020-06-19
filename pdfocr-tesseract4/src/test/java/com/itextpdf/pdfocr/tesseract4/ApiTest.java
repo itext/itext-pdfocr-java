@@ -22,12 +22,16 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.TesseractException;
 import org.junit.Assert;
@@ -39,52 +43,6 @@ public class ApiTest extends IntegrationTestHelper {
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
-
-    @Test
-    public void testTesseract4OcrForPix()
-            throws TesseractException, IOException {
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02.jpg";
-        String expected = "0123456789";
-        File imgFile = new File(path);
-
-        Pix pix = ImagePreprocessingUtil.readPix(imgFile);
-        Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
-        tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
-                new Tesseract4OcrEngineProperties()
-                        .setPathToTessData(getTessDataDirectory()));
-        tesseract4LibOcrEngine.initializeTesseract(OutputFormat.TXT);
-
-        String result = new TesseractOcrUtil().getOcrResultAsString(
-                tesseract4LibOcrEngine.getTesseractInstance(),
-                pix, OutputFormat.TXT);
-        Assert.assertTrue(result.contains(expected));
-    }
-
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT)
-    })
-    @Test
-    public void testReadingSecondPageFromOnePageTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB.tiff";
-        File imgFile = new File(path);
-        Pix page = TesseractOcrUtil.readPixPageFromTiff(imgFile, 2);
-        Assert.assertNull(page);
-    }
-
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
-        File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
-    @Test
-    public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_02";
-        File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1);
-    }
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
@@ -115,5 +73,106 @@ public class ApiTest extends IntegrationTestHelper {
                 new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
                         new Tesseract4OcrEngineProperties());
         engine.doImageOcr(imgFile);
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    })
+    @Test
+    public void testDoTesseractOcrForIncorrectImageForExecutable() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expectMessage(MessageFormatUtil.format(
+                Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE,
+                new File(TEST_IMAGES_DIRECTORY + "numbers_01")
+                        .getAbsolutePath()));
+        String path = TEST_IMAGES_DIRECTORY + "numbers_01";
+        File imgFile = new File(path);
+
+        Tesseract4ExecutableOcrEngine engine =
+                new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
+                        new Tesseract4OcrEngineProperties()
+                                .setPathToTessData(getTessDataDirectory()));
+        engine.doTesseractOcr(imgFile, null, OutputFormat.HOCR);
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED)
+    })
+    @Test
+    public void testOcrResultForSinglePageForNullImage() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expectMessage(Tesseract4OcrException.TESSERACT_FAILED);
+        Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
+        tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
+                new Tesseract4OcrEngineProperties()
+                        .setPathToTessData(getTessDataDirectory()));
+        tesseract4LibOcrEngine.initializeTesseract(OutputFormat.TXT);
+        tesseract4LibOcrEngine.doTesseractOcr(null, null, OutputFormat.HOCR);
+    }
+
+    @Test
+    public void testDoTesseractOcrForNonAsciiPathForExecutable() {
+        String path = TEST_IMAGES_DIRECTORY + "tèst/noisy_01.png";
+        File imgFile = new File(path);
+        File outputFile = new File(TesseractOcrUtil.getTempFilePath("test",
+                ".hocr"));
+
+        Tesseract4OcrEngineProperties properties = new Tesseract4OcrEngineProperties();
+        properties.setPathToTessData(getTessDataDirectory());
+        properties.setPreprocessingImages(false);
+        Tesseract4ExecutableOcrEngine engine =
+                new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
+                        properties);
+        engine.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
+        Assert.assertTrue(Files.exists(Paths.get(outputFile.getAbsolutePath())));
+        TesseractHelper.deleteFile(outputFile.getAbsolutePath());
+        Assert.assertFalse(Files.exists(Paths.get(outputFile.getAbsolutePath())));
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
+        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
+    }, ignore = true)
+    @Test
+    public void testDoTesseractOcrForExecutableForWin() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        testSettingOsName("win");
+    }
+
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
+        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
+        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
+    }, ignore = true)
+    @Test
+    public void testDoTesseractOcrForExecutableForLinux() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        testSettingOsName("linux");
+    }
+
+    private void testSettingOsName(String osName) {
+        String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+        File imgFile = new File(path);
+
+        String tesseractDirectory = getTesseractDirectory();
+        String osPropertyName = System.getProperty("os.name") == null ? "OS" : "os.name";
+        String os = System.getProperty(osPropertyName);
+        System.setProperty(osPropertyName, osName);
+
+        try {
+            Tesseract4OcrEngineProperties properties = new Tesseract4OcrEngineProperties();
+            properties.setPathToTessData(getTessDataDirectory());
+            Tesseract4ExecutableOcrEngine engine =
+                    new Tesseract4ExecutableOcrEngine(tesseractDirectory,
+                            properties);
+
+            engine.doTesseractOcr(imgFile, null, OutputFormat.HOCR);
+        } finally {
+            System.setProperty(osPropertyName, os);
+        }
     }
 }

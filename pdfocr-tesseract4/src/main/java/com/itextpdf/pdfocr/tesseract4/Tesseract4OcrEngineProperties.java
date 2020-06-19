@@ -287,9 +287,6 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     public Tesseract4OcrEngineProperties setUserWords(final String language,
             final InputStream inputStream) throws Tesseract4OcrException {
         setPathToUserWordsFile(null);
-        String userWordsFileName = TesseractOcrUtil.getTempDir()
-                + java.io.File.separatorChar
-                + language + "." + DEFAULT_USER_WORDS_SUFFIX;
         if (!getLanguages().contains(language)) {
             if (DEFAULT_LANGUAGE.equals(language.toLowerCase())) {
                 List<String> languagesList = getLanguages();
@@ -301,7 +298,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
                         .setMessageParams(language);
             }
         }
-
+        String userWordsFileName = TesseractOcrUtil.getTempFilePath(language,
+                "." + DEFAULT_USER_WORDS_SUFFIX);
         try (OutputStreamWriter writer =
                 new FileWriter(userWordsFileName)) {
             Reader reader = new InputStreamReader(inputStream,

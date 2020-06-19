@@ -298,7 +298,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
         StringBuilder data = new StringBuilder();
-
+        List<File> tempFiles = new ArrayList<File>();
         try {
             // image needs to be paginated only if it's tiff
             // or preprocessing isn't required
@@ -312,7 +312,6 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
                     ? 1 : realNumOfPages;
 
             for (int page = 1; page <= numOfPages; page++) {
-                List<File> tempFiles = new ArrayList<File>();
                 String extension = outputFormat.equals(OutputFormat.HOCR)
                         ? ".hocr" : ".txt";
                 for (int i = 0; i < numOfFiles; i++) {
@@ -341,16 +340,16 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
                         }
                     }
                 }
-
-                for (File file : tempFiles) {
-                    TesseractHelper.deleteFile(file.getAbsolutePath());
-                }
             }
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil.format(
                             Tesseract4LogMessageConstant.CANNOT_OCR_INPUT_FILE,
                             e.getMessage()));
+        } finally {
+            for (File file : tempFiles) {
+                TesseractHelper.deleteFile(file.getAbsolutePath());
+            }
         }
 
         Map<String, Map<Integer, List<TextInfo>>> result =
@@ -378,12 +377,12 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine {
     /**
      * Creates a temporary file with given extension.
      *
-     * @param extension file extesion for a new file {@link java.lang.String}
+     * @param extension file extension for a new file {@link java.lang.String}
      * @return a new created {@link java.io.File} instance
      */
     private File createTempFile(final String extension) {
-        String tmpFileName = TesseractOcrUtil.getTempDir()
-                + UUID.randomUUID().toString() + extension;
+        String tmpFileName = TesseractOcrUtil.getTempFilePath(
+                UUID.randomUUID().toString(), extension);
         return new File(tmpFileName);
     }
 

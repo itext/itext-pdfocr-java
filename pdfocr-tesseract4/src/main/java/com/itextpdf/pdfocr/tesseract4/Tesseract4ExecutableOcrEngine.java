@@ -24,10 +24,16 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -124,23 +130,30 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                 } else {
                     execPath = getPathToExecutable();
                 }
+                params.add(execPath);
             }
             checkTesseractInstalled(execPath);
             // path to tess data
             addTessData(params);
 
             // validate languages before preprocessing started
-            validateLanguages(getTesseract4OcrEngineProperties().getLanguages());
+            validateLanguages(getTesseract4OcrEngineProperties()
+                    .getLanguages());
 
             // preprocess input file if needed and add it
             imagePath = preprocessImage(inputImage, pageNumber);
             addInputFile(params, imagePath);
+            // move to image directory as tesseract cannot parse non ascii
+            // characters in input path
+            List<String> moveToDirectoryParams = moveToImageDirectory(
+                    imagePath);
             // output file
-            addOutputFile(params, outputFiles.get(0), outputFormat);
+            addOutputFile(params, outputFiles.get(0), outputFormat,
+                    imagePath);
             // page segmentation mode
             addPageSegMode(params);
             // add user words if needed
-            addUserWords(params);
+            addUserWords(params, imagePath);
             // required languages
             addLanguages(params);
             if (outputFormat.equals(OutputFormat.HOCR)) {
@@ -150,7 +163,8 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             // set default user defined dpi
             addDefaultDpi(params);
 
-            TesseractHelper.runCommand(execPath, params);
+            TesseractHelper.runCommand(isWindows() ? "cmd" : "bash",
+                    createCommandList(moveToDirectoryParams, params));
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
@@ -158,7 +172,6 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
         } finally {
             try {
                 if (imagePath != null
-                        && getTesseract4OcrEngineProperties().isPreprocessingImages()
                         && !inputImage.getAbsolutePath().equals(imagePath)) {
                     TesseractHelper.deleteFile(imagePath);
                 }
@@ -187,6 +200,57 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     }
 
     /**
+     * Creates joint command list of two commands passed as parameters.
+     * @param moveToDirectoryParams first command is responsible for moving
+     *                              to the directory
+     * @param tesseractParams second command is responsible for tesseract
+     *                        parameters
+     * @return joint command list
+     */
+    private List<String> createCommandList(
+            final List<String> moveToDirectoryParams,
+            final List<String> tesseractParams) {
+        // create list of several lists with commands
+        List<String> params = new ArrayList<String>();
+        params.add(isWindows() ? "/c": "-c");
+        params.add(isWindows() ? "\"" : "'");
+        for (String p : moveToDirectoryParams) {
+            params.add(p);
+        }
+        params.add("&&");
+        for (String p : tesseractParams) {
+            params.add(p);
+        }
+        params.add(isWindows() ? "\"" : "'");
+        return params;
+    }
+
+    /**
+     * Create list of parameters for command moving to the image parent
+     * directory.
+     * @param imagePath path to input image
+     * @return command list
+     */
+    private List<String> moveToImageDirectory(final String imagePath) {
+        // go the image parent directory
+        List<String> params = new ArrayList<String>();
+        String parent = TesseractOcrUtil.getParentDirectory(imagePath);
+        String replacement = isWindows() ? "" : "/";
+        parent = parent.replace("file:///", replacement)
+                .replace("file:/", replacement);
+
+        // Use "/d" parameter to handle cases when the current directory on Windows
+        // is located on a different drive compared to the directory we move to
+        if (isWindows()) {
+            params.add("cd /d");
+        } else {
+            params.add("cd");
+        }
+        params.add(addQuotes(parent));
+        return params;
+    }
+
+    /**
      * Sets hocr output format.
      *
      * @param command result command as list of strings
@@ -201,13 +265,23 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      *
      * @param command result command as list of strings
      */
-    private void addUserWords(final List<String> command) {
+    private void addUserWords(final List<String> command,
+            final String imgPath) {
         if (getTesseract4OcrEngineProperties().getPathToUserWordsFile() != null
                 && !getTesseract4OcrEngineProperties()
                 .getPathToUserWordsFile().isEmpty()) {
+            File userWordsFile = new File(getTesseract4OcrEngineProperties()
+                    .getPathToUserWordsFile());
+            // Workaround for a non-ASCII characters in path
+            // Currently works only if the user words (or output files) reside in the same directory as the input image
+            // Leaves only a filename in this case, otherwise - absolute path to output file
+            String filePath = areEqualParentDirectories(imgPath,
+                    userWordsFile.getAbsolutePath())
+                    ? userWordsFile.getName()
+                    : userWordsFile.getAbsolutePath();
+
             command.add("--user-words");
-            command.add(addQuotes(getTesseract4OcrEngineProperties()
-                    .getPathToUserWordsFile()));
+            command.add(addQuotes(filePath));
             command.add("--oem");
             command.add("0");
         }
@@ -265,7 +339,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      */
     private void addInputFile(final List<String> command,
             final String imagePath) {
-        command.add(addQuotes(imagePath));
+        command.add(addQuotes(new File(imagePath).getName()));
     }
 
     /**
@@ -276,17 +350,30 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param outputFormat selected {@link OutputFormat} for tesseract
      */
     private void addOutputFile(final List<String> command,
-            final File outputFile, final OutputFormat outputFormat) {
+            final File outputFile, final OutputFormat outputFormat,
+            final String inputImagePath) {
         String extension = outputFormat.equals(OutputFormat.HOCR)
                 ? ".hocr" : ".txt";
-        String fileName = new String(
-                outputFile.getAbsolutePath().toCharArray(), 0,
-                outputFile.getAbsolutePath().indexOf(extension));
-        LoggerFactory.getLogger(getClass()).info(
-                MessageFormatUtil.format(
-                        Tesseract4LogMessageConstant.CREATED_TEMPORARY_FILE,
-                        outputFile.getAbsolutePath()));
-        command.add(addQuotes(fileName));
+        try {
+            // Workaround for a non-ASCII characters in path
+            // Currently works only if the user words (or output files) reside in the same directory as the input image
+            // Leaves only a filename in this case, otherwise - absolute path to output file
+            String filePath = areEqualParentDirectories(inputImagePath,
+                    outputFile.getAbsolutePath())
+                    ? outputFile.getName()
+                    : outputFile.getAbsolutePath();
+            String fileName = new String(
+                    filePath.toCharArray(), 0,
+                    filePath.indexOf(extension));
+            LoggerFactory.getLogger(getClass()).info(
+                    MessageFormatUtil.format(
+                            Tesseract4LogMessageConstant.CREATED_TEMPORARY_FILE,
+                            outputFile.getAbsolutePath()));
+            command.add(addQuotes(fileName));
+        } catch (Exception e) { // NOSONAR
+            throw new Tesseract4OcrException(Tesseract4OcrException
+                    .TESSERACT_FAILED);
+        }
     }
 
     /**
@@ -310,13 +397,41 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param inputImage original input image {@link java.io.File}
      * @param pageNumber number of page to be OCRed
      * @return path to output image as {@link java.lang.String}
-     * @throws Tesseract4OcrException if preprocessing caanot be done or file is invalid
+     * @throws Tesseract4OcrException if preprocessing cannot be done or file
+     * is invalid
      */
     private String preprocessImage(final File inputImage,
             final int pageNumber) throws Tesseract4OcrException {
+        String tmpFileName = TesseractOcrUtil
+                .getTempFilePath(UUID.randomUUID().toString(),
+                        getExtension(inputImage));
         String path = inputImage.getAbsolutePath();
-        if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
-            path = ImagePreprocessingUtil.preprocessImage(inputImage, pageNumber);
+        try {
+            if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
+                Pix pix = ImagePreprocessingUtil
+                        .preprocessImage(inputImage, pageNumber);
+                TesseractOcrUtil.savePixToTempPngFile(tmpFileName, pix);
+                if (!Files.exists(Paths.get(tmpFileName))) {
+                    BufferedImage img = TesseractOcrUtil.convertPixToImage(pix);
+                    if (img != null) {
+                        TesseractOcrUtil.saveImageToTempPngFile(tmpFileName,
+                                img);
+                    }
+                }
+            }
+            if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
+                    || !Files.exists(Paths.get(tmpFileName))) {
+                TesseractOcrUtil.createTempFileCopy(path, tmpFileName);
+            }
+            if (Files.exists(Paths.get(tmpFileName))) {
+                path = tmpFileName;
+            }
+        } catch (IOException e) {
+            LoggerFactory.getLogger(getClass())
+                    .error(MessageFormatUtil.format(
+                            Tesseract4LogMessageConstant
+                                    .CANNOT_READ_INPUT_IMAGE,
+                            e.getMessage()));
         }
         return path;
     }
@@ -338,5 +453,40 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             throw new Tesseract4OcrException(
                     Tesseract4OcrException.TESSERACT_NOT_FOUND, e);
         }
+    }
+
+    /**
+     * Gets input image file extension.
+     *
+     * @param inputImage input  file
+     * @return file extension as a {@link java.lang.String}
+     */
+    private String getExtension(File inputImage) {
+        if (inputImage != null) {
+            int index = inputImage.getAbsolutePath().lastIndexOf('.');
+            if (index > 0) {
+                String extension = new String(
+                        inputImage.getAbsolutePath().toCharArray(), index,
+                        inputImage.getAbsolutePath().length() - index);
+                return extension.toLowerCase();
+            }
+        }
+        return ".png";
+    }
+
+    /**
+     * Checks whether parent directories are equal for the passed file paths.
+     *
+     * @param firstPath path to the first file
+     * @param secondPath path to the second file
+     * @return true if parent directories are equal, otherwise - false
+     */
+    private boolean areEqualParentDirectories(final String firstPath,
+            final String secondPath) {
+        String firstParentDir = TesseractOcrUtil.getParentDirectory(firstPath);
+        String secondParentDir = TesseractOcrUtil
+                .getParentDirectory(secondPath);
+        return firstParentDir != null
+                && firstParentDir.equals(secondParentDir);
     }
 }

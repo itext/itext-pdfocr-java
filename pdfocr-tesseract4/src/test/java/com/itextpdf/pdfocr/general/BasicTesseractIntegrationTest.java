@@ -79,10 +79,13 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     @Test
     public void testFontColorInMultiPagePdf() throws IOException {
         String testName = "testFontColorInMultiPagePdf";
-        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String path = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
         ocrPdfCreatorProperties.setTextLayerName("Text1");
         com.itextpdf.kernel.colors.Color color = DeviceCmyk.MAGENTA;
@@ -111,7 +114,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
 
     @Test
     public void testNoisyImage() {
-        String path = TEST_IMAGES_DIRECTORY + "noisy_01.png";
+        String path = TEST_IMAGES_DIRECTORY + "tèst/noisy_01.png";
         String expectedOutput1 = "Noisyimage to test Tesseract OCR";
         String expectedOutput2 = "Noisy image to test Tesseract OCR";
 
@@ -186,6 +189,28 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @Test
+    public void testNonAsciiImagePath() {
+        String path = TEST_IMAGES_DIRECTORY + "tèst/noisy_01.png";
+        String expectedOutput1 = "Noisyimage to test Tesseract OCR";
+        String expectedOutput2 = "Noisy image to test Tesseract OCR";
+
+        String realOutputHocr = getTextUsingTesseractFromImage(tesseractReader,
+                new File(path));
+        Assert.assertTrue(realOutputHocr.equals(expectedOutput1) ||
+                realOutputHocr.equals(expectedOutput2));
+    }
+
+    @Test
+    public void testNonAsciiImageName() {
+        String path = TEST_IMAGES_DIRECTORY + "nümbérs.jpg";
+        String expectedOutput = "619121";
+
+        String realOutputHocr = getTextUsingTesseractFromImage(tesseractReader,
+                new File(path));
+        Assert.assertTrue(realOutputHocr.equals(expectedOutput));
+    }
+
+    @Test
     public void testNullPathToTessData() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
@@ -232,7 +257,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
 
     @Test
     public void testTxtStringOutput() {
-        File file = new File(TEST_IMAGES_DIRECTORY + "multipage.tiff");
+        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
         List<String> expectedOutput = Arrays.<String>asList(
                 "Multipage\nTIFF\nExample\nPage 1",
                 "Multipage\nTIFF\nExample\nPage 2",
@@ -252,7 +277,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
 
     @Test
     public void testHocrStringOutput() {
-        File file = new File(TEST_IMAGES_DIRECTORY + "multipage.tiff");
+        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
         List<String> expectedOutput = Arrays.<String>asList(
                 "Multipage\nTIFF\nExample\nPage 1",
                 "Multipage\nTIFF\nExample\nPage 2",

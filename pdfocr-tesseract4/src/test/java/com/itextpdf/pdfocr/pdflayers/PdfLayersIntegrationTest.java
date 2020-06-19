@@ -51,7 +51,7 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         String testName = "testTextFromPdfLayersFromMultiPageTiff";
         boolean preprocess =
                 tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages();
-        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String path = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
@@ -97,7 +97,7 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         String testName = "testTextFromMultiPageTiff";
         boolean preprocess =
                 tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages();
-        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String path = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String pdfPath = getTargetDirectory() + testName + ".pdf";
         File file = new File(path);
 
@@ -137,8 +137,8 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
 
         List<File> files = Arrays.<File>asList(
                 new File(TEST_IMAGES_DIRECTORY + "german_01.jpg"),
-                new File(TEST_IMAGES_DIRECTORY + "noisy_01.png"),
-                new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg"),
+                new File(TEST_IMAGES_DIRECTORY + "tèst/noisy_01.png"),
+                new File(TEST_IMAGES_DIRECTORY + "nümbérs.jpg"),
                 new File(TEST_IMAGES_DIRECTORY + "example_04.png")
         );
 

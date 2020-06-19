@@ -37,15 +37,15 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
-import net.sourceforge.lept4j.Pixa;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
@@ -91,52 +91,17 @@ class TesseractOcrUtil {
     static Pix readPixPageFromTiff(final File inputFile,
             final int pageNumber) {
         Pix pix = null;
-        Pixa pixa = null;
         try {
-            // read image
-            pixa = Leptonica.INSTANCE
-                    .pixaReadMultipageTiff(inputFile.getAbsolutePath());
-            int size = pixa.n;
-            // in case page number is incorrect
-            if (pageNumber >= size) {
-                LOGGER.warn(MessageFormatUtil.format(
-                        Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
-                        pageNumber,
-                        inputFile.getAbsolutePath()));
-                return null;
-            }
-            // copy selected pix form pixa
-            pix = Leptonica.INSTANCE.pixaGetPix(pixa, pageNumber,
-                    Leptonica.L_COPY);
-        } finally {
-            destroyPixa(pixa);
+            BufferedImage img = TesseractOcrUtil
+                    .getImagePage(inputFile, pageNumber);
+            pix = convertImageToPix(img);
+        } catch (IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
         }
         // return required page to be preprocessed
         return pix;
-    }
-
-    /**
-     * Performs default image preprocessing and saves result to a temporary
-     * file.
-     *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
-     * @return path to a created preprocessed image file
-     * as {@link java.lang.String}
-     */
-    static String preprocessPixAndSave(Pix pix) {
-        // save preprocessed file
-        String tmpFileName = getTempDir()
-                + UUID.randomUUID().toString() + ".png";
-        try {
-            // preprocess image
-            pix = preprocessPix(pix);
-            Leptonica.INSTANCE.pixWritePng(tmpFileName, pix,
-                    ILeptonica.IFF_PNG);
-        } finally {
-            // destroying
-            destroyPix(pix);
-        }
-        return tmpFileName;
     }
 
     /**
@@ -228,19 +193,6 @@ class TesseractOcrUtil {
     static void destroyPix(Pix pix) {
         if (pix != null) {
             Leptonica.INSTANCE.lept_free(pix.getPointer());
-        }
-    }
-
-    /**
-     * Destroys {@link net.sourceforge.lept4j.Pixa} object.
-     *
-     * @param pixa {@link net.sourceforge.lept4j.Pixa} object to be destroyed
-     */
-    static void destroyPixa(Pixa pixa) {
-        if (pixa != null) {
-            PointerByReference pRef = new PointerByReference();
-            pRef.setValue(pixa.getPointer());
-            Leptonica.INSTANCE.pixaDestroy(pRef);
         }
     }
 
@@ -387,24 +339,117 @@ class TesseractOcrUtil {
     }
 
     /**
-     * Gets current system temporary directory.
+     * Gets path to temp file in current system temporary directory.
      *
-     * @return path to system temporary directory
+     * @return path to temp file in the system temporary directory
      */
-    static String getTempDir() {
-        String tempDir = System.getProperty("java.io.tmpdir");
+    static String getTempFilePath(String name, String suffix) {
+        String tmpFileName = name + suffix;
         try {
-            Path tempPath = Files.createTempDirectory("pdfocr");
-            tempDir = tempPath.toString();
-        } catch (IOException e) {
+            Path tempPath = Files.createTempFile(name, suffix);
+            tmpFileName = tempPath.toString();
+        } catch (IOException | IllegalArgumentException e) {
             LOGGER.info(MessageFormatUtil.format(
                     Tesseract4LogMessageConstant.CANNOT_GET_TEMPORARY_DIRECTORY,
                     e.getMessage()));
-            if (tempDir == null) {
-                tempDir = "";
+        }
+        return tmpFileName;
+    }
+
+    /**
+     * Gets requested image page from the provided image.
+     *
+     * @param inputFile input image
+     * @param page requested image page
+     * @return requested image page as a {@link java.awt.image.BufferedImage}
+     */
+    static BufferedImage getImagePage(File inputFile, int page)
+    {
+        BufferedImage img = null;
+        try (InputStream is =
+                new FileInputStream(inputFile.getAbsolutePath())) {
+            List<BufferedImage> pages = Imaging.getAllBufferedImages(is,
+                    inputFile.getAbsolutePath());
+            if (page >= pages.size()) {
+                LOGGER.warn(MessageFormatUtil.format(
+                        Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
+                        page,
+                        inputFile.getAbsolutePath()));
+                return null;
+            }
+            img = pages.get(page);
+        } catch (ImageReadException | IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant
+                            .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
+                    inputFile.getAbsolutePath(),
+                    e.getMessage()));
+        }
+        return img;
+    }
+
+    /**
+     * Saves passed {@link java.awt.image.BufferedImage} to given path
+     *
+     * @param tmpFileName provided file path to save the
+     * {@link java.awt.image.BufferedImage}
+     * @param image provided {@link java.awt.image.BufferedImage} to be saved
+     */
+    static void saveImageToTempPngFile(final String tmpFileName,
+            final BufferedImage image) {
+        if (image != null) {
+            try {
+                ImageIO.write(image, "png", new File(tmpFileName));
+            } catch (Exception e) { // NOSONAR
+                LOGGER.error(MessageFormatUtil.format(
+                        Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
+                        e.getMessage()));
             }
         }
-        return tempDir;
+    }
+
+    /**
+     * Saves passed {@link net.sourceforge.lept4j.Pix} to given path
+     *
+     * @param tmpFileName provided file path to save the
+     * {@link net.sourceforge.lept4j.Pix}
+     * @param pix provided {@link net.sourceforge.lept4j.Pix} to be saved
+     */
+    static void savePixToTempPngFile(final String tmpFileName,
+            final Pix pix) {
+        if (pix != null) {
+            try {
+                Leptonica.INSTANCE.pixWritePng(tmpFileName, pix,
+                        ILeptonica.IFF_PNG);
+            } catch (Exception e) { // NOSONAR
+                LOGGER.info(MessageFormatUtil.format(
+                        Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
+                        e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Create temporary copy of input file to avoid issue with tesseract and
+     * different encodings in the path.
+     *
+     * @param src path to the source image
+     * @param dst destination path
+     */
+    static void createTempFileCopy(final String src, final String dst)
+            throws IOException {
+        Files.copy(Paths.get(src), Paths.get(dst),
+                StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * Returns parent directory for the passed path.
+     *
+     * @param path path to file
+     * @return parent directory where the file is located
+     */
+    static String getParentDirectory(final String path) {
+        return new File(path).getParent();
     }
 
     /**
@@ -421,9 +466,10 @@ class TesseractOcrUtil {
             setListOfPages(Imaging
                     .getAllBufferedImages(is,
                             inputFile.getAbsolutePath()));
-        } catch (ImageReadException | IOException e) {
+        } catch (Exception e) { // NOSONAR
             LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
+                    Tesseract4LogMessageConstant
+                            .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
                     inputFile.getAbsolutePath(),
                     e.getMessage()));
         }
@@ -466,7 +512,11 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance,
             final BufferedImage image, final OutputFormat outputFormat)
             throws TesseractException {
-        return tesseractInstance.doOCR(image);
+        if (image != null) {
+            return tesseractInstance.doOCR(image);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -487,7 +537,11 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance,
             final File image, final OutputFormat outputFormat)
             throws TesseractException {
-        return tesseractInstance.doOCR(image);
+        if (image != null) {
+            return tesseractInstance.doOCR(image);
+        } else {
+            return null;
+        }
     }
 
      /**
@@ -509,8 +563,12 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance,
             final Pix pix, final OutputFormat outputFormat)
             throws TesseractException, IOException {
-        BufferedImage bufferedImage = convertPixToImage(pix);
-        return getOcrResultAsString(tesseractInstance,
-                bufferedImage, outputFormat);
+        if (pix != null) {
+            BufferedImage bufferedImage = convertPixToImage(pix);
+            return getOcrResultAsString(tesseractInstance,
+                    bufferedImage, outputFormat);
+        } else {
+            return null;
+        }
     }
 }

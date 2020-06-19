@@ -266,7 +266,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
 
     @Test
     public void testMultipageTiffAndCompareTxtFiles() {
-        String imgPath = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String imgPath = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String expectedTxt = TEST_DOCUMENTS_DIRECTORY + "multipage_" + testFileTypeName + ".txt";
 
         boolean result = doOcrAndCompareTxtFiles(tesseractReader, imgPath, expectedTxt,
@@ -642,7 +642,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
                 || result.contains(userWords.get(1)));
 
         Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
-                        .getPathToUserWordsFile().endsWith("fra.user-words"));
+                        .getPathToUserWordsFile().endsWith(".user-words"));
     }
 
     @Test
@@ -662,7 +662,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         Assert.assertTrue(result.startsWith(expectedOutput));
 
         Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
-                .getPathToUserWordsFile().endsWith("eng.user-words"));
+                .getPathToUserWordsFile().endsWith(".user-words"));
     }
 
     @Test
@@ -698,6 +698,11 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
                 tesseractReader.getTesseract4OcrEngineProperties();
         properties.setUserWords("eng", new FileInputStream(userWords));
         properties.setLanguages(new ArrayList<String>());
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+        String expectedOutput = "619121";
+        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
+        Assert.assertTrue(result.startsWith(expectedOutput));
     }
 
     /**

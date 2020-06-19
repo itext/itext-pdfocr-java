@@ -242,7 +242,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
     @Test
     public void testInputMultipagesTIFFWithPreprocessing() {
-        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String path = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
 
         File file = new File(path);
@@ -255,7 +255,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
     @Test
     public void testInputMultipagesTIFFWithoutPreprocessing() {
-        String path = TEST_IMAGES_DIRECTORY + "multipage.tiff";
+        String path = TEST_IMAGES_DIRECTORY + "multîpage.tiff";
         String expectedOutput = "Multipage\nTIFF\nExample\nPage 3";
 
         File file = new File(path);
@@ -283,11 +283,24 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    public void testJpgWithoutPreprocessing() {
+        String path = TEST_IMAGES_DIRECTORY + "nümbérs.jpg";
+        String expectedOutput = "619121";
+
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPreprocessingImages(false));
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
+                Collections.<String>singletonList("eng"));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+    }
+
+    @Test
     public void compareNumbersJPG() throws IOException, InterruptedException {
         String testName = "compareNumbersJPG";
-        String filename = "numbers_01";
-        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
-        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
+        String filename = "nümbérs";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + "numbers_01.pdf";
+        String resultPdfPath = getTargetDirectory() + "numbers_01_" + testName + ".pdf";
 
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
