@@ -150,13 +150,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     public static String getTargetDirectory() {
         if (!Files.exists(java.nio.file.Paths.get(TARGET_FOLDER))) {
-            try {
-                Files.createDirectories(
-                        java.nio.file.Paths.get(TARGET_FOLDER));
-            } catch (IOException e) {
-                LOGGER.info(TARGET_FOLDER
-                        + " directory does not exist: " + e);
-            }
+            createDestinationFolder(TARGET_FOLDER);
         }
         return TARGET_FOLDER;
     }

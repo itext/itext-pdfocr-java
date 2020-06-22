@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collections;
+
+import com.itextpdf.test.ExtendedITextTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,13 +97,7 @@ public class PdfHelper {
      */
     public static String getTargetDirectory() {
         if (!Files.exists(java.nio.file.Paths.get(TARGET_DIRECTORY))) {
-            try {
-                Files.createDirectories(
-                        java.nio.file.Paths.get(TARGET_DIRECTORY));
-            } catch (IOException e) {
-                LOGGER.info(TARGET_DIRECTORY
-                        + " directory does not exist: " + e);
-            }
+            ExtendedITextTest.createDestinationFolder(TARGET_DIRECTORY);
         }
         return TARGET_DIRECTORY;
     }
