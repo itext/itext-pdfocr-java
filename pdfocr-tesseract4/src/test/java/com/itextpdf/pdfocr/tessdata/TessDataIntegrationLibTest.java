@@ -43,7 +43,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         super(ReaderType.LIB);
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 50000)
     public void textOutputFromHalftoneFile() {
         String imgPath = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness Enablers";
@@ -59,7 +59,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         Assert.assertTrue(result.contains(expected03));
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 50000)
     public void hocrOutputFromHalftoneFile() throws java.io.IOException {
         String path = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness";
