@@ -86,6 +86,11 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     private String pathToUserWordsFile = null;
 
     /**
+     * Indicates if user words file is temporary and has to be removed.
+     */
+    private boolean isUserWordsFileTemporary = false;
+
+    /**
      * Creates a new {@link Tesseract4OcrEngineProperties} instance.
      */
     public Tesseract4OcrEngineProperties() {
@@ -309,7 +314,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
                 writer.write(data);
             }
             writer.write(System.lineSeparator());
-            setPathToUserWordsFile(userWordsFileName);
+            setPathToUserWordsFile(userWordsFileName, true);
         } catch (IOException e) {
             setPathToUserWordsFile(null);
             LoggerFactory.getLogger(getClass())
@@ -339,7 +344,31 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      */
     public final Tesseract4OcrEngineProperties setPathToUserWordsFile(
             String pathToUserWordsFile) {
+        return setPathToUserWordsFile(pathToUserWordsFile, false);
+    }
+
+    /**
+     * Sets path to the user words file.
+     *
+     * @param pathToUserWordsFile path to user words file
+     *                        as {@link java.lang.String}
+     * @param isTempFile indicates if user words file is temporary and has to be removed
+     * @return the {@link Tesseract4OcrEngineProperties} instance
+     */
+    final Tesseract4OcrEngineProperties setPathToUserWordsFile(
+            String pathToUserWordsFile, boolean isTempFile) {
         this.pathToUserWordsFile = pathToUserWordsFile;
+        this.isUserWordsFileTemporary = isTempFile;
         return this;
     }
+
+    /**
+     * Indicates if user words file is temporary and has to be removed.
+     *
+     * @return true if the file is temporary, otherwise false.
+     */
+    final boolean isUserWordsFileTemporary() {
+        return isUserWordsFileTemporary;
+    }
+
 }

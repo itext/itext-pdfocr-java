@@ -186,7 +186,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 TesseractOcrUtil.disposeTesseractInstance(tesseractInstance);
             }
             if (getTesseract4OcrEngineProperties().getPathToUserWordsFile()
-                    != null) {
+                    != null
+                    && getTesseract4OcrEngineProperties().isUserWordsFileTemporary()) {
                 TesseractHelper.deleteFile(
                         getTesseract4OcrEngineProperties()
                                 .getPathToUserWordsFile());

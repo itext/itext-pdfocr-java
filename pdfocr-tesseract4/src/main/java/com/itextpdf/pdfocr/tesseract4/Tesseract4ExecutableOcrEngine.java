@@ -183,7 +183,8 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             }
             try {
                 if (getTesseract4OcrEngineProperties()
-                        .getPathToUserWordsFile() != null) {
+                        .getPathToUserWordsFile() != null
+                        && getTesseract4OcrEngineProperties().isUserWordsFileTemporary()) {
                     TesseractHelper.deleteFile(
                             getTesseract4OcrEngineProperties()
                                     .getPathToUserWordsFile());

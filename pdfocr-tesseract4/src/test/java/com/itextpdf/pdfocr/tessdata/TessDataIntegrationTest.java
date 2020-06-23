@@ -705,6 +705,19 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         Assert.assertTrue(result.startsWith(expectedOutput));
     }
 
+    @Test
+    public void testUserWordsFileNotDeleted() {
+        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setPathToUserWordsFile(userWords);
+        properties.setLanguages(Arrays.<String>asList("eng"));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+        tesseractReader.doImageOcr(new File(imgPath));
+        Assert.assertTrue(new File(userWords).exists());
+    }
+
     /**
      * Do OCR for given image and compare result text file with expected one.
      */
