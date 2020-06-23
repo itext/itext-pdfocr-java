@@ -217,7 +217,7 @@ pipeline {
                         def rtMaven = Artifactory.newMavenBuild()
                         rtMaven.deployer server: server, releaseRepo: 'releases', snapshotRepo: 'snapshot'
                         rtMaven.tool = 'M3'
-                        def buildInfo = rtMaven.run pom: 'pom.xml', goals: '--threads 2C --no-transfer-progress install --activate-profiles artifactory -Dmaven.source.skip=true ' +
+                        def buildInfo = rtMaven.run pom: 'pom.xml', goals: '--threads 2C --no-transfer-progress install --activate-profiles artifactory ' +
                             "-Dmaven.repo.local=${env.WORKSPACE.replace('\\','/')}/.repository".toString()
                         server.publishBuildInfo buildInfo
                     }
