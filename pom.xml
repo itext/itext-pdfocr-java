@@ -90,15 +90,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
         <configuration>
