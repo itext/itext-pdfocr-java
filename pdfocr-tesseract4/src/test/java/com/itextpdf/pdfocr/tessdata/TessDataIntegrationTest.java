@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
-import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
@@ -32,14 +31,11 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -625,97 +621,6 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         String result = getTextFromPdf(tesseractReader, file,
                 Arrays.<String>asList("Japanese"), KOSUGI_FONT_PATH);
         Assert.assertEquals(expected, result);
-    }
-
-    @Test
-    public void testCustomUserWords() {
-        String imgPath = TEST_IMAGES_DIRECTORY + "wierdwords.png";
-        List<String> userWords = Arrays.<String>asList("he23llo", "qwetyrtyqpwe-rty");
-
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setLanguages(Arrays.asList("fra"));
-        properties.setUserWords("fra", userWords);
-        tesseractReader.setTesseract4OcrEngineProperties(properties);
-        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        Assert.assertTrue(result.contains(userWords.get(0))
-                || result.contains(userWords.get(1)));
-
-        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
-                        .getPathToUserWordsFile().endsWith(".user-words"));
-    }
-
-    @Test
-    public void testCustomUserWordsWithListOfLanguages() {
-        String imgPath = TEST_IMAGES_DIRECTORY + "bogusText.jpg";
-        String expectedOutput = "B1adeb1ab1a";
-
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setLanguages(Arrays.asList("fra", "eng"));
-        properties.setUserWords("eng", Arrays.<String>asList("b1adeb1ab1a"));
-        tesseractReader.setTesseract4OcrEngineProperties(properties);
-
-        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        result = result.replace("\n", "").replace("\f", "");
-        result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-        Assert.assertTrue(result.startsWith(expectedOutput));
-
-        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
-                .getPathToUserWordsFile().endsWith(".user-words"));
-    }
-
-    @Test
-    public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                        "spa"));
-        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("spa", new FileInputStream(userWords));
-        properties.setLanguages(new ArrayList<String>());
-    }
-
-    @Test
-    public void testIncorrectLanguageForUserWordsAsList() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
-                        "eng1"));
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
-        properties.setLanguages(new ArrayList<String>());
-    }
-
-    @Test
-    public void testUserWordsWithDefaultLanguageNotInList()
-            throws FileNotFoundException {
-        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("eng", new FileInputStream(userWords));
-        properties.setLanguages(new ArrayList<String>());
-        tesseractReader.setTesseract4OcrEngineProperties(properties);
-        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        String expectedOutput = "619121";
-        String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        Assert.assertTrue(result.startsWith(expectedOutput));
-    }
-
-    @Test
-    public void testUserWordsFileNotDeleted() {
-        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setPathToUserWordsFile(userWords);
-        properties.setLanguages(Arrays.<String>asList("eng"));
-        tesseractReader.setTesseract4OcrEngineProperties(properties);
-        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        tesseractReader.doImageOcr(new File(imgPath));
-        Assert.assertTrue(new File(userWords).exists());
     }
 
     /**

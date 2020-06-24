@@ -239,6 +239,10 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * ends with a new line character. Train data for provided language
      * should exist in specified tess data directory.
      *
+     * NOTE:
+     * User words dictionary doesn't work properly in tesseract4
+     * and hidden for public usage until fix is available
+     *
      * @param language language as {@link java.lang.String}, tessdata for
      *                 this languages has to exist in tess data directory
      * @param userWords {@link java.util.List} of custom words
@@ -246,7 +250,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * @throws Tesseract4OcrException if one of given languages wasn't specified in the
      * list of required languages for OCR using
      */
-    public Tesseract4OcrEngineProperties setUserWords(final String language,
+    Tesseract4OcrEngineProperties setUserWords(final String language,
             final List<String> userWords)
             throws Tesseract4OcrException {
         setPathToUserWordsFile(null);
@@ -281,6 +285,10 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * a new line character. Train data for provided language
      * should exist in specified tess data directory.
      *
+     * NOTE:
+     * User words dictionary doesn't work properly in tesseract4
+     * and hidden for public usage until fix is available
+     *
      * @param language language as {@link java.lang.String}, tessdata for
      *                 this languages has to exist in tess data directory
      * @param inputStream custom user words as {@link java.io.InputStream}
@@ -289,7 +297,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * {@link Tesseract4OcrEngineProperties#setLanguages(List)} method
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
-    public Tesseract4OcrEngineProperties setUserWords(final String language,
+    Tesseract4OcrEngineProperties setUserWords(final String language,
             final InputStream inputStream) throws Tesseract4OcrException {
         setPathToUserWordsFile(null);
         if (!getLanguages().contains(language)) {
@@ -328,21 +336,29 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     /**
      * Returns path to the user words file.
      *
+     * NOTE:
+     * User words dictionary doesn't work properly in tesseract4
+     * and hidden for public usage until fix is available
+     *
      * @return path to user words file as {@link java.lang.String} if it
      * exists, otherwise - null
      */
-    public final String getPathToUserWordsFile() {
+    final String getPathToUserWordsFile() {
         return pathToUserWordsFile;
     }
 
     /**
      * Sets path to the user words file.
      *
+     * NOTE:
+     * User words dictionary doesn't work properly in tesseract4
+     * and hidden for public usage until fix is available
+     *
      * @param pathToUserWordsFile path to user words file
      *                        as {@link java.lang.String}
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
-    public final Tesseract4OcrEngineProperties setPathToUserWordsFile(
+    final Tesseract4OcrEngineProperties setPathToUserWordsFile(
             String pathToUserWordsFile) {
         return setPathToUserWordsFile(pathToUserWordsFile, false);
     }
