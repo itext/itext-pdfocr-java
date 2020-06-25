@@ -29,12 +29,10 @@ import com.itextpdf.kernel.counter.SimpleEventCounterFactory;
 import com.itextpdf.kernel.counter.event.IEvent;
 import com.itextpdf.kernel.counter.event.IMetaInfo;
 import com.itextpdf.metainfo.TestMetaInfo;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
-import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
@@ -49,43 +47,22 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 @Category(IntegrationTest.class)
-public abstract class MultiThreadingTest extends ExtendedITextTest {
+public abstract class MultiThreadingTest extends IntegrationTestHelper {
     protected static final String destinationFolder = "./target/test/com/itextpdf/pdfocr/events/multithreading/";
     protected static final String sourceFolder = "./src/test/resources/com/itextpdf/pdfocr/events/multithreading/";
 
-    private AbstractTesseract4OcrEngine tesseractReader;
-    private String testFileTypeName;
-    private boolean isExecutableReaderType;
-
-    private static Tesseract4LibOcrEngine tesseractLibReader = new Tesseract4LibOcrEngine(
-            new Tesseract4OcrEngineProperties());
-    private static Tesseract4ExecutableOcrEngine tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
-            new Tesseract4OcrEngineProperties());
+    AbstractTesseract4OcrEngine tesseractReader;
 
     @Rule
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     public MultiThreadingTest(ReaderType type) {
-        isExecutableReaderType = type.equals(ReaderType.EXECUTABLE);
-        if (isExecutableReaderType) {
-            testFileTypeName = "executable";
-        } else {
-            testFileTypeName = "lib";
-        }
         tesseractReader = getTesseractReader(type);
     }
 
     @BeforeClass
     public static void beforeClass() {
         createDestinationFolder(destinationFolder);
-    }
-
-    protected static AbstractTesseract4OcrEngine getTesseractReader(ReaderType type) {
-        if (type.equals(ReaderType.LIB)) {
-            return tesseractLibReader;
-        } else {
-            return tesseractExecutableReader;
-        }
     }
 
     @Before
@@ -168,8 +145,4 @@ public abstract class MultiThreadingTest extends ExtendedITextTest {
         }
     }
 
-    public enum ReaderType {
-        LIB,
-        EXECUTABLE
-    }
 }
