@@ -282,7 +282,7 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Returns FontProvider that was set previously or if it is
-     * <code>null<code/> a new instance of {@link PdfOcrFontProvider} is
+     * <code>null</code> a new instance of {@link PdfOcrFontProvider} is
      * returned.
      * @return {@link com.itextpdf.layout.font.FontProvider} object
      */
