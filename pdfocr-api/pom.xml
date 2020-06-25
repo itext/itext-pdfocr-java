@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.itextpdf</groupId>
+    <artifactId>pdfocr-root</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>pdfocr-api</artifactId>
+
+  <name>pdfOCR API</name>
+  <description>pdfOCR is an iText 7 add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>layout</artifactId>
+      <version>${itext.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdfa</artifactId>
+      <version>${itext.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-imaging</artifactId>
+      <version>1.0-alpha1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>pdftest</artifactId>
+      <version>${itext.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.ttf</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
