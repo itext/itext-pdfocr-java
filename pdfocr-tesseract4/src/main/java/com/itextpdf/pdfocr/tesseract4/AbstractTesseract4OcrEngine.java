@@ -161,17 +161,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      */
     public final Map<Integer, List<TextInfo>> doImageOcr(
             final File input) {
-        Map<Integer, List<TextInfo>> result = new LinkedHashMap<Integer,
-                List<TextInfo>>();
         verifyImageFormatValidity(input);
-        Map<String, Map<Integer, List<TextInfo>>> processedData =
-                processInputFiles(input, OutputFormat.HOCR);
-        if (processedData != null && processedData.size() > 0) {
-            List<String> keys = new ArrayList<String>(
-                    processedData.keySet());
-            result = processedData.get(keys.get(0));
-        }
-        return result;
+        return ((TextInfoTesseractOcrResult)processInputFiles(input, OutputFormat.HOCR)).getTextInfos();
     }
 
     /**
@@ -188,17 +179,14 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
             final OutputFormat outputFormat) {
         String result = "";
         verifyImageFormatValidity(input);
-        Map<String, Map<Integer, List<TextInfo>>> processedData =
-                processInputFiles(input, outputFormat);
-        if (processedData != null && processedData.size() > 0) {
-            List<String> keys = new ArrayList<String>(
-                    processedData.keySet());
+        ITesseractOcrResult processedData = processInputFiles(input, outputFormat);
+        if (processedData != null) {
             if (outputFormat.equals(OutputFormat.TXT)) {
-                result = keys.get(0);
+                result = ((StringTesseractOcrResult)processedData).getData();
             } else {
                 StringBuilder outputText = new StringBuilder();
                 Map<Integer, List<TextInfo>> outputMap =
-                        processedData.get(keys.get(0));
+                        ((TextInfoTesseractOcrResult)processedData).getTextInfos();
                 for (int page : outputMap.keySet()) {
                     StringBuilder pageText = new StringBuilder();
                     for (TextInfo textInfo : outputMap.get(page)) {
@@ -315,17 +303,16 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * @param input input image {@link java.io.File}
      * @param outputFormat {@link OutputFormat} for the result returned
      *                                         by {@link IOcrEngine}
-     * @return Map<String, Map<Integer, List<TextInfo>>>
-     *     if output format is txt,
-     *     result is key of the returned map(String),
-     *     otherwise - the value (Map<Integer, List<{@link TextInfo}>)
+     * @return {@link ITesseractOcrResult} instance, either {@link StringTesseractOcrResult}
+     *     if output format is TXT, or {@link TextInfoTesseractOcrResult} if the output format is HOCR
      */
-    Map<String, Map<Integer, List<TextInfo>>> processInputFiles(
+    ITesseractOcrResult processInputFiles(
             final File input, final OutputFormat outputFormat) {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
         StringBuilder data = new StringBuilder();
         List<File> tempFiles = new ArrayList<File>();
+        ITesseractOcrResult result = null;
         try {
             // image needs to be paginated only if it's tiff
             // or preprocessing isn't required
@@ -358,6 +345,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                     } else {
                         imageData = pageData;
                     }
+                    result = new TextInfoTesseractOcrResult(imageData);
                 } else {
                     for (File tmpFile : tempFiles) {
                         if (Files.exists(
@@ -366,6 +354,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                             data.append(TesseractHelper.readTxtFile(tmpFile));
                         }
                     }
+                    result = new StringTesseractOcrResult(data.toString());
                 }
             }
         } catch (IOException e) {
@@ -378,10 +367,6 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                 TesseractHelper.deleteFile(file.getAbsolutePath());
             }
         }
-
-        Map<String, Map<Integer, List<TextInfo>>> result =
-                new LinkedHashMap<String, Map<Integer, List<TextInfo>>>();
-        result.put(data.toString(), imageData);
         return result;
     }
 
@@ -468,6 +453,33 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
             throw new Tesseract4OcrException(
                     Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(extension);
+        }
+    }
+
+    private interface ITesseractOcrResult {
+    }
+
+    private static class StringTesseractOcrResult implements ITesseractOcrResult {
+        private String data;
+
+        StringTesseractOcrResult(String data) {
+            this.data = data;
+        }
+
+        String getData() {
+            return data;
+        }
+    }
+
+    private static class TextInfoTesseractOcrResult implements ITesseractOcrResult {
+        private Map<Integer, List<TextInfo>> textInfos;
+
+        TextInfoTesseractOcrResult(Map<Integer, List<TextInfo>> textInfos) {
+            this.textInfos = textInfos;
+        }
+
+        Map<Integer, List<TextInfo>> getTextInfos() {
+            return this.textInfos;
         }
     }
 }

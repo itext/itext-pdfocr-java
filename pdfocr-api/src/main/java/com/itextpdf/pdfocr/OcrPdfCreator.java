@@ -295,8 +295,7 @@ public class OcrPdfCreator {
      *                  to write final PDF document to
      * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
      *                        for PDF/A-3u document
-     * @param imagesTextData Map<File, Map<Integer, List<TextInfo>>> -
-     *                       map that contains input image files as keys,
+     * @param imagesTextData map that contains input image files as keys,
      *                       and as value: map pageNumber -> text for the page
      * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
      */
@@ -350,8 +349,7 @@ public class OcrPdfCreator {
     /**
      * Places provided images and recognized text to the result PDF document.
      *
-     * @param imagesTextData Map<File, Map<Integer, List<TextInfo>>> -
-     *                       map that contains input image
+     * @param imagesTextData map that contains input image
      *                       files as keys, and as value:
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
