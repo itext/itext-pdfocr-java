@@ -298,6 +298,45 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
             int pageNumber);
 
     /**
+     * Gets path to provided tess data directory.
+     *
+     * @return path to provided tess data directory as
+     * {@link java.lang.String}
+     */
+    String getTessData() {
+        if (getTesseract4OcrEngineProperties().getPathToTessData() == null) {
+            throw new Tesseract4OcrException(Tesseract4OcrException
+                    .PATH_TO_TESS_DATA_IS_NOT_SET);
+        } else {
+            return getTesseract4OcrEngineProperties().getPathToTessData()
+                    .getAbsolutePath();
+        }
+    }
+
+    void scheduledCheck() {
+        ReflectionUtils.scheduledCheck();
+    }
+
+    void onEvent() {
+        IMetaInfo metaInfo = this.getThreadLocalMetaInfo();
+        if (!(metaInfo instanceof OcrPdfCreatorMetaInfo)) {
+            EventCounterHandler.getInstance()
+                    .onEvent(PdfOcrTesseract4Event.TESSERACT4_IMAGE_OCR, this.getThreadLocalMetaInfo(), getClass());
+        } else {
+            UUID uuid = ((OcrPdfCreatorMetaInfo) metaInfo).getDocumentId();
+            if (!processedUUID.contains(uuid)) {
+                processedUUID.add(uuid);
+                EventCounterHandler.getInstance()
+                        .onEvent(PdfDocumentType.PDFA.equals(((OcrPdfCreatorMetaInfo) metaInfo).getPdfDocumentType())
+                                        ? PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDFA
+                                        : PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDF,
+                                ((OcrPdfCreatorMetaInfo) metaInfo).getWrappedMetaInfo(), getClass());
+
+            }
+        }
+    }
+
+    /**
      * Reads data from the provided input image file.
      *
      * @param input input image {@link java.io.File}
@@ -306,7 +345,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * @return {@link ITesseractOcrResult} instance, either {@link StringTesseractOcrResult}
      *     if output format is TXT, or {@link TextInfoTesseractOcrResult} if the output format is HOCR
      */
-    ITesseractOcrResult processInputFiles(
+    private ITesseractOcrResult processInputFiles(
             final File input, final OutputFormat outputFormat) {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
@@ -320,10 +359,10 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                     ? 1 : ImagePreprocessingUtil.getNumberOfPageTiff(input);
             int numOfPages =
                     getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    ? realNumOfPages : 1;
+                            ? realNumOfPages : 1;
             int numOfFiles =
                     getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    ? 1 : realNumOfPages;
+                            ? 1 : realNumOfPages;
 
             for (int page = 1; page <= numOfPages; page++) {
                 String extension = outputFormat.equals(OutputFormat.HOCR)
@@ -368,45 +407,6 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
             }
         }
         return result;
-    }
-
-    /**
-     * Gets path to provided tess data directory.
-     *
-     * @return path to provided tess data directory as
-     * {@link java.lang.String}
-     */
-    String getTessData() {
-        if (getTesseract4OcrEngineProperties().getPathToTessData() == null) {
-            throw new Tesseract4OcrException(Tesseract4OcrException
-                    .PATH_TO_TESS_DATA_IS_NOT_SET);
-        } else {
-            return getTesseract4OcrEngineProperties().getPathToTessData()
-                    .getAbsolutePath();
-        }
-    }
-
-    void scheduledCheck() {
-        ReflectionUtils.scheduledCheck();
-    }
-
-    void onEvent() {
-        IMetaInfo metaInfo = this.getThreadLocalMetaInfo();
-        if (!(metaInfo instanceof OcrPdfCreatorMetaInfo)) {
-            EventCounterHandler.getInstance()
-                    .onEvent(PdfOcrTesseract4Event.TESSERACT4_IMAGE_OCR, this.getThreadLocalMetaInfo(), getClass());
-        } else {
-            UUID uuid = ((OcrPdfCreatorMetaInfo) metaInfo).getDocumentId();
-            if (!processedUUID.contains(uuid)) {
-                processedUUID.add(uuid);
-                EventCounterHandler.getInstance()
-                        .onEvent(PdfDocumentType.PDFA.equals(((OcrPdfCreatorMetaInfo) metaInfo).getPdfDocumentType())
-                                        ? PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDFA
-                                        : PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDF,
-                                ((OcrPdfCreatorMetaInfo) metaInfo).getWrappedMetaInfo(), getClass());
-
-            }
-        }
     }
 
     /**
@@ -456,10 +456,10 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
         }
     }
 
-    private interface ITesseractOcrResult {
+    interface ITesseractOcrResult {
     }
 
-    private static class StringTesseractOcrResult implements ITesseractOcrResult {
+    static class StringTesseractOcrResult implements ITesseractOcrResult {
         private String data;
 
         StringTesseractOcrResult(String data) {
@@ -471,7 +471,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
         }
     }
 
-    private static class TextInfoTesseractOcrResult implements ITesseractOcrResult {
+    static class TextInfoTesseractOcrResult implements ITesseractOcrResult {
         private Map<Integer, List<TextInfo>> textInfos;
 
         TextInfoTesseractOcrResult(Map<Integer, List<TextInfo>> textInfos) {
