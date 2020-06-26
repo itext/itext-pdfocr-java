@@ -94,9 +94,6 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
             }
             for (int i = 0; i < n; i++) {
                 threads[i].start();
-
-                // The test will pass in sequential mode, i.e. if the following line is uncommented
-                //threads[i].join();
             }
             for (int i = 0; i < n; i++) {
                 threads[i].join();
