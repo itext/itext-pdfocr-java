@@ -69,7 +69,7 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
-        ocrEngineProperties.setPathToTessData(new File(sourceFolder + "../../tessdata/"));
+        ocrEngineProperties.setPathToTessData(new File(sourceFolder + "../../tessdata"));
         tesseractReader.setTesseract4OcrEngineProperties(ocrEngineProperties);
     }
 
