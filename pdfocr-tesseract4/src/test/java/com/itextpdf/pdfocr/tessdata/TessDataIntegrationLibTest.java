@@ -22,10 +22,16 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import org.junit.Assert;
@@ -33,6 +39,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +50,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         super(ReaderType.LIB);
     }
 
-    @Test(timeout = 50000)
+    @Test(timeout = 60000)
     public void textOutputFromHalftoneFile() {
         String imgPath = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness Enablers";
@@ -59,7 +66,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         Assert.assertTrue(result.contains(expected03));
     }
 
-    @Test(timeout = 50000)
+    @Test(timeout = 60000)
     public void hocrOutputFromHalftoneFile() throws java.io.IOException {
         String path = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness";
@@ -95,6 +102,69 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
                 );
         Assert.assertTrue(findTextInPageData(pageData, 1, expected08));
         Assert.assertTrue(findTextInPageData(pageData, 1, expected09));
+    }
+
+    @Test
+    public void compareInvoiceFrontThaiImage() throws InterruptedException, java.io.IOException {
+        String testName = "compareInvoiceFrontThaiImage";
+        String filename = "invoice_front_thai";
+
+        //Tesseract for Java and Tesseract for .NET give different output
+        //So we cannot use one reference pdf file for them
+        String expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + "_java.pdf";
+        String expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + "_dotnet.pdf";
+
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_" + testFileTypeName + ".pdf";
+
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setTextPositioning(TextPositioning.BY_WORDS_AND_LINES);
+        properties.setPathToTessData(getTessDataDirectory());
+        properties.setLanguages(Arrays.asList("tha", "eng"));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+
+        doOcrAndSavePdfToPath(tesseractReader,
+                TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
+                Arrays.<String>asList("tha", "eng"), Arrays.<String>asList(NOTO_SANS_THAI_FONT_PATH, NOTO_SANS_FONT_PATH), DeviceRgb.RED);
+        boolean javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
+                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
+                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
+        Assert.assertTrue(javaTest || dotNetTest);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
+    })
+    @Test
+    public void compareThaiTextImage() throws InterruptedException, java.io.IOException {
+        String testName = "compareThaiTextImage";
+        String filename = "thai_01";
+
+        //Tesseract for Java and Tesseract for .NET give different output
+        //So we cannot use one reference pdf file for them
+        String expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + "_java.pdf";
+        String expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + "_dotnet.pdf";
+
+        String resultPdfPath = getTargetDirectory() + filename + "_" + testName + "_" + testFileTypeName + ".pdf";
+
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setTextPositioning(TextPositioning.BY_WORDS_AND_LINES);
+        properties.setPathToTessData(getTessDataDirectory());
+        properties.setLanguages(Arrays.asList("tha"));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+
+        doOcrAndSavePdfToPath(tesseractReader,
+                TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
+                Arrays.<String>asList("tha"), Arrays.<String>asList(NOTO_SANS_THAI_FONT_PATH), DeviceRgb.RED);
+        boolean javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
+                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
+                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
+        Assert.assertTrue(javaTest || dotNetTest);
     }
 
     /**
