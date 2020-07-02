@@ -22,41 +22,24 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.Version;
-import com.itextpdf.kernel.counter.ContextManager;
 
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class ReflectionUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
-
-    private static final String KERNEL_PACKAGE = "com.itextpdf.kernel.";
     private static final String LICENSEKEY_PACKAGE = "com.itextpdf.licensekey.";
 
-    private static final String CONTEXT_MANAGER = "counter.ContextManager";
     private static final String LICENSEKEY = "LicenseKey";
     private static final String LICENSEKEY_PRODUCT = "LicenseKeyProduct";
     private static final String LICENSEKEY_FEATURE = "LicenseKeyProductFeature";
 
-    private static final String REGISTER_GENERIC_CONTEXT = "registerGenericContext";
     private static final String SCHEDULED_CHECK = "scheduledCheck";
 
     private static final String NO_PDFOCR_TESSERACT4 = "No license loaded for product pdfOcr-Tesseract4. Please use LicenseKey.loadLicense(...) to load one.";
-
-    private static Map<String, Class<?>> cachedClasses = new HashMap<>();
-    private static Map<MethodSignature, AccessibleObject> cachedMethods = new HashMap<>();
 
     private ReflectionUtils() {
     }
