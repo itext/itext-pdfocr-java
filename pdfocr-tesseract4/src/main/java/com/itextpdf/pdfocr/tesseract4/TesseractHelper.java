@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.io.util.SystemUtil;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -70,17 +71,22 @@ public class TesseractHelper {
                     ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
 
     /**
-     * Indices in array representing bbox.
-     */
-    private static final int LEFT_IDX = 0;
-    private static final int BOTTOM_IDX = 1;
-    private static final int RIGHT_IDX = 2;
-    private static final int TOP_IDX = 3;
-
-    /**
      * Size of the array containing bbox.
      */
     private static final int BBOX_ARRAY_SIZE = 4;
+
+    /**
+     * Indices in array representing bbox.
+     */
+    private static final int LEFT_IDX = 0;
+    private static final int TOP_IDX = 1;
+    private static final int RIGHT_IDX = 2;
+    private static final int BOTTOM_IDX = 3;
+
+    /**
+     * The Constant to convert pixels to points.
+     */
+    private static final float PX_TO_PT = 3F / 4F;
 
     /**
      * Creates a new {@link TesseractHelper} instance.
@@ -130,6 +136,7 @@ public class TesseractHelper {
                     String[] pageNum = page.id().split("page_");
                     int pageNumber = Integer
                             .parseInt(pageNum[pageNum.length - 1]);
+                    final Rectangle pageBbox = parseBBox(page, null, unparsedBBoxes);
                     List<TextInfo> textData = new ArrayList<TextInfo>();
                     if (searchedClasses.size() > 0) {
                         Elements objects = page
@@ -143,11 +150,15 @@ public class TesseractHelper {
                             }
                         }
                         for (Element obj : objects) {
-                            List<Float> coordinates = getAlignedBBox(obj,
-                                    textPositioning,
+                            final Rectangle bboxRect = getAlignedBBox(obj,
+                                    textPositioning, pageBbox,
                                     unparsedBBoxes);
-                            textData.add(new TextInfo(obj.text(),
-                                    coordinates));
+                            final List<Float> bbox = Arrays.asList(bboxRect.getLeft(),
+                                    pageBbox.getTop() - bboxRect.getTop(),
+                                    bboxRect.getRight(),
+                                    pageBbox.getTop() - bboxRect.getBottom());
+                            final TextInfo textInfo = new TextInfo(obj.text(), toPoints(bboxRect), bbox);
+                            textData.add(textInfo);
                         }
                     }
                     if (textData.size() > 0) {
@@ -173,32 +184,36 @@ public class TesseractHelper {
     /**
      * Get and align (if needed) bbox of the element.
      */
-    static List<Float> getAlignedBBox(Element object,
+    static Rectangle getAlignedBBox(Element object,
                                       TextPositioning textPositioning,
+                                      Rectangle pageBbox,
                                       Map<String, Node> unparsedBBoxes) {
-        final List<Float> coordinates = parseBBox(object, unparsedBBoxes);
+        final Rectangle box = parseBBox(object, pageBbox, unparsedBBoxes);
         if (TextPositioning.BY_WORDS_AND_LINES == textPositioning
                 || TextPositioning.BY_WORDS == textPositioning) {
             Node line = object.parent();
-            final List<Float> lineCoordinates = parseBBox(line, unparsedBBoxes);
+            final Rectangle lineBbox = parseBBox(line, pageBbox, unparsedBBoxes);
             if (TextPositioning.BY_WORDS_AND_LINES == textPositioning) {
-                coordinates.set(BOTTOM_IDX, lineCoordinates.get(BOTTOM_IDX));
-                coordinates.set(TOP_IDX, lineCoordinates.get(TOP_IDX));
+                box.setBbox(box.getLeft(),
+                        lineBbox.getBottom(),
+                        box.getRight(),
+                        lineBbox.getTop());
             }
-            detectAndFixBrokenBBoxes(object, coordinates,
-                    lineCoordinates, unparsedBBoxes);
+            detectAndFixBrokenBBoxes(object, box,
+                    lineBbox, pageBbox, unparsedBBoxes);
         }
-        return coordinates;
+        return box;
     }
 
     /**
      * Parses element bbox.
      *
      * @param node element containing bbox
+     * @param pageBBox element containing parent page bbox
      * @param unparsedBBoxes list of element ids with bboxes which could not be parsed
      * @return parsed bbox
      */
-    static List<Float> parseBBox(Node node, Map<String, Node> unparsedBBoxes) {
+    static Rectangle parseBBox(Node node, Rectangle pageBBox, Map<String, Node> unparsedBBoxes) {
         List<Float> bbox = new ArrayList<>();
         Matcher bboxMatcher = BBOX_PATTERN.matcher(node.attr("title"));
         if (bboxMatcher.matches()) {
@@ -220,36 +235,60 @@ public class TesseractHelper {
                 unparsedBBoxes.put(id, node);
             }
         }
-        return bbox;
+        if (pageBBox == null) {
+            return new Rectangle(bbox.get(LEFT_IDX),
+                    bbox.get(TOP_IDX),
+                    bbox.get(RIGHT_IDX),
+                    bbox.get(BOTTOM_IDX) - bbox.get(TOP_IDX));
+        } else {
+            return new Rectangle(0, 0).setBbox(bbox.get(LEFT_IDX),
+                    pageBBox.getTop() - bbox.get(TOP_IDX),
+                    bbox.get(RIGHT_IDX),
+                    pageBBox.getTop() - bbox.get(BOTTOM_IDX));
+        }
     }
 
     /**
      * Sometimes hOCR file contains broke character bboxes which are equal to page bbox.
      * This method attempts to detect and fix them.
      */
-    static void detectAndFixBrokenBBoxes(Element object, List<Float> coordinates,
-                                         List<Float> lineCoordinates,
+    static void detectAndFixBrokenBBoxes(Element object, Rectangle bbox,
+                                         Rectangle lineBbox, Rectangle pageBbox,
                                          Map<String, Node> unparsedBBoxes) {
-        if (coordinates.get(LEFT_IDX) < lineCoordinates.get(LEFT_IDX)
-                || coordinates.get(LEFT_IDX) > lineCoordinates.get(RIGHT_IDX)) {
+        if (bbox.getLeft() < lineBbox.getLeft()
+                || bbox.getLeft() > lineBbox.getRight()) {
             if (object.previousElementSibling() == null) {
-                coordinates.set(LEFT_IDX, lineCoordinates.get(LEFT_IDX));
+                bbox.setX(lineBbox.getLeft());
             } else {
                 Element sibling = object.previousElementSibling();
-                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
-                coordinates.set(LEFT_IDX, siblingBBox.get(RIGHT_IDX));
+                final Rectangle siblingBBox = parseBBox(sibling, pageBbox, unparsedBBoxes);
+                bbox.setX(siblingBBox.getRight());
             }
         }
-        if (coordinates.get(RIGHT_IDX) > lineCoordinates.get(RIGHT_IDX)
-                || coordinates.get(RIGHT_IDX) < lineCoordinates.get(LEFT_IDX)) {
+        if (bbox.getRight() > lineBbox.getRight()
+                || bbox.getRight() < lineBbox.getLeft()) {
             if (object.nextElementSibling() == null) {
-                coordinates.set(RIGHT_IDX, lineCoordinates.get(RIGHT_IDX));
+                bbox.setBbox(bbox.getLeft(),
+                        bbox.getBottom(),
+                        lineBbox.getRight(),
+                        bbox.getTop());
             } else {
                 Element sibling = object.nextElementSibling();
-                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
-                coordinates.set(RIGHT_IDX, siblingBBox.get(LEFT_IDX));
+                final Rectangle siblingBBox = parseBBox(sibling, pageBbox, unparsedBBoxes);
+                bbox.setBbox(bbox.getLeft(),
+                        bbox.getBottom(),
+                        siblingBBox.getLeft(),
+                        bbox.getTop());
             }
         }
+    }
+
+    static Rectangle toPoints(Rectangle rectangle) {
+        return new Rectangle(
+                rectangle.getX() * PX_TO_PT,
+                rectangle.getY() * PX_TO_PT,
+                rectangle.getWidth() * PX_TO_PT,
+                rectangle.getHeight() * PX_TO_PT);
     }
 
     /**

@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr.helpers;
 
 import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
 import com.itextpdf.pdfocr.TextInfo;
@@ -39,8 +40,14 @@ public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
 
     private OcrEngineProperties ocrEngineProperties;
     private IMetaInfo threadLocalMetaInfo;
+    private boolean textInfoDeprecationMode = false;
 
     public CustomOcrEngine() {
+        this(false);
+    }
+
+    public CustomOcrEngine(boolean textInfoDeprecationMode) {
+        this.textInfoDeprecationMode = textInfoDeprecationMode;
     }
 
     public CustomOcrEngine(OcrEngineProperties ocrEngineProperties) {
@@ -55,8 +62,9 @@ public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
         if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
             text = PdfHelper.THAI_TEXT;
         }
-        TextInfo textInfo = new TextInfo(text,
-                Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f));
+        TextInfo textInfo = this.textInfoDeprecationMode ?
+                new TextInfo(text, Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f)) :
+                new TextInfo(text, new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
         result.put(1, Collections.<TextInfo>singletonList(textInfo));
         return result;
     }

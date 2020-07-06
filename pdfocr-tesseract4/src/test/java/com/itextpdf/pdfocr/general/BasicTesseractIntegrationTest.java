@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr.general;
 import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -256,46 +257,6 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
                         .getPathToTessData().getAbsolutePath());
     }
 
-    @Test
-    public void testTxtStringOutput() {
-        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
-        List<String> expectedOutput = Arrays.<String>asList(
-                "Multipage\nTIFF\nExample\nPage 1",
-                "Multipage\nTIFF\nExample\nPage 2",
-                "Multipage\nTIFF\nExample\nPage 4",
-                "Multipage\nTIFF\nExample\nPage 5",
-                "Multipage\nTIFF\nExample\nPage 6",
-                "Multipage\nTIFF\nExample\nPage /",
-                "Multipage\nTIFF\nExample\nPage 8",
-                "Multipage\nTIFF\nExample\nPage 9"
-        );
-
-        String result = tesseractReader.doImageOcr(file, OutputFormat.TXT);
-        for (String line : expectedOutput) {
-            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
-        }
-    }
-
-    @Test
-    public void testHocrStringOutput() {
-        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
-        List<String> expectedOutput = Arrays.<String>asList(
-                "Multipage\nTIFF\nExample\nPage 1",
-                "Multipage\nTIFF\nExample\nPage 2",
-                "Multipage\nTIFF\nExample\nPage 4",
-                "Multipage\nTIFF\nExample\nPage 5",
-                "Multipage\nTIFF\nExample\nPage 6",
-                "Multipage\nTIFF\nExample\nPage /",
-                "Multipage\nTIFF\nExample\nPage 8",
-                "Multipage\nTIFF\nExample\nPage 9"
-        );
-
-        String result = tesseractReader.doImageOcr(file, OutputFormat.HOCR);
-        for (String line : expectedOutput) {
-            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
-        }
-    }
-
     @LogMessages(messages = {
             @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
                     count = 1)
@@ -410,6 +371,46 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
                         .contains(expectedOutput));
     }
 
+    @Test
+    public void testTxtStringOutput() {
+        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
+        List<String> expectedOutput = Arrays.<String>asList(
+                "Multipage\nTIFF\nExample\nPage 1",
+                "Multipage\nTIFF\nExample\nPage 2",
+                "Multipage\nTIFF\nExample\nPage 4",
+                "Multipage\nTIFF\nExample\nPage 5",
+                "Multipage\nTIFF\nExample\nPage 6",
+                "Multipage\nTIFF\nExample\nPage /",
+                "Multipage\nTIFF\nExample\nPage 8",
+                "Multipage\nTIFF\nExample\nPage 9"
+        );
+
+        String result = tesseractReader.doImageOcr(file, OutputFormat.TXT);
+        for (String line : expectedOutput) {
+            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
+        }
+    }
+
+    @Test
+    public void testHocrStringOutput() {
+        File file = new File(TEST_IMAGES_DIRECTORY + "multîpage.tiff");
+        List<String> expectedOutput = Arrays.<String>asList(
+                "Multipage\nTIFF\nExample\nPage 1",
+                "Multipage\nTIFF\nExample\nPage 2",
+                "Multipage\nTIFF\nExample\nPage 4",
+                "Multipage\nTIFF\nExample\nPage 5",
+                "Multipage\nTIFF\nExample\nPage 6",
+                "Multipage\nTIFF\nExample\nPage /",
+                "Multipage\nTIFF\nExample\nPage 8",
+                "Multipage\nTIFF\nExample\nPage 9"
+        );
+
+        String result = tesseractReader.doImageOcr(file, OutputFormat.HOCR);
+        for (String line : expectedOutput) {
+            Assert.assertTrue(result.replaceAll("\r", "").contains(line));
+        }
+    }
+
     /**
      * Parse text from image and compare with expected.
      */
@@ -434,7 +435,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         if (pageText == null || pageText.size() == 0) {
             pageText = new ArrayList<TextInfo>();
             TextInfo textInfo = new TextInfo();
-            textInfo.setBbox(Arrays.<Float>asList(0f, 0f, 0f, 0f));
+            textInfo.setBboxRect(new Rectangle(0, 0, 0,0));
             textInfo.setText("");
             pageText.add(textInfo);
         }
@@ -446,9 +447,6 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
      * Concatenates provided text items to one string.
      */
     private String getTextFromPage(List<TextInfo> pageText) {
-        Assert.assertEquals(4,
-                pageText.get(0).getBbox().size());
-
         StringBuilder stringBuilder = new StringBuilder();
         for (TextInfo text : pageText) {
             stringBuilder.append(text.getText());
