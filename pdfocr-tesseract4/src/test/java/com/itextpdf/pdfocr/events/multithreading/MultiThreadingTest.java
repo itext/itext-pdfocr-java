@@ -124,8 +124,8 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
     }
 
     public static class TestEventCounter extends EventCounter {
-        private List<IEvent> events = new ArrayList<>();
-        private List<IMetaInfo> metaInfos = new ArrayList<>();
+        private List<IEvent> events = new ArrayList<IEvent>();
+        private List<IMetaInfo> metaInfos = new ArrayList<IMetaInfo>();
 
         public List<IEvent> getEvents() {
             return events;
@@ -136,10 +136,9 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
         }
 
         @Override
-        protected void onEvent(IEvent event, IMetaInfo metaInfo) {
+        synchronized protected void onEvent(IEvent event, IMetaInfo metaInfo) {
             this.events.add(event);
             this.metaInfos.add(metaInfo);
         }
     }
-
 }
