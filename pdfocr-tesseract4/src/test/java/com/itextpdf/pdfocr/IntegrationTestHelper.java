@@ -87,6 +87,8 @@ public class IntegrationTestHelper extends ExtendedITextTest {
 
     // path to font for hindi
     protected static final String NOTO_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "NotoSans-Regular.ttf";
+    // path to font for thai
+    protected static final String NOTO_SANS_THAI_FONT_PATH = TEST_FONTS_DIRECTORY + "NotoSansThai-Regular.ttf";
     // path to font for japanese
     protected static final String KOSUGI_FONT_PATH = TEST_FONTS_DIRECTORY + "Kosugi-Regular.ttf";
     // path to font for chinese
@@ -101,13 +103,14 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     static {
         Map<String, String> fontPathToNameMap = new HashMap<>();
         fontPathToNameMap.put(NOTO_SANS_FONT_PATH, "NotoSans");
+        fontPathToNameMap.put(NOTO_SANS_THAI_FONT_PATH, "NotoSansThai");
         fontPathToNameMap.put(KOSUGI_FONT_PATH, "Kosugi");
         fontPathToNameMap.put(NOTO_SANS_SC_FONT_PATH, "NotoSansSC");
         fontPathToNameMap.put(CAIRO_FONT_PATH, "Cairo");
         fontPathToNameMap.put(FREE_SANS_FONT_PATH, "FreeSans");
         FONT_PATH_TO_FONT_NAME_MAP = Collections.unmodifiableMap(fontPathToNameMap);
     }
-    
+
     public enum ReaderType {
         LIB,
         EXECUTABLE
@@ -164,7 +167,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from specified page from given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader,
-            File file, int page, List<String> languages, List<String> fonts) {
+                                    File file, int page, List<String> languages, List<String> fonts) {
         String result = null;
         String pdfPath = null;
         try {
@@ -183,7 +186,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from specified page from given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader,
-            File file, int page, List<String> languages, String fontPath) {
+                                    File file, int page, List<String> languages, String fontPath) {
         return getTextFromPdf(tesseractReader, file, page, languages,
                 Collections.<String>singletonList(fontPath));
     }
@@ -192,7 +195,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from the first page of given PDF document setting font.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
-            List<String> languages, String fontPath) {
+                                    List<String> languages, String fontPath) {
         return getTextFromPdf(tesseractReader, file, 1, languages, fontPath);
     }
 
@@ -200,7 +203,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from the first page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file,
-            List<String> languages) {
+                                    List<String> languages) {
         return getTextFromPdf(tesseractReader, file, 1, languages,
                 new ArrayList<String>());
     }
@@ -209,7 +212,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Retrieve text from the required page of given PDF document.
      */
     protected String getTextFromPdf(AbstractTesseract4OcrEngine tesseractReader, File file, int page,
-            List<String> languages) {
+                                    List<String> languages) {
         return getTextFromPdf(tesseractReader, file, page, languages, new ArrayList<String>());
     }
 
@@ -224,7 +227,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Get text from layer specified by name from page.
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
-            int page, boolean useActualText) throws IOException {
+                                         int page, boolean useActualText) throws IOException {
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath),
                 new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
 
@@ -243,7 +246,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * Get text from layer specified by name from page.
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
-            int page) throws IOException {
+                                         int page) throws IOException {
         return getTextFromPdfLayer(pdfPath, layerName, page, false);
     }
 
@@ -253,7 +256,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * {@link LocationTextExtractionStrategy#getResultantText()}.
      */
     protected String getTextFromPdfLayerUsingActualText(String pdfPath,
-            String layerName, int page) throws IOException {
+                                                        String layerName, int page) throws IOException {
         return getTextFromPdfLayer(pdfPath, layerName, page, true)
                 .replace(" ", "");
     }
@@ -378,7 +381,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      * (Text will be invisible)
      */
     protected void doOcrAndSavePdfToPath(AbstractTesseract4OcrEngine tesseractReader, String imgPath,
-            String pdfPath, List<String> languages, List<String> fonts) {
+                                         String pdfPath, List<String> languages, List<String> fonts) {
         doOcrAndSavePdfToPath(tesseractReader, imgPath, pdfPath,
                 languages, fonts, null);
     }
@@ -469,7 +472,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
 
         @Override
         protected boolean isChunkAtWordBoundary(TextChunk chunk,
-                TextChunk previousChunk) {
+                                                TextChunk previousChunk) {
             ITextChunkLocation curLoc = chunk.getLocation();
             ITextChunkLocation prevLoc = previousChunk.getLocation();
 

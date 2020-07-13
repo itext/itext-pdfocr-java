@@ -69,7 +69,7 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
-        ocrEngineProperties.setPathToTessData(new File(sourceFolder + "../../tessdata/"));
+        ocrEngineProperties.setPathToTessData(new File(sourceFolder + "../../tessdata"));
         tesseractReader.setTesseract4OcrEngineProperties(ocrEngineProperties);
     }
 
@@ -94,9 +94,6 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
             }
             for (int i = 0; i < n; i++) {
                 threads[i].start();
-
-                // The test will pass in sequential mode, i.e. if the following line is uncommented
-                //threads[i].join();
             }
             for (int i = 0; i < n; i++) {
                 threads[i].join();
@@ -127,8 +124,8 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
     }
 
     public static class TestEventCounter extends EventCounter {
-        private List<IEvent> events = new ArrayList<>();
-        private List<IMetaInfo> metaInfos = new ArrayList<>();
+        private List<IEvent> events = new ArrayList<IEvent>();
+        private List<IMetaInfo> metaInfos = new ArrayList<IMetaInfo>();
 
         public List<IEvent> getEvents() {
             return events;
@@ -139,10 +136,9 @@ public abstract class MultiThreadingTest extends IntegrationTestHelper {
         }
 
         @Override
-        protected void onEvent(IEvent event, IMetaInfo metaInfo) {
+        synchronized protected void onEvent(IEvent event, IMetaInfo metaInfo) {
             this.events.add(event);
             this.metaInfos.add(metaInfo);
         }
     }
-
 }

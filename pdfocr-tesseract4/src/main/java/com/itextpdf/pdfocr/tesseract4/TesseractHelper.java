@@ -28,6 +28,7 @@ import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Node;
 import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 
 import java.io.File;
@@ -61,6 +62,27 @@ public class TesseractHelper {
             .getLogger(TesseractHelper.class);
 
     /**
+     * Patterns for matching hOCR element bboxes.
+     */
+    private static final Pattern BBOX_PATTERN = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
+    private static final Pattern BBOX_COORDINATE_PATTERN = Pattern
+            .compile(
+                    ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
+
+    /**
+     * Indices in array representing bbox.
+     */
+    private static final int LEFT_IDX = 0;
+    private static final int BOTTOM_IDX = 1;
+    private static final int RIGHT_IDX = 2;
+    private static final int TOP_IDX = 3;
+
+    /**
+     * Size of the array containing bbox.
+     */
+    private static final int BBOX_ARRAY_SIZE = 4;
+
+    /**
      * Creates a new {@link TesseractHelper} instance.
      */
     private TesseractHelper() {
@@ -86,12 +108,13 @@ public class TesseractHelper {
             throws IOException {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
+        Map<String, Node> unparsedBBoxes = new LinkedHashMap<>();
 
         for (File inputFile : inputFiles) {
             if (inputFile != null
                     && Files.exists(
-                            java.nio.file.Paths
-                                    .get(inputFile.getAbsolutePath()))) {
+                    java.nio.file.Paths
+                            .get(inputFile.getAbsolutePath()))) {
                 FileInputStream fileInputStream =
                         new FileInputStream(inputFile.getAbsolutePath());
                 Document doc = Jsoup.parse(fileInputStream,
@@ -99,10 +122,6 @@ public class TesseractHelper {
                         inputFile.getAbsolutePath());
                 Elements pages = doc.getElementsByClass("ocr_page");
 
-                Pattern bboxPattern = Pattern.compile(".*bbox(\\s+\\d+){4}.*");
-                Pattern bboxCoordinatePattern = Pattern
-                        .compile(
-                                ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
                 List<String> searchedClasses = TextPositioning.BY_LINES
                         .equals(textPositioning)
                         ? Arrays.<String>asList("ocr_line", "ocr_caption")
@@ -124,26 +143,11 @@ public class TesseractHelper {
                             }
                         }
                         for (Element obj : objects) {
-                            String value = obj.attr("title");
-                            Matcher bboxMatcher = bboxPattern.matcher(value);
-                            if (bboxMatcher.matches()) {
-                                Matcher bboxCoordinateMatcher =
-                                        bboxCoordinatePattern
-                                                .matcher(bboxMatcher.group());
-                                if (bboxCoordinateMatcher.matches()) {
-                                    List<Float> coordinates =
-                                            new ArrayList<Float>();
-                                    for (int i = 0; i < 4; i++) {
-                                        String coord = bboxCoordinateMatcher
-                                                .group(i + 1);
-                                        coordinates
-                                                .add(Float.parseFloat(coord));
-                                    }
-
-                                    textData.add(new TextInfo(obj.text(),
-                                            coordinates));
-                                }
-                            }
+                            List<Float> coordinates = getAlignedBBox(obj,
+                                    textPositioning,
+                                    unparsedBBoxes);
+                            textData.add(new TextInfo(obj.text(),
+                                    coordinates));
                         }
                     }
                     if (textData.size() > 0) {
@@ -157,7 +161,95 @@ public class TesseractHelper {
                 fileInputStream.close();
             }
         }
+        for (Node node : unparsedBBoxes.values()) {
+            LOGGER.warn(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_PARSE_NODE_BBOX,
+                    node.toString()
+            ));
+        }
         return imageData;
+    }
+
+    /**
+     * Get and align (if needed) bbox of the element.
+     */
+    static List<Float> getAlignedBBox(Element object,
+                                      TextPositioning textPositioning,
+                                      Map<String, Node> unparsedBBoxes) {
+        final List<Float> coordinates = parseBBox(object, unparsedBBoxes);
+        if (TextPositioning.BY_WORDS_AND_LINES == textPositioning
+                || TextPositioning.BY_WORDS == textPositioning) {
+            Node line = object.parent();
+            final List<Float> lineCoordinates = parseBBox(line, unparsedBBoxes);
+            if (TextPositioning.BY_WORDS_AND_LINES == textPositioning) {
+                coordinates.set(BOTTOM_IDX, lineCoordinates.get(BOTTOM_IDX));
+                coordinates.set(TOP_IDX, lineCoordinates.get(TOP_IDX));
+            }
+            detectAndFixBrokenBBoxes(object, coordinates,
+                    lineCoordinates, unparsedBBoxes);
+        }
+        return coordinates;
+    }
+
+    /**
+     * Parses element bbox.
+     *
+     * @param node element containing bbox
+     * @param unparsedBBoxes list of element ids with bboxes which could not be parsed
+     * @return parsed bbox
+     */
+    static List<Float> parseBBox(Node node, Map<String, Node> unparsedBBoxes) {
+        List<Float> bbox = new ArrayList<>();
+        Matcher bboxMatcher = BBOX_PATTERN.matcher(node.attr("title"));
+        if (bboxMatcher.matches()) {
+            Matcher bboxCoordinateMatcher =
+                    BBOX_COORDINATE_PATTERN
+                            .matcher(bboxMatcher.group());
+            if (bboxCoordinateMatcher.matches()) {
+                for (int i = 0; i < BBOX_ARRAY_SIZE; i++) {
+                    String coord = bboxCoordinateMatcher
+                            .group(i + 1);
+                    bbox.add(Float.parseFloat(coord));
+                }
+            }
+        }
+        if (bbox.size() == 0) {
+            bbox = Arrays.asList(0f, 0f, 0f, 0f);
+            String id = node.attr("id");
+            if (id != null && !unparsedBBoxes.containsKey(id)) {
+                unparsedBBoxes.put(id, node);
+            }
+        }
+        return bbox;
+    }
+
+    /**
+     * Sometimes hOCR file contains broke character bboxes which are equal to page bbox.
+     * This method attempts to detect and fix them.
+     */
+    static void detectAndFixBrokenBBoxes(Element object, List<Float> coordinates,
+                                         List<Float> lineCoordinates,
+                                         Map<String, Node> unparsedBBoxes) {
+        if (coordinates.get(LEFT_IDX) < lineCoordinates.get(LEFT_IDX)
+                || coordinates.get(LEFT_IDX) > lineCoordinates.get(RIGHT_IDX)) {
+            if (object.previousElementSibling() == null) {
+                coordinates.set(LEFT_IDX, lineCoordinates.get(LEFT_IDX));
+            } else {
+                Element sibling = object.previousElementSibling();
+                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
+                coordinates.set(LEFT_IDX, siblingBBox.get(RIGHT_IDX));
+            }
+        }
+        if (coordinates.get(RIGHT_IDX) > lineCoordinates.get(RIGHT_IDX)
+                || coordinates.get(RIGHT_IDX) < lineCoordinates.get(LEFT_IDX)) {
+            if (object.nextElementSibling() == null) {
+                coordinates.set(RIGHT_IDX, lineCoordinates.get(RIGHT_IDX));
+            } else {
+                Element sibling = object.nextElementSibling();
+                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
+                coordinates.set(RIGHT_IDX, siblingBBox.get(LEFT_IDX));
+            }
+        }
     }
 
     /**
@@ -208,7 +300,7 @@ public class TesseractHelper {
      * @param data text data in required format as {@link java.lang.String}
      */
     static void writeToTextFile(final String path,
-            final String data) {
+                                final String data) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(path),
                 StandardCharsets.UTF_8)) {
             writer.write(data);
@@ -228,7 +320,7 @@ public class TesseractHelper {
      * @throws Tesseract4OcrException if provided command failed
      */
     static void runCommand(final String execPath,
-            final List<String> paramsList) throws Tesseract4OcrException {
+                           final List<String> paramsList) throws Tesseract4OcrException {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil

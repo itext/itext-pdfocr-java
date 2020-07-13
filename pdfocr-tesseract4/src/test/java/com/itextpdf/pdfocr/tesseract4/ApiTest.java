@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -32,6 +33,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.TesseractException;
 import org.junit.Assert;
@@ -45,7 +50,7 @@ public class ApiTest extends IntegrationTestHelper {
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
+            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
     })
     @Test
     public void testDefaultTessDataPathValidationForLib() {
@@ -60,7 +65,7 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
+            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
     })
     @Test
     public void testDefaultTessDataPathValidationForExecutable() {
@@ -76,7 +81,7 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
     public void testDoTesseractOcrForIncorrectImageForExecutable() {
@@ -96,8 +101,8 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED)
+            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED)
     })
     @Test
     public void testOcrResultForSinglePageForNullImage() {
@@ -131,10 +136,10 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
-        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
-        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
+            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
     }, ignore = true)
     @Test
     public void testDoTesseractOcrForExecutableForWin() {
@@ -143,15 +148,31 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
-        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
-        @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
+            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_NOT_FOUND),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.COMMAND_FAILED)
     }, ignore = true)
     @Test
     public void testDoTesseractOcrForExecutableForLinux() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         testSettingOsName("linux");
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_PARSE_NODE_BBOX, count = 4)
+    })
+    @Test
+    public void testDetectAndFixBrokenBBoxes() throws IOException {
+        File hocrFile = new File(TEST_DOCUMENTS_DIRECTORY + "broken_bboxes.hocr");
+        Map<Integer, List<TextInfo>> parsedHocr = TesseractHelper.parseHocrFile(Collections.singletonList(hocrFile),
+                TextPositioning.BY_WORDS_AND_LINES);
+        TextInfo textInfo = parsedHocr.get(1).get(1);
+
+        Assert.assertEquals(383.0f, (float)textInfo.getBbox().get(0), 0.1);
+        Assert.assertEquals(101.0f, (float)textInfo.getBbox().get(1), 0.1);
+        Assert.assertEquals(514.0f, (float)textInfo.getBbox().get(2), 0.1);
+        Assert.assertEquals(136.0f, (float)textInfo.getBbox().get(3), 0.1);
     }
 
     private void testSettingOsName(String osName) {

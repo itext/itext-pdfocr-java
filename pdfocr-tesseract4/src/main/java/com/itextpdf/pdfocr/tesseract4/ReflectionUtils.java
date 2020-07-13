@@ -22,57 +22,24 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.Version;
-import com.itextpdf.kernel.counter.ContextManager;
 
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class ReflectionUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
-
-    private static final String KERNEL_PACKAGE = "com.itextpdf.kernel.";
     private static final String LICENSEKEY_PACKAGE = "com.itextpdf.licensekey.";
 
-    private static final String CONTEXT_MANAGER = "counter.ContextManager";
     private static final String LICENSEKEY = "LicenseKey";
     private static final String LICENSEKEY_PRODUCT = "LicenseKeyProduct";
     private static final String LICENSEKEY_FEATURE = "LicenseKeyProductFeature";
 
-    private static final String REGISTER_GENERIC_CONTEXT = "registerGenericContext";
     private static final String SCHEDULED_CHECK = "scheduledCheck";
 
     private static final String NO_PDFOCR_TESSERACT4 = "No license loaded for product pdfOcr-Tesseract4. Please use LicenseKey.loadLicense(...) to load one.";
-
-    private static Map<String, Class<?>> cachedClasses = new HashMap<>();
-    private static Map<MethodSignature, AccessibleObject> cachedMethods = new HashMap<>();
-
-    static {
-        try {
-            ContextManager contextManager = ContextManager.getInstance();
-            callMethod(KERNEL_PACKAGE + CONTEXT_MANAGER, REGISTER_GENERIC_CONTEXT, contextManager,
-                    new Class[] {Collection.class, Collection.class},
-                    Collections.singletonList("com.itextpdf.pdfocr"),
-                    Collections.singletonList("com.itextpdf.pdfocr.tesseract4"));
-            callMethod(KERNEL_PACKAGE + CONTEXT_MANAGER, REGISTER_GENERIC_CONTEXT, contextManager,
-                    new Class[] {Collection.class, Collection.class},
-                    Collections.singletonList("com.itextpdf.pdfocr.tesseract4"),
-                    Collections.singletonList("com.itextpdf.pdfocr.tesseract4"));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-    }
 
     private ReflectionUtils() {
     }
@@ -114,52 +81,6 @@ final class ReflectionUtils {
                 throw new RuntimeException(e.getCause());
             }
         }
-    }
-
-    private static Object callMethod(String className, String methodName, Object target, Class[] parameterTypes,
-            Object... args) {
-        try {
-            Method method = findMethod(className, methodName, parameterTypes);
-            return method.invoke(target, args);
-        } catch (NoSuchMethodException e) {
-            logger.warn(MessageFormatUtil.format("Cannot find method {0} for class {1}", methodName, className));
-        } catch (ClassNotFoundException e) {
-            logger.warn(MessageFormatUtil.format("Cannot find class {0}", className));
-        } catch (IllegalArgumentException e) {
-            logger.warn(MessageFormatUtil
-                    .format("Illegal arguments passed to {0}#{1} method call: {2}", className, methodName,
-                            e.getMessage()));
-        } catch (Exception e) {
-            // Converting checked exceptions to unchecked RuntimeException (java-specific comment).
-            //
-            // If kernel utils throws an exception at this point, we consider it as unrecoverable situation for
-            // its callers (pdfOcr methods).
-            // It's might be more suitable to wrap checked exceptions at a bit higher level, but we do it here for
-            // the sake of convenience.
-            throw new RuntimeException(e.toString(), e);
-        }
-        return null;
-    }
-
-    private static Method findMethod(String className, String methodName, Class[] parameterTypes)
-            throws NoSuchMethodException, ClassNotFoundException {
-        MethodSignature tm = new MethodSignature(className, parameterTypes, methodName);
-        Method m = (Method) cachedMethods.get(tm);
-        if (m == null) {
-            m = findClass(className).getDeclaredMethod(methodName, parameterTypes);
-            m.setAccessible(true);
-            cachedMethods.put(tm, m);
-        }
-        return m;
-    }
-
-    private static Class<?> findClass(String className) throws ClassNotFoundException {
-        Class<?> c = cachedClasses.get(className);
-        if (c == null) {
-            c = getClass(className);
-            cachedClasses.put(className, c);
-        }
-        return c;
     }
 
     private static Class<?> getClass(String className) throws ClassNotFoundException {

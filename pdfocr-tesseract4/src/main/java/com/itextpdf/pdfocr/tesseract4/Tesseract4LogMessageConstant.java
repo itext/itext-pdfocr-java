@@ -59,6 +59,9 @@ public class Tesseract4LogMessageConstant {
             + "temporary directory: {0}";
     public static final String CANNOT_CONVERT_IMAGE_TO_PIX =
             "Cannot convert image to pix: {0}";
+    public static final String CANNOT_PARSE_NODE_BBOX =
+            "Cannot parse node BBox, defaults to 0, 0, 0, 0. Node: {0}";
+
 
     private Tesseract4LogMessageConstant() {
     }
