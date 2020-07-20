@@ -321,10 +321,24 @@ public class TesseractHelper {
      */
     static void runCommand(final String execPath,
                            final List<String> paramsList) throws Tesseract4OcrException {
+        runCommand(execPath, paramsList, null);
+    }
+
+    /**
+     * Runs given command from the specific working directory.
+     *
+     * @param execPath path to the executable
+     * @param paramsList {@link java.util.List} of command line arguments
+     * @param workingDirPath path to the working directory
+     * @throws Tesseract4OcrException if provided command failed
+     */
+    static void runCommand(final String execPath,
+                           final List<String> paramsList,
+                           final String workingDirPath) throws Tesseract4OcrException {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil
-                    .runProcessAndWait(execPath, params);
+                    .runProcessAndWait(execPath, params, workingDirPath);
 
             if (!cmdSucceeded) {
                 LOGGER.error(MessageFormatUtil
