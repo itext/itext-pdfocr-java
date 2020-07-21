@@ -73,6 +73,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     private static final String TARGET_FOLDER = "./target/test/resources/com/itextpdf/pdfocr/";
+    private static final String NON_ASCII_TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/ñoñ-ascîî/";
 
     // directory with trained data for tests
     protected static final String LANG_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata";
@@ -157,6 +158,16 @@ public class IntegrationTestHelper extends ExtendedITextTest {
             createDestinationFolder(TARGET_FOLDER);
         }
         return TARGET_FOLDER;
+    }
+
+    /**
+     * Returns a non ascii target directory.
+     */
+    public static String getNonAsciiTargetDirectory() {
+        if (!Files.exists(java.nio.file.Paths.get(NON_ASCII_TARGET_DIRECTORY))) {
+            createDestinationFolder(NON_ASCII_TARGET_DIRECTORY);
+        }
+        return NON_ASCII_TARGET_DIRECTORY;
     }
 
     protected static File getTessDataDirectory() {

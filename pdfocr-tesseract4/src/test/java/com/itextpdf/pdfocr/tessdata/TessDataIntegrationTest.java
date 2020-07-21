@@ -623,6 +623,18 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         Assert.assertEquals(expected, result);
     }
 
+    @Test
+    public void testTargetDirectoryWithNonAsciiPath() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "german_01.jpg";
+        String expectedTxt = TEST_DOCUMENTS_DIRECTORY + "german_01" + testFileTypeName + ".txt";
+        List<String> languages = Collections.<String>singletonList("deu");
+        String resultTxtFile = getNonAsciiTargetDirectory() + getImageName(imgPath, languages) + ".txt";
+        doOcrAndSaveToTextFile(tesseractReader, imgPath, resultTxtFile, languages);
+
+        boolean result = compareTxtFiles(expectedTxt, resultTxtFile);
+        Assert.assertTrue(result);
+    }
+
     /**
      * Do OCR for given image and compare result text file with expected one.
      */
