@@ -23,6 +23,8 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import org.junit.Assert;
@@ -37,11 +39,14 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
 
     @Test
     public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03_10MB";
+        String path = TEST_IMAGES_DIRECTORY + "example_04.png";
         File imgFile = new File(path);
         Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
     }
 
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    })
     @Test
     public void testReadingInvalidImagePath() {
         junitExpectedException.expect(Tesseract4OcrException.class);

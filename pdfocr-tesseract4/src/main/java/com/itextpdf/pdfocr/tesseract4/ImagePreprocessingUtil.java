@@ -22,7 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.image.ImageType;
+import com.itextpdf.io.image.ImageTypeDetector;
 import com.itextpdf.io.image.TiffImageData;
+import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
@@ -75,14 +78,30 @@ class ImagePreprocessingUtil {
      * @return true if provided image has 'tiff' or 'tif' extension
      */
     static boolean isTiffImage(final File inputImage) {
-        int index = inputImage.getAbsolutePath().lastIndexOf('.');
-        if (index > 0) {
-            String extension = new String(
-                    inputImage.getAbsolutePath().toCharArray(), index + 1,
-                    inputImage.getAbsolutePath().length() - index - 1);
-            return extension.toLowerCase().contains("tif");
+        return getImageType(inputImage) == ImageType.TIFF;
+    }
+
+    /**
+     * Gets the image type.
+     *
+     * @param inputImage input image {@link java.io.File}
+     * @return image type {@link com.itextpdf.io.image.ImageType}
+     */
+    static ImageType getImageType(final File inputImage) {
+        ImageType type;
+        try {
+            type = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
+        } catch (Exception e) { // NOSONAR
+            LoggerFactory.getLogger(ImagePreprocessingUtil.class).error(MessageFormatUtil
+                    .format(Tesseract4LogMessageConstant
+                                    .CANNOT_READ_INPUT_IMAGE,
+                            e.getMessage()));
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE)
+                    .setMessageParams(inputImage.getAbsolutePath());
         }
-        return false;
+
+        return type;
     }
 
     /**

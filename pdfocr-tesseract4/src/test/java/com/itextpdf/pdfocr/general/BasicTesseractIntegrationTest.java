@@ -172,8 +172,9 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     public void testInputInvalidImage() {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT,
-                        "txt"));
+                .format(Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE,
+                        new File(TEST_IMAGES_DIRECTORY + "example.txt")
+                                .getAbsolutePath()));
 
         File file1 = new File(TEST_IMAGES_DIRECTORY + "example.txt");
         File file2 = new File(TEST_IMAGES_DIRECTORY

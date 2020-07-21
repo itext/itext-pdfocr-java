@@ -277,9 +277,18 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil
                 .format(Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT,
-                        "txt"));
-        File file = new File(TEST_IMAGES_DIRECTORY + "example.txt");
+                        "wierdwords.gif"));
+        File file = new File(TEST_IMAGES_DIRECTORY + "wierdwords.gif");
         getTextFromPdf(tesseractReader, file);
+    }
+
+    @Test
+    public void testSupportedImageWithIncorrectTypeInName() {
+        String path = TEST_IMAGES_DIRECTORY + "numbers_01.nnn";
+        String expectedOutput = "619121";
+
+        String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
+        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test

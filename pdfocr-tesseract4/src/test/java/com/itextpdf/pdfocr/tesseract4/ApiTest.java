@@ -81,7 +81,7 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 2)
     })
     @Test
     public void testDoTesseractOcrForIncorrectImageForExecutable() {
@@ -101,6 +101,7 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
             @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
             @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED)
     })

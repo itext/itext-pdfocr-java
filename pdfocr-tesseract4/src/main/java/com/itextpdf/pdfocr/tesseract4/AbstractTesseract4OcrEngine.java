@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.image.ImageType;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.counter.EventCounterHandler;
 import com.itextpdf.kernel.counter.event.IMetaInfo;
@@ -59,10 +60,10 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
     /**
      * Supported image formats.
      */
-    private static final Set<String> SUPPORTED_IMAGE_FORMATS =
+    private static final Set<ImageType> SUPPORTED_IMAGE_FORMATS =
             Collections.unmodifiableSet(new HashSet<>(
-                    Arrays.<String>asList("bmp", "png", "tiff", "tif", "jpeg",
-                            "jpg", "jpe", "jfif")));
+                    Arrays.<ImageType>asList(ImageType.BMP, ImageType.PNG,
+                            ImageType.TIFF, ImageType.JPEG)));
 
     Set<UUID> processedUUID = new HashSet<>();
 
@@ -431,20 +432,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      */
     private void verifyImageFormatValidity(final File image)
             throws Tesseract4OcrException {
-        boolean isValid = false;
-        String extension = "incorrect extension";
-        int index = image.getAbsolutePath().lastIndexOf('.');
-        if (index > 0) {
-            extension = new String(image.getAbsolutePath().toCharArray(),
-                    index + 1,
-                    image.getAbsolutePath().length() - index - 1);
-            for (String format : SUPPORTED_IMAGE_FORMATS) {
-                if (format.equals(extension.toLowerCase())) {
-                    isValid = true;
-                    break;
-                }
-            }
-        }
+        ImageType type = ImagePreprocessingUtil.getImageType(image);
+        boolean isValid = SUPPORTED_IMAGE_FORMATS.contains(type);
         if (!isValid) {
             LoggerFactory.getLogger(getClass()).error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant
@@ -452,7 +441,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                             image.getAbsolutePath()));
             throw new Tesseract4OcrException(
                     Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
-                    .setMessageParams(extension);
+                    .setMessageParams(image.getName());
         }
     }
 
