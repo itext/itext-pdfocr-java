@@ -45,6 +45,11 @@ public class Tesseract4LogMessageConstant {
             "Cannot write to file {0}: {1}";
     public static final String CREATED_TEMPORARY_FILE =
             "Created temp file {0}";
+    /**
+     * Constant is not used.
+     * @deprecated since 1.0.1.
+     */
+    @Deprecated
     public static final String CANNOT_CONVERT_IMAGE_TO_GRAYSCALE =
             "Cannot convert to gray image with depth {0}";
     public static final String CANNOT_BINARIZE_IMAGE =
