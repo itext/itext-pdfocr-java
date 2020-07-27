@@ -636,6 +636,24 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     /**
+     * Do OCR and retrieve text from the first page of result PDF document
+     * using tess data placed by path with non ASCII characters.
+     * @return {@link java.lang.String}
+     */
+    protected String doOcrAndGetTextUsingTessDataByNonAsciiPath() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
+        File file = new File(imgPath);
+
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPathToTessData(new File(NON_ASCII_TESS_DATA_DIRECTORY)));
+
+        return getTextFromPdf(tesseractReader, file,
+                Collections.<String>singletonList("Georgian"),
+                FREE_SANS_FONT_PATH);
+    }
+
+    /**
      * Do OCR for given image and compare result text file with expected one.
      */
     private boolean doOcrAndCompareTxtFiles(AbstractTesseract4OcrEngine tesseractReader,

@@ -50,6 +50,8 @@ public class Tesseract4OcrException extends OcrException {
     public static final String PATH_TO_TESS_DATA_IS_NOT_SET =
             "Path to tess data directory cannot be null and must be set "
                     + "to a valid directory";
+    public static final String PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS =
+            "Path to tess data should contain only ASCII characters";
 
     /**
      * Creates a new TesseractException.

@@ -79,6 +79,8 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     protected static final String LANG_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata";
     // directory with trained data for tests
     protected static final String SCRIPT_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata" + File.separator + "script";
+    // directory with trained data for tests
+    protected static final String NON_ASCII_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata" + File.separator + "ñoñ-ascîî";
     // directory with test image files
     protected static final String TEST_IMAGES_DIRECTORY = TEST_DIRECTORY + "images" + File.separator;
     // directory with fonts

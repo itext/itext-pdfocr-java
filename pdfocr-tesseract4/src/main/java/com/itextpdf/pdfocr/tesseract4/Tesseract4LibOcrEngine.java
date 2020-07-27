@@ -33,6 +33,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * (depends on OS type)
      */
     private ITesseract tesseractInstance = null;
+
+    /**
+     * Pattern for matching ASCII string.
+     */
+    private static final Pattern ASCII_STRING_PATTERN = Pattern.compile("^[\\u0000-\\u007F]*$");
 
     /**
      * Creates a new {@link Tesseract4LibOcrEngine} instance.
@@ -140,6 +147,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             final int pageNumber) {
         scheduledCheck();
         try {
+            // check tess data path for non ASCII characters
+            validateTessDataPath(getTessData());
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
@@ -193,6 +202,23 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                         getTesseract4OcrEngineProperties()
                                 .getPathToUserWordsFile());
             }
+        }
+    }
+
+    /**
+     * Validates Tess Data path,
+     * checks if tess data path contains only ASCII charset.
+     * Note: tesseract lib has issues with non ASCII characters in tess data path.
+     *
+     * @param tessDataPath {@link java.lang.String} path to tess data
+     */
+    private static void validateTessDataPath(final String tessDataPath) {
+        Matcher asciiStringMatcher = ASCII_STRING_PATTERN.matcher(tessDataPath);
+
+        if (!asciiStringMatcher.matches()) {
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException
+                            .PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS);
         }
     }
 

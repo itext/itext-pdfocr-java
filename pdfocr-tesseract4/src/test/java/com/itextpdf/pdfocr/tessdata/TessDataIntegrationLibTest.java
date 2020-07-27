@@ -30,6 +30,7 @@ import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -48,6 +49,22 @@ import java.util.Map;
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     public TessDataIntegrationLibTest() {
         super(ReaderType.LIB);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS)
+    })
+    @Test
+    public void testTessDataWithNonAsciiPath() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expectMessage(
+                Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS
+        );
+
+        // Throws exception for the tesseract lib test
+        doOcrAndGetTextUsingTessDataByNonAsciiPath();
+
+        Assert.fail("Should throw exception for the tesseract lib when tess data path contains non ASCII characters");
     }
 
     @Test(timeout = 60000)
