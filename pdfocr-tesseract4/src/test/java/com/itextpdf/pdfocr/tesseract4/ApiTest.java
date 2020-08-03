@@ -35,7 +35,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,9 +70,7 @@ public class ApiTest extends IntegrationTestHelper {
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         File imgFile = new File(path);
 
-        Tesseract4ExecutableOcrEngine engine =
-                new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
-                        new Tesseract4OcrEngineProperties());
+        Tesseract4ExecutableOcrEngine engine = new Tesseract4ExecutableOcrEngine(new Tesseract4OcrEngineProperties());
         engine.doImageOcr(imgFile);
     }
 
@@ -91,9 +88,8 @@ public class ApiTest extends IntegrationTestHelper {
         File imgFile = new File(path);
 
         Tesseract4ExecutableOcrEngine engine =
-                new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
-                        new Tesseract4OcrEngineProperties()
-                                .setPathToTessData(getTessDataDirectory()));
+                new Tesseract4ExecutableOcrEngine(
+                        new Tesseract4OcrEngineProperties().setPathToTessData(getTessDataDirectory()));
         engine.doTesseractOcr(imgFile, null, OutputFormat.HOCR);
     }
 
@@ -124,9 +120,7 @@ public class ApiTest extends IntegrationTestHelper {
         Tesseract4OcrEngineProperties properties = new Tesseract4OcrEngineProperties();
         properties.setPathToTessData(getTessDataDirectory());
         properties.setPreprocessingImages(false);
-        Tesseract4ExecutableOcrEngine engine =
-                new Tesseract4ExecutableOcrEngine(getTesseractDirectory(),
-                        properties);
+        Tesseract4ExecutableOcrEngine engine = new Tesseract4ExecutableOcrEngine(properties);
         engine.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
         Assert.assertTrue(Files.exists(Paths.get(outputFile.getAbsolutePath())));
         TesseractHelper.deleteFile(outputFile.getAbsolutePath());

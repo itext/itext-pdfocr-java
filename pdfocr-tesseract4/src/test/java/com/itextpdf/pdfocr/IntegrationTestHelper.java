@@ -127,8 +127,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
                 new Tesseract4OcrEngineProperties();
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());
         tesseractLibReader = new Tesseract4LibOcrEngine(ocrEngineProperties);
-        tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
-                getTesseractDirectory(), ocrEngineProperties);
+        tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(ocrEngineProperties);
     }
 
     protected static AbstractTesseract4OcrEngine getTesseractReader(ReaderType type) {
@@ -141,15 +140,6 @@ public class IntegrationTestHelper extends ExtendedITextTest {
 
     protected static Tesseract4LibOcrEngine getTesseract4LibOcrEngine() {
         return tesseractLibReader;
-    }
-
-    protected static String getTesseractDirectory() {
-        String tesseractDir = System.getProperty("tesseractDir");
-        String os = System.getProperty("os.name") == null
-                ? System.getProperty("OS") : System.getProperty("os.name");
-        return os.toLowerCase().contains("win") && tesseractDir != null
-                && !tesseractDir.isEmpty()
-                ? tesseractDir + "\\tesseract.exe" : "tesseract";
     }
 
     /**
