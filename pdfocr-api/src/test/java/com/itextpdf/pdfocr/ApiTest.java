@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -40,11 +41,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 
 @Category(IntegrationTest.class)
 public class ApiTest extends ExtendedITextTest {
+
+    @Rule
+    public ExpectedException junitExpectedException = ExpectedException.none();
+
 
     @Test
     public void testTextInfo() {
@@ -96,6 +103,49 @@ public class ApiTest extends ExtendedITextTest {
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
         Assert.assertTrue(fontName.contains("LiberationSans"));
+    }
+
+    @Test
+    public void testImageRotationHandler() {
+        junitExpectedException.expect(RuntimeException.class);
+        junitExpectedException
+                .expectMessage("applyRotation is not implemented");
+
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
+        String testName = "testSetAndGetImageRotationHandler";
+        String path = PdfHelper.getImagesTestDirectory() + "90_degrees_rotated.jpg";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdf(pdfPath, new File(path),
+                properties);
+
+        Assert.assertNotNull(properties.getImageRotationHandler());
+    }
+
+    @Test
+    public void testImageRotationHandlerForTiff() {
+        junitExpectedException.expect(RuntimeException.class);
+        junitExpectedException
+                .expectMessage("applyRotation is not implemented");
+
+        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+        properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
+        String testName = "testSetAndGetImageRotationHandler";
+        String path = PdfHelper.getImagesTestDirectory() + "multipage.tiff";
+        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+
+        PdfHelper.createPdf(pdfPath, new File(path),
+                properties);
+
+        Assert.assertNotNull(properties.getImageRotationHandler());
+    }
+
+    static class NotImplementedImageRotationHandler implements IImageRotationHandler {
+        @Override
+        public ImageData applyRotation(ImageData imageData) {
+            throw new RuntimeException("applyRotation is not implemented");
+        }
     }
 
     @LogMessages(messages = {

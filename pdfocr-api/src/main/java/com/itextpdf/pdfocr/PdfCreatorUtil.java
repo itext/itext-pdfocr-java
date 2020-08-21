@@ -162,12 +162,13 @@ class PdfCreatorUtil {
      * input {@link java.io.File}.
      *
      * @param inputImage input image as {@link java.io.File}
+     * @param imageRotationHandler image rotation handler {@link IImageRotationHandler}
      * @return list of {@link com.itextpdf.io.image.ImageData} objects
      * (more than one element in the list if it is a multipage tiff)
      * @throws OcrException if error occurred during reading a file
      * @throws IOException if error occurred during reading a file
      */
-    static List<ImageData> getImageData(final File inputImage)
+    static List<ImageData> getImageData(final File inputImage, IImageRotationHandler imageRotationHandler)
             throws OcrException, IOException {
         List<ImageData> images = new ArrayList<ImageData>();
 
@@ -187,12 +188,18 @@ class PdfCreatorUtil {
                     ImageData imageData = ImageDataFactory
                             .createTiff(bytes, true,
                                     page + 1, true);
+                    if (imageRotationHandler != null) {
+                        imageData = imageRotationHandler.applyRotation(imageData);
+                    }
                     images.add(imageData);
                 }
             } else {
                 try {
                     ImageData imageData = ImageDataFactory
                             .create(inputImage.getAbsolutePath());
+                    if (imageRotationHandler != null) {
+                        imageData = imageRotationHandler.applyRotation(imageData);
+                    }
                     images.add(imageData);
                 } catch (com.itextpdf.io.IOException e) {
                     LOGGER.error(MessageFormatUtil.format(

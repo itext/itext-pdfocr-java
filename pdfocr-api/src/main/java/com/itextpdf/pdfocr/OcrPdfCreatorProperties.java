@@ -92,6 +92,11 @@ public class OcrPdfCreatorProperties {
     private String title = null;
 
     /**
+     * Handles rotated images as described in {@link com.itextpdf.pdfocr.IImageRotationHandler}.
+     */
+    private IImageRotationHandler imageRotationHandler;
+
+    /**
      * Creates a new {@link OcrPdfCreatorProperties} instance.
      */
     public OcrPdfCreatorProperties() {
@@ -114,6 +119,7 @@ public class OcrPdfCreatorProperties {
         this.title = other.title;
         this.fontProvider = other.fontProvider;
         this.defaultFontFamily = other.defaultFontFamily;
+        this.imageRotationHandler = other.imageRotationHandler;
     }
 
     /**
@@ -337,4 +343,27 @@ public class OcrPdfCreatorProperties {
         return defaultFontFamily == null || defaultFontFamily.length() == 0
                 ? getFontProvider().getDefaultFontFamily() : defaultFontFamily;
     }
+
+    /**
+     * Gets image rotation handler instance.
+     *
+     * @return image rotation handler
+     */
+    public IImageRotationHandler getImageRotationHandler() {
+        return this.imageRotationHandler;
+    }
+
+    /**
+     * Sets image rotation handler instance.
+     * If not set - image rotation handling is not applied.
+     *
+     * @param imageRotationDetector image rotation handler instance
+     * @return the {@link OcrPdfCreatorProperties} instance
+     */
+    public OcrPdfCreatorProperties setImageRotationHandler(
+            IImageRotationHandler imageRotationDetector) {
+        this.imageRotationHandler = imageRotationDetector;
+        return this;
+    }
+
 }

@@ -156,7 +156,7 @@ class ImagePreprocessingUtil {
             pix = TesseractOcrUtil.readPixPageFromTiff(inputFile,
                     pageNumber - 1);
         } else {
-            pix = readPix(inputFile);
+            pix = TesseractOcrUtil.readPix(inputFile);
         }
         if (pix == null) {
             throw new Tesseract4OcrException(
@@ -164,47 +164,6 @@ class ImagePreprocessingUtil {
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractOcrUtil.preprocessPix(pix);
-    }
-
-    /**
-     * Reads {@link net.sourceforge.lept4j.Pix} from input file or, if
-     * this is not possible, reads input file as
-     * {@link java.awt.image.BufferedImage} and then converts to
-     * {@link net.sourceforge.lept4j.Pix}.
-     *
-     * @param inputFile input image {@link java.io.File}
-     * @return Pix result {@link net.sourceforge.lept4j.Pix} object from
-     * input file
-     */
-    static Pix readPix(final File inputFile) {
-        Pix pix = null;
-        try {
-            BufferedImage bufferedImage = ImagePreprocessingUtil
-                    .readImageFromFile(inputFile);
-            if (bufferedImage != null) {
-                pix = TesseractOcrUtil.convertImageToPix(bufferedImage);
-            }
-        } catch (Exception e) { // NOSONAR
-            LoggerFactory.getLogger(ImagePreprocessingUtil.class)
-                    .info(MessageFormatUtil.format(
-                            Tesseract4LogMessageConstant
-                                    .CANNOT_CONVERT_IMAGE_TO_PIX,
-                            inputFile.getAbsolutePath(),
-                            e.getMessage()));
-        }
-        if (pix == null) {
-            try {
-                pix = Leptonica.INSTANCE.pixRead(inputFile.getAbsolutePath());
-            } catch (Exception e) { // NOSONAR
-                LoggerFactory.getLogger(ImagePreprocessingUtil.class)
-                        .info(MessageFormatUtil.format(
-                                Tesseract4LogMessageConstant
-                                        .CANNOT_CONVERT_IMAGE_TO_PIX,
-                                inputFile.getAbsolutePath(),
-                                e.getMessage()));
-            }
-        }
-        return pix;
     }
 
     /**

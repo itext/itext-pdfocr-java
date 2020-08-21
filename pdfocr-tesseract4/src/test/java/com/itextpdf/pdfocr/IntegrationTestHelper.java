@@ -46,6 +46,7 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -326,6 +327,20 @@ public class IntegrationTestHelper extends ExtendedITextTest {
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
             List<String> fonts, com.itextpdf.kernel.colors.Color color) {
+        doOcrAndSavePdfToPath(tesseractReader,
+                imgPath, pdfPath,
+                languages, fonts, color, false);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result PDF document to "pdfPath".
+     * (Method is used for compare tool)
+     */
+    protected void doOcrAndSavePdfToPath(
+            AbstractTesseract4OcrEngine tesseractReader, String imgPath,
+            String pdfPath, List<String> languages,
+            List<String> fonts, com.itextpdf.kernel.colors.Color color, boolean applyRotation) {
         if (languages != null) {
             Tesseract4OcrEngineProperties properties =
                     tesseractReader.getTesseract4OcrEngineProperties();
@@ -336,6 +351,9 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
         properties.setPdfLang("en-US");
         properties.setTitle("");
+        if (applyRotation) {
+            properties.setImageRotationHandler(new LeptonicaImageRotationHandler());
+        }
 
         if (fonts != null && fonts.size() > 0) {
             FontProvider fontProvider = new FontProvider();

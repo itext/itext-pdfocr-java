@@ -376,7 +376,8 @@ public class OcrPdfCreator {
             try {
                 File inputImage = entry.getKey();
                 List<ImageData> imageDataList =
-                        PdfCreatorUtil.getImageData(inputImage);
+                        PdfCreatorUtil.getImageData(inputImage,
+                                ocrPdfCreatorProperties.getImageRotationHandler());
                 LOGGER.info(MessageFormatUtil.format(
                         PdfOcrLogMessageConstant.NUMBER_OF_PAGES_IN_IMAGE,
                         inputImage.toString(), imageDataList.size()));
