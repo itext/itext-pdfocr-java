@@ -283,7 +283,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 result = new TesseractOcrUtil().getOcrResultAsString(
                         getTesseractInstance(),
                         ImagePreprocessingUtil
-                                .preprocessImage(inputImage, pageNumber),
+                                .preprocessImage(inputImage, pageNumber,
+                                        getTesseract4OcrEngineProperties().getImagePreprocessingOptions()),
                         outputFormat);
             }
             if (result == null) {

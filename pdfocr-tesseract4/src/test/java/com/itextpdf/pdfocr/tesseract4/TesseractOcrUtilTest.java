@@ -119,7 +119,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
     public void testPreprocessingConditions() throws IOException {
         Pix pix = null;
         Assert.assertNull(TesseractOcrUtil.convertToGrayscale(pix));
-        Assert.assertNull(TesseractOcrUtil.otsuImageThresholding(pix));
+        Assert.assertNull(TesseractOcrUtil.otsuImageThresholding(pix, new ImagePreprocessingOptions()));
         Assert.assertNull(TesseractOcrUtil.convertPixToImage(pix));
         TesseractOcrUtil.destroyPix(pix);
     }
@@ -169,7 +169,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         TesseractOcrUtil.saveImageToTempPngFile(tmpFileName, null);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
 
-        TesseractOcrUtil.savePixToTempPngFile(tmpFileName, null);
+        TesseractOcrUtil.savePixToPngFile(tmpFileName, null);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
     }
 
@@ -179,7 +179,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         String tmpFileName = getTargetDirectory() + "testPixSavingAsPng.png";
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
         Pix pix = TesseractOcrUtil.readPix(new File(path));
-        TesseractOcrUtil.savePixToTempPngFile(tmpFileName, pix);
+        TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
         Assert.assertTrue(Files.exists(Paths.get(tmpFileName)));
         TesseractHelper.deleteFile(tmpFileName);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));

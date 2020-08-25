@@ -67,12 +67,6 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     private Integer pageSegMode = 3;
 
     /**
-     * "True" - if images need to be preprocessed, otherwise - false.
-     * True by default.
-     */
-    private boolean preprocessingImages = true;
-
-    /**
      * Defines the way text is retrieved from tesseract output.
      * Default text positioning is by lines.
      */
@@ -91,6 +85,11 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     private boolean isUserWordsFileTemporary = false;
 
     /**
+     * Settings for image preprocessing.
+     */
+    private ImagePreprocessingOptions imagePreprocessingOptions = new ImagePreprocessingOptions();
+
+    /**
      * Creates a new {@link Tesseract4OcrEngineProperties} instance.
      */
     public Tesseract4OcrEngineProperties() {
@@ -107,9 +106,9 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
         super(other);
         this.tessDataDir = other.tessDataDir;
         this.pageSegMode = other.pageSegMode;
-        this.preprocessingImages = other.preprocessingImages;
         this.textPositioning = other.textPositioning;
         this.pathToUserWordsFile = other.pathToUserWordsFile;
+        this.imagePreprocessingOptions = other.imagePreprocessingOptions;
     }
 
     /**
@@ -194,7 +193,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * @return true if images need to be preprocessed, otherwise - false
      */
     public final boolean isPreprocessingImages() {
-        return preprocessingImages;
+        return imagePreprocessingOptions != null;
     }
 
     /**
@@ -206,7 +205,13 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      */
     public final Tesseract4OcrEngineProperties setPreprocessingImages(
             final boolean preprocess) {
-        preprocessingImages = preprocess;
+        if (preprocess) {
+            if (imagePreprocessingOptions == null) {
+                imagePreprocessingOptions = new ImagePreprocessingOptions();
+            }
+        } else {
+            imagePreprocessingOptions = null;
+        }
         return this;
     }
 
@@ -387,4 +392,25 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
         return isUserWordsFileTemporary;
     }
 
+    /**
+     * Gets {@link #imagePreprocessingOptions}.
+     * @return {@link ImagePreprocessingOptions}
+     */
+    final public ImagePreprocessingOptions getImagePreprocessingOptions() {
+        return imagePreprocessingOptions;
+    }
+
+    /**
+     * Sets {@link #imagePreprocessingOptions}.
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
+     * @return the {@link Tesseract4OcrEngineProperties} instance
+     */
+    final public Tesseract4OcrEngineProperties setImagePreprocessingOptions(
+            ImagePreprocessingOptions imagePreprocessingOptions) {
+        this.imagePreprocessingOptions = imagePreprocessingOptions;
+        return this;
+    }
+
 }
+
+

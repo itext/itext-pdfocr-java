@@ -126,13 +126,15 @@ class TesseractOcrUtil {
      * converting to grayscale,
      * thresholding.
      *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
+     * @param pix {@link Pix} object to be processed
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object
      */
-    static Pix preprocessPix(Pix pix) {
-        pix = convertToGrayscale(pix);
-        pix = otsuImageThresholding(pix);
-        return pix;
+    static Pix preprocessPix(final Pix pix,
+                             final ImagePreprocessingOptions imagePreprocessingOptions) {
+        Pix pix1 = convertToGrayscale(pix);
+        pix1 = otsuImageThresholding(pix1, imagePreprocessingOptions);
+        return pix1;
     }
 
     /**
@@ -165,18 +167,27 @@ class TesseractOcrUtil {
      * {@link net.sourceforge.lept4j.Leptonica#pixOtsuAdaptiveThreshold}
      * method.
      *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
+     * @param pix {@link Pix} object to be processed
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return {@link net.sourceforge.lept4j.Pix} object after thresholding
      */
-    static Pix otsuImageThresholding(final Pix pix) {
+    static Pix otsuImageThresholding(final Pix pix,
+                                     final ImagePreprocessingOptions imagePreprocessingOptions) {
         if (pix != null) {
             Pix thresholdPix = null;
             if (pix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
                 Leptonica.INSTANCE
-                        .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h,
-                                0, 0, 0,
-                                null, pointer);
+                        .pixOtsuAdaptiveThreshold(pix,
+                                getOtsuAdaptiveThresholdTileSize(pix.w,
+                                        imagePreprocessingOptions.getTileWidth()),
+                                getOtsuAdaptiveThresholdTileSize(pix.h,
+                                        imagePreprocessingOptions.getTileHeight()),
+                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.w,
+                                        imagePreprocessingOptions.isSmoothTiling()),
+                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.h,
+                                        imagePreprocessingOptions.isSmoothTiling()),
+                                0,null, pointer);
                 thresholdPix = new Pix(pointer.getValue());
                 if (thresholdPix.w > 0 && thresholdPix.h > 0) {
                     // destroying original pix
@@ -199,6 +210,36 @@ class TesseractOcrUtil {
         } else {
             return pix;
         }
+    }
+
+    /**
+     * Gets adaptive threshold tile size.
+     */
+    static int getOtsuAdaptiveThresholdTileSize(int imageSize, int tileSize) {
+        if (tileSize == 0) {
+            return imageSize;
+        } else {
+            return tileSize;
+        }
+    }
+
+    /**
+     * Gets adaptive threshold smoothing tile size.
+     * Can be either equal to page size or 0.
+     */
+    static int getOtsuAdaptiveThresholdSmoothingTileSize(int imageSize, boolean smoothTiling) {
+        if (smoothTiling) {
+            return imageSize;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Gets an integer pixel in the default RGB color model.
+     */
+    static int getImagePixelColor(BufferedImage image, int x, int y) {
+        return image.getRGB(x, y);
     }
 
     /**
@@ -403,15 +444,15 @@ class TesseractOcrUtil {
     /**
      * Saves passed {@link net.sourceforge.lept4j.Pix} to given path
      *
-     * @param tmpFileName provided file path to save the
+     * @param filename provided file path to save the
      * {@link net.sourceforge.lept4j.Pix}
      * @param pix provided {@link net.sourceforge.lept4j.Pix} to be saved
      */
-    static void savePixToTempPngFile(final String tmpFileName,
-            final Pix pix) {
+    static void savePixToPngFile(final String filename,
+                                 final Pix pix) {
         if (pix != null) {
             try {
-                Leptonica.INSTANCE.pixWritePng(tmpFileName, pix,
+                Leptonica.INSTANCE.pixWritePng(filename, pix,
                         ILeptonica.IFF_PNG);
             } catch (Exception e) { // NOSONAR
                 LOGGER.info(MessageFormatUtil.format(

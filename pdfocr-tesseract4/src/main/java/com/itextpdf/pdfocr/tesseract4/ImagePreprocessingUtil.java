@@ -142,14 +142,17 @@ class ImagePreprocessingUtil {
      * Performs basic image preprocessing using buffered image (if provided).
      * Preprocessed image will be saved in temporary directory.
      *
-     * @param inputFile input image {@link java.io.File}
+     * @param inputFile input image {@link File}
      * @param pageNumber number of page to be preprocessed
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return created preprocessed image as {@link net.sourceforge.lept4j.Pix}
      * @throws Tesseract4OcrException if it was not possible to read or convert
      * input file
      */
     static Pix preprocessImage(final File inputFile,
-            final int pageNumber) throws Tesseract4OcrException {
+                               final int pageNumber,
+                               final ImagePreprocessingOptions imagePreprocessingOptions)
+            throws Tesseract4OcrException {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
@@ -163,7 +166,7 @@ class ImagePreprocessingUtil {
                     Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
-        return TesseractOcrUtil.preprocessPix(pix);
+        return TesseractOcrUtil.preprocessPix(pix, imagePreprocessingOptions);
     }
 
     /**

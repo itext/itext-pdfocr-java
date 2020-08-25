@@ -366,8 +366,9 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
         try {
             if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
                 Pix pix = ImagePreprocessingUtil
-                        .preprocessImage(inputImage, pageNumber);
-                TesseractOcrUtil.savePixToTempPngFile(tmpFileName, pix);
+                        .preprocessImage(inputImage, pageNumber,
+                                getTesseract4OcrEngineProperties().getImagePreprocessingOptions());
+                TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
                 if (!Files.exists(Paths.get(tmpFileName))) {
                     BufferedImage img = TesseractOcrUtil.convertPixToImage(pix);
                     if (img != null) {
