@@ -47,7 +47,7 @@ public class Tesseract4LogMessageConstant {
             "Created temp file {0}";
     /**
      * Constant is not used.
-     * @deprecated since 1.0.1.
+     * @deprecated since 1.0.1. Will be removed in 2.0.0
      */
     @Deprecated
     public static final String CANNOT_CONVERT_IMAGE_TO_GRAYSCALE =
@@ -62,6 +62,11 @@ public class Tesseract4LogMessageConstant {
             "Cannot read input image {0}";
     public static final String CANNOT_GET_TEMPORARY_DIRECTORY = "Cannot get "
             + "temporary directory: {0}";
+    /**
+     * Constant is not used.
+     * @deprecated since 1.0.1. Will be removed in 2.0.0
+     */
+    @Deprecated
     public static final String CANNOT_CONVERT_IMAGE_TO_PIX =
             "Cannot convert image to pix: {0}";
     public static final String CANNOT_PARSE_NODE_BBOX =
