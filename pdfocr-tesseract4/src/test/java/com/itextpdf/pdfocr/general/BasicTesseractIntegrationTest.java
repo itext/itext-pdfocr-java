@@ -327,27 +327,6 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @Test
-    public void testTesseract4OcrForOnePageWithHocrFormat()
-            throws IOException {
-        String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        String expected = "619121";
-        File imgFile = new File(path);
-        File outputFile = new File(getTargetDirectory()
-                + "testTesseract4OcrForOnePage.hocr");
-
-        tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
-        Map<Integer, List<TextInfo>> pageData = TesseractHelper
-                .parseHocrFile(Collections.<File>singletonList(outputFile),
-                        tesseractReader
-                                .getTesseract4OcrEngineProperties()
-                                .getTextPositioning()
-                );
-
-        String result = getTextFromPage(pageData.get(1));
-        Assert.assertEquals(expected, result.trim());
-    }
-
-    @Test
     public void testTesseract4OcrForOnePageWithTxtFormat() {
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         String expected = "619121";

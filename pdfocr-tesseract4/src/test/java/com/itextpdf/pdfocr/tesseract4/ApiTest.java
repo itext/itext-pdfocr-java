@@ -134,7 +134,8 @@ public class ApiTest extends IntegrationTestHelper {
     public void testDetectAndFixBrokenBBoxes() throws IOException {
         File hocrFile = new File(TEST_DOCUMENTS_DIRECTORY + "broken_bboxes.hocr");
         Map<Integer, List<TextInfo>> parsedHocr = TesseractHelper.parseHocrFile(Collections.singletonList(hocrFile),
-                TextPositioning.BY_WORDS_AND_LINES);
+                null,
+                new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS_AND_LINES));
         TextInfo textInfo = parsedHocr.get(1).get(1);
 
         Assert.assertEquals(287.25, (float)textInfo.getBboxRect().getLeft(), 0.1);

@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -103,6 +105,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
                         outputFormat.equals(OutputFormat.HOCR) ? "1" : "0");
+
+        if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
+            getTesseractInstance().setTessVariable("preserve_interword_spaces", "1");
+        }
+
         getTesseractInstance().setTessVariable("user_defined_dpi", "300");
         if (getTesseract4OcrEngineProperties()
                 .getPathToUserWordsFile() != null) {
@@ -141,10 +148,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
+     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber) {
+            final int pageNumber, final boolean dispatchEvent) {
         scheduledCheck();
         try {
             // check tess data path for non ASCII characters
@@ -152,7 +160,9 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
-            onEvent();
+            if (dispatchEvent) {
+                onEvent();
+            }
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();

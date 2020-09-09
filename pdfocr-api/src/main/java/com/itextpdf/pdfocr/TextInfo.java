@@ -61,6 +61,17 @@ public class TextInfo {
     }
 
     /**
+     * Creates a new {@link TextInfo} instance from existing one.
+     *
+     * @param textInfo to create from
+     */
+    public TextInfo(final TextInfo textInfo) {
+        this.text = textInfo.text;
+        this.bboxRect = new Rectangle(textInfo.bboxRect);
+        this.bbox = Collections.<Float>unmodifiableList(textInfo.bbox);
+    }
+
+    /**
      * Creates a new {@link TextInfo} instance.
      *
      * @param text any text

@@ -80,8 +80,8 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
 
         tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
         Map<Integer, List<TextInfo>> pageData = TesseractHelper
-                .parseHocrFile(Collections.<File>singletonList(outputFile),
-                        TextPositioning.BY_WORDS
+                .parseHocrFile(Collections.<File>singletonList(outputFile), null,
+                        new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS)
                 );
 
         Assert.assertEquals("90", pageData.get(1).get(0).getText());
@@ -117,10 +117,10 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         // Because of difference of tesseract 5 and tesseract 4 there're some differences in text recognition.
         // So the goal of this test is to make text invisible and check if image is rotated.
         // Proper text recognition is compared in testHocrRotatedImage test by checking HOCR file.
-        boolean javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
-        boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        boolean javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        boolean dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
         Assert.assertTrue(javaTest || dotNetTest);
 
         filename = "180_degrees_rotated";
@@ -132,10 +132,12 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-        javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
-        dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
+        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
         Assert.assertTrue(javaTest || dotNetTest);
 
         filename = "270_degrees_rotated";
@@ -147,10 +149,12 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-        javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
-        dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
+        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
+                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+
         Assert.assertTrue(javaTest || dotNetTest);
     }
 

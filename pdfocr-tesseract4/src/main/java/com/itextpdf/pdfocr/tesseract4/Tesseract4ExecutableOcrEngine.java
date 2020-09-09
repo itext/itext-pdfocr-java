@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -109,10 +111,11 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
+     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber) {
+            final int pageNumber, final boolean dispatchEvent) {
         scheduledCheck();
         List<String> params = new ArrayList<String>();
         String execPath = null;
@@ -162,13 +165,17 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             addUserWords(params, imagePath);
             // required languages
             addLanguages(params);
-            if (outputFormat.equals(OutputFormat.HOCR)) {
-                // path to hocr script
-                setHocrOutput(params);
-            }
+
+            addOutputFormat(params, outputFormat);
+
+            addPreserveInterwordSpaces(params);
+
             // set default user defined dpi
             addDefaultDpi(params);
-            onEvent();
+
+            if (dispatchEvent) {
+                onEvent();
+            }
 
             // run tesseract process
             TesseractHelper.runCommand(execPath, params, workingDirectory);
@@ -215,6 +222,30 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     private void setHocrOutput(final List<String> command) {
         command.add("-c");
         command.add("tessedit_create_hocr=1");
+    }
+
+    /**
+     * Sets preserve_interword_spaces option.
+     *
+     * @param command result command as list of strings
+     */
+    private void addPreserveInterwordSpaces(final List<String> command) {
+        if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
+            command.add("-c");
+            command.add("preserve_interword_spaces=1");
+        }
+    }
+
+    /**
+     * Add output format.
+     *
+     * @param command result command as list of strings
+     * @param outputFormat output format
+     */
+    private void addOutputFormat(final List<String> command, OutputFormat outputFormat) {
+        if (outputFormat == OutputFormat.HOCR) {
+            setHocrOutput(command);
+        }
     }
 
     /**
