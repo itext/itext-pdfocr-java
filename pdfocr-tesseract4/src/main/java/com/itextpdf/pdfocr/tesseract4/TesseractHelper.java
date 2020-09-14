@@ -161,10 +161,10 @@ public class TesseractHelper {
 
         for (int inputFileIdx = 0; inputFileIdx < inputFiles.size(); inputFileIdx++) {
             final File inputFile = inputFiles.get(inputFileIdx);
-            String txt = null;
+            List<String> txt = null;
             if (txtInputFiles != null) {
                 final File txtInputFile = txtInputFiles.get(inputFileIdx);
-                txt = readTxtFile(txtInputFile);
+                txt = Files.readAllLines(txtInputFile.toPath(), StandardCharsets.UTF_8);
             }
             if (inputFile != null
                     && Files.exists(
@@ -432,7 +432,7 @@ public class TesseractHelper {
      */
     private static List<TextInfo> getTextData(Element page,
                                               Tesseract4OcrEngineProperties tesseract4OcrEngineProperties,
-                                              String txt,
+                                              List<String> txt,
                                               Map<String, Node> unparsedBBoxes) {
         final Rectangle pageBbox = parseBBox(page, null, unparsedBBoxes);
         final List<String> searchedClasses = Arrays.<String>asList(OCR_LINE, OCR_CAPTION);
@@ -457,7 +457,7 @@ public class TesseractHelper {
      */
     private static List<TextInfo> getTextData(List<Element> pageObjects,
                                               Tesseract4OcrEngineProperties tesseract4OcrEngineProperties,
-                                              String txt,
+                                              List<String> txt,
                                               Rectangle pageBbox,
                                               Map<String, Node> unparsedBBoxes) {
         List<TextInfo> textData = new ArrayList<TextInfo>();
@@ -645,7 +645,7 @@ public class TesseractHelper {
      *
      * @return text line if found, otherwise null
      */
-    private static String findHocrLineInTxt(Element line, String txt) {
+    private static String findHocrLineInTxt(Element line, List<String> txt) {
         if (txt == null) {
             return null;
         }
@@ -653,7 +653,7 @@ public class TesseractHelper {
         if (hocrLineText.isEmpty()) {
             return null;
         }
-        for (String txtLine : txt.split("\n")) {
+        for (String txtLine : txt) {
             if (txtLine.replaceAll(SPACE_PATTERN, "").equals(hocrLineText)) {
                 return txtLine;
             }
