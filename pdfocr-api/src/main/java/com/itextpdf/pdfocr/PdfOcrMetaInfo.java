@@ -25,5 +25,4 @@ package com.itextpdf.pdfocr;
 import com.itextpdf.kernel.counter.event.IMetaInfo;
 
 public class PdfOcrMetaInfo implements IMetaInfo {
-    private static final long serialVersionUID = 7047674343175216537L;
 }

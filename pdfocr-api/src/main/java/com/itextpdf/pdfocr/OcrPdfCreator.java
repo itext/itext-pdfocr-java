@@ -633,7 +633,6 @@ public class OcrPdfCreator {
      * A handler for PDF canvas that validates existing glyphs.
      */
     private static class NotDefCheckingPdfCanvas extends PdfCanvas {
-        private static final long serialVersionUID = 708713860707664107L;
         private final boolean createPdfA3u;
         public NotDefCheckingPdfCanvas(PdfPage page, boolean createPdfA3u) {
             super(page);
@@ -696,7 +695,6 @@ public class OcrPdfCreator {
      * overwrite it.
      */
     private static class ActualTextCheckingGlyphLine extends GlyphLine {
-        private static final long serialVersionUID = -946356392098459518L;
 
         public ActualTextCheckingGlyphLine(GlyphLine other) {
             super(other);

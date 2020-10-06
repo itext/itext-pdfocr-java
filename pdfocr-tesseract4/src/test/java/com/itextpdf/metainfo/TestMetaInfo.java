@@ -30,5 +30,4 @@ import com.itextpdf.kernel.counter.event.IMetaInfo;
  * so that it belongs neither to com.itextpdf.pdfocr nor com.itextpdf.pdfocr.tesseract4 packages
  */
 public class TestMetaInfo implements IMetaInfo {
-    private static final long serialVersionUID = 5521060335175170386L;
 }

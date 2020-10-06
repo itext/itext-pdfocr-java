@@ -30,7 +30,6 @@ import java.util.UUID;
  * The meta info that is used internally by pdfOcr to pass a wrapped custom meta data
  */
 public class OcrPdfCreatorMetaInfo implements IMetaInfo, IMetaInfoWrapper {
-    private static final long serialVersionUID = 7047674343175216537L;
 
     private IMetaInfo wrappedMetaInfo;
     private UUID uuid;
