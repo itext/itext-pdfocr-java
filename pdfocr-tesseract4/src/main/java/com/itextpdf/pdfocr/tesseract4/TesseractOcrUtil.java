@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
@@ -52,6 +54,9 @@ import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +73,20 @@ class TesseractOcrUtil {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractOcrUtil.class);
 
+
+    /**
+     * Rotation constants.
+     */
+    private static final int ROTATION_0 = 0;
+    private static final int ROTATION_90 = 90;
+    private static final int ROTATION_180 = 180;
+    private static final int ROTATION_270 = 270;
+    private static final int EXIF_ROTATION_0 = 1;
+    private static final int EXIF_ROTATION_90 = 6;
+    private static final int EXIF_ROTATION_180 = 3;
+    private static final int EXIF_ROTATION_270 = 8;
+
+
     /**
      * List of pages of the image that is being processed.
      */
@@ -82,6 +101,7 @@ class TesseractOcrUtil {
 
     /**
      * Reads required page from provided tiff image.
+     * Note that rotation is always applied when image read.
      *
      * @param inputFile input image as {@link java.io.File}
      * @param pageNumber number of page
@@ -91,14 +111,10 @@ class TesseractOcrUtil {
     static Pix readPixPageFromTiff(final File inputFile,
             final int pageNumber) {
         Pix pix = null;
-        try {
-            BufferedImage img = TesseractOcrUtil
-                    .getImagePage(inputFile, pageNumber);
-            pix = convertImageToPix(img);
-        } catch (IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
-                    e.getMessage()));
+        BufferedImage img = TesseractOcrUtil
+                .getImagePage(inputFile, pageNumber);
+        if (img != null) {
+            pix = readPix(img);
         }
         // return required page to be preprocessed
         return pix;
@@ -110,13 +126,15 @@ class TesseractOcrUtil {
      * converting to grayscale,
      * thresholding.
      *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
+     * @param pix {@link Pix} object to be processed
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object
      */
-    static Pix preprocessPix(Pix pix) {
-        pix = convertToGrayscale(pix);
-        pix = otsuImageThresholding(pix);
-        return pix;
+    static Pix preprocessPix(final Pix pix,
+                             final ImagePreprocessingOptions imagePreprocessingOptions) {
+        Pix pix1 = convertToGrayscale(pix);
+        pix1 = otsuImageThresholding(pix1, imagePreprocessingOptions);
+        return pix1;
     }
 
     /**
@@ -149,18 +167,27 @@ class TesseractOcrUtil {
      * {@link net.sourceforge.lept4j.Leptonica#pixOtsuAdaptiveThreshold}
      * method.
      *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be processed
+     * @param pix {@link Pix} object to be processed
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return {@link net.sourceforge.lept4j.Pix} object after thresholding
      */
-    static Pix otsuImageThresholding(final Pix pix) {
+    static Pix otsuImageThresholding(final Pix pix,
+                                     final ImagePreprocessingOptions imagePreprocessingOptions) {
         if (pix != null) {
             Pix thresholdPix = null;
             if (pix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
                 Leptonica.INSTANCE
-                        .pixOtsuAdaptiveThreshold(pix, pix.w, pix.h,
-                                0, 0, 0,
-                                null, pointer);
+                        .pixOtsuAdaptiveThreshold(pix,
+                                getOtsuAdaptiveThresholdTileSize(pix.w,
+                                        imagePreprocessingOptions.getTileWidth()),
+                                getOtsuAdaptiveThresholdTileSize(pix.h,
+                                        imagePreprocessingOptions.getTileHeight()),
+                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.w,
+                                        imagePreprocessingOptions.isSmoothTiling()),
+                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.h,
+                                        imagePreprocessingOptions.isSmoothTiling()),
+                                0,null, pointer);
                 thresholdPix = new Pix(pointer.getValue());
                 if (thresholdPix.w > 0 && thresholdPix.h > 0) {
                     // destroying original pix
@@ -183,6 +210,36 @@ class TesseractOcrUtil {
         } else {
             return pix;
         }
+    }
+
+    /**
+     * Gets adaptive threshold tile size.
+     */
+    static int getOtsuAdaptiveThresholdTileSize(int imageSize, int tileSize) {
+        if (tileSize == 0) {
+            return imageSize;
+        } else {
+            return tileSize;
+        }
+    }
+
+    /**
+     * Gets adaptive threshold smoothing tile size.
+     * Can be either equal to page size or 0.
+     */
+    static int getOtsuAdaptiveThresholdSmoothingTileSize(int imageSize, boolean smoothTiling) {
+        if (smoothTiling) {
+            return imageSize;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Gets an integer pixel in the default RGB color model.
+     */
+    static int getImagePixelColor(BufferedImage image, int x, int y) {
+        return image.getRGB(x, y);
     }
 
     /**
@@ -280,30 +337,6 @@ class TesseractOcrUtil {
      */
     static void disposeTesseractInstance(
             final ITesseract tesseractInstance) {
-    }
-
-    /**
-     * Converts {@link java.awt.image.BufferedImage} to
-     * {@link net.sourceforge.lept4j.Pix}.
-     *
-     * @param bufferedImage input image as {@link java.awt.image.BufferedImage}
-     * @return Pix result converted {@link net.sourceforge.lept4j.Pix} object
-     * @throws IOException if it's not possible to convert
-     */
-    static Pix convertImageToPix(
-            final BufferedImage bufferedImage)
-            throws IOException {
-        Pix pix = null;
-        if (bufferedImage != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "png", baos);
-
-            ByteBuffer byteBuffer = ByteBuffer.wrap(baos.toByteArray());
-            NativeSize nativeSize = new NativeSize(baos.toByteArray().length);
-            pix = Leptonica.INSTANCE.pixReadMem(byteBuffer, nativeSize);
-        }
-
-        return pix;
     }
 
     /**
@@ -411,15 +444,15 @@ class TesseractOcrUtil {
     /**
      * Saves passed {@link net.sourceforge.lept4j.Pix} to given path
      *
-     * @param tmpFileName provided file path to save the
+     * @param filename provided file path to save the
      * {@link net.sourceforge.lept4j.Pix}
      * @param pix provided {@link net.sourceforge.lept4j.Pix} to be saved
      */
-    static void savePixToTempPngFile(final String tmpFileName,
-            final Pix pix) {
+    static void savePixToPngFile(final String filename,
+                                 final Pix pix) {
         if (pix != null) {
             try {
-                Leptonica.INSTANCE.pixWritePng(tmpFileName, pix,
+                Leptonica.INSTANCE.pixWritePng(filename, pix,
                         ILeptonica.IFF_PNG);
             } catch (Exception e) { // NOSONAR
                 LOGGER.info(MessageFormatUtil.format(
@@ -569,6 +602,204 @@ class TesseractOcrUtil {
                     bufferedImage, outputFormat);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Read {@link net.sourceforge.lept4j.Pix} from {@link java.awt.image.BufferedImage}.
+     * Note that rotation is always applied when image read.
+     *
+     * @param image {@link java.awt.image.BufferedImage} to read from
+     * @return Pix result {@link net.sourceforge.lept4j.Pix}
+     */
+    static Pix readPix(final BufferedImage image) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            return readPix(baos.toByteArray());
+        } catch (IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Read {@link net.sourceforge.lept4j.Pix} from {@link java.io.File}.
+     * Note that rotation is always applied when image read.
+     *
+     * @param inputFile {@link java.io.File} to read from
+     * @return Pix result {@link net.sourceforge.lept4j.Pix}
+     */
+    static Pix readPix(final File inputFile) {
+        try {
+            return readPix(Files.readAllBytes(inputFile.toPath()));
+        } catch (IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Read {@link net.sourceforge.lept4j.Pix} from byte array.
+     * Note that rotation is always applied when image read.
+     *
+     * @param imageBytes to read from
+     * @return Pix result {@link net.sourceforge.lept4j.Pix}
+     */
+    static Pix readPix(final byte[] imageBytes) {
+        Pix pix = null;
+        try {
+            ByteBuffer bb = ByteBuffer.wrap(imageBytes);
+            NativeSize size = new NativeSize(imageBytes.length);
+            pix = Leptonica.INSTANCE.pixReadMem(bb, size);
+        } catch (Exception e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+        }
+        if (pix != null) {
+            int rotation = detectRotation(imageBytes);
+            pix = rotate(pix, rotation);
+        }
+        return pix;
+    }
+
+    /**
+     * Detect rotation specified by image metadata.
+     *
+     * @param file file to detect rotation
+     * @return image rotation as specified in metadata
+     */
+    static int detectRotation(final File file) {
+        try {
+            return detectRotation(Files.readAllBytes(file.toPath()));
+        } catch (Exception e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+            return ROTATION_0;
+        }
+    }
+
+    /**
+     * Detect rotation specified by image metadata.
+     *
+     * @param imageData to detect rotation
+     * @return image rotation as specified in metadata
+     */
+    static int detectRotation(final ImageData imageData) {
+        return detectRotation(imageData.getData());
+    }
+
+    /**
+     * Detect rotation specified by image metadata.
+     *
+     * @param data image data to detect rotation
+     * @return image rotation as specified in metadata
+     */
+    static int detectRotation(final byte[] data) {
+        int rotation = ROTATION_0;
+        try {
+            final ImageMetadata metadata = Imaging.getMetadata(data);
+            TiffImageMetadata tiffImageMetadata;
+            if (metadata instanceof JpegImageMetadata) {
+                tiffImageMetadata = ((JpegImageMetadata) metadata).getExif();
+            } else if (metadata instanceof TiffImageMetadata) {
+                tiffImageMetadata = (TiffImageMetadata) metadata;
+            } else {
+                tiffImageMetadata = null;
+            }
+            if (tiffImageMetadata != null) {
+                rotation = readRotationFromMetadata(tiffImageMetadata);
+            }
+        } catch (Exception e) {
+            LOGGER.info(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_IMAGE_METADATA,
+                    e.getMessage()));
+        }
+        return rotation;
+    }
+
+    /**
+     * Reads image orientation from metadata and converts to rotation.
+     * @param tiffImageMetadata image metadata
+     * @return rotation
+     */
+    static int readRotationFromMetadata(TiffImageMetadata tiffImageMetadata) {
+        final List items = tiffImageMetadata.getItems();
+        for (final Object item : items) {
+            if (item instanceof TiffImageMetadata.TiffMetadataItem &&
+                    "Orientation".equals(((TiffImageMetadata.TiffMetadataItem) item).getKeyword())) {
+                int orientation = Integer.parseInt(((TiffImageMetadata.TiffMetadataItem) item).getText());
+                switch (orientation) {
+                    case EXIF_ROTATION_0:
+                        return ROTATION_0;
+                    case EXIF_ROTATION_90:
+                        return ROTATION_90;
+                    case EXIF_ROTATION_180:
+                        return ROTATION_180;
+                    case EXIF_ROTATION_270:
+                        return ROTATION_270;
+                    default:
+                        LOGGER.warn(MessageFormatUtil.format(
+                                Tesseract4LogMessageConstant.UNSUPPORTED_EXIF_ORIENTATION_VALUE,
+                                orientation));
+                        return ROTATION_0;
+                }
+            }
+        }
+        return ROTATION_0;
+    }
+
+    /**
+     * Rotates image by specified angle.
+     *
+     * @param pix image source represented by {@link net.sourceforge.lept4j.Pix}
+     * @param rotation to rotate image at
+     * @return rotated image, if rotation differs from 0
+     */
+    static Pix rotate(final Pix pix, int rotation) {
+        final Leptonica instance = Leptonica.INSTANCE;
+        switch (rotation) {
+            case ROTATION_90:
+                return instance.pixRotate90(pix, 1);
+            case ROTATION_180:
+                return instance.pixRotate180(pix, pix);
+            case ROTATION_270:
+                return instance.pixRotate90(pix, -1);
+            default:
+                return pix;
+        }
+    }
+
+    /**
+     * Detects and applies rotation to image.
+     *
+     * @param imageData source image to rotate if needed
+     * @return rotated image, if rotation differs from 0
+     */
+    static ImageData applyRotation(final ImageData imageData) {
+        Pix pix = readPix(imageData.getData());
+        if (pix == null) {
+            return imageData;
+        } else {
+            ImageData newImageData = imageData;
+            try {
+                PointerByReference data = new PointerByReference();
+                NativeSizeByReference size = new NativeSizeByReference();
+                if (Leptonica.INSTANCE.pixWriteMemPng(data, size, pix, 0) == 0) {
+                    newImageData = ImageDataFactory.create(
+                            data.getValue().getByteArray(0, size.getValue().intValue())
+                    );
+                }
+            } finally {
+                destroyPix(pix);
+            }
+            return newImageData;
         }
     }
 }

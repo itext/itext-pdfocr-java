@@ -86,45 +86,4 @@ final class ReflectionUtils {
     private static Class<?> getClass(String className) throws ClassNotFoundException {
         return Class.forName(className);
     }
-
-    private static class MethodSignature {
-        protected final String className;
-        private final String methodName;
-        protected Class[] parameterTypes;
-
-        MethodSignature(String className, Class[] parameterTypes, String methodName) {
-            this.methodName = methodName;
-            this.className = className;
-            this.parameterTypes = parameterTypes;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = className.hashCode();
-            result = 31 * result + Arrays.hashCode(parameterTypes);
-            result = 31 * result + (methodName != null ? methodName.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            MethodSignature that = (MethodSignature) o;
-
-            if (!className.equals(that.className)) {
-                return false;
-            }
-            if (!Arrays.equals(parameterTypes, that.parameterTypes)) {
-                return false;
-            }
-            return methodName != null ? methodName.equals(that.methodName) : that.methodName == null;
-
-        }
-    }
 }

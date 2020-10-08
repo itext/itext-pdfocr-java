@@ -45,6 +45,11 @@ public class Tesseract4LogMessageConstant {
             "Cannot write to file {0}: {1}";
     public static final String CREATED_TEMPORARY_FILE =
             "Created temp file {0}";
+    /**
+     * Constant is not used.
+     * @deprecated since 1.0.1. Will be removed in 2.0.0
+     */
+    @Deprecated
     public static final String CANNOT_CONVERT_IMAGE_TO_GRAYSCALE =
             "Cannot convert to gray image with depth {0}";
     public static final String CANNOT_BINARIZE_IMAGE =
@@ -57,10 +62,19 @@ public class Tesseract4LogMessageConstant {
             "Cannot read input image {0}";
     public static final String CANNOT_GET_TEMPORARY_DIRECTORY = "Cannot get "
             + "temporary directory: {0}";
+    /**
+     * Constant is not used.
+     * @deprecated since 1.0.1. Will be removed in 2.0.0
+     */
+    @Deprecated
     public static final String CANNOT_CONVERT_IMAGE_TO_PIX =
             "Cannot convert image to pix: {0}";
     public static final String CANNOT_PARSE_NODE_BBOX =
             "Cannot parse node BBox, defaults to 0, 0, 0, 0. Node: {0}";
+    public static final String CANNOT_READ_IMAGE_METADATA =
+            "Cannot read image metadata {0}";
+    public static final String UNSUPPORTED_EXIF_ORIENTATION_VALUE =
+            "Unsuppoted EXIF Orientation value {0}. 1 is used by default";
 
 
     private Tesseract4LogMessageConstant() {

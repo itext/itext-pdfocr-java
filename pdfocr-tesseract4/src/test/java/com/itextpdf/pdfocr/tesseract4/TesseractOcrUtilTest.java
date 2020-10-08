@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -47,7 +49,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         String expected = "0123456789";
         File imgFile = new File(path);
 
-        Pix pix = ImagePreprocessingUtil.readPix(imgFile);
+        Pix pix = TesseractOcrUtil.readPix(imgFile);
         Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
         tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
                 new Tesseract4OcrEngineProperties()
@@ -117,7 +119,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
     public void testPreprocessingConditions() throws IOException {
         Pix pix = null;
         Assert.assertNull(TesseractOcrUtil.convertToGrayscale(pix));
-        Assert.assertNull(TesseractOcrUtil.otsuImageThresholding(pix));
+        Assert.assertNull(TesseractOcrUtil.otsuImageThresholding(pix, new ImagePreprocessingOptions()));
         Assert.assertNull(TesseractOcrUtil.convertPixToImage(pix));
         TesseractOcrUtil.destroyPix(pix);
     }
@@ -167,7 +169,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         TesseractOcrUtil.saveImageToTempPngFile(tmpFileName, null);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
 
-        TesseractOcrUtil.savePixToTempPngFile(tmpFileName, null);
+        TesseractOcrUtil.savePixToPngFile(tmpFileName, null);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
     }
 
@@ -176,8 +178,8 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         String tmpFileName = getTargetDirectory() + "testPixSavingAsPng.png";
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
-        Pix pix = ImagePreprocessingUtil.readPix(new File(path));
-        TesseractOcrUtil.savePixToTempPngFile(tmpFileName, pix);
+        Pix pix = TesseractOcrUtil.readPix(new File(path));
+        TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
         Assert.assertTrue(Files.exists(Paths.get(tmpFileName)));
         TesseractHelper.deleteFile(tmpFileName);
         Assert.assertFalse(Files.exists(Paths.get(tmpFileName)));
@@ -192,4 +194,50 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         BufferedImage bi = ImageIO.read(new FileInputStream(path));
         TesseractOcrUtil.saveImageToTempPngFile(null, bi);
     }
+
+
+    @Test
+    public void testDetectImageRotationAndFix() throws Exception {
+        String path = TEST_IMAGES_DIRECTORY + "90_degrees_rotated.jpg";
+        TesseractOcrUtil.detectRotation(new File(path));
+        ImageData imageData = ImageDataFactory.create(path);
+        int rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(90, rotation);
+        imageData = TesseractOcrUtil.applyRotation(imageData);
+        rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(0, rotation);
+
+        path = TEST_IMAGES_DIRECTORY + "180_degrees_rotated.jpg";
+        TesseractOcrUtil.detectRotation(new File(path));
+        imageData = ImageDataFactory.create(path);
+        rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(180, rotation);
+        imageData = TesseractOcrUtil.applyRotation(imageData);
+        rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(0, rotation);
+
+        path = TEST_IMAGES_DIRECTORY + "270_degrees_rotated.jpg";
+        TesseractOcrUtil.detectRotation(new File(path));
+        imageData = ImageDataFactory.create(path);
+        rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(270, rotation);
+        imageData = TesseractOcrUtil.applyRotation(imageData);
+        rotation = TesseractOcrUtil.detectRotation(imageData);
+        Assert.assertEquals(0, rotation);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    }, ignore = true)
+    @Test
+    public void testDetectImageRotationNegativeCases() {
+        String path = TEST_IMAGES_DIRECTORY + "90_degrees_rotated.jpg_broken_path";
+        int rotation = TesseractOcrUtil.detectRotation(new File(path));
+        Assert.assertEquals(0, rotation);
+
+        byte[] data = "broken image".getBytes();
+        rotation = TesseractOcrUtil.detectRotation(data);
+        Assert.assertEquals(0, rotation);
+    }
+
 }

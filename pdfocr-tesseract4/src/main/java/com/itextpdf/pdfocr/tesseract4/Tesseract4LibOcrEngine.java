@@ -33,6 +33,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -53,6 +57,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * (depends on OS type)
      */
     private ITesseract tesseractInstance = null;
+
+    /**
+     * Pattern for matching ASCII string.
+     */
+    private static final Pattern ASCII_STRING_PATTERN = Pattern.compile("^[\\u0000-\\u007F]*$");
 
     /**
      * Creates a new {@link Tesseract4LibOcrEngine} instance.
@@ -96,6 +105,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         getTesseractInstance()
                 .setTessVariable("tessedit_create_hocr",
                         outputFormat.equals(OutputFormat.HOCR) ? "1" : "0");
+
+        if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
+            getTesseractInstance().setTessVariable("preserve_interword_spaces", "1");
+        }
+
         getTesseractInstance().setTessVariable("user_defined_dpi", "300");
         if (getTesseract4OcrEngineProperties()
                 .getPathToUserWordsFile() != null) {
@@ -134,16 +148,21 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
+     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber) {
+            final int pageNumber, final boolean dispatchEvent) {
         scheduledCheck();
         try {
+            // check tess data path for non ASCII characters
+            validateTessDataPath(getTessData());
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
-            onEvent();
+            if (dispatchEvent) {
+                onEvent();
+            }
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
@@ -193,6 +212,23 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                         getTesseract4OcrEngineProperties()
                                 .getPathToUserWordsFile());
             }
+        }
+    }
+
+    /**
+     * Validates Tess Data path,
+     * checks if tess data path contains only ASCII charset.
+     * Note: tesseract lib has issues with non ASCII characters in tess data path.
+     *
+     * @param tessDataPath {@link java.lang.String} path to tess data
+     */
+    private static void validateTessDataPath(final String tessDataPath) {
+        Matcher asciiStringMatcher = ASCII_STRING_PATTERN.matcher(tessDataPath);
+
+        if (!asciiStringMatcher.matches()) {
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException
+                            .PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS);
         }
     }
 
@@ -257,7 +293,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 result = new TesseractOcrUtil().getOcrResultAsString(
                         getTesseractInstance(),
                         ImagePreprocessingUtil
-                                .preprocessImage(inputImage, pageNumber),
+                                .preprocessImage(inputImage, pageNumber,
+                                        getTesseract4OcrEngineProperties().getImagePreprocessingOptions()),
                         outputFormat);
             }
             if (result == null) {

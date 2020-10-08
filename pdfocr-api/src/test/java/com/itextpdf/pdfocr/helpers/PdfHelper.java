@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collections;
 
+import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.test.ExtendedITextTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +168,17 @@ public class PdfHelper {
      */
     public static void createPdf(String pdfPath, File inputFile,
             OcrPdfCreatorProperties properties) {
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(),
+        createPdf(pdfPath, inputFile, properties, false);
+
+    }
+
+    /**
+     * Perform OCR with custom ocr engine using provided input image and set
+     * of properties and save to the given path.
+     */
+    public static void createPdf(String pdfPath, File inputFile,
+                                 OcrPdfCreatorProperties properties, boolean textInfoDeprecationMode) {
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new CustomOcrEngine(textInfoDeprecationMode),
                 properties);
         try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
             ocrPdfCreator.createPdf(Collections.<File>singletonList(inputFile),

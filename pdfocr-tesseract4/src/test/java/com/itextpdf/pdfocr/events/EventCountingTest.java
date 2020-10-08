@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.events;
 
-import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.counter.EventCounter;
 import com.itextpdf.kernel.counter.EventCounterHandler;
 import com.itextpdf.kernel.counter.IEventCounterFactory;
@@ -36,12 +35,9 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
-import com.itextpdf.test.annotations.LogMessage;
-import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -226,6 +222,32 @@ public abstract class EventCountingTest extends IntegrationTestHelper {
         }
     }
 
+    @Test
+    public void testEventCountingWithImprovedHocrParsing() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "thai_03.jpg";
+        File file = new File(imgPath);
+
+        TestEventCounter eventCounter = new TestEventCounter();
+        IEventCounterFactory factory = new SimpleEventCounterFactory(eventCounter);
+        EventCounterHandler.getInstance().register(factory);
+
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setTextPositioning(TextPositioning.BY_WORDS_AND_LINES);
+        properties.setUseTxtToImproveHocrParsing(true);
+        properties.setPathToTessData(new File(LANG_TESS_DATA_DIRECTORY));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+
+        tesseractReader.doImageOcr(file);
+
+        Assert.assertEquals(1, eventCounter.getEvents().size());
+        Assert.assertEquals(PdfOcrTesseract4Event.TESSERACT4_IMAGE_OCR.getEventType(),
+                eventCounter.getEvents().get(0).getEventType());
+
+        EventCounterHandler.getInstance().unregister(factory);
+    }
+
+
     public void testEventCountingCustomMetaInfoError() {
         String imgPath = TEST_IMAGES_DIRECTORY + "numbers_101.jpg";
         File file = new File(imgPath);
@@ -244,6 +266,8 @@ public abstract class EventCountingTest extends IntegrationTestHelper {
             tesseractReader.setThreadLocalMetaInfo(null);
         }
     }
+
+
 
     private static void doImageOcr(AbstractTesseract4OcrEngine tesseractReader, File imageFile) {
         tesseractReader.doImageOcr(imageFile);

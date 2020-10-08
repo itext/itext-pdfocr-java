@@ -34,6 +34,8 @@ import com.itextpdf.kernel.font.PdfType0Font;
 import com.itextpdf.kernel.font.PdfType1Font;
 import com.itextpdf.kernel.font.PdfType3Font;
 import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Point;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -86,6 +88,14 @@ public class OcrPdfCreator {
      */
     private static final Logger LOGGER = LoggerFactory
             .getLogger(OcrPdfCreator.class);
+
+    /**
+     * Indices in array representing bbox.
+     */
+    private static final int LEFT_IDX = 0;
+    private static final int TOP_IDX = 1;
+    private static final int RIGHT_IDX = 2;
+    private static final int BOTTOM_IDX = 3;
 
     /**
      * Selected {@link IOcrEngine}.
@@ -242,10 +252,10 @@ public class OcrPdfCreator {
      * font contains notdef glyphs
      */
     private void addToCanvas(final PdfDocument pdfDocument,
-            final com.itextpdf.kernel.geom.Rectangle imageSize,
+            final Rectangle imageSize,
             final List<TextInfo> pageText, final ImageData imageData,
             final boolean createPdfA3u) throws OcrException {
-        com.itextpdf.kernel.geom.Rectangle rectangleSize =
+        final Rectangle rectangleSize =
                 ocrPdfCreatorProperties.getPageSize() == null
                         ? imageSize : ocrPdfCreatorProperties.getPageSize();
         PageSize size = new PageSize(rectangleSize);
@@ -366,7 +376,8 @@ public class OcrPdfCreator {
             try {
                 File inputImage = entry.getKey();
                 List<ImageData> imageDataList =
-                        PdfCreatorUtil.getImageData(inputImage);
+                        PdfCreatorUtil.getImageData(inputImage,
+                                ocrPdfCreatorProperties.getImageRotationHandler());
                 LOGGER.info(MessageFormatUtil.format(
                         PdfOcrLogMessageConstant.NUMBER_OF_PAGES_IN_IMAGE,
                         inputImage.toString(), imageDataList.size()));
@@ -375,7 +386,7 @@ public class OcrPdfCreator {
                 if (imageTextData.keySet().size() > 0) {
                     for (int page = 0; page < imageDataList.size(); ++page) {
                         ImageData imageData = imageDataList.get(page);
-                        com.itextpdf.kernel.geom.Rectangle imageSize =
+                        final Rectangle imageSize =
                                 PdfCreatorUtil.calculateImageSize(
                                         imageData,
                                         ocrPdfCreatorProperties.getScaleMode(),
@@ -405,17 +416,17 @@ public class OcrPdfCreator {
      * @param pdfCanvas canvas to place the image
      */
     private void addImageToCanvas(final ImageData imageData,
-            final com.itextpdf.kernel.geom.Rectangle imageSize,
+            final Rectangle imageSize,
             final PdfCanvas pdfCanvas) {
         if (imageData != null) {
             if (ocrPdfCreatorProperties.getPageSize() == null) {
                 pdfCanvas.addImage(imageData, imageSize, false);
             } else {
-                com.itextpdf.kernel.geom.Point coordinates =
+                final Point coordinates =
                         PdfCreatorUtil.calculateImageCoordinates(
                         ocrPdfCreatorProperties.getPageSize(), imageSize);
-                com.itextpdf.kernel.geom.Rectangle rect =
-                        new com.itextpdf.kernel.geom.Rectangle(
+                final Rectangle rect =
+                        new Rectangle(
                                 (float)coordinates.x, (float)coordinates.y,
                                 imageSize.getWidth(), imageSize.getHeight());
                 pdfCanvas.addImage(imageData, rect, false);
@@ -436,47 +447,39 @@ public class OcrPdfCreator {
      * font contains notdef glyphs
      */
     private void addTextToCanvas(
-            final com.itextpdf.kernel.geom.Rectangle imageSize,
+            final Rectangle imageSize,
             final List<TextInfo> pageText,
             final PdfCanvas pdfCanvas,
             final float multiplier,
-            final com.itextpdf.kernel.geom.Rectangle pageMediaBox)
+            final Rectangle pageMediaBox)
             throws OcrException {
         if (pageText != null && pageText.size() > 0) {
-            com.itextpdf.kernel.geom.Point imageCoordinates =
+            final Point imageCoordinates =
                     PdfCreatorUtil.calculateImageCoordinates(
                     ocrPdfCreatorProperties.getPageSize(), imageSize);
             for (TextInfo item : pageText) {
                 String line = item.getText();
-                List<Float> coordinates = item.getBbox();
-                final float left = coordinates.get(0) * multiplier;
-                final float right = (coordinates.get(2) + 1) * multiplier - 1;
-                final float top = coordinates.get(1) * multiplier;
-                final float bottom = (coordinates.get(3) + 1) * multiplier - 1;
 
-                float bboxWidthPt = PdfCreatorUtil
-                        .getPoints(right - left);
-                float bboxHeightPt = PdfCreatorUtil
-                        .getPoints(bottom - top);
+                final float bboxWidthPt = getWidthPt(item, multiplier);
+                final float bboxHeightPt = getHeightPt(item, multiplier);
                 FontProvider fontProvider = getOcrPdfCreatorProperties()
                         .getFontProvider();
                 String fontFamily = getOcrPdfCreatorProperties()
                         .getDefaultFontFamily();
-                if (!line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0) {
+                if (lineNotEmpty(line, bboxHeightPt, bboxWidthPt)) {
                     Document document = new Document(pdfCanvas.getDocument());
                     document.setFontProvider(fontProvider);
 
                     // Scale the text width to fit the OCR bbox
-                    float fontSize = PdfCreatorUtil.calculateFontSize(
+                    final float fontSize = PdfCreatorUtil.calculateFontSize(
                             document, line, fontFamily,
                             bboxHeightPt, bboxWidthPt);
 
-                    float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
+                    final float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
                             line, fontFamily, fontSize);
 
-                    float deltaX = PdfCreatorUtil.getPoints(left);
-                    float deltaY = imageSize.getHeight()
-                            - PdfCreatorUtil.getPoints(bottom);
+                    final float xOffset = getXOffsetPt(item, multiplier);
+                    final float yOffset = getYOffsetPt(item, multiplier, imageSize);
 
                     Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
                     canvas.setFontProvider(fontProvider);
@@ -492,16 +495,14 @@ public class OcrPdfCreator {
                     paragraph.setWidth(bboxWidthPt * 1.5f);
 
                     if (ocrPdfCreatorProperties.getTextColor() != null) {
-                        paragraph.setFontColor(
-                                ocrPdfCreatorProperties.getTextColor());
+                        paragraph.setFontColor(ocrPdfCreatorProperties.getTextColor());
                     } else {
-                        paragraph.setTextRenderingMode(
-                                TextRenderingMode.INVISIBLE);
+                        paragraph.setTextRenderingMode(TextRenderingMode.INVISIBLE);
                     }
 
                     canvas.showTextAligned(paragraph,
-                            deltaX + (float)imageCoordinates.x,
-                            deltaY + (float)imageCoordinates.y,
+                            xOffset + (float)imageCoordinates.x,
+                            yOffset + (float)imageCoordinates.y,
                             TextAlignment.LEFT);
                     canvas.close();
                 }
@@ -534,6 +535,103 @@ public class OcrPdfCreator {
             return new PdfLayer[] {pdfLayer, pdfLayer};
         } else {
             return new PdfLayer[] {new PdfLayer(imageLayerName, pdfDocument), new PdfLayer(textLayerName, pdfDocument)};
+        }
+    }
+
+    /**
+     * Get left bound of text chunk.
+     */
+    private static float getLeft(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return textInfo.getBbox().get(LEFT_IDX) * multiplier;
+        } else {
+            return textInfo.getBboxRect().getLeft() * multiplier;
+        }
+    }
+
+    /**
+     * Get right bound of text chunk.
+     */
+    private static float getRight(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return (textInfo.getBbox().get(RIGHT_IDX) + 1) * multiplier - 1;
+        } else {
+            return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
+        }
+    }
+
+    /**
+     * Get top bound of text chunk.
+     */
+    private static float getTop(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return textInfo.getBbox().get(TOP_IDX) * multiplier;
+        } else {
+            return textInfo.getBboxRect().getTop() * multiplier;
+        }
+    }
+
+    /**
+     * Get bottom bound of text chunk.
+     */
+    private static float getBottom(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return (textInfo.getBbox().get(BOTTOM_IDX) + 1) * multiplier - 1;
+        } else {
+            return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
+        }
+    }
+
+    /**
+     * Check if line is not empty.
+     */
+    private static boolean lineNotEmpty(String line, float bboxHeightPt, float bboxWidthPt) {
+        return !line.isEmpty() && bboxHeightPt > 0 && bboxWidthPt > 0;
+    }
+
+    /**
+     * Get width of text chunk in points.
+     */
+    private static float getWidthPt(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return PdfCreatorUtil.getPoints(
+                    getRight(textInfo, multiplier) - getLeft(textInfo, multiplier));
+        } else {
+            return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
+        }
+    }
+
+    /**
+     * Get height of text chunk in points.
+     */
+    private static float getHeightPt(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return PdfCreatorUtil.getPoints(
+                    getBottom(textInfo, multiplier) - getTop(textInfo, multiplier));
+        } else {
+            return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
+        }
+    }
+
+    /**
+     * Get horizontal text offset in points.
+     */
+    private static float getXOffsetPt(TextInfo textInfo, float multiplier) {
+        if (textInfo.getBboxRect() == null) {
+            return PdfCreatorUtil.getPoints(getLeft(textInfo, multiplier));
+        } else {
+            return getLeft(textInfo, multiplier);
+        }
+    }
+
+    /**
+     * Get vertical text offset in points.
+     */
+    private static float getYOffsetPt(TextInfo textInfo, float multiplier, Rectangle imageSize) {
+        if (textInfo.getBboxRect() == null) {
+            return imageSize.getHeight() - PdfCreatorUtil.getPoints(getBottom(textInfo, multiplier));
+        } else {
+            return getBottom(textInfo, multiplier);
         }
     }
 

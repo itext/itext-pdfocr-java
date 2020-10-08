@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -109,14 +111,16 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
+     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber) {
+            final int pageNumber, final boolean dispatchEvent) {
         scheduledCheck();
         List<String> params = new ArrayList<String>();
         String execPath = null;
         String imagePath = null;
+        String workingDirectory = null;
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
@@ -131,7 +135,6 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                 } else {
                     execPath = getPathToExecutable();
                 }
-                params.add(execPath);
             }
             checkTesseractInstalled(execPath);
             // path to tess data
@@ -141,13 +144,18 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
 
-            // preprocess input file if needed and add it
+            // preprocess input file if needed
             imagePath = preprocessImage(inputImage, pageNumber);
+
+            // get the input file parent directory as working directory
+            // as tesseract cannot parse non ascii characters in input path
+            String imageParentDir = TesseractOcrUtil.getParentDirectory(imagePath);
+            String replacement = isWindows() ? "" : "/";
+            workingDirectory = imageParentDir.replace("file:///", replacement)
+                    .replace("file:/", replacement);
+
+            // input file
             addInputFile(params, imagePath);
-            // move to image directory as tesseract cannot parse non ascii
-            // characters in input path
-            List<String> moveToDirectoryParams = moveToImageDirectory(
-                    imagePath);
             // output file
             addOutputFile(params, outputFiles.get(0), outputFormat,
                     imagePath);
@@ -157,15 +165,20 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             addUserWords(params, imagePath);
             // required languages
             addLanguages(params);
-            if (outputFormat.equals(OutputFormat.HOCR)) {
-                // path to hocr script
-                setHocrOutput(params);
-            }
+
+            addOutputFormat(params, outputFormat);
+
+            addPreserveInterwordSpaces(params);
+
             // set default user defined dpi
             addDefaultDpi(params);
-            onEvent();
-            TesseractHelper.runCommand(isWindows() ? "cmd" : "bash",
-                    createCommandList(moveToDirectoryParams, params));
+
+            if (dispatchEvent) {
+                onEvent();
+            }
+
+            // run tesseract process
+            TesseractHelper.runCommand(execPath, params, workingDirectory);
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
@@ -202,57 +215,6 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     }
 
     /**
-     * Creates joint command list of two commands passed as parameters.
-     * @param moveToDirectoryParams first command is responsible for moving
-     *                              to the directory
-     * @param tesseractParams second command is responsible for tesseract
-     *                        parameters
-     * @return joint command list
-     */
-    private List<String> createCommandList(
-            final List<String> moveToDirectoryParams,
-            final List<String> tesseractParams) {
-        // create list of several lists with commands
-        List<String> params = new ArrayList<String>();
-        params.add(isWindows() ? "/c": "-c");
-        params.add(isWindows() ? "\"" : "'");
-        for (String p : moveToDirectoryParams) {
-            params.add(p);
-        }
-        params.add("&&");
-        for (String p : tesseractParams) {
-            params.add(p);
-        }
-        params.add(isWindows() ? "\"" : "'");
-        return params;
-    }
-
-    /**
-     * Create list of parameters for command moving to the image parent
-     * directory.
-     * @param imagePath path to input image
-     * @return command list
-     */
-    private List<String> moveToImageDirectory(final String imagePath) {
-        // go the image parent directory
-        List<String> params = new ArrayList<String>();
-        String parent = TesseractOcrUtil.getParentDirectory(imagePath);
-        String replacement = isWindows() ? "" : "/";
-        parent = parent.replace("file:///", replacement)
-                .replace("file:/", replacement);
-
-        // Use "/d" parameter to handle cases when the current directory on Windows
-        // is located on a different drive compared to the directory we move to
-        if (isWindows()) {
-            params.add("cd /d");
-        } else {
-            params.add("cd");
-        }
-        params.add(addQuotes(parent));
-        return params;
-    }
-
-    /**
      * Sets hocr output format.
      *
      * @param command result command as list of strings
@@ -260,6 +222,30 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
     private void setHocrOutput(final List<String> command) {
         command.add("-c");
         command.add("tessedit_create_hocr=1");
+    }
+
+    /**
+     * Sets preserve_interword_spaces option.
+     *
+     * @param command result command as list of strings
+     */
+    private void addPreserveInterwordSpaces(final List<String> command) {
+        if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
+            command.add("-c");
+            command.add("preserve_interword_spaces=1");
+        }
+    }
+
+    /**
+     * Add output format.
+     *
+     * @param command result command as list of strings
+     * @param outputFormat output format
+     */
+    private void addOutputFormat(final List<String> command, OutputFormat outputFormat) {
+        if (outputFormat == OutputFormat.HOCR) {
+            setHocrOutput(command);
+        }
     }
 
     /**
@@ -411,8 +397,9 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
         try {
             if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
                 Pix pix = ImagePreprocessingUtil
-                        .preprocessImage(inputImage, pageNumber);
-                TesseractOcrUtil.savePixToTempPngFile(tmpFileName, pix);
+                        .preprocessImage(inputImage, pageNumber,
+                                getTesseract4OcrEngineProperties().getImagePreprocessingOptions());
+                TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
                 if (!Files.exists(Paths.get(tmpFileName))) {
                     BufferedImage img = TesseractOcrUtil.convertPixToImage(pix);
                     if (img != null) {

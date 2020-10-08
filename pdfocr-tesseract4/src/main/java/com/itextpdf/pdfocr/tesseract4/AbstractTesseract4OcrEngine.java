@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.io.image.ImageType;
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.kernel.counter.EventCounterHandler;
 import com.itextpdf.kernel.counter.event.IMetaInfo;
@@ -59,10 +60,10 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
     /**
      * Supported image formats.
      */
-    private static final Set<String> SUPPORTED_IMAGE_FORMATS =
+    private static final Set<ImageType> SUPPORTED_IMAGE_FORMATS =
             Collections.unmodifiableSet(new HashSet<>(
-                    Arrays.<String>asList("bmp", "png", "tiff", "tif", "jpeg",
-                            "jpg", "jpe", "jfif")));
+                    Arrays.<ImageType>asList(ImageType.BMP, ImageType.PNG,
+                            ImageType.TIFF, ImageType.JPEG)));
 
     Set<UUID> processedUUID = new HashSet<>();
 
@@ -293,9 +294,32 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
-    abstract void doTesseractOcr(File inputImage,
+    void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat,
-            int pageNumber);
+            int pageNumber) {
+        doTesseractOcr(inputImage, outputFiles, outputFormat, pageNumber, true);
+    }
+
+    /**
+     * Performs tesseract OCR using command line tool
+     * or a wrapper for Tesseract OCR API.
+     *
+     * Please note that list of output files is accepted instead of a single file because
+     * page number parameter is not respected in case of TIFF images not requiring preprocessing.
+     * In other words, if the passed image is the TIFF image and according to the {@link Tesseract4OcrEngineProperties}
+     * no preprocessing is needed, each page of the TIFF image is OCRed and the number of output files in the list
+     * is expected to be same as number of pages in the image, otherwise, only one file is expected
+     *
+     * @param inputImage input image {@link java.io.File}
+     * @param outputFiles {@link java.util.List} of output files
+     *                                          (one per each page)
+     * @param outputFormat selected {@link OutputFormat} for tesseract
+     * @param pageNumber number of page to be processed
+     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     */
+    abstract void doTesseractOcr(File inputImage,
+                        List<File> outputFiles, OutputFormat outputFormat,
+                        int pageNumber, boolean dispatchEvent);
 
     /**
      * Gets path to provided tess data directory.
@@ -373,10 +397,17 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
 
                 doTesseractOcr(input, tempFiles, outputFormat, page);
                 if (outputFormat.equals(OutputFormat.HOCR)) {
+                    List<File> tempTxtFiles = null;
+                    if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
+                        tempTxtFiles = new ArrayList<>();
+                        for (int i = 0; i < numOfFiles; i++) {
+                            tempTxtFiles.add(createTempFile(".txt"));
+                        }
+                        doTesseractOcr(input, tempTxtFiles, OutputFormat.TXT, page, false);
+                    }
                     Map<Integer, List<TextInfo>> pageData = TesseractHelper
-                            .parseHocrFile(tempFiles,
-                                    getTesseract4OcrEngineProperties()
-                                            .getTextPositioning());
+                            .parseHocrFile(tempFiles, tempTxtFiles,
+                                    getTesseract4OcrEngineProperties());
 
                     if (getTesseract4OcrEngineProperties()
                             .isPreprocessingImages()) {
@@ -431,20 +462,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      */
     private void verifyImageFormatValidity(final File image)
             throws Tesseract4OcrException {
-        boolean isValid = false;
-        String extension = "incorrect extension";
-        int index = image.getAbsolutePath().lastIndexOf('.');
-        if (index > 0) {
-            extension = new String(image.getAbsolutePath().toCharArray(),
-                    index + 1,
-                    image.getAbsolutePath().length() - index - 1);
-            for (String format : SUPPORTED_IMAGE_FORMATS) {
-                if (format.equals(extension.toLowerCase())) {
-                    isValid = true;
-                    break;
-                }
-            }
-        }
+        ImageType type = ImagePreprocessingUtil.getImageType(image);
+        boolean isValid = SUPPORTED_IMAGE_FORMATS.contains(type);
         if (!isValid) {
             LoggerFactory.getLogger(getClass()).error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant
@@ -452,7 +471,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                             image.getAbsolutePath()));
             throw new Tesseract4OcrException(
                     Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
-                    .setMessageParams(extension);
+                    .setMessageParams(image.getName());
         }
     }
 

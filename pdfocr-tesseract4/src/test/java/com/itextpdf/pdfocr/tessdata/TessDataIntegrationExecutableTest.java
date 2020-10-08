@@ -24,11 +24,23 @@ package com.itextpdf.pdfocr.tessdata;
 
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class TessDataIntegrationExecutableTest extends TessDataIntegrationTest {
     public TessDataIntegrationExecutableTest() {
         super(ReaderType.EXECUTABLE);
+    }
+
+    @Test
+    public void testTessDataWithNonAsciiPath() {
+        // First sentence
+        String expected = "ღმერთი";
+
+        // correct result with specified georgian+eng language
+        Assert.assertTrue(doOcrAndGetTextUsingTessDataByNonAsciiPath()
+                .startsWith(expected));
     }
 }

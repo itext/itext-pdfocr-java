@@ -67,12 +67,6 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     private Integer pageSegMode = 3;
 
     /**
-     * "True" - if images need to be preprocessed, otherwise - false.
-     * True by default.
-     */
-    private boolean preprocessingImages = true;
-
-    /**
      * Defines the way text is retrieved from tesseract output.
      * Default text positioning is by lines.
      */
@@ -91,6 +85,27 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     private boolean isUserWordsFileTemporary = false;
 
     /**
+     * Used to make HOCR recognition result more precise.
+     * This is needed for cases of Thai language or some Chinese dialects
+     * where every character is interpreted as a single word.
+     * For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
+     */
+    private boolean useTxtToImproveHocrParsing;
+
+    /**
+     * Settings for image preprocessing.
+     */
+    private ImagePreprocessingOptions imagePreprocessingOptions = new ImagePreprocessingOptions();
+
+    /**
+     * Minimal confidence level for HOCR line to be considered as properly recognized.
+     * If real confidence level is lower then line is ignored
+     * Default value is 0 which means that everything is considered as properly recognized
+     * Value may vary in range of 0-100
+     */
+    private int minimalConfidenceLevel;
+
+    /**
      * Creates a new {@link Tesseract4OcrEngineProperties} instance.
      */
     public Tesseract4OcrEngineProperties() {
@@ -107,9 +122,11 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
         super(other);
         this.tessDataDir = other.tessDataDir;
         this.pageSegMode = other.pageSegMode;
-        this.preprocessingImages = other.preprocessingImages;
         this.textPositioning = other.textPositioning;
         this.pathToUserWordsFile = other.pathToUserWordsFile;
+        this.useTxtToImproveHocrParsing = other.useTxtToImproveHocrParsing;
+        this.imagePreprocessingOptions = other.imagePreprocessingOptions;
+        this.minimalConfidenceLevel = other.minimalConfidenceLevel;
     }
 
     /**
@@ -194,7 +211,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * @return true if images need to be preprocessed, otherwise - false
      */
     public final boolean isPreprocessingImages() {
-        return preprocessingImages;
+        return imagePreprocessingOptions != null;
     }
 
     /**
@@ -206,7 +223,13 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      */
     public final Tesseract4OcrEngineProperties setPreprocessingImages(
             final boolean preprocess) {
-        preprocessingImages = preprocess;
+        if (preprocess) {
+            if (imagePreprocessingOptions == null) {
+                imagePreprocessingOptions = new ImagePreprocessingOptions();
+            }
+        } else {
+            imagePreprocessingOptions = null;
+        }
         return this;
     }
 
@@ -386,5 +409,73 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     final boolean isUserWordsFileTemporary() {
         return isUserWordsFileTemporary;
     }
+
+    /**
+     * Gets {@link #useTxtToImproveHocrParsing}.
+     * Used to make HOCR recognition result more precise.
+     * This is needed for cases of Thai language or some Chinese dialects
+     * where every character is interpreted as a single word.
+     * For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
+     *
+     * @return {@link #useTxtToImproveHocrParsing}
+     */
+    final public boolean isUseTxtToImproveHocrParsing() {
+        return useTxtToImproveHocrParsing;
+    }
+
+    /**
+     * Sets {@link #useTxtToImproveHocrParsing}.
+     * Used to make HOCR recognition result more precise.
+     * This is needed for cases of Thai language or some Chinese dialects
+     * where every character is interpreted as a single word.
+     * For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
+     *
+     * @param useTxtToImproveHocrParsing {@link #useTxtToImproveHocrParsing}
+     */
+    final public Tesseract4OcrEngineProperties setUseTxtToImproveHocrParsing(boolean useTxtToImproveHocrParsing) {
+        this.useTxtToImproveHocrParsing = useTxtToImproveHocrParsing;
+        return this;
+    }
+
+    /**
+     * Gets {@link #imagePreprocessingOptions}.
+     * @return {@link ImagePreprocessingOptions}
+     */
+    final public ImagePreprocessingOptions getImagePreprocessingOptions() {
+        return imagePreprocessingOptions;
+    }
+
+    /**
+     * Sets {@link #imagePreprocessingOptions}.
+     * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
+     * @return the {@link Tesseract4OcrEngineProperties} instance
+     */
+    final public Tesseract4OcrEngineProperties setImagePreprocessingOptions(
+            ImagePreprocessingOptions imagePreprocessingOptions) {
+        this.imagePreprocessingOptions = imagePreprocessingOptions;
+        return this;
+    }
+
+    /**
+     * Gets minimal confidence level for HOCR line to be considered as properly recognized.
+     * If real confidence level is lower then line is ignored
+     * Default value is 0 which means that everything is considered as properly recognized
+     * Value may vary in range of 0-100
+     */
+    final public int getMinimalConfidenceLevel() {
+        return minimalConfidenceLevel;
+    }
+
+    /**
+     * Sets minimal confidence level for HOCR line to be considered as properly recognized.
+     * If real confidence level is lower then line is ignored
+     * Default value is 0 which means that everything is considered as properly recognized
+     * Value may vary in range of 0-100
+     */
+    final public Tesseract4OcrEngineProperties setMinimalConfidenceLevel(int minimalConfidenceLevel) {
+        this.minimalConfidenceLevel = minimalConfidenceLevel;
+        return this;
+    }
+
 
 }

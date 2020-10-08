@@ -46,6 +46,7 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.IntegrationTest;
 
@@ -73,11 +74,14 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     private static final String TARGET_FOLDER = "./target/test/resources/com/itextpdf/pdfocr/";
+    private static final String NON_ASCII_TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/ñoñ-ascîî/";
 
     // directory with trained data for tests
     protected static final String LANG_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata";
     // directory with trained data for tests
     protected static final String SCRIPT_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata" + File.separator + "script";
+    // directory with trained data for tests
+    protected static final String NON_ASCII_TESS_DATA_DIRECTORY = TEST_DIRECTORY + "tessdata" + File.separator + "ñoñ-ascîî";
     // directory with test image files
     protected static final String TEST_IMAGES_DIRECTORY = TEST_DIRECTORY + "images" + File.separator;
     // directory with fonts
@@ -124,8 +128,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
                 new Tesseract4OcrEngineProperties();
         ocrEngineProperties.setPathToTessData(getTessDataDirectory());
         tesseractLibReader = new Tesseract4LibOcrEngine(ocrEngineProperties);
-        tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(
-                getTesseractDirectory(), ocrEngineProperties);
+        tesseractExecutableReader = new Tesseract4ExecutableOcrEngine(ocrEngineProperties);
     }
 
     protected static AbstractTesseract4OcrEngine getTesseractReader(ReaderType type) {
@@ -140,15 +143,6 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         return tesseractLibReader;
     }
 
-    protected static String getTesseractDirectory() {
-        String tesseractDir = System.getProperty("tesseractDir");
-        String os = System.getProperty("os.name") == null
-                ? System.getProperty("OS") : System.getProperty("os.name");
-        return os.toLowerCase().contains("win") && tesseractDir != null
-                && !tesseractDir.isEmpty()
-                ? tesseractDir + "\\tesseract.exe" : "tesseract";
-    }
-
     /**
      * Returns target directory (because target/test could not exist).
      */
@@ -157,6 +151,16 @@ public class IntegrationTestHelper extends ExtendedITextTest {
             createDestinationFolder(TARGET_FOLDER);
         }
         return TARGET_FOLDER;
+    }
+
+    /**
+     * Returns a non ascii target directory.
+     */
+    public static String getNonAsciiTargetDirectory() {
+        if (!Files.exists(java.nio.file.Paths.get(NON_ASCII_TARGET_DIRECTORY))) {
+            createDestinationFolder(NON_ASCII_TARGET_DIRECTORY);
+        }
+        return NON_ASCII_TARGET_DIRECTORY;
     }
 
     protected static File getTessDataDirectory() {
@@ -323,6 +327,20 @@ public class IntegrationTestHelper extends ExtendedITextTest {
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
             List<String> fonts, com.itextpdf.kernel.colors.Color color) {
+        doOcrAndSavePdfToPath(tesseractReader,
+                imgPath, pdfPath,
+                languages, fonts, color, false);
+    }
+
+    /**
+     * Perform OCR using provided path to image (imgPath)
+     * and save result PDF document to "pdfPath".
+     * (Method is used for compare tool)
+     */
+    protected void doOcrAndSavePdfToPath(
+            AbstractTesseract4OcrEngine tesseractReader, String imgPath,
+            String pdfPath, List<String> languages,
+            List<String> fonts, com.itextpdf.kernel.colors.Color color, boolean applyRotation) {
         if (languages != null) {
             Tesseract4OcrEngineProperties properties =
                     tesseractReader.getTesseract4OcrEngineProperties();
@@ -333,6 +351,9 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
         properties.setPdfLang("en-US");
         properties.setTitle("");
+        if (applyRotation) {
+            properties.setImageRotationHandler(new LeptonicaImageRotationHandler());
+        }
 
         if (fonts != null && fonts.size() > 0) {
             FontProvider fontProvider = new FontProvider();

@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.util.MessageFormatUtil;
 import com.itextpdf.io.util.SystemUtil;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -68,19 +69,38 @@ public class TesseractHelper {
     private static final Pattern BBOX_COORDINATE_PATTERN = Pattern
             .compile(
                     ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
-
-    /**
-     * Indices in array representing bbox.
-     */
-    private static final int LEFT_IDX = 0;
-    private static final int BOTTOM_IDX = 1;
-    private static final int RIGHT_IDX = 2;
-    private static final int TOP_IDX = 3;
+    private static final Pattern WCONF_PATTERN = Pattern.compile("^.*(x_wconf *\\d+).*$");
 
     /**
      * Size of the array containing bbox.
      */
     private static final int BBOX_ARRAY_SIZE = 4;
+
+    /**
+     * Indices in array representing bbox.
+     */
+    private static final int LEFT_IDX = 0;
+    private static final int TOP_IDX = 1;
+    private static final int RIGHT_IDX = 2;
+    private static final int BOTTOM_IDX = 3;
+
+    /**
+     * The Constant to convert pixels to points.
+     */
+    private static final float PX_TO_PT = 3F / 4F;
+
+    private static final String NEW_LINE_PATTERN = "\n+";
+    private static final String SPACE_PATTERN = " +";
+    private static final String NEW_LINE_OR_SPACE_PATTERN = "[\n ]+";
+    private static final String PAGE_PREFIX_PATTERN = "page_";
+
+    private static final String OCR_PAGE = "ocr_page";
+    private static final String OCR_LINE = "ocr_line";
+    private static final String OCR_CAPTION = "ocr_caption";
+    private static final String OCRX_WORD = "ocrx_word";
+    private static final String TITLE = "title";
+    private static final String X_WCONF = "x_wconf";
+
 
     /**
      * Creates a new {@link TesseractHelper} instance.
@@ -95,6 +115,35 @@ public class TesseractHelper {
      * @param inputFiles list of input files
      * @param textPositioning {@link TextPositioning}
      * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     *          representing the number of the page and value is
+     *          {@link java.util.List} of {@link TextInfo} elements where each
+     *          {@link TextInfo} element contains a word or a line and its 4
+     *          coordinates(bbox)
+     * @throws IOException if error occurred during reading one the provided
+     *          files
+     * @deprecated since 1.0.2. Use {@link #parseHocrFile(List, List, Tesseract4OcrEngineProperties)} instead
+     */
+    @Deprecated
+    public static Map<Integer, List<TextInfo>> parseHocrFile(
+            final List<File> inputFiles,
+            final TextPositioning textPositioning)
+            throws IOException {
+        return parseHocrFile(
+            inputFiles, null,
+                new Tesseract4OcrEngineProperties().setTextPositioning(textPositioning));
+    }
+
+    /**
+     * Parses each hocr file from the provided list, retrieves text, and
+     * returns data in the format described below.
+     *
+     * @param inputFiles list of input files
+     * @param txtInputFiles list of input files in txt format used to make hocr recognition result more precise.
+     *                      This is needed for cases of Thai language or some Chinese dialects
+     *                      where every character is interpreted as a single word.
+     *                      For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
+     * @param tesseract4OcrEngineProperties {@link Tesseract4OcrEngineProperties}
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
      * representing the number of the page and value is
      * {@link java.util.List} of {@link TextInfo} elements where each
      * {@link TextInfo} element contains a word or a line and its 4
@@ -102,15 +151,21 @@ public class TesseractHelper {
      * @throws IOException if error occurred during reading one the provided
      * files
      */
-    public static Map<Integer, List<TextInfo>> parseHocrFile(
-            final List<File> inputFiles,
-            final TextPositioning textPositioning)
+    static Map<Integer, List<TextInfo>> parseHocrFile(
+            final List<File> inputFiles, final List<File> txtInputFiles,
+            final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties)
             throws IOException {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
         Map<String, Node> unparsedBBoxes = new LinkedHashMap<>();
 
-        for (File inputFile : inputFiles) {
+        for (int inputFileIdx = 0; inputFileIdx < inputFiles.size(); inputFileIdx++) {
+            final File inputFile = inputFiles.get(inputFileIdx);
+            List<String> txt = null;
+            if (txtInputFiles != null) {
+                final File txtInputFile = txtInputFiles.get(inputFileIdx);
+                txt = Files.readAllLines(txtInputFile.toPath(), StandardCharsets.UTF_8);
+            }
             if (inputFile != null
                     && Files.exists(
                     java.nio.file.Paths
@@ -120,36 +175,16 @@ public class TesseractHelper {
                 Document doc = Jsoup.parse(fileInputStream,
                         java.nio.charset.StandardCharsets.UTF_8.name(),
                         inputFile.getAbsolutePath());
-                Elements pages = doc.getElementsByClass("ocr_page");
+                Elements pages = doc.getElementsByClass(OCR_PAGE);
 
-                List<String> searchedClasses = TextPositioning.BY_LINES
-                        .equals(textPositioning)
-                        ? Arrays.<String>asList("ocr_line", "ocr_caption")
-                        : Collections.<String>singletonList("ocrx_word");
                 for (Element page : pages) {
-                    String[] pageNum = page.id().split("page_");
+                    String[] pageNum = page.id().split(PAGE_PREFIX_PATTERN);
                     int pageNumber = Integer
                             .parseInt(pageNum[pageNum.length - 1]);
-                    List<TextInfo> textData = new ArrayList<TextInfo>();
-                    if (searchedClasses.size() > 0) {
-                        Elements objects = page
-                                .getElementsByClass(searchedClasses.get(0));
-                        for (int i = 1; i < searchedClasses.size(); i++) {
-                            Elements foundElements = page
-                                    .getElementsByClass(
-                                            searchedClasses.get(i));
-                            for (int j = 0; j < foundElements.size(); j++) {
-                                objects.add(foundElements.get(j));
-                            }
-                        }
-                        for (Element obj : objects) {
-                            List<Float> coordinates = getAlignedBBox(obj,
-                                    textPositioning,
-                                    unparsedBBoxes);
-                            textData.add(new TextInfo(obj.text(),
-                                    coordinates));
-                        }
-                    }
+                    final List<TextInfo> textData = getTextData(page,
+                            tesseract4OcrEngineProperties,
+                            txt,
+                            unparsedBBoxes);
                     if (textData.size() > 0) {
                         if (imageData.containsKey(pageNumber)) {
                             pageNumber = Collections.max(imageData.keySet())
@@ -173,34 +208,38 @@ public class TesseractHelper {
     /**
      * Get and align (if needed) bbox of the element.
      */
-    static List<Float> getAlignedBBox(Element object,
+    static Rectangle getAlignedBBox(Element object,
                                       TextPositioning textPositioning,
+                                      Rectangle pageBbox,
                                       Map<String, Node> unparsedBBoxes) {
-        final List<Float> coordinates = parseBBox(object, unparsedBBoxes);
+        final Rectangle box = parseBBox(object, pageBbox, unparsedBBoxes);
         if (TextPositioning.BY_WORDS_AND_LINES == textPositioning
                 || TextPositioning.BY_WORDS == textPositioning) {
             Node line = object.parent();
-            final List<Float> lineCoordinates = parseBBox(line, unparsedBBoxes);
+            final Rectangle lineBbox = parseBBox(line, pageBbox, unparsedBBoxes);
             if (TextPositioning.BY_WORDS_AND_LINES == textPositioning) {
-                coordinates.set(BOTTOM_IDX, lineCoordinates.get(BOTTOM_IDX));
-                coordinates.set(TOP_IDX, lineCoordinates.get(TOP_IDX));
+                box.setBbox(box.getLeft(),
+                        lineBbox.getBottom(),
+                        box.getRight(),
+                        lineBbox.getTop());
             }
-            detectAndFixBrokenBBoxes(object, coordinates,
-                    lineCoordinates, unparsedBBoxes);
+            detectAndFixBrokenBBoxes(object, box,
+                    lineBbox, pageBbox, unparsedBBoxes);
         }
-        return coordinates;
+        return box;
     }
 
     /**
      * Parses element bbox.
      *
      * @param node element containing bbox
+     * @param pageBBox element containing parent page bbox
      * @param unparsedBBoxes list of element ids with bboxes which could not be parsed
      * @return parsed bbox
      */
-    static List<Float> parseBBox(Node node, Map<String, Node> unparsedBBoxes) {
+    static Rectangle parseBBox(Node node, Rectangle pageBBox, Map<String, Node> unparsedBBoxes) {
         List<Float> bbox = new ArrayList<>();
-        Matcher bboxMatcher = BBOX_PATTERN.matcher(node.attr("title"));
+        Matcher bboxMatcher = BBOX_PATTERN.matcher(node.attr(TITLE));
         if (bboxMatcher.matches()) {
             Matcher bboxCoordinateMatcher =
                     BBOX_COORDINATE_PATTERN
@@ -220,36 +259,66 @@ public class TesseractHelper {
                 unparsedBBoxes.put(id, node);
             }
         }
-        return bbox;
+        if (pageBBox == null) {
+            return new Rectangle(toPoints(bbox.get(LEFT_IDX)),
+                    toPoints(bbox.get(TOP_IDX)),
+                    toPoints(bbox.get(RIGHT_IDX)),
+                    toPoints(bbox.get(BOTTOM_IDX) - bbox.get(TOP_IDX)));
+        } else {
+            return new Rectangle(0, 0).setBbox(toPoints(bbox.get(LEFT_IDX)),
+                    pageBBox.getTop() - toPoints(bbox.get(TOP_IDX)),
+                    toPoints(bbox.get(RIGHT_IDX)),
+                    pageBBox.getTop() - toPoints(bbox.get(BOTTOM_IDX)));
+        }
     }
 
     /**
      * Sometimes hOCR file contains broke character bboxes which are equal to page bbox.
      * This method attempts to detect and fix them.
      */
-    static void detectAndFixBrokenBBoxes(Element object, List<Float> coordinates,
-                                         List<Float> lineCoordinates,
+    static void detectAndFixBrokenBBoxes(Element object, Rectangle bbox,
+                                         Rectangle lineBbox, Rectangle pageBbox,
                                          Map<String, Node> unparsedBBoxes) {
-        if (coordinates.get(LEFT_IDX) < lineCoordinates.get(LEFT_IDX)
-                || coordinates.get(LEFT_IDX) > lineCoordinates.get(RIGHT_IDX)) {
+        if (bbox.getLeft() < lineBbox.getLeft()
+                || bbox.getLeft() > lineBbox.getRight()) {
             if (object.previousElementSibling() == null) {
-                coordinates.set(LEFT_IDX, lineCoordinates.get(LEFT_IDX));
+                bbox.setX(lineBbox.getLeft());
             } else {
                 Element sibling = object.previousElementSibling();
-                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
-                coordinates.set(LEFT_IDX, siblingBBox.get(RIGHT_IDX));
+                final Rectangle siblingBBox = parseBBox(sibling, pageBbox, unparsedBBoxes);
+                bbox.setX(siblingBBox.getRight());
             }
         }
-        if (coordinates.get(RIGHT_IDX) > lineCoordinates.get(RIGHT_IDX)
-                || coordinates.get(RIGHT_IDX) < lineCoordinates.get(LEFT_IDX)) {
+        if (bbox.getRight() > lineBbox.getRight()
+                || bbox.getRight() < lineBbox.getLeft()) {
             if (object.nextElementSibling() == null) {
-                coordinates.set(RIGHT_IDX, lineCoordinates.get(RIGHT_IDX));
+                bbox.setBbox(bbox.getLeft(),
+                        bbox.getBottom(),
+                        lineBbox.getRight(),
+                        bbox.getTop());
             } else {
                 Element sibling = object.nextElementSibling();
-                List<Float> siblingBBox = parseBBox(sibling, unparsedBBoxes);
-                coordinates.set(RIGHT_IDX, siblingBBox.get(LEFT_IDX));
+                final Rectangle siblingBBox = parseBBox(sibling, pageBbox, unparsedBBoxes);
+                bbox.setBbox(bbox.getLeft(),
+                        bbox.getBottom(),
+                        siblingBBox.getLeft(),
+                        bbox.getTop());
             }
         }
+    }
+
+    /**
+     * Converts points to pixels.
+     */
+    static float toPixels(float pt) {
+        return pt / PX_TO_PT;
+    }
+
+    /**
+     * Converts pixels to points.
+     */
+    static float toPoints(float px) {
+        return px * PX_TO_PT;
     }
 
     /**
@@ -321,10 +390,24 @@ public class TesseractHelper {
      */
     static void runCommand(final String execPath,
                            final List<String> paramsList) throws Tesseract4OcrException {
+        runCommand(execPath, paramsList, null);
+    }
+
+    /**
+     * Runs given command from the specific working directory.
+     *
+     * @param execPath path to the executable
+     * @param paramsList {@link java.util.List} of command line arguments
+     * @param workingDirPath path to the working directory
+     * @throws Tesseract4OcrException if provided command failed
+     */
+    static void runCommand(final String execPath,
+                           final List<String> paramsList,
+                           final String workingDirPath) throws Tesseract4OcrException {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil
-                    .runProcessAndWait(execPath, params);
+                    .runProcessAndWait(execPath, params, workingDirPath);
 
             if (!cmdSucceeded) {
                 LOGGER.error(MessageFormatUtil
@@ -342,5 +425,239 @@ public class TesseractHelper {
                     Tesseract4OcrException
                             .TESSERACT_FAILED);
         }
+    }
+
+    /**
+     * Gets list of text infos from hocr page.
+     */
+    private static List<TextInfo> getTextData(Element page,
+                                              Tesseract4OcrEngineProperties tesseract4OcrEngineProperties,
+                                              List<String> txt,
+                                              Map<String, Node> unparsedBBoxes) {
+        final Rectangle pageBbox = parseBBox(page, null, unparsedBBoxes);
+        final List<String> searchedClasses = Arrays.<String>asList(OCR_LINE, OCR_CAPTION);
+        Elements objects = new Elements();
+        for (int i = 0; i < searchedClasses.size(); i++) {
+            Elements foundElements = page
+                    .getElementsByClass(
+                            searchedClasses.get(i));
+            for (int j = 0; j < foundElements.size(); j++) {
+                objects.add(foundElements.get(j));
+            }
+        }
+        return getTextData(objects,
+                tesseract4OcrEngineProperties,
+                txt,
+                pageBbox,
+                unparsedBBoxes);
+    }
+
+    /**
+     * Gets list of text infos from elements within hocr page.
+     */
+    private static List<TextInfo> getTextData(List<Element> pageObjects,
+                                              Tesseract4OcrEngineProperties tesseract4OcrEngineProperties,
+                                              List<String> txt,
+                                              Rectangle pageBbox,
+                                              Map<String, Node> unparsedBBoxes) {
+        List<TextInfo> textData = new ArrayList<TextInfo>();
+        for (Element lineOrCaption : pageObjects) {
+            if (!lineOrCaption.text().isEmpty() && isElementConfident(lineOrCaption,
+                    tesseract4OcrEngineProperties.getMinimalConfidenceLevel())) {
+                String hocrLineInTxt = findHocrLineInTxt(lineOrCaption, txt);
+                if (tesseract4OcrEngineProperties.getTextPositioning() == TextPositioning.BY_WORDS
+                        || tesseract4OcrEngineProperties.getTextPositioning() == TextPositioning.BY_WORDS_AND_LINES) {
+                    for (TextInfo ti : getTextDataForWords(lineOrCaption,
+                            hocrLineInTxt,
+                            tesseract4OcrEngineProperties.getTextPositioning(),
+                            pageBbox,
+                            unparsedBBoxes)) {
+                        textData.add(ti);
+                    }
+                } else {
+                    for (TextInfo ti : getTextDataForLines(lineOrCaption,
+                            hocrLineInTxt,
+                            pageBbox,
+                            unparsedBBoxes)) {
+                        textData.add(ti);
+                    }
+                }
+            }
+        }
+        return textData;
+    }
+
+    /**
+     * Decides if <code>lineOrCaption</code> is confident or not given into account
+     * minimalConfidenceLevel property of {@link Tesseract4OcrEngineProperties}.
+     */
+    private static boolean isElementConfident(Element lineOrCaption, int minimalConfidenceLevel) {
+        if (minimalConfidenceLevel == 0) {
+            return true;
+        } else {
+            int wconfTotal = 0;
+            int wconfCount = 0;
+            for (Node node : lineOrCaption.childNodes()) {
+                if (node instanceof Element) {
+                    String title = ((Element)node).attr(TITLE);
+                    Matcher matcher = WCONF_PATTERN.matcher(title);
+                    if (matcher.matches()) {
+                        String wconf = null;
+                        try {
+                            wconf = matcher.group(1);
+                        } catch (Exception e) {
+                            //No need to do anything here
+                        }
+                        if (wconf != null) {
+                            wconf = wconf.replaceAll(X_WCONF, "").trim();
+                            wconfTotal += Integer.parseInt(wconf);
+                            wconfCount++;
+                        }
+                    }
+                }
+            }
+            if (wconfCount > 0) {
+                return wconfTotal / wconfCount >= minimalConfidenceLevel;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Gets list of words represented by text infos from hocr line.
+     */
+    private static List<TextInfo> getTextDataForWords(Element lineOrCaption,
+                                                      String txtLine,
+                                                      TextPositioning textPositioning,
+                                                      Rectangle pageBbox,
+                                                      Map<String, Node> unparsedBBoxes) {
+        List<TextInfo> textData = new ArrayList<TextInfo>();
+        if (txtLine == null) {
+            for (Element word : lineOrCaption.getElementsByClass(OCRX_WORD)) {
+                final Rectangle bboxRect = getAlignedBBox(word,
+                        textPositioning, pageBbox,
+                        unparsedBBoxes);
+                addToTextData(textData, word.text(), bboxRect, pageBbox);
+            }
+        } else {
+            List<TextInfo> textInfos = new ArrayList<>();
+            final String txtLine1 = txtLine.replaceAll(NEW_LINE_PATTERN, "");
+            final String txtLine2 = txtLine1.replaceAll(SPACE_PATTERN, " ");
+            String[] lineItems = txtLine2.split(" ");
+            for (Element word : lineOrCaption.getElementsByClass(OCRX_WORD)) {
+                final Rectangle bboxRect = getAlignedBBox(word,
+                        textPositioning, pageBbox,
+                        unparsedBBoxes);
+                textInfos.add(new TextInfo(word.text(),
+                        bboxRect));
+                if (lineItems[0].replaceAll(NEW_LINE_OR_SPACE_PATTERN, "")
+                        .equals(getTextInfosText(textInfos).replaceAll(SPACE_PATTERN, ""))) {
+                    lineItems = Arrays.copyOfRange(lineItems, 1, lineItems.length);
+                    addToTextData(textData, mergeTextInfos(textInfos), pageBbox);
+                    textInfos.clear();
+                }
+            }
+        }
+        return textData;
+    }
+
+    /**
+     * Gets list of lines represented by text infos from hocr line.
+     */
+    private static List<TextInfo> getTextDataForLines(Element lineOrCaption,
+                                                      String txtLine,
+                                                      Rectangle pageBbox,
+                                                      Map<String, Node> unparsedBBoxes) {
+        List<TextInfo> textData = new ArrayList<TextInfo>();
+        final Rectangle bboxRect = getAlignedBBox(lineOrCaption,
+                TextPositioning.BY_LINES, pageBbox,
+                unparsedBBoxes);
+        if (txtLine == null) {
+            addToTextData(textData, lineOrCaption.text(), bboxRect, pageBbox);
+        } else {
+            addToTextData(textData, txtLine, bboxRect, pageBbox);
+        }
+        return textData;
+    }
+
+    /**
+     * Add text chunk represented by text and bbox to list of text infos.
+     */
+    private static void addToTextData(List<TextInfo> textData,
+                                      String text,
+                                      Rectangle bboxRect,
+                                      Rectangle pageBbox) {
+        final List<Float> bbox = Arrays.asList(toPixels(bboxRect.getLeft()),
+                toPixels(pageBbox.getTop() - bboxRect.getTop()),
+                toPixels(bboxRect.getRight()),
+                toPixels(pageBbox.getTop() - bboxRect.getBottom()));
+        final TextInfo textInfo = new TextInfo(text, bboxRect, bbox);
+        textData.add(textInfo);
+    }
+
+    /**
+     * Add text chunk represented by text info to list of text infos.
+     */
+    private static void addToTextData(List<TextInfo> textData,
+                                      TextInfo textInfo,
+                                      Rectangle pageBbox) {
+        String text = textInfo.getText();
+        Rectangle bboxRect = textInfo.getBboxRect();
+        addToTextData(textData, text, bboxRect, pageBbox);
+    }
+
+    /**
+     * Gets common text for list of text infos.
+     */
+    private static String getTextInfosText(List<TextInfo> textInfos) {
+        String text = "";
+        for (TextInfo textInfo : textInfos) {
+            text = text + textInfo.getText();
+        }
+        return text;
+    }
+
+    /**
+     * Merges text infos.
+     *
+     * @param textInfos source to merge
+     * @return merged text info
+     */
+    private static TextInfo mergeTextInfos(List<TextInfo> textInfos) {
+        TextInfo textInfo = new TextInfo(textInfos.get(0));
+        for (int i = 1; i < textInfos.size(); i++) {
+            textInfo.setText(textInfo.getText() + textInfos.get(i).getText());
+            Rectangle leftBBox = textInfo.getBboxRect();
+            Rectangle rightBBox = textInfos.get(i).getBboxRect();
+            textInfo.setBboxRect(new Rectangle(0, 0).setBbox(
+                    leftBBox.getLeft(),
+                    Math.min(leftBBox.getBottom(), rightBBox.getBottom()),
+                    rightBBox.getRight(),
+                    Math.max(leftBBox.getTop(), rightBBox.getTop())
+            ));
+        }
+        return textInfo;
+    }
+
+    /**
+     * Attempts to find HOCR line text in provided TXT.
+     *
+     * @return text line if found, otherwise null
+     */
+    private static String findHocrLineInTxt(Element line, List<String> txt) {
+        if (txt == null) {
+            return null;
+        }
+        String hocrLineText = line.text().replaceAll(SPACE_PATTERN, "");
+        if (hocrLineText.isEmpty()) {
+            return null;
+        }
+        for (String txtLine : txt) {
+            if (txtLine.replaceAll(SPACE_PATTERN, "").equals(hocrLineText)) {
+                return txtLine;
+            }
+        }
+        return null;
     }
 }

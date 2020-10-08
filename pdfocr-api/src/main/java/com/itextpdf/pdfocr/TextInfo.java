@@ -22,9 +22,12 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.kernel.geom.Rectangle;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 /**
  * This class describes how recognized text is positioned on the image
@@ -38,16 +41,45 @@ public class TextInfo {
     private String text;
 
     /**
-     * Contains 4 float coordinates: bbox parameters.
+     * {@link Rectangle} describing text bbox (lower-left based) expressed in points.
      */
-    private List<Float> bbox;
+    private Rectangle bboxRect;
+
+    /**
+     * Contains 4 float coordinates: bbox parameters.
+     * Alike bboxRect described by {@link Rectangle}
+     * coordinates are upper-left based and expressed in pixels.
+     * @deprecated since 1.0.1. Use {@link #bboxRect} instead
+     */
+    @Deprecated
+    private List<Float> bbox = Collections.<Float>emptyList();
 
     /**
      * Creates a new {@link TextInfo} instance.
      */
     public TextInfo() {
-        text = null;
-        bbox = Collections.<Float>emptyList();
+    }
+
+    /**
+     * Creates a new {@link TextInfo} instance from existing one.
+     *
+     * @param textInfo to create from
+     */
+    public TextInfo(final TextInfo textInfo) {
+        this.text = textInfo.text;
+        this.bboxRect = new Rectangle(textInfo.bboxRect);
+        this.bbox = Collections.<Float>unmodifiableList(textInfo.bbox);
+    }
+
+    /**
+     * Creates a new {@link TextInfo} instance.
+     *
+     * @param text any text
+     * @param bbox {@link Rectangle} describing text bbox
+     */
+    public TextInfo(final String text, final Rectangle bbox) {
+        this.text = text;
+        this.bboxRect = new Rectangle(bbox);
     }
 
     /**
@@ -55,9 +87,26 @@ public class TextInfo {
      *
      * @param text any text
      * @param bbox {@link java.util.List} of bbox parameters
+     * @deprecated since 1.0.1. Use {@link #TextInfo(String, Rectangle)} instead
      */
+    @Deprecated
     public TextInfo(final String text, final List<Float> bbox) {
         this.text = text;
+        this.bbox = Collections.<Float>unmodifiableList(bbox);
+    }
+
+    /**
+     * Creates a new {@link TextInfo} instance.
+     *
+     * @param text any text
+     * @param bboxRect {@link Rectangle} describing text bbox
+     * @param bbox {@link java.util.List} of bbox parameters
+     * @deprecated since 1.0.1. Use {@link #TextInfo(String, Rectangle)} instead
+     */
+    @Deprecated
+    public TextInfo(final String text, final Rectangle bboxRect, final List<Float> bbox) {
+        this.text = text;
+        this.bboxRect = bboxRect;
         this.bbox = Collections.<Float>unmodifiableList(bbox);
     }
 
@@ -82,8 +131,29 @@ public class TextInfo {
     /**
      * Gets bbox coordinates.
      *
-     * @return {@link java.util.List} of bbox parameters
+     * @return {@link Rectangle} describing text bbox
      */
+    public Rectangle getBboxRect() {
+        return bboxRect;
+    }
+
+    /**
+     * Sets text bbox.
+     *
+     * @param bbox {@link Rectangle} describing text bbox
+     */
+    public void setBboxRect(final Rectangle bbox) {
+        this.bboxRect = new Rectangle(bbox);
+        this.bbox = Collections.<Float>emptyList();
+    }
+
+    /**
+     * Gets bbox coordinates.
+     *
+     * @return {@link java.util.List} of bbox parameters
+     * @deprecated since 1.0.1. Use {@link #getBboxRect()} instead
+     */
+    @Deprecated
     public List<Float> getBbox() {
         return new ArrayList<Float>(bbox);
     }
@@ -92,8 +162,11 @@ public class TextInfo {
      * Sets bbox coordinates.
      *
      * @param bbox {@link java.util.List} of bbox parameters
+     * @deprecated since 1.0.1. Use {@link #setBboxRect(Rectangle)} instead
      */
+    @Deprecated
     public void setBbox(final List<Float> bbox) {
         this.bbox = Collections.<Float>unmodifiableList(bbox);
+        this.bboxRect = null;
     }
 }

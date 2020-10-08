@@ -32,6 +32,8 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.File;
+
 @Category(IntegrationTest.class)
 public class EventCountingLibTest extends EventCountingTest {
     public EventCountingLibTest() {
@@ -39,16 +41,14 @@ public class EventCountingLibTest extends EventCountingTest {
     }
 
     @Test
-    @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED),
-            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED)
-    })
+    @LogMessages(messages = {@LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)})
     public void testEventCountingCustomMetaInfoError() {
-        String imgPath = TEST_IMAGES_DIRECTORY + "numbers_101.jpg";
+        File img = new File(TEST_IMAGES_DIRECTORY + "numbers_101.jpg");
 
         junitExpectedException.expect(Tesseract4OcrException.class);
         junitExpectedException
-                .expectMessage(MessageFormatUtil.format(Tesseract4OcrException.TESSERACT_FAILED, imgPath));
+                .expectMessage(MessageFormatUtil
+                        .format(Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, img.getAbsolutePath()));
 
         super.testEventCountingCustomMetaInfoError();
     }

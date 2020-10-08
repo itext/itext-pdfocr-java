@@ -27,9 +27,10 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
+import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -50,6 +51,22 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         super(ReaderType.LIB);
     }
 
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS)
+    })
+    @Test
+    public void testTessDataWithNonAsciiPath() {
+        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expectMessage(
+                Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS
+        );
+
+        // Throws exception for the tesseract lib test
+        doOcrAndGetTextUsingTessDataByNonAsciiPath();
+
+        Assert.fail("Should throw exception for the tesseract lib when tess data path contains non ASCII characters");
+    }
+
     @Test(timeout = 60000)
     public void textOutputFromHalftoneFile() {
         String imgPath = TEST_IMAGES_DIRECTORY + "halftone.jpg";
@@ -64,44 +81,6 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         Assert.assertTrue(result.contains(expected01));
         Assert.assertTrue(result.contains(expected02));
         Assert.assertTrue(result.contains(expected03));
-    }
-
-    @Test(timeout = 60000)
-    public void hocrOutputFromHalftoneFile() throws java.io.IOException {
-        String path = TEST_IMAGES_DIRECTORY + "halftone.jpg";
-        String expected01 = "Silliness";
-        String expected02 = "Enablers";
-        String expected03 = "You";
-        String expected04 = "Middle";
-        String expected05 = "André";
-        String expected06 = "QUANTITY";
-        String expected07 = "DESCRIPTION";
-        String expected08 = "Silliness Enablers";
-        String expected09 = "QUANTITY DESCRIPTION UNIT PRICE TOTAL";
-
-        File imgFile = new File(path);
-        File outputFile = new File(getTargetDirectory()
-                + "hocrOutputFromHalftoneFile.hocr");
-
-        tesseractReader.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
-        Map<Integer, List<TextInfo>> pageData = TesseractHelper
-                .parseHocrFile(Collections.<File>singletonList(outputFile),
-                        TextPositioning.BY_WORDS
-                );
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected01));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected02));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected03));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected04));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected05));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected06));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected07));
-
-        pageData = TesseractHelper
-                .parseHocrFile(Collections.<File>singletonList(outputFile),
-                        TextPositioning.BY_LINES
-                );
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected08));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected09));
     }
 
     @Test
@@ -165,18 +144,6 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
                 TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
 
         Assert.assertTrue(javaTest || dotNetTest);
-    }
-
-    /**
-     * Searches for certain text in page data.
-     */
-    private boolean findTextInPageData(Map<Integer, List<TextInfo>> pageData, int page, String textToSearchFor) {
-        for (TextInfo textInfo : pageData.get(page)) {
-            if (textToSearchFor.equals(textInfo.getText())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

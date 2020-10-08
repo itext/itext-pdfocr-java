@@ -30,6 +30,7 @@ import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.ImagePreprocessingOptions;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
@@ -332,7 +333,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
-    public void compareMultiLangImage() throws InterruptedException, java.io.IOException {
+    public void compareMultiLangImage() throws InterruptedException, IOException {
         String testName = "compareMultiLangImage";
         String filename = "multilang";
         String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + "_" + testFileTypeName + ".pdf";
@@ -623,6 +624,62 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         Assert.assertEquals(expected, result);
     }
 
+    @Test
+    public void testTargetDirectoryWithNonAsciiPath() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "german_01.jpg";
+        String expectedTxt = TEST_DOCUMENTS_DIRECTORY + "german_01" + testFileTypeName + ".txt";
+        List<String> languages = Collections.<String>singletonList("deu");
+        String resultTxtFile = getNonAsciiTargetDirectory() + getImageName(imgPath, languages) + ".txt";
+        doOcrAndSaveToTextFile(tesseractReader, imgPath, resultTxtFile, languages);
+
+        boolean result = compareTxtFiles(expectedTxt, resultTxtFile);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testThai03ImageWithImprovedHocrParsing() {
+
+        String[] expected = {"บ๊อบสตรอเบอรีออดิชั่นธัม โมเนิร์สเซอรี่",
+                "ศากยบุตร เอเซีย",
+                "หน่อมแน้ม เวอร์เบอร์เกอร์แชมป์"};
+
+        String imgPath = TEST_IMAGES_DIRECTORY + "thai_03.jpg";
+        File file = new File(imgPath);
+
+        Tesseract4OcrEngineProperties properties =
+                tesseractReader.getTesseract4OcrEngineProperties();
+        properties.setTextPositioning(TextPositioning.BY_WORDS_AND_LINES);
+        properties.setUseTxtToImproveHocrParsing(true);
+        properties.setMinimalConfidenceLevel(80);
+        properties.setPathToTessData(new File(LANG_TESS_DATA_DIRECTORY));
+        tesseractReader.setTesseract4OcrEngineProperties(properties);
+
+        String pdfText = getTextFromPdf(tesseractReader, file, 1,
+                Arrays.<String>asList("tha"), Arrays.<String>asList(NOTO_SANS_THAI_FONT_PATH, NOTO_SANS_FONT_PATH));
+
+        for (String e : expected) {
+            Assert.assertTrue(pdfText.contains(e));
+        }
+    }
+
+    /**
+     * Do OCR and retrieve text from the first page of result PDF document
+     * using tess data placed by path with non ASCII characters.
+     * @return {@link java.lang.String}
+     */
+    protected String doOcrAndGetTextUsingTessDataByNonAsciiPath() {
+        String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
+        File file = new File(imgPath);
+
+        tesseractReader.setTesseract4OcrEngineProperties(
+                tesseractReader.getTesseract4OcrEngineProperties()
+                        .setPathToTessData(new File(NON_ASCII_TESS_DATA_DIRECTORY)));
+
+        return getTextFromPdf(tesseractReader, file,
+                Collections.<String>singletonList("Georgian"),
+                FREE_SANS_FONT_PATH);
+    }
+
     /**
      * Do OCR for given image and compare result text file with expected one.
      */
@@ -634,6 +691,34 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     /**
+     * Compare two arrays of text lines.
+     */
+    private boolean compareTxtLines(List<String> expected, List<String> result) {
+        boolean areEqual = true;
+        if (expected.size() != result.size()) {
+            return false;
+        }
+        for (int i = 0; i < expected.size(); i++) {
+            String exp = expected.get(i)
+                    .replace("\n", "")
+                    .replace("\f", "");
+            exp = exp.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
+            String res = result.get(i)
+                    .replace("\n", "")
+                    .replace("\f", "");
+            res = res.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
+            if (expected.get(i) == null || result.get(i) == null) {
+                areEqual = false;
+                break;
+            } else if (!exp.equals(res)) {
+                areEqual = false;
+                break;
+            }
+        }
+        return areEqual;
+    }
+
+    /**
      * Compare two text files using provided paths.
      */
     private boolean compareTxtFiles(String expectedFilePath, String resultFilePath) {
@@ -641,33 +726,11 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
         try {
             List<String> expected = Files.readAllLines(java.nio.file.Paths.get(expectedFilePath));
             List<String> result = Files.readAllLines(java.nio.file.Paths.get(resultFilePath));
-
-            if (expected.size() != result.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < expected.size(); i++) {
-                String exp = expected.get(i)
-                        .replace("\n", "")
-                        .replace("\f", "");
-                exp = exp.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-                String res = result.get(i)
-                        .replace("\n", "")
-                        .replace("\f", "");
-                res = res.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-                if (expected.get(i) == null || result.get(i) == null) {
-                    areEqual = false;
-                    break;
-                } else if (!exp.equals(res)) {
-                    areEqual = false;
-                    break;
-                }
-            }
+            areEqual = compareTxtLines(expected, result);
         } catch (IOException e) {
             areEqual = false;
             LOGGER.error(e.getMessage());
         }
-
         return areEqual;
     }
 }
