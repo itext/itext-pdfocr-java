@@ -24,10 +24,8 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.kernel.Version;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 final class ReflectionUtils {
 
@@ -35,7 +33,6 @@ final class ReflectionUtils {
 
     private static final String LICENSEKEY = "LicenseKey";
     private static final String LICENSEKEY_PRODUCT = "LicenseKeyProduct";
-    private static final String LICENSEKEY_FEATURE = "LicenseKeyProductFeature";
 
     private static final String SCHEDULED_CHECK = "scheduledCheck";
 
@@ -48,24 +45,17 @@ final class ReflectionUtils {
         try {
             Class licenseKeyClass = getClass(LICENSEKEY_PACKAGE + LICENSEKEY);
             Class licenseKeyProductClass = getClass(LICENSEKEY_PACKAGE + LICENSEKEY_PRODUCT);
-            Class licenseKeyProductFeatureClass = getClass(LICENSEKEY_PACKAGE + LICENSEKEY_FEATURE);
-
-            Object licenseKeyProductFeatureArray = Array.newInstance(licenseKeyProductFeatureClass, 0);
 
             Class[] params = new Class[] {
-                    String.class,
-                    Integer.TYPE,
-                    Integer.TYPE,
-                    licenseKeyProductFeatureArray.getClass()
+                    String.class, String.class, String.class
             };
 
             Constructor licenseKeyProductConstructor = licenseKeyProductClass.getConstructor(params);
 
             Object licenseKeyProductObject = licenseKeyProductConstructor.newInstance(
                     PdfOcrTesseract4ProductInfo.PRODUCT_NAME,
-                    PdfOcrTesseract4ProductInfo.MAJOR_VERSION,
-                    PdfOcrTesseract4ProductInfo.MINOR_VERSION,
-                    licenseKeyProductFeatureArray
+                    String.valueOf(PdfOcrTesseract4ProductInfo.MAJOR_VERSION),
+                    String.valueOf(PdfOcrTesseract4ProductInfo.MINOR_VERSION)
             );
 
             Method method = licenseKeyClass.getMethod(SCHEDULED_CHECK, licenseKeyProductClass);
