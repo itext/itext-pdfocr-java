@@ -440,7 +440,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
-    public void testGeorgianText() throws IOException {
+    public void testGeorgianText() {
         String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence
