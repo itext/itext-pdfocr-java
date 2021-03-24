@@ -45,6 +45,18 @@
           <artifactId>log4j-over-slf4j</artifactId>
           <groupId>org.slf4j</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>pdfbox</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>pdfbox-tools</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jbig2-imageio</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
