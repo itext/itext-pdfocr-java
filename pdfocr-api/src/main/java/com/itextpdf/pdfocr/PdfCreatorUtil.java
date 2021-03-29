@@ -24,10 +24,13 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.image.ImageType;
+import com.itextpdf.io.image.ImageTypeDetector;
 import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -172,15 +175,9 @@ class PdfCreatorUtil {
             throws OcrException, IOException {
         List<ImageData> images = new ArrayList<ImageData>();
 
-        String ext = "";
-        int index = inputImage.getAbsolutePath().lastIndexOf('.');
-        if (index > 0) {
-            ext = new String(inputImage.getAbsolutePath().toCharArray(),
-                    index + 1,
-                    inputImage.getAbsolutePath().length() - index - 1);
-
-            if ("tiff".equals(ext.toLowerCase())
-                    || "tif".equals(ext.toLowerCase())) {
+        try {
+            ImageType imageType = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
+            if (ImageType.TIFF == imageType) {
                 int tiffPages = getNumberOfPageTiff(inputImage);
 
                 for (int page = 0; page < tiffPages; page++) {
@@ -194,21 +191,19 @@ class PdfCreatorUtil {
                     images.add(imageData);
                 }
             } else {
-                try {
-                    ImageData imageData = ImageDataFactory
-                            .create(inputImage.getAbsolutePath());
-                    if (imageRotationHandler != null) {
-                        imageData = imageRotationHandler.applyRotation(imageData);
-                    }
-                    images.add(imageData);
-                } catch (com.itextpdf.io.IOException e) {
-                    LOGGER.error(MessageFormatUtil.format(
-                            PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
-                            e.getMessage()));
-                    throw new OcrException(
-                            OcrException.CANNOT_READ_INPUT_IMAGE, e);
+                ImageData imageData = ImageDataFactory
+                        .create(inputImage.getAbsolutePath());
+                if (imageRotationHandler != null) {
+                    imageData = imageRotationHandler.applyRotation(imageData);
                 }
+                images.add(imageData);
             }
+        } catch (com.itextpdf.io.IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+            throw new OcrException(
+                    OcrException.CANNOT_READ_INPUT_IMAGE, e);
         }
         return images;
     }
