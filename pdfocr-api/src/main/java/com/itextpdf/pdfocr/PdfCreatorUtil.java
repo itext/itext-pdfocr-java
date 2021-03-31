@@ -41,7 +41,10 @@ import com.itextpdf.layout.renderer.IRenderer;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -172,11 +175,11 @@ class PdfCreatorUtil {
      * @throws IOException if error occurred during reading a file
      */
     static List<ImageData> getImageData(final File inputImage, IImageRotationHandler imageRotationHandler)
-            throws OcrException, IOException {
+            throws OcrException {
         List<ImageData> images = new ArrayList<ImageData>();
 
-        try {
-            ImageType imageType = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
+        try (InputStream imageStream = new FileInputStream(inputImage)) {
+            ImageType imageType = ImageTypeDetector.detectImageType(imageStream);
             if (ImageType.TIFF == imageType) {
                 int tiffPages = getNumberOfPageTiff(inputImage);
 
@@ -198,7 +201,7 @@ class PdfCreatorUtil {
                 }
                 images.add(imageData);
             }
-        } catch (com.itextpdf.io.IOException e) {
+        } catch (IOException | com.itextpdf.io.IOException e) {
             LOGGER.error(MessageFormatUtil.format(
                     PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                     e.getMessage()));
