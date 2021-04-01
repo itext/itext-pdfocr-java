@@ -30,7 +30,7 @@ public class Tesseract4LogMessageConstant {
     public static final String CANNOT_READ_FILE =
             "Cannot read file {0}: {1}";
     public static final String CANNOT_OCR_INPUT_FILE =
-            "Cannot ocr input file: {1}";
+            "Cannot ocr input file: {0}";
     public static final String CANNOT_USE_USER_WORDS =
             "Cannot use custom user words: {0}";
     public static final String CANNOT_RETRIEVE_PAGES_FROM_IMAGE =
