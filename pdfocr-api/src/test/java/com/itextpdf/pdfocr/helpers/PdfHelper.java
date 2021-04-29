@@ -252,12 +252,13 @@ public class PdfHelper {
     public static ExtractionStrategy getExtractionStrategy(String pdfPath,
             String layerName, boolean useActualText)
             throws IOException {
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        ExtractionStrategy strategy = new ExtractionStrategy(layerName);
-        strategy.setUseActualText(useActualText);
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
-        processor.processPageContent(pdfDocument.getFirstPage());
-        pdfDocument.close();
-        return strategy;
+        try (PdfReader readerPdf = new PdfReader(pdfPath);
+                PdfDocument pdfDocument = new PdfDocument(readerPdf)) {
+            ExtractionStrategy strategy = new ExtractionStrategy(layerName);
+            strategy.setUseActualText(useActualText);
+            PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
+            processor.processPageContent(pdfDocument.getFirstPage());
+            return strategy;
+        }
     }
 }
