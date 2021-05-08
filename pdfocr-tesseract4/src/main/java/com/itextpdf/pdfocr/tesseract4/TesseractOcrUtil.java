@@ -481,7 +481,7 @@ class TesseractOcrUtil {
      * @param path path to file
      * @return parent directory where the file is located
      */
-    static String getParentDirectory(final String path) {
+    static String getParentDirectoryFile(final String path) {
         return new File(path).getParent();
     }
 

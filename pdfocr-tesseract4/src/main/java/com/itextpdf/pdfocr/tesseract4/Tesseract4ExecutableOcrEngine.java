@@ -149,7 +149,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
 
             // get the input file parent directory as working directory
             // as tesseract cannot parse non ascii characters in input path
-            String imageParentDir = TesseractOcrUtil.getParentDirectory(imagePath);
+            String imageParentDir = TesseractOcrUtil.getParentDirectoryFile(imagePath);
             String replacement = isWindows() ? "" : "/";
             workingDirectory = imageParentDir.replace("file:///", replacement)
                     .replace("file:/", replacement);
@@ -472,9 +472,9 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      */
     private boolean areEqualParentDirectories(final String firstPath,
             final String secondPath) {
-        String firstParentDir = TesseractOcrUtil.getParentDirectory(firstPath);
+        String firstParentDir = TesseractOcrUtil.getParentDirectoryFile(firstPath);
         String secondParentDir = TesseractOcrUtil
-                .getParentDirectory(secondPath);
+                .getParentDirectoryFile(secondPath);
         return firstParentDir != null
                 && firstParentDir.equals(secondParentDir);
     }
