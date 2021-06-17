@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2020 iText Group NV
+    Copyright (c) 1998-2021 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -373,36 +373,30 @@ public class OcrPdfCreator {
             final boolean createPdfA3u) throws OcrException {
         for (Map.Entry<File, Map<Integer, List<TextInfo>>> entry
                 : imagesTextData.entrySet()) {
-            try {
-                File inputImage = entry.getKey();
-                List<ImageData> imageDataList =
-                        PdfCreatorUtil.getImageData(inputImage,
-                                ocrPdfCreatorProperties.getImageRotationHandler());
-                LOGGER.info(MessageFormatUtil.format(
-                        PdfOcrLogMessageConstant.NUMBER_OF_PAGES_IN_IMAGE,
-                        inputImage.toString(), imageDataList.size()));
+            File inputImage = entry.getKey();
+            List<ImageData> imageDataList =
+                    PdfCreatorUtil.getImageData(inputImage,
+                            ocrPdfCreatorProperties.getImageRotationHandler());
+            LOGGER.info(MessageFormatUtil.format(
+                    PdfOcrLogMessageConstant.NUMBER_OF_PAGES_IN_IMAGE,
+                    inputImage.toString(), imageDataList.size()));
 
-                Map<Integer, List<TextInfo>> imageTextData = entry.getValue();
-                if (imageTextData.keySet().size() > 0) {
-                    for (int page = 0; page < imageDataList.size(); ++page) {
-                        ImageData imageData = imageDataList.get(page);
-                        final Rectangle imageSize =
-                                PdfCreatorUtil.calculateImageSize(
-                                        imageData,
-                                        ocrPdfCreatorProperties.getScaleMode(),
-                                        ocrPdfCreatorProperties.getPageSize());
+            Map<Integer, List<TextInfo>> imageTextData = entry.getValue();
+            if (imageTextData.keySet().size() > 0) {
+                for (int page = 0; page < imageDataList.size(); ++page) {
+                    ImageData imageData = imageDataList.get(page);
+                    final Rectangle imageSize =
+                            PdfCreatorUtil.calculateImageSize(
+                                    imageData,
+                                    ocrPdfCreatorProperties.getScaleMode(),
+                                    ocrPdfCreatorProperties.getPageSize());
 
-                        if (imageTextData.containsKey(page + 1)) {
-                            addToCanvas(pdfDocument, imageSize,
-                                    imageTextData.get(page + 1),
-                                    imageData, createPdfA3u);
-                        }
+                    if (imageTextData.containsKey(page + 1)) {
+                        addToCanvas(pdfDocument, imageSize,
+                                imageTextData.get(page + 1),
+                                imageData, createPdfA3u);
                     }
                 }
-            } catch (IOException e) {
-                LOGGER.error(MessageFormatUtil.format(
-                        PdfOcrLogMessageConstant.CANNOT_ADD_DATA_TO_PDF_DOCUMENT,
-                        e.getMessage()));
             }
         }
     }

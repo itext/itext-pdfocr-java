@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2020 iText Group NV
+    Copyright (c) 1998-2021 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -252,12 +252,13 @@ public class PdfHelper {
     public static ExtractionStrategy getExtractionStrategy(String pdfPath,
             String layerName, boolean useActualText)
             throws IOException {
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
-        ExtractionStrategy strategy = new ExtractionStrategy(layerName);
-        strategy.setUseActualText(useActualText);
-        PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
-        processor.processPageContent(pdfDocument.getFirstPage());
-        pdfDocument.close();
-        return strategy;
+        try (PdfReader readerPdf = new PdfReader(pdfPath);
+                PdfDocument pdfDocument = new PdfDocument(readerPdf)) {
+            ExtractionStrategy strategy = new ExtractionStrategy(layerName);
+            strategy.setUseActualText(useActualText);
+            PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);
+            processor.processPageContent(pdfDocument.getFirstPage());
+            return strategy;
+        }
     }
 }

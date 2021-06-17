@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2020 iText Group NV
+    Copyright (c) 1998-2021 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -24,10 +24,13 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.image.ImageType;
+import com.itextpdf.io.image.ImageTypeDetector;
 import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -38,7 +41,10 @@ import com.itextpdf.layout.renderer.IRenderer;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,18 +175,12 @@ class PdfCreatorUtil {
      * @throws IOException if error occurred during reading a file
      */
     static List<ImageData> getImageData(final File inputImage, IImageRotationHandler imageRotationHandler)
-            throws OcrException, IOException {
+            throws OcrException {
         List<ImageData> images = new ArrayList<ImageData>();
 
-        String ext = "";
-        int index = inputImage.getAbsolutePath().lastIndexOf('.');
-        if (index > 0) {
-            ext = new String(inputImage.getAbsolutePath().toCharArray(),
-                    index + 1,
-                    inputImage.getAbsolutePath().length() - index - 1);
-
-            if ("tiff".equals(ext.toLowerCase())
-                    || "tif".equals(ext.toLowerCase())) {
+        try (InputStream imageStream = new FileInputStream(inputImage)) {
+            ImageType imageType = ImageTypeDetector.detectImageType(imageStream);
+            if (ImageType.TIFF == imageType) {
                 int tiffPages = getNumberOfPageTiff(inputImage);
 
                 for (int page = 0; page < tiffPages; page++) {
@@ -194,21 +194,19 @@ class PdfCreatorUtil {
                     images.add(imageData);
                 }
             } else {
-                try {
-                    ImageData imageData = ImageDataFactory
-                            .create(inputImage.getAbsolutePath());
-                    if (imageRotationHandler != null) {
-                        imageData = imageRotationHandler.applyRotation(imageData);
-                    }
-                    images.add(imageData);
-                } catch (com.itextpdf.io.IOException e) {
-                    LOGGER.error(MessageFormatUtil.format(
-                            PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
-                            e.getMessage()));
-                    throw new OcrException(
-                            OcrException.CANNOT_READ_INPUT_IMAGE, e);
+                ImageData imageData = ImageDataFactory
+                        .create(inputImage.getAbsolutePath());
+                if (imageRotationHandler != null) {
+                    imageData = imageRotationHandler.applyRotation(imageData);
                 }
+                images.add(imageData);
             }
+        } catch (IOException | com.itextpdf.io.IOException e) {
+            LOGGER.error(MessageFormatUtil.format(
+                    PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                    e.getMessage()));
+            throw new OcrException(
+                    OcrException.CANNOT_READ_INPUT_IMAGE, e);
         }
         return images;
     }

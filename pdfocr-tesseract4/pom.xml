@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>pdfocr-root</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
   </parent>
 
   <artifactId>pdfocr-tesseract4</artifactId>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.sourceforge.tess4j</groupId>
       <artifactId>tess4j</artifactId>
-      <version>4.5.1</version>
+      <version>4.5.4</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -44,6 +44,18 @@
         <exclusion>
           <artifactId>log4j-over-slf4j</artifactId>
           <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>pdfbox</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>pdfbox-tools</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jbig2-imageio</artifactId>
+          <groupId>org.apache.pdfbox</groupId>
         </exclusion>
       </exclusions>
     </dependency>

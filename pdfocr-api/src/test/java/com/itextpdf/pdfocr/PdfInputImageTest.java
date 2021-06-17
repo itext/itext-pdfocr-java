@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2020 iText Group NV
+    Copyright (c) 1998-2021 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -41,8 +41,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
-                    count = 1)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
     public void testCorruptedImage() {
@@ -55,7 +54,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
     public void testCorruptedImageWithoutExtension() {
@@ -64,6 +63,45 @@ public class PdfInputImageTest extends ExtendedITextTest {
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted");
         String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension");
+        Assert.assertNotNull(realOutput);
+        Assert.assertEquals("", realOutput);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    })
+    @Test
+    public void testInvalidImagePathWithoutDot() {
+        junitExpectedException.expect(OcrException.class);
+
+        File file = new File("testName");
+        String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithoutDot");
+        Assert.assertNotNull(realOutput);
+        Assert.assertEquals("", realOutput);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    })
+    @Test
+    public void testInvalidImagePathWithDot() {
+        junitExpectedException.expect(OcrException.class);
+
+        File file = new File("test.Name");
+        String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithDot");
+        Assert.assertNotNull(realOutput);
+        Assert.assertEquals("", realOutput);
+    }
+
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
+    })
+    @Test
+    public void testValidImageWithoutExtension() {
+        junitExpectedException.expect(OcrException.class);
+
+        File file = new File(PdfHelper.getImagesTestDirectory() + "numbers_01");
+        String realOutput = PdfHelper.getTextFromPdf(file, "testValidImageWithoutExtension");
         Assert.assertNotNull(realOutput);
         Assert.assertEquals("", realOutput);
     }
