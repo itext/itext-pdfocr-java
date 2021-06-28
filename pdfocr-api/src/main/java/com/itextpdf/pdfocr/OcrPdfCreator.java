@@ -53,7 +53,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.font.FontProvider;
-import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.pdfa.PdfADocument;
 import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo.PdfDocumentType;
 import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
