@@ -414,7 +414,7 @@ public class OcrPdfCreator {
             final PdfCanvas pdfCanvas) {
         if (imageData != null) {
             if (ocrPdfCreatorProperties.getPageSize() == null) {
-                pdfCanvas.addImage(imageData, imageSize, false);
+                pdfCanvas.addImageFittedIntoRectangle(imageData, imageSize, false);
             } else {
                 final Point coordinates =
                         PdfCreatorUtil.calculateImageCoordinates(
@@ -423,7 +423,7 @@ public class OcrPdfCreator {
                         new Rectangle(
                                 (float)coordinates.x, (float)coordinates.y,
                                 imageSize.getWidth(), imageSize.getHeight());
-                pdfCanvas.addImage(imageData, rect, false);
+                pdfCanvas.addImageFittedIntoRectangle(imageData, rect, false);
             }
         }
     }
