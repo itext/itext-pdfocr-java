@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.sourceforge.tess4j</groupId>
       <artifactId>tess4j</artifactId>
-      <version>4.5.4</version>
+      <version>4.5.5</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
