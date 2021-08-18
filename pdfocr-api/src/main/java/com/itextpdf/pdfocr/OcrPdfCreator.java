@@ -90,14 +90,6 @@ public class OcrPdfCreator {
             .getLogger(OcrPdfCreator.class);
 
     /**
-     * Indices in array representing bbox.
-     */
-    private static final int LEFT_IDX = 0;
-    private static final int TOP_IDX = 1;
-    private static final int RIGHT_IDX = 2;
-    private static final int BOTTOM_IDX = 3;
-
-    /**
      * Selected {@link IOcrEngine}.
      */
     private IOcrEngine ocrEngine;
@@ -536,44 +528,28 @@ public class OcrPdfCreator {
      * Get left bound of text chunk.
      */
     private static float getLeft(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return textInfo.getBbox().get(LEFT_IDX) * multiplier;
-        } else {
-            return textInfo.getBboxRect().getLeft() * multiplier;
-        }
+        return textInfo.getBboxRect().getLeft() * multiplier;
     }
 
     /**
      * Get right bound of text chunk.
      */
     private static float getRight(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return (textInfo.getBbox().get(RIGHT_IDX) + 1) * multiplier - 1;
-        } else {
-            return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
-        }
+        return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
     }
 
     /**
      * Get top bound of text chunk.
      */
     private static float getTop(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return textInfo.getBbox().get(TOP_IDX) * multiplier;
-        } else {
-            return textInfo.getBboxRect().getTop() * multiplier;
-        }
+        return textInfo.getBboxRect().getTop() * multiplier;
     }
 
     /**
      * Get bottom bound of text chunk.
      */
     private static float getBottom(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return (textInfo.getBbox().get(BOTTOM_IDX) + 1) * multiplier - 1;
-        } else {
-            return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
-        }
+        return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
     }
 
     /**

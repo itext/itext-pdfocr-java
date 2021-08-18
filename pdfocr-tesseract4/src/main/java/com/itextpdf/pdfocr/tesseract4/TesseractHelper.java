@@ -588,11 +588,7 @@ public class TesseractHelper {
                                       String text,
                                       Rectangle bboxRect,
                                       Rectangle pageBbox) {
-        final List<Float> bbox = Arrays.asList(toPixels(bboxRect.getLeft()),
-                toPixels(pageBbox.getTop() - bboxRect.getTop()),
-                toPixels(bboxRect.getRight()),
-                toPixels(pageBbox.getTop() - bboxRect.getBottom()));
-        final TextInfo textInfo = new TextInfo(text, bboxRect, bbox);
+        final TextInfo textInfo = new TextInfo(text, bboxRect);
         textData.add(textInfo);
     }
 
@@ -611,11 +607,11 @@ public class TesseractHelper {
      * Gets common text for list of text infos.
      */
     private static String getTextInfosText(List<TextInfo> textInfos) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
         for (TextInfo textInfo : textInfos) {
-            text = text + textInfo.getText();
+            text.append(textInfo.getText());
         }
-        return text;
+        return text.toString();
     }
 
     /**

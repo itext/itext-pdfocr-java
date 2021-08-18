@@ -69,23 +69,6 @@ public class ApiTest extends ExtendedITextTest {
         Assert.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
     }
 
-    @Test
-    public void testTextInfoDeprecationMode() {
-        String path = PdfHelper.getDefaultImagePath();
-        Map<Integer, List<TextInfo>> result = new CustomOcrEngine(true).doImageOcr(new File(path));
-        Assert.assertEquals(1, result.size());
-
-        TextInfo textInfo = new TextInfo();
-        textInfo.setText("text");
-        textInfo.setBbox(Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f));
-        int page = 2;
-        result.put(page, Collections.<TextInfo>singletonList(textInfo));
-
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
-        Assert.assertEquals(textInfo.getBbox().size(), result.get(page).get(0).getBbox().size());
-    }
-
     @LogMessages(messages = {
         @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 7)
     })
@@ -146,24 +129,5 @@ public class ApiTest extends ExtendedITextTest {
         public ImageData applyRotation(ImageData imageData) {
             throw new RuntimeException("applyRotation is not implemented");
         }
-    }
-
-    @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 7)
-    })
-    @Test
-    public void testThaiImageWithNotDefGlyphsDeprecationMode() throws IOException {
-        String testName = "testThaiImageWithNotdefGlyphs";
-        String path = PdfHelper.getThaiImagePath();
-        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
-
-        PdfHelper.createPdf(pdfPath, new File(path),
-                new OcrPdfCreatorProperties().setTextColor(DeviceRgb.BLACK), true);
-
-        ExtractionStrategy strategy = PdfHelper.getExtractionStrategy(pdfPath);
-
-        PdfFont font = strategy.getPdfFont();
-        String fontName = font.getFontProgram().getFontNames().getFontName();
-        Assert.assertTrue(fontName.contains("LiberationSans"));
     }
 }

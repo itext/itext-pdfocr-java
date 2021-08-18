@@ -142,11 +142,6 @@ public class ApiTest extends IntegrationTestHelper {
         Assert.assertEquals(136.5f, (float)textInfo.getBboxRect().getBottom(), 0.1);
         Assert.assertEquals(385.5, (float)textInfo.getBboxRect().getRight(), 0.1);
         Assert.assertEquals(162.75, (float)textInfo.getBboxRect().getTop(), 0.1);
-
-        Assert.assertEquals(383.0f, (float)textInfo.getBbox().get(0), 0.1);
-        Assert.assertEquals(101.0f, (float)textInfo.getBbox().get(1), 0.1);
-        Assert.assertEquals(514.0f, (float)textInfo.getBbox().get(2), 0.1);
-        Assert.assertEquals(136.0f, (float)textInfo.getBbox().get(3), 0.1);
     }
 
 }
