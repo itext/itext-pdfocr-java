@@ -113,31 +113,6 @@ public class TesseractHelper {
      * returns data in the format described below.
      *
      * @param inputFiles list of input files
-     * @param textPositioning {@link TextPositioning}
-     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
-     *          representing the number of the page and value is
-     *          {@link java.util.List} of {@link TextInfo} elements where each
-     *          {@link TextInfo} element contains a word or a line and its 4
-     *          coordinates(bbox)
-     * @throws IOException if error occurred during reading one the provided
-     *          files
-     * @deprecated since 1.0.2. Use {@link #parseHocrFile(List, List, Tesseract4OcrEngineProperties)} instead
-     */
-    @Deprecated
-    public static Map<Integer, List<TextInfo>> parseHocrFile(
-            final List<File> inputFiles,
-            final TextPositioning textPositioning)
-            throws IOException {
-        return parseHocrFile(
-            inputFiles, null,
-                new Tesseract4OcrEngineProperties().setTextPositioning(textPositioning));
-    }
-
-    /**
-     * Parses each hocr file from the provided list, retrieves text, and
-     * returns data in the format described below.
-     *
-     * @param inputFiles list of input files
      * @param txtInputFiles list of input files in txt format used to make hocr recognition result more precise.
      *                      This is needed for cases of Thai language or some Chinese dialects
      *                      where every character is interpreted as a single word.
