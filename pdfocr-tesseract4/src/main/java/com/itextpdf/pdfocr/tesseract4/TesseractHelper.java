@@ -513,7 +513,7 @@ public class TesseractHelper {
                 final Rectangle bboxRect = getAlignedBBox(word,
                         textPositioning, pageBbox,
                         unparsedBBoxes);
-                addToTextData(textData, word.text(), bboxRect, pageBbox);
+                addToTextData(textData, word.text(), bboxRect);
             }
         } else {
             List<TextInfo> textInfos = new ArrayList<>();
@@ -529,7 +529,7 @@ public class TesseractHelper {
                 if (lineItems[0].replaceAll(NEW_LINE_OR_SPACE_PATTERN, "")
                         .equals(getTextInfosText(textInfos).replaceAll(SPACE_PATTERN, ""))) {
                     lineItems = Arrays.copyOfRange(lineItems, 1, lineItems.length);
-                    addToTextData(textData, mergeTextInfos(textInfos), pageBbox);
+                    addToTextData(textData, mergeTextInfos(textInfos));
                     textInfos.clear();
                 }
             }
@@ -549,9 +549,9 @@ public class TesseractHelper {
                 TextPositioning.BY_LINES, pageBbox,
                 unparsedBBoxes);
         if (txtLine == null) {
-            addToTextData(textData, lineOrCaption.text(), bboxRect, pageBbox);
+            addToTextData(textData, lineOrCaption.text(), bboxRect);
         } else {
-            addToTextData(textData, txtLine, bboxRect, pageBbox);
+            addToTextData(textData, txtLine, bboxRect);
         }
         return textData;
     }
@@ -561,8 +561,7 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       String text,
-                                      Rectangle bboxRect,
-                                      Rectangle pageBbox) {
+                                      Rectangle bboxRect) {
         final TextInfo textInfo = new TextInfo(text, bboxRect);
         textData.add(textInfo);
     }
@@ -571,11 +570,10 @@ public class TesseractHelper {
      * Add text chunk represented by text info to list of text infos.
      */
     private static void addToTextData(List<TextInfo> textData,
-                                      TextInfo textInfo,
-                                      Rectangle pageBbox) {
+                                      TextInfo textInfo) {
         String text = textInfo.getText();
         Rectangle bboxRect = textInfo.getBboxRect();
-        addToTextData(textData, text, bboxRect, pageBbox);
+        addToTextData(textData, text, bboxRect);
     }
 
     /**
