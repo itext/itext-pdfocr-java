@@ -22,7 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,7 +39,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -148,21 +152,27 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
-     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     * @param dispatchEvent indicates if event needs to be dispatched
+     * @param eventHelper event helper
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber, final boolean dispatchEvent) {
-        scheduledCheck();
+            final int pageNumber, final boolean dispatchEvent, AbstractPdfOcrEventHelper eventHelper) {
+        PdfOcrTesseract4ProductEvent event = null;
+        if (eventHelper == null) {
+            eventHelper = new Tesseract4EventHelper();
+        }
+        // usage event
+        if (dispatchEvent) {
+            event = onEvent(eventHelper);
+        }
         try {
             // check tess data path for non ASCII characters
             validateTessDataPath(getTessData());
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
-            if (dispatchEvent) {
-                onEvent();
-            }
+
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
@@ -196,6 +206,14 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                                 Tesseract4OcrException.TESSERACT_FAILED);
                     }
                 }
+            }
+
+            // statistics event
+            onEventStatistics(eventHelper);
+
+            // confirm on_demand event
+            if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                EventManager.getInstance().onEvent(new ConfirmEvent(event));
             }
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())

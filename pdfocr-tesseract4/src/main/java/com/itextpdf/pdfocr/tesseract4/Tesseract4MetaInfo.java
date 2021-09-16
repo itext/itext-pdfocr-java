@@ -20,14 +20,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.metainfo;
+package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
 
-/**
- * This class is used for test purposes.
- * Please be aware that it's put in the com.itextpdf.metainfo deliberately,
- * so that it belongs neither to com.itextpdf.pdfocr nor com.itextpdf.pdfocr.tesseract4 packages
- */
-public class TestMetaInfo implements IMetaInfo {
+class Tesseract4MetaInfo implements IMetaInfo {
 }

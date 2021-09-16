@@ -49,6 +49,21 @@ public interface IOcrEngine {
     Map<Integer, List<TextInfo>> doImageOcr(File input);
 
     /**
+     * Reads data from the provided input image file and returns retrieved data
+     * in the format described below.
+     *
+     * @param input input image {@link java.io.File}
+     * @param ocrProcessContext ocr processing context
+     *
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext);
+
+    /**
      * Performs OCR using provided {@link IOcrEngine} for the given list of
      * input images and saves output to a text file using provided path.
      * Note that a human reading order is not guaranteed
@@ -58,4 +73,16 @@ public interface IOcrEngine {
      * @param txtFile file to be created
      */
     void createTxtFile(List<File> inputImages, File txtFile);
+
+    /**
+     * Performs OCR using provided {@link IOcrEngine} for the given list of
+     * input images and saves output to a text file using provided path.
+     * Note that a human reading order is not guaranteed
+     * due to possible specifics of input images (multi column layout, tables etc)
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param txtFile file to be created
+     * @param ocrProcessContext ocr processing context
+     */
+    void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext);
 }

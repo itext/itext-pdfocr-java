@@ -20,14 +20,22 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.metainfo;
-
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+package com.itextpdf.pdfocr.statisctics;
 
 /**
- * This class is used for test purposes.
- * Please be aware that it's put in the com.itextpdf.metainfo deliberately,
- * so that it belongs neither to com.itextpdf.pdfocr nor com.itextpdf.pdfocr.tesseract4 packages
+ * pdfOcr output types for statistics.
  */
-public class TestMetaInfo implements IMetaInfo {
+public enum PdfOcrOutputType {
+    /**
+     * Processing of an image in the engine with data output
+     */
+    DATA,
+    /**
+     * Creating a PDF file
+     */
+    PDF,
+    /**
+     * Creating a PDF-A file
+     */
+    PDFA
 }

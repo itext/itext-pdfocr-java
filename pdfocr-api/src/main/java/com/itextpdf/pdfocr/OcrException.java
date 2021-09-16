@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +38,8 @@ public class OcrException extends RuntimeException {
             + "any of provided fonts. Please check provided FontProvider.";
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create "
             + "PDF document: {0}";
+    public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
+    public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
     private List<String> messageParams;
 
     /**

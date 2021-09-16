@@ -22,8 +22,9 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -232,8 +233,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
                                          int page, boolean useActualText) throws IOException {
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath),
-                new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
         ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
                 layerName);

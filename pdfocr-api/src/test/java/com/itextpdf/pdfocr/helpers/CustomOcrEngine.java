@@ -22,24 +22,25 @@
  */
 package com.itextpdf.pdfocr.helpers;
 
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
+import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.OcrEngineProperties;
+import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
+public class CustomOcrEngine implements IOcrEngine, IProductAware {
 
     private OcrEngineProperties ocrEngineProperties;
-    private IMetaInfo threadLocalMetaInfo;
 
     public CustomOcrEngine() {
     }
@@ -62,21 +63,31 @@ public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
     }
 
     @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
+        return doImageOcr(input);
+    }
+
+    @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
     }
 
     @Override
-    public IMetaInfo getThreadLocalMetaInfo() {
-        return threadLocalMetaInfo;
+    public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
+
     }
 
-    @Override
-    public IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo) {
-        this.threadLocalMetaInfo = metaInfo;
-        return this;
-    }
 
     public OcrEngineProperties getOcrEngineProperties() {
         return ocrEngineProperties;
+    }
+
+    @Override
+    public PdfOcrMetaInfoContainer getMetaInfoContainer() {
+        return null;
+    }
+
+    @Override
+    public ProductData getProductData() {
+        return null;
     }
 }

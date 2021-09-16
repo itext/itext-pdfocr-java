@@ -22,7 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,7 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -111,16 +115,24 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
-     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     * @param dispatchEvent indicates if event needs to be dispatched
+     * @param eventHelper event helper
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber, final boolean dispatchEvent) {
-        scheduledCheck();
+            final int pageNumber, final boolean dispatchEvent,
+            AbstractPdfOcrEventHelper eventHelper) {
         List<String> params = new ArrayList<String>();
         String execPath = null;
         String imagePath = null;
         String workingDirectory = null;
+        PdfOcrTesseract4ProductEvent event = null;
+        if (eventHelper == null) {
+            eventHelper = new Tesseract4EventHelper();
+        }
+        if (dispatchEvent) {
+            event = onEvent(eventHelper);
+        }
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
@@ -173,12 +185,16 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             // set default user defined dpi
             addDefaultDpi(params);
 
-            if (dispatchEvent) {
-                onEvent();
-            }
-
             // run tesseract process
             TesseractHelper.runCommand(execPath, params, workingDirectory);
+
+            // statistics event
+            onEventStatistics(eventHelper);
+
+            // confrim on_demand event
+            if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                EventManager.getInstance().onEvent(new ConfirmEvent(event));
+            }
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());

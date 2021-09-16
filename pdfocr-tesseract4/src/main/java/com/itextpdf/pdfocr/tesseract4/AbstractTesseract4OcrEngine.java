@@ -22,16 +22,20 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
+import com.itextpdf.commons.actions.data.ProductData;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageType;
-import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.kernel.counter.EventCounterHandler;
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo;
-import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo.PdfDocumentType;
+import com.itextpdf.pdfocr.IProductAware;
+import com.itextpdf.pdfocr.OcrProcessContext;
+import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
-import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
+import com.itextpdf.pdfocr.statisctics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.pdfocr.statisctics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * Also there are possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems).
  */
-public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
+public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProductAware {
 
     /**
      * Supported image formats.
@@ -88,8 +92,22 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      */
     public void doTesseractOcr(File inputImage, File outputFile,
             OutputFormat outputFormat) {
+        doTesseractOcr(inputImage, outputFile, outputFormat, new OcrProcessContext(new Tesseract4EventHelper()));
+    }
+
+    /**
+     * Performs tesseract OCR for the first (or for the only) image page.
+     *
+     * @param inputImage input image {@link java.io.File}
+     * @param outputFile output file for the result for the first page
+     * @param outputFormat selected {@link OutputFormat} for tesseract
+     * @param ocrProcessContext ocr process context
+     */
+    public void doTesseractOcr(File inputImage, File outputFile,
+            OutputFormat outputFormat,
+            OcrProcessContext ocrProcessContext) {
         doTesseractOcr(inputImage, Collections.<File>singletonList(outputFile),
-                outputFormat, 1);
+                outputFormat, 1, ocrProcessContext.getOcrEventHelper());
     }
 
     /**
@@ -100,14 +118,27 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * @param txtFile file to be created
      */
     public void createTxtFile(final List<File> inputImages, final File txtFile) {
+        createTxtFile(inputImages, txtFile, new OcrProcessContext(new Tesseract4EventHelper()));
+    }
+
+    /**
+     * Performs OCR using provided {@link IOcrEngine} for the given list of
+     * input images and saves output to a text file using provided path.
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param txtFile file to be created
+     * @param ocrProcessContext ocr process context
+     */
+    public void createTxtFile(final List<File> inputImages, final File txtFile,
+            final OcrProcessContext ocrProcessContext) {
         LoggerFactory.getLogger(getClass())
                 .info(MessageFormatUtil.format(
-                Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,
-                inputImages.size()));
+                        Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,
+                        inputImages.size()));
 
         StringBuilder content = new StringBuilder();
         for (File inputImage : inputImages) {
-            content.append(doImageOcr(inputImage, OutputFormat.TXT));
+            content.append(doImageOcr(inputImage, OutputFormat.TXT, ocrProcessContext));
         }
 
         // write to file
@@ -163,7 +194,28 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
     public final Map<Integer, List<TextInfo>> doImageOcr(
             final File input) {
         verifyImageFormatValidity(input);
-        return ((TextInfoTesseractOcrResult)processInputFiles(input, OutputFormat.HOCR)).getTextInfos();
+        return ((TextInfoTesseractOcrResult)processInputFiles(input,
+                OutputFormat.HOCR, new Tesseract4EventHelper())).getTextInfos();
+    }
+
+    /**
+     * Reads data from the provided input image file and returns retrieved
+     * data in the format described below.
+     *
+     * @param input input image {@link java.io.File}
+     * @param ocrProcessContext ocr process context
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    public final Map<Integer, List<TextInfo>> doImageOcr(
+            final File input,
+            OcrProcessContext ocrProcessContext) {
+        verifyImageFormatValidity(input);
+        return ((TextInfoTesseractOcrResult)processInputFiles(input,
+                OutputFormat.HOCR, ocrProcessContext.getOcrEventHelper())).getTextInfos();
     }
 
     /**
@@ -171,16 +223,17 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * data as string.
      *
      * @param input input image {@link java.io.File}
-     *
      * @param outputFormat return {@link OutputFormat} result
+     * @param ocrProcessContext ocr process context
      * @return OCR result as a {@link java.lang.String} that is
      * returned after processing the given image
      */
     public final String doImageOcr(final File input,
-            final OutputFormat outputFormat) {
+            final OutputFormat outputFormat,
+            final OcrProcessContext ocrProcessContext) {
         String result = "";
         verifyImageFormatValidity(input);
-        ITesseractOcrResult processedData = processInputFiles(input, outputFormat);
+        ITesseractOcrResult processedData = processInputFiles(input, outputFormat, ocrProcessContext.getOcrEventHelper());
         if (processedData != null) {
             if (outputFormat.equals(OutputFormat.TXT)) {
                 result = ((StringTesseractOcrResult)processedData).getData();
@@ -201,6 +254,22 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
             }
         }
         return result;
+    }
+
+    /**
+     * Reads data from the provided input image file and returns retrieved
+     * data as string.
+     *
+     * @param input        input image {@link java.io.File}
+     * @param outputFormat return {@link OutputFormat} result
+     *
+     * @return OCR result as a {@link java.lang.String} that is
+     * returned after processing the given image
+     */
+    public final String doImageOcr(final File input,
+            final OutputFormat outputFormat) {
+        return doImageOcr(input, outputFormat, new OcrProcessContext(
+                new Tesseract4EventHelper()));
     }
 
     /**
@@ -265,17 +334,13 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      * {@inheritDoc}
      */
     @Override
-    public IMetaInfo getThreadLocalMetaInfo() {
-        return threadLocalMetaInfo.get();
+    public PdfOcrMetaInfoContainer getMetaInfoContainer() {
+        return new PdfOcrMetaInfoContainer(new Tesseract4MetaInfo());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo) {
-        this.threadLocalMetaInfo.set(metaInfo);
-        return this;
+    public ProductData getProductData() {
+        return PdfOcrTesseract4ProductData.getInstance();
     }
 
     /**
@@ -296,8 +361,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      */
     void doTesseractOcr(File inputImage,
             List<File> outputFiles, OutputFormat outputFormat,
-            int pageNumber) {
-        doTesseractOcr(inputImage, outputFiles, outputFormat, pageNumber, true);
+            int pageNumber, AbstractPdfOcrEventHelper eventHelper) {
+        doTesseractOcr(inputImage, outputFiles, outputFormat, pageNumber, true, eventHelper);
     }
 
     /**
@@ -315,11 +380,13 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
-     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     * @param dispatchEvent indicates if event needs to be dispatched
+     * @param eventHelper event helper
      */
     abstract void doTesseractOcr(File inputImage,
-                        List<File> outputFiles, OutputFormat outputFormat,
-                        int pageNumber, boolean dispatchEvent);
+            List<File> outputFiles, OutputFormat outputFormat,
+            int pageNumber, boolean dispatchEvent,
+            AbstractPdfOcrEventHelper eventHelper);
 
     /**
      * Gets path to provided tess data directory.
@@ -337,40 +404,33 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
         }
     }
 
-    void scheduledCheck() {
-        ReflectionUtils.scheduledCheck();
+    PdfOcrTesseract4ProductEvent onEvent(final AbstractPdfOcrEventHelper eventHelper) {
+        // usage event
+        PdfOcrTesseract4ProductEvent event =
+                PdfOcrTesseract4ProductEvent.createProcessImageEvent(eventHelper.getSequenceId(),
+                        null, eventHelper.getConfirmationType());
+        eventHelper.onEvent(event);
+        return event;
     }
 
-    void onEvent() {
-        IMetaInfo metaInfo = this.getThreadLocalMetaInfo();
-        if (!(metaInfo instanceof OcrPdfCreatorMetaInfo)) {
-            EventCounterHandler.getInstance()
-                    .onEvent(PdfOcrTesseract4Event.TESSERACT4_IMAGE_OCR, this.getThreadLocalMetaInfo(), getClass());
-        } else {
-            UUID uuid = ((OcrPdfCreatorMetaInfo) metaInfo).getDocumentId();
-            if (!processedUUID.contains(uuid)) {
-                processedUUID.add(uuid);
-                EventCounterHandler.getInstance()
-                        .onEvent(PdfDocumentType.PDFA.equals(((OcrPdfCreatorMetaInfo) metaInfo).getPdfDocumentType())
-                                        ? PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDFA
-                                        : PdfOcrTesseract4Event.TESSERACT4_IMAGE_TO_PDF,
-                                ((OcrPdfCreatorMetaInfo) metaInfo).getWrappedMetaInfo(), getClass());
-
-            }
-        }
+    void onEventStatistics(final AbstractPdfOcrEventHelper eventHelper) {
+        eventHelper.onEvent(new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.DATA,
+                PdfOcrTesseract4ProductData.getInstance()));
     }
 
     /**
      * Reads data from the provided input image file.
      *
-     * @param input input image {@link java.io.File}
+     * @param input input image {@link File}
      * @param outputFormat {@link OutputFormat} for the result returned
      *                                         by {@link IOcrEngine}
+     * @param eventHelper event helper
      * @return {@link ITesseractOcrResult} instance, either {@link StringTesseractOcrResult}
      *     if output format is TXT, or {@link TextInfoTesseractOcrResult} if the output format is HOCR
      */
     private ITesseractOcrResult processInputFiles(
-            final File input, final OutputFormat outputFormat) {
+            final File input, final OutputFormat outputFormat,
+            final AbstractPdfOcrEventHelper eventHelper) {
         Map<Integer, List<TextInfo>> imageData =
                 new LinkedHashMap<Integer, List<TextInfo>>();
         StringBuilder data = new StringBuilder();
@@ -395,7 +455,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                     tempFiles.add(createTempFile(extension));
                 }
 
-                doTesseractOcr(input, tempFiles, outputFormat, page);
+                doTesseractOcr(input, tempFiles, outputFormat, page, true, eventHelper);
                 if (outputFormat.equals(OutputFormat.HOCR)) {
                     List<File> tempTxtFiles = null;
                     if (getTesseract4OcrEngineProperties().isUseTxtToImproveHocrParsing()) {
@@ -403,7 +463,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IThread
                         for (int i = 0; i < numOfFiles; i++) {
                             tempTxtFiles.add(createTempFile(".txt"));
                         }
-                        doTesseractOcr(input, tempTxtFiles, OutputFormat.TXT, page, false);
+                        doTesseractOcr(input, tempTxtFiles, OutputFormat.TXT, page, false, eventHelper);
                     }
                     Map<Integer, List<TextInfo>> pageData = TesseractHelper
                             .parseHocrFile(tempFiles, tempTxtFiles,

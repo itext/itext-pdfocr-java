@@ -28,7 +28,7 @@ import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

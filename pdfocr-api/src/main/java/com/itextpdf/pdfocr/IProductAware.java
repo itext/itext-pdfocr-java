@@ -20,26 +20,26 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.events;
+package com.itextpdf.pdfocr;
 
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.commons.actions.data.ProductData;
 
 /**
- * The interface which holds a thread local meta info,
- * meaning different threads operate with independent and different meta infos.
+ * The interface that holds information about product data and meta info.
  */
-public interface IThreadLocalMetaInfoAware {
+public interface IProductAware {
 
     /**
-     * Gets the meta info which is held by the interface.
-     * @return the held thread local meta info
+     * Gets the container with meta info.
+     *
+     * @return the held meta info container
      */
-    IMetaInfo getThreadLocalMetaInfo();
+    PdfOcrMetaInfoContainer getMetaInfoContainer();
 
     /**
-     * Sets a thread local meta info.
-     * @param metaInfo a thread local meta info to be held
-     * @return this {@link IThreadLocalMetaInfoAware}
+     * Gets object containing information about the product.
+     *
+     * @return product data
      */
-    IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo);
+    ProductData getProductData();
 }
