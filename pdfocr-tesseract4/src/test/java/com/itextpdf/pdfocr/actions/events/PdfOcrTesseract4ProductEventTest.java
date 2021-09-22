@@ -20,36 +20,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.actions.events;
 
-import com.itextpdf.commons.actions.AbstractITextEvent;
-import com.itextpdf.commons.actions.AbstractProductITextEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.UnitTest;
 
-/**
- * Helper class for working with events. This class is for internal usage.
- */
-public abstract class AbstractPdfOcrEventHelper extends AbstractITextEvent {
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-    /**
-     * Handles the event.
-     *
-     * @param event event
-     */
-    public abstract void onEvent(AbstractProductITextEvent event);
+@Category(UnitTest.class)
+public class PdfOcrTesseract4ProductEventTest extends ExtendedITextTest {
+    @Test
+    public void eventTypeTest() {
+        PdfOcrTesseract4ProductEvent e = PdfOcrTesseract4ProductEvent
+                .createProcessImageEvent(new SequenceId(), null, EventConfirmationType.ON_DEMAND);
+        Assert.assertEquals(PdfOcrTesseract4ProductEvent.PROCESS_IMAGE, e.getEventType());
+    }
 
-    /**
-     * Returns the sequence id
-     *
-     * @return sequence id
-     */
-    public abstract SequenceId getSequenceId();
-
-    /**
-     * Returns the confirmation type of event.
-     *
-     * @return event confirmation type
-     */
-    public abstract EventConfirmationType getConfirmationType();
+    @Test
+    public void productDataNameTest() {
+        Assert.assertEquals("pdfOcr-tesseract4", PdfOcrTesseract4ProductData.getInstance().getProductName());
+    }
 }

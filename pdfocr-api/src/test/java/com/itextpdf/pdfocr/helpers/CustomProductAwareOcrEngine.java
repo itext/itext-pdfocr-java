@@ -22,12 +22,13 @@
  */
 package com.itextpdf.pdfocr.helpers;
 
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.OcrProcessContext;
+import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrEngineProperties;
+import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
 
@@ -37,28 +38,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomOcrEngine implements IOcrEngine {
+public class CustomProductAwareOcrEngine implements IOcrEngine, IProductAware {
 
-    private OcrEngineProperties ocrEngineProperties;
+    private boolean getMetaInfoContainerTriggered = false;
 
-    public CustomOcrEngine() {
-    }
-
-    public CustomOcrEngine(OcrEngineProperties ocrEngineProperties) {
-        this.ocrEngineProperties = new OcrEngineProperties(ocrEngineProperties);
+    public CustomProductAwareOcrEngine() {
     }
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
-        Map<Integer, List<TextInfo>> result =
-                new HashMap<Integer, List<TextInfo>>();
-        String text = PdfHelper.DEFAULT_TEXT;
-        if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
-            text = PdfHelper.THAI_TEXT;
-        }
-        TextInfo textInfo = new TextInfo(text, new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
-        result.put(1, Collections.<TextInfo>singletonList(textInfo));
-        return result;
+        return Collections.<Integer, List<TextInfo>>emptyMap();
     }
 
     @Override
@@ -77,6 +66,24 @@ public class CustomOcrEngine implements IOcrEngine {
 
 
     public OcrEngineProperties getOcrEngineProperties() {
-        return ocrEngineProperties;
+        return null;
+    }
+
+    @Override
+    public PdfOcrMetaInfoContainer getMetaInfoContainer() {
+        getMetaInfoContainerTriggered = true;
+        return new PdfOcrMetaInfoContainer(new DummyMetaInfo());
+    }
+
+    @Override
+    public ProductData getProductData() {
+        return null;
+    }
+
+    public boolean isGetMetaInfoContainerTriggered() {
+        return getMetaInfoContainerTriggered;
+    }
+
+    private static class DummyMetaInfo implements IMetaInfo {
     }
 }

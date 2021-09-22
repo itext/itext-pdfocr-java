@@ -28,7 +28,7 @@ import com.itextpdf.commons.actions.EventManager;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.statisctics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 
 class OcrPdfCreatorEventHelper extends AbstractPdfOcrEventHelper {
     private final SequenceId sequenceId;

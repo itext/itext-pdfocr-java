@@ -20,36 +20,22 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
-
-import com.itextpdf.commons.actions.AbstractITextEvent;
-import com.itextpdf.commons.actions.AbstractProductITextEvent;
-import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
-import com.itextpdf.commons.actions.sequence.SequenceId;
+package com.itextpdf.pdfocr.statistics;
 
 /**
- * Helper class for working with events. This class is for internal usage.
+ * pdfOcr output types for statistics.
  */
-public abstract class AbstractPdfOcrEventHelper extends AbstractITextEvent {
-
+public enum PdfOcrOutputType {
     /**
-     * Handles the event.
-     *
-     * @param event event
+     * Processing of an image in the engine with data output
      */
-    public abstract void onEvent(AbstractProductITextEvent event);
-
+    DATA,
     /**
-     * Returns the sequence id
-     *
-     * @return sequence id
+     * Creating a PDF file
      */
-    public abstract SequenceId getSequenceId();
-
+    PDF,
     /**
-     * Returns the confirmation type of event.
-     *
-     * @return event confirmation type
+     * Creating a PDF-A file
      */
-    public abstract EventConfirmationType getConfirmationType();
+    PDFA
 }

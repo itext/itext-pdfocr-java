@@ -32,8 +32,8 @@ import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.statisctics.PdfOcrOutputTypeStatisticsEvent;
-import com.itextpdf.pdfocr.statisctics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 

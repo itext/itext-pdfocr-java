@@ -20,22 +20,26 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.statisctics;
+package com.itextpdf.pdfocr;
 
-/**
- * pdfOcr output types for statistics.
- */
-public enum PdfOcrOutputType {
-    /**
-     * Processing of an image in the engine with data output
-     */
-    DATA,
-    /**
-     * Creating a PDF file
-     */
-    PDF,
-    /**
-     * Creating a PDF-A file
-     */
-    PDFA
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.UnitTest;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+@Category(UnitTest.class)
+public class PdfOcrMetaInfoContainerTest extends ExtendedITextTest {
+
+    @Test
+    public void test() {
+        DummyMetaInfo mi = new DummyMetaInfo();
+        PdfOcrMetaInfoContainer instance = new PdfOcrMetaInfoContainer(mi);
+        Assert.assertSame(mi, instance.getMetaInfo());
+    }
+
+    private static class DummyMetaInfo implements IMetaInfo {
+    }
 }

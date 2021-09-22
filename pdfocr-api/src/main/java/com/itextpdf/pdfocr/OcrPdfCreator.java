@@ -23,7 +23,6 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.actions.EventManager;
-import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.commons.actions.sequence.SequenceId;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.font.otf.ActualTextIterator;
@@ -58,8 +57,8 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.pdfa.PdfADocument;
-import com.itextpdf.pdfocr.statisctics.PdfOcrOutputType;
-import com.itextpdf.pdfocr.statisctics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,8 +67,6 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-;
 
 /**
  * {@link OcrPdfCreator} is the class that creates PDF documents containing input
@@ -461,7 +458,7 @@ public class OcrPdfCreator {
                     new PdfOcrOutputTypeStatisticsEvent(eventType, ((IProductAware) ocrEngine).getProductData());
             EventManager.getInstance().onEvent(docTypeStatisticsEvent);
         }
-        
+
         return pdfDocument;
     }
 
