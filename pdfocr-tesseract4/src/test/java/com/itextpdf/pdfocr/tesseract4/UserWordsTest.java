@@ -24,6 +24,8 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

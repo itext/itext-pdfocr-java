@@ -25,7 +25,7 @@ package com.itextpdf.pdfocr.statistics;
 import com.itextpdf.commons.actions.AbstractStatisticsAggregator;
 import com.itextpdf.commons.actions.AbstractStatisticsEvent;
 import com.itextpdf.commons.actions.data.ProductData;
-import com.itextpdf.pdfocr.OcrException;
+import com.itextpdf.pdfocr.exceptions.OcrException;
 
 import java.util.Collections;
 import java.util.List;

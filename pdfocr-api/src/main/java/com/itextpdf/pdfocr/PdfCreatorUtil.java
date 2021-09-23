@@ -30,7 +30,6 @@ import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -39,10 +38,10 @@ import com.itextpdf.layout.layout.LayoutContext;
 import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.IRenderer;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
+import com.itextpdf.pdfocr.exceptions.OcrException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -201,7 +200,7 @@ class PdfCreatorUtil {
                 }
                 images.add(imageData);
             }
-        } catch (IOException | com.itextpdf.io.IOException e) {
+        } catch (IOException | com.itextpdf.io.exceptions.IOException e) {
             LOGGER.error(MessageFormatUtil.format(
                     PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                     e.getMessage()));

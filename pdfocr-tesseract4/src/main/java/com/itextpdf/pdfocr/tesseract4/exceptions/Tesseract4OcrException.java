@@ -20,9 +20,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.pdfocr.tesseract4.exceptions;
 
-import com.itextpdf.pdfocr.OcrException;
+import com.itextpdf.pdfocr.exceptions.OcrException;
 
 public class Tesseract4OcrException extends OcrException {
     public static final String INCORRECT_INPUT_IMAGE_FORMAT =

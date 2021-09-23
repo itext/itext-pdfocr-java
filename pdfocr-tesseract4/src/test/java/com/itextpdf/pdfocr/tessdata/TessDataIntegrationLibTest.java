@@ -25,10 +25,7 @@ package com.itextpdf.pdfocr.tessdata;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
-import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.tesseract4.OutputFormat;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
-import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
+import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.test.annotations.LogMessage;
@@ -39,11 +36,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Category(IntegrationTest.class)
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {

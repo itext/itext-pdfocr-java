@@ -22,18 +22,16 @@
  */
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.layout.font.FontProvider;
-import com.itextpdf.layout.font.FontSelector;
-import com.itextpdf.pdfa.PdfAConformanceException;
+import com.itextpdf.pdfa.exceptions.PdfAConformanceException;
+import com.itextpdf.pdfocr.exceptions.OcrException;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
@@ -48,7 +46,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.verapdf.gf.model.factory.fonts.FontFactory;
 
 @Category(IntegrationTest.class)
 public class PdfA3uTest extends ExtendedITextTest {
@@ -75,7 +72,7 @@ public class PdfA3uTest extends ExtendedITextTest {
     @Test
     public void testIncompatibleOutputIntentAndFontColorSpaceException()
             throws IOException {
-        junitExpectedException.expect(com.itextpdf.kernel.PdfException.class);
+        junitExpectedException.expect(com.itextpdf.kernel.exceptions.PdfException.class);
         junitExpectedException.expectMessage(PdfAConformanceException.DEVICECMYK_MAY_BE_USED_ONLY_IF_THE_FILE_HAS_A_CMYK_PDFA_OUTPUT_INTENT_OR_DEFAULTCMYK_IN_USAGE_CONTEXT);
 
         String testName = "testIncompatibleOutputIntentAndFontColorSpaceException";
