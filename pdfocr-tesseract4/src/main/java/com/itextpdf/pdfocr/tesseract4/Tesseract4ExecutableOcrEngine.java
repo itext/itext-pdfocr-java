@@ -40,6 +40,7 @@ import java.util.UUID;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;

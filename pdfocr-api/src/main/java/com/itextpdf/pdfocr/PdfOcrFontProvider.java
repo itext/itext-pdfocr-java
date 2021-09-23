@@ -28,6 +28,7 @@ import com.itextpdf.io.util.ResourceUtil;
 import com.itextpdf.io.util.StreamUtil;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.font.FontSet;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 
 import java.io.IOException;
 import java.io.InputStream;

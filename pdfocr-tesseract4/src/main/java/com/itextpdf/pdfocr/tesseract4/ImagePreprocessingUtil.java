@@ -30,6 +30,7 @@ import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

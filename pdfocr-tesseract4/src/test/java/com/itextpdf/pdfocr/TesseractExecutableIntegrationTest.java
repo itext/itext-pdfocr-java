@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
 import com.itextpdf.test.annotations.LogMessage;

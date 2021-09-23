@@ -24,7 +24,7 @@ package com.itextpdf.pdfocr.tessdata;
 
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;

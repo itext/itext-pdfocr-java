@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.pdfocr.exceptions.OcrException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;

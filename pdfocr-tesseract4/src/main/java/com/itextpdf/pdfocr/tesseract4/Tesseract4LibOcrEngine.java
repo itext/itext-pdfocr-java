@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;

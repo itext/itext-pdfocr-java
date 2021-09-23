@@ -39,6 +39,7 @@ import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.IRenderer;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
 import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 
 import java.io.File;
 import java.io.FileInputStream;

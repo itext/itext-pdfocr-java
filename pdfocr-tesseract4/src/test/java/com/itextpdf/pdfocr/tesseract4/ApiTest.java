@@ -26,6 +26,7 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 

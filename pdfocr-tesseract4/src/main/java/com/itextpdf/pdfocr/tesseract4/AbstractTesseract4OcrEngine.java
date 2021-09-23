@@ -37,6 +37,7 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.io.File;
 import java.io.IOException;
