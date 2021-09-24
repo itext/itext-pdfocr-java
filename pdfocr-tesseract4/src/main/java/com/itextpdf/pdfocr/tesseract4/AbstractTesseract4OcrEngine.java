@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.commons.utils.MessageFormatUtil;
@@ -32,8 +34,8 @@ import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
@@ -138,14 +140,36 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                         Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,
                         inputImages.size()));
 
-        StringBuilder content = new StringBuilder();
-        for (File inputImage : inputImages) {
-            content.append(doImageOcr(inputImage, OutputFormat.TXT, ocrProcessContext));
+        AbstractPdfOcrEventHelper storedEventHelper;
+        if (ocrProcessContext.getOcrEventHelper() == null) {
+            storedEventHelper = new Tesseract4EventHelper();
+        } else {
+            storedEventHelper = ocrProcessContext.getOcrEventHelper();
         }
 
-        // write to file
-        TesseractHelper.writeToTextFile(txtFile.getAbsolutePath(),
-                content.toString());
+        PdfOcrTesseract4ProductEvent event = PdfOcrTesseract4ProductEvent.createProcessImageEvent(
+                storedEventHelper.getSequenceId(), null, storedEventHelper.getConfirmationType());
+        storedEventHelper.onEvent(event);
+
+        try {
+            // set Tesseract4FileResultEventHelper
+            ocrProcessContext.setOcrEventHelper(new Tesseract4FileResultEventHelper(storedEventHelper));
+
+            StringBuilder content = new StringBuilder();
+            for (File inputImage : inputImages) {
+                content.append(doImageOcr(inputImage, OutputFormat.TXT, ocrProcessContext));
+            }
+
+            // write to file
+            TesseractHelper.writeToTextFile(txtFile.getAbsolutePath(),
+                    content.toString());
+
+            if (event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                storedEventHelper.onEvent(new ConfirmEvent(event));
+            }
+        } finally {
+            ocrProcessContext.setOcrEventHelper(storedEventHelper);
+        }
     }
 
     /**
@@ -235,7 +259,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
             final OcrProcessContext ocrProcessContext) {
         String result = "";
         verifyImageFormatValidity(input);
-        ITesseractOcrResult processedData = processInputFiles(input, outputFormat, ocrProcessContext.getOcrEventHelper());
+        ITesseractOcrResult processedData = processInputFiles(input, outputFormat,
+                ocrProcessContext.getOcrEventHelper());
         if (processedData != null) {
             if (outputFormat.equals(OutputFormat.TXT)) {
                 result = ((StringTesseractOcrResult)processedData).getData();

@@ -24,6 +24,10 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.actions.AbstractProductITextEvent;
 import com.itextpdf.commons.actions.AbstractProductProcessITextEvent;
+import com.itextpdf.commons.actions.AbstractStatisticsEvent;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.IEvent;
+import com.itextpdf.commons.actions.IEventHandler;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.data.ProductData;
@@ -34,6 +38,12 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.type.UnitTest;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -41,6 +51,19 @@ import org.junit.experimental.categories.Category;
 public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
     private static final ProductData DUMMY_PRODUCT_DATA =
             new ProductData("test-product", "inner_product", "1.0.0", 1900, 2100);
+    private StoreEventsHandler storeEventsHandler;
+
+    @Before
+    public void before() {
+        storeEventsHandler = new StoreEventsHandler();
+        EventManager.getInstance().register(storeEventsHandler);
+    }
+
+    @After
+    public void after() {
+        EventManager.getInstance().unregister(storeEventsHandler);
+        storeEventsHandler = null;
+    }
 
     @Test
     public void productContextBasedEventTest() {
@@ -48,16 +71,18 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
         DummyITextEvent event = new DummyITextEvent();
         helper.onEvent(event);
 
-        // TODO DEVSIX-5887 assert event reached EventManager
+        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
     }
 
     @Test
-    public void statisticsEventTest() {
+    public void pdfOcrStatisticsEventTest() {
         OcrPdfCreatorEventHelper helper = new OcrPdfCreatorEventHelper(new SequenceId(), new DummyMetaInfo());
-        PdfOcrOutputTypeStatisticsEvent e = new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF, DUMMY_PRODUCT_DATA);
+        PdfOcrOutputTypeStatisticsEvent e = new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF,
+                DUMMY_PRODUCT_DATA);
         helper.onEvent(e);
 
-        // TODO DEVSIX-5887 assert event didn't reach EventManager
+        Assert.assertEquals(0, storeEventsHandler.getEvents().size());
     }
 
     @Test
@@ -66,7 +91,18 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
         AbstractProductITextEvent event = new CustomProductITextEvent(DUMMY_PRODUCT_DATA);
         helper.onEvent(event);
 
-        // TODO DEVSIX-5887 assert event reached reach EventManager
+        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
+    }
+
+    @Test
+    public void customStatisticsEventTest() {
+        OcrPdfCreatorEventHelper helper = new OcrPdfCreatorEventHelper(new SequenceId(), new DummyMetaInfo());
+        CustomStatisticsEvent event = new CustomStatisticsEvent(DUMMY_PRODUCT_DATA);
+        helper.onEvent(event);
+
+        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
     }
 
     private static class DummyMetaInfo implements IMetaInfo {
@@ -87,6 +123,31 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
     private static class CustomProductITextEvent extends AbstractProductITextEvent {
         protected CustomProductITextEvent(ProductData productData) {
             super(productData);
+        }
+    }
+
+    private static class CustomStatisticsEvent extends AbstractStatisticsEvent {
+
+        protected CustomStatisticsEvent(ProductData productData) {
+            super(productData);
+        }
+
+        @Override
+        public List<String> getStatisticsNames() {
+            return Collections.singletonList("custom-statistics");
+        }
+    }
+
+    private static class StoreEventsHandler implements IEventHandler {
+        private List<IEvent> events = new ArrayList<>();
+
+        public List<IEvent> getEvents() {
+            return events;
+        }
+
+        @Override
+        public void onEvent(IEvent event) {
+            events.add(event);
         }
     }
 }

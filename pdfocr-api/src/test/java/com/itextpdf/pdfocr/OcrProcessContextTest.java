@@ -20,39 +20,42 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.tesseract4;
+package com.itextpdf.pdfocr;
 
-import com.itextpdf.commons.actions.AbstractContextBasedITextEvent;
 import com.itextpdf.commons.actions.AbstractProductITextEvent;
-import com.itextpdf.commons.actions.EventManager;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.annotations.type.UnitTest;
 
-/**
- * Helper class for working with events.
- */
-class Tesseract4EventHelper extends AbstractPdfOcrEventHelper {
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-    Tesseract4EventHelper() {
-        // do nothing
+@Category(UnitTest.class)
+public class OcrProcessContextTest extends ExtendedITextTest {
+
+    @Test
+    public void setOcrEventHelperTest() {
+        AbstractPdfOcrEventHelper eventHelper = new CustomEventHelper();
+        OcrProcessContext context = new OcrProcessContext(eventHelper);
+        Assert.assertSame(eventHelper, context.getOcrEventHelper());
     }
 
-    @Override
-    public void onEvent(AbstractProductITextEvent event) {
-        if (event instanceof AbstractContextBasedITextEvent) {
-            ((AbstractContextBasedITextEvent) event).setMetaInfo(new Tesseract4MetaInfo());
+    private static class CustomEventHelper extends AbstractPdfOcrEventHelper {
+        @Override
+        public void onEvent(AbstractProductITextEvent event) {
+            // Do nothing
         }
-        EventManager.getInstance().onEvent(event);
-    }
 
-    @Override
-    public SequenceId getSequenceId() {
-        return new SequenceId();
-    }
+        @Override
+        public SequenceId getSequenceId() {
+            return null;
+        }
 
-    @Override
-    public EventConfirmationType getConfirmationType() {
-        return EventConfirmationType.ON_DEMAND;
+        @Override
+        public EventConfirmationType getConfirmationType() {
+            return EventConfirmationType.ON_DEMAND;
+        }
     }
 }

@@ -22,37 +22,56 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.commons.actions.AbstractContextBasedITextEvent;
 import com.itextpdf.commons.actions.AbstractProductITextEvent;
-import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.sequence.SequenceId;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 
 /**
  * Helper class for working with events.
  */
-class Tesseract4EventHelper extends AbstractPdfOcrEventHelper {
+class Tesseract4FileResultEventHelper extends AbstractPdfOcrEventHelper {
 
-    Tesseract4EventHelper() {
-        // do nothing
+    private AbstractPdfOcrEventHelper wrappedEventHelper;
+
+    Tesseract4FileResultEventHelper() {
+        this(null);
+    }
+
+    Tesseract4FileResultEventHelper(AbstractPdfOcrEventHelper wrappedEventHelper) {
+        this.wrappedEventHelper = wrappedEventHelper == null ? new Tesseract4EventHelper() : wrappedEventHelper;
     }
 
     @Override
     public void onEvent(AbstractProductITextEvent event) {
-        if (event instanceof AbstractContextBasedITextEvent) {
-            ((AbstractContextBasedITextEvent) event).setMetaInfo(new Tesseract4MetaInfo());
+        if (!isProcessImageEvent(event)
+                && !isConfirmForProcessImageEvent(event)) {
+            wrappedEventHelper.onEvent(event);
         }
-        EventManager.getInstance().onEvent(event);
     }
 
     @Override
     public SequenceId getSequenceId() {
-        return new SequenceId();
+        return wrappedEventHelper.getSequenceId();
     }
 
     @Override
     public EventConfirmationType getConfirmationType() {
-        return EventConfirmationType.ON_DEMAND;
+        return wrappedEventHelper.getConfirmationType();
+    }
+
+    private static boolean isProcessImageEvent(AbstractProductITextEvent event) {
+        return event instanceof PdfOcrTesseract4ProductEvent
+                && PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(
+                ((PdfOcrTesseract4ProductEvent) event).getEventType());
+    }
+
+    private static boolean isConfirmForProcessImageEvent(AbstractProductITextEvent event) {
+        return event instanceof ConfirmEvent
+                && ((ConfirmEvent) event).getConfirmedEvent() instanceof PdfOcrTesseract4ProductEvent
+                && PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(
+                ((ConfirmEvent) event).getConfirmedEvent().getEventType());
     }
 }

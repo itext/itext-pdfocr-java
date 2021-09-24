@@ -351,10 +351,8 @@ public class TesseractHelper {
                 StandardCharsets.UTF_8)) {
             writer.write(data);
         } catch (IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CANNOT_WRITE_TO_FILE,
-                    path,
-                    e.getMessage()));
+            throw new Tesseract4OcrException(
+                    Tesseract4OcrException.CANNOT_WRITE_TO_FILE, e);
         }
     }
 

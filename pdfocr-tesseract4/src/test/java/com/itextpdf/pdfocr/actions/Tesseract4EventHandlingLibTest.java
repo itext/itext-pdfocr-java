@@ -20,38 +20,15 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.actions;
 
-/**
- * Class for storing ocr processing context.
- */
-public class OcrProcessContext {
-    private AbstractPdfOcrEventHelper ocrEventHelper;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
-    /**
-     * Creates an instance of ocr process context
-     *
-     * @param eventHelper helper class for working with events
-     */
-    public OcrProcessContext(AbstractPdfOcrEventHelper eventHelper) {
-        this.ocrEventHelper = eventHelper;
-    }
+import org.junit.experimental.categories.Category;
 
-    /**
-     * Returns helper for working with events.
-     *
-     * @return an instance of {@link AbstractPdfOcrEventHelper}
-     */
-    public AbstractPdfOcrEventHelper getOcrEventHelper() {
-        return ocrEventHelper;
-    }
-
-    /**
-     * Sets ocr event helper.
-     *
-     * @param eventHelper event helper
-     */
-    public void setOcrEventHelper(AbstractPdfOcrEventHelper eventHelper) {
-        this.ocrEventHelper = eventHelper;
+@Category(IntegrationTest.class)
+public class Tesseract4EventHandlingLibTest extends Tesseract4EventHandlingTest {
+    public Tesseract4EventHandlingLibTest() {
+        super(ReaderType.LIB);
     }
 }

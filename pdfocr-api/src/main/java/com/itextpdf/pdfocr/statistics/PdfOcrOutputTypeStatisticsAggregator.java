@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Statistics aggregator which aggregates types of ocr processing.
  */
-public class PdfOcrOutputTypeStatisticsAggregator extends AbstractStatisticsAggregator {
+class PdfOcrOutputTypeStatisticsAggregator extends AbstractStatisticsAggregator {
 
     private static final String STRING_FOR_DATA = "data";
     private static final String STRING_FOR_PDF = "pdf";

@@ -196,7 +196,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
 
             // confrim on_demand event
             if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
-                EventManager.getInstance().onEvent(new ConfirmEvent(event));
+                eventHelper.onEvent(new ConfirmEvent(event));
             }
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())

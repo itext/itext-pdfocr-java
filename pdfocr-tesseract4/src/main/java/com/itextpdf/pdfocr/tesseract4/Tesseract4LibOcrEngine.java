@@ -200,13 +200,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             StandardCharsets.UTF_8)) {
                         writer.write(result);
                     } catch (IOException e) {
-                        LoggerFactory.getLogger(getClass()).error(
-                                MessageFormatUtil.format(
-                                        Tesseract4LogMessageConstant
-                                                .CANNOT_WRITE_TO_FILE,
-                                        e.getMessage()));
                         throw new Tesseract4OcrException(
-                                Tesseract4OcrException.TESSERACT_FAILED);
+                                Tesseract4OcrException.CANNOT_WRITE_TO_FILE, e);
                     }
                 }
             }
@@ -216,7 +211,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
 
             // confirm on_demand event
             if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
-                EventManager.getInstance().onEvent(new ConfirmEvent(event));
+                eventHelper.onEvent(new ConfirmEvent(event));
             }
         } catch (Tesseract4OcrException e) {
             LoggerFactory.getLogger(getClass())

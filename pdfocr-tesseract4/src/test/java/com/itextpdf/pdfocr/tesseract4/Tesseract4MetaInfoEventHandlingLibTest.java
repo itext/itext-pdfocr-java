@@ -22,37 +22,13 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.commons.actions.AbstractContextBasedITextEvent;
-import com.itextpdf.commons.actions.AbstractProductITextEvent;
-import com.itextpdf.commons.actions.EventManager;
-import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
-import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.test.annotations.type.IntegrationTest;
 
-/**
- * Helper class for working with events.
- */
-class Tesseract4EventHelper extends AbstractPdfOcrEventHelper {
+import org.junit.experimental.categories.Category;
 
-    Tesseract4EventHelper() {
-        // do nothing
-    }
-
-    @Override
-    public void onEvent(AbstractProductITextEvent event) {
-        if (event instanceof AbstractContextBasedITextEvent) {
-            ((AbstractContextBasedITextEvent) event).setMetaInfo(new Tesseract4MetaInfo());
-        }
-        EventManager.getInstance().onEvent(event);
-    }
-
-    @Override
-    public SequenceId getSequenceId() {
-        return new SequenceId();
-    }
-
-    @Override
-    public EventConfirmationType getConfirmationType() {
-        return EventConfirmationType.ON_DEMAND;
+@Category(IntegrationTest.class)
+public class Tesseract4MetaInfoEventHandlingLibTest extends Tesseract4MetaInfoEventHandlingTest {
+    public Tesseract4MetaInfoEventHandlingLibTest() {
+        super(ReaderType.LIB);
     }
 }

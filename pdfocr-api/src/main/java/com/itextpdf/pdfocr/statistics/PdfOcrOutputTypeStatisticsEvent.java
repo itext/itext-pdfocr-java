@@ -81,7 +81,7 @@ public class PdfOcrOutputTypeStatisticsEvent extends AbstractStatisticsEvent {
      *
      * @return the statistics event type
      */
-    PdfOcrOutputType getPdfOcrStatisticsEventType() {
+    public PdfOcrOutputType getPdfOcrStatisticsEventType() {
         return type;
     }
 }
