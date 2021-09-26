@@ -26,7 +26,9 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.SystemUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -351,8 +353,8 @@ public class TesseractHelper {
                 StandardCharsets.UTF_8)) {
             writer.write(data);
         } catch (IOException e) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CANNOT_WRITE_TO_FILE, e);
+            throw new PdfOcrInputTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
         }
     }
 
@@ -361,10 +363,10 @@ public class TesseractHelper {
      *
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
-     * @throws Tesseract4OcrException if provided command failed
+     * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
-                           final List<String> paramsList) throws Tesseract4OcrException {
+                           final List<String> paramsList) throws PdfOcrTesseract4Exception {
         runCommand(execPath, paramsList, null);
     }
 
@@ -374,11 +376,11 @@ public class TesseractHelper {
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
      * @param workingDirPath path to the working directory
-     * @throws Tesseract4OcrException if provided command failed
+     * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
                            final List<String> paramsList,
-                           final String workingDirPath) throws Tesseract4OcrException {
+                           final String workingDirPath) throws PdfOcrTesseract4Exception {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil
@@ -388,16 +390,16 @@ public class TesseractHelper {
                 LOGGER.error(MessageFormatUtil
                         .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                                 execPath + " " + params));
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException
+                throw new PdfOcrTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant
                                 .TESSERACT_FAILED);
             }
         } catch (IOException | InterruptedException e) { // NOSONAR
             LOGGER.error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                             e.getMessage()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         }
     }

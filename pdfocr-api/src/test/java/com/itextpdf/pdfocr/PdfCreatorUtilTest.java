@@ -27,7 +27,8 @@ import com.itextpdf.io.image.ImageType;
 import com.itextpdf.io.image.JpegImageData;
 import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
@@ -94,7 +95,7 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     public void getImageDataFromNotExistingImageTest() throws IOException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
 
         PdfCreatorUtil.getImageData(new File("no such path"), null);
     }
@@ -104,9 +105,9 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     public void getImageDataFromInvalidImageTest() throws IOException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
-                OcrException.CANNOT_READ_INPUT_IMAGE));
+                PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE));
 
         PdfCreatorUtil.getImageData(new File(PdfHelper.getImagesTestDirectory() + "corrupted.jpg"),
                 null);

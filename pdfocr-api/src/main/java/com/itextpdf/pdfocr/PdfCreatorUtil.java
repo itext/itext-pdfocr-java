@@ -38,7 +38,9 @@ import com.itextpdf.layout.layout.LayoutContext;
 import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.IRenderer;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 
 import java.io.File;
@@ -80,12 +82,12 @@ class PdfCreatorUtil {
      * @param bboxHeightPt height of bbox calculated by OCR Reader
      * @param bboxWidthPt width of bbox calculated by OCR Reader
      * @return font size
-     * @throws OcrException if set font provider is invalid and/or fonts that
+     * @throws PdfOcrException if set font provider is invalid and/or fonts that
      * it contains are invalid
      */
     static float calculateFontSize(final Document document, final String line,
             final String fontFamily, final float bboxHeightPt,
-            final float bboxWidthPt) throws OcrException {
+            final float bboxWidthPt) throws PdfOcrException {
         Rectangle bbox = new Rectangle(bboxWidthPt * 1.5f,
                 bboxHeightPt * 1.5f);
         // setting minimum and maximum (approx.) values for font size
@@ -113,8 +115,8 @@ class PdfCreatorUtil {
         } catch (IllegalStateException e) {
             LOGGER.error(PdfOcrLogMessageConstant
                     .PROVIDED_FONT_PROVIDER_IS_INVALID);
-            throw new OcrException(
-                    OcrException.CANNOT_RESOLVE_PROVIDED_FONTS, e);
+            throw new PdfOcrInputException(
+                    PdfOcrExceptionMessageConstant.CANNOT_RESOLVE_PROVIDED_FONTS, e);
         }
         return fontSize;
     }
@@ -171,11 +173,11 @@ class PdfCreatorUtil {
      * @param imageRotationHandler image rotation handler {@link IImageRotationHandler}
      * @return list of {@link com.itextpdf.io.image.ImageData} objects
      * (more than one element in the list if it is a multipage tiff)
-     * @throws OcrException if error occurred during reading a file
+     * @throws PdfOcrException if error occurred during reading a file
      * @throws IOException if error occurred during reading a file
      */
     static List<ImageData> getImageData(final File inputImage, IImageRotationHandler imageRotationHandler)
-            throws OcrException {
+            throws PdfOcrException {
         List<ImageData> images = new ArrayList<ImageData>();
 
         try (InputStream imageStream = new FileInputStream(inputImage)) {
@@ -205,8 +207,8 @@ class PdfCreatorUtil {
             LOGGER.error(MessageFormatUtil.format(
                     PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
                     e.getMessage()));
-            throw new OcrException(
-                    OcrException.CANNOT_READ_INPUT_IMAGE, e);
+            throw new PdfOcrInputException(
+                    PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e);
         }
         return images;
     }

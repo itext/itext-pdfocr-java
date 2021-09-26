@@ -38,15 +38,15 @@ import com.itextpdf.pdfocr.IntegrationEventHandlingTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrProcessContext;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,7 +90,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         List<File> images = Collections.singletonList(imgFile);
         File outPdfFile = FileUtil.createTempFile("test", ".pdf");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(OcrException.class,
+        Assert.assertThrows(PdfOcrException.class,
                 () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
 
         // check ocr events
@@ -210,7 +210,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(Tesseract4OcrException.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
+        Assert.assertThrows(PdfOcrTesseract4Exception.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
 
         pdfWriter.close();
 
@@ -299,7 +299,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @LogMessages(messages = @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE))
     public void doImageOcrNoImageTest() {
         File imgFile = new File("uncknown");
-        Assert.assertThrows(OcrException.class, () -> tesseractReader.doImageOcr(imgFile));
+        Assert.assertThrows(PdfOcrException.class, () -> tesseractReader.doImageOcr(imgFile));
         Assert.assertEquals(0, eventsHandler.getEvents().size());
     }
 
@@ -357,7 +357,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File("no_image");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = FileUtil.createTempFile("test", ".txt");
-        Assert.assertThrows(OcrException.class, () -> tesseractReader.createTxtFile(images, outPdfFile));
+        Assert.assertThrows(PdfOcrException.class, () -> tesseractReader.createTxtFile(images, outPdfFile));
         // only one usage event is expected and it is not confirmed (no confirm event
         Assert.assertEquals(1, eventsHandler.getEvents().size());
         validateUsageEvent(eventsHandler.getEvents().get(0), EventConfirmationType.ON_DEMAND);
@@ -368,9 +368,9 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = new File("nopath/nofile");
-        Exception e = Assert.assertThrows(Tesseract4OcrException.class,
+        Exception e = Assert.assertThrows(PdfOcrTesseract4Exception.class,
                 () -> tesseractReader.createTxtFile(images, outPdfFile));
-        Assert.assertEquals(Tesseract4OcrException.CANNOT_WRITE_TO_FILE, e.getMessage());
+        Assert.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e.getMessage());
 
         Assert.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);

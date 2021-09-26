@@ -39,7 +39,8 @@ import java.util.UUID;
 
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import net.sourceforge.lept4j.Pix;
@@ -141,8 +142,8 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             // path to tesseract executable
             if (getPathToExecutable() == null
                     || getPathToExecutable().isEmpty()) {
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException
+                throw new PdfOcrTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant
                                 .CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
             } else {
                 if (isWindows()) {
@@ -198,10 +199,10 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
                 eventHelper.onEvent(new ConfirmEvent(event));
             }
-        } catch (Tesseract4OcrException e) {
+        } catch (PdfOcrTesseract4Exception e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
-            throw new Tesseract4OcrException(e.getMessage(), e);
+            throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             try {
                 if (imagePath != null
@@ -378,7 +379,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                             outputFile.getAbsolutePath()));
             command.add(addQuotes(fileName));
         } catch (Exception e) { // NOSONAR
-            throw new Tesseract4OcrException(Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant
                     .TESSERACT_FAILED);
         }
     }
@@ -404,11 +405,11 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param inputImage original input image {@link java.io.File}
      * @param pageNumber number of page to be OCRed
      * @return path to output image as {@link java.lang.String}
-     * @throws Tesseract4OcrException if preprocessing cannot be done or file
+     * @throws PdfOcrTesseract4Exception if preprocessing cannot be done or file
      * is invalid
      */
     private String preprocessImage(final File inputImage,
-            final int pageNumber) throws Tesseract4OcrException {
+            final int pageNumber) throws PdfOcrTesseract4Exception {
         String tmpFileName = TesseractOcrUtil
                 .getTempFilePath(UUID.randomUUID().toString(),
                         getExtension(inputImage));
@@ -448,18 +449,18 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * Check whether tesseract executable is installed on the machine and
      * provided path to tesseract executable is correct.
      * @param execPath path to tesseract executable
-     * @throws Tesseract4OcrException if tesseract is not installed or
+     * @throws PdfOcrTesseract4Exception if tesseract is not installed or
      * provided path to tesseract executable is incorrect,
      * i.e. running "{@link #getPathToExecutable()} --version" command failed.
      */
     private void checkTesseractInstalled(String execPath)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         try {
             TesseractHelper.runCommand(execPath,
                     Collections.<String>singletonList("--version"));
-        } catch (Tesseract4OcrException e) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.TESSERACT_NOT_FOUND, e);
+        } catch (PdfOcrTesseract4Exception e) {
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND, e);
         }
     }
 

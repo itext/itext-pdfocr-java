@@ -31,7 +31,8 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfa.exceptions.PdfAConformanceException;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
@@ -145,13 +146,13 @@ public class PdfA3uTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+        @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
     })
     @Test
     public void testNonCompliantThaiPdfA() throws IOException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
-                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                 MessageFormatUtil.format(PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, 3611)));
 
         String testName = "testNonCompliantThaiPdfA";
@@ -203,14 +204,14 @@ public class PdfA3uTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+            @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
     })
     @Test
     public void testPdfACreateWithoutPdfLangProperty()
             throws IOException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
-                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                 PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET));
 
         String testName = "testPdfACreateWithoutPdfLangProperty";

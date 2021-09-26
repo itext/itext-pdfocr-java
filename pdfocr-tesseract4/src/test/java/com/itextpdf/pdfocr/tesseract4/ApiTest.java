@@ -25,7 +25,8 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -48,12 +49,12 @@ public class ApiTest extends IntegrationTestHelper {
     public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET)
     })
     @Test
     public void testDefaultTessDataPathValidationForLib() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET);
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         File imgFile = new File(path);
 
@@ -63,12 +64,12 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET)
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET)
     })
     @Test
     public void testDefaultTessDataPathValidationForExecutable() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.PATH_TO_TESS_DATA_IS_NOT_SET);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET);
         String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         File imgFile = new File(path);
 
@@ -81,9 +82,9 @@ public class ApiTest extends IntegrationTestHelper {
     })
     @Test
     public void testDoTesseractOcrForIncorrectImageForExecutable() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
-                Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE,
+                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
                 new File(TEST_IMAGES_DIRECTORY + "numbers_01")
                         .getAbsolutePath()));
         String path = TEST_IMAGES_DIRECTORY + "numbers_01";
@@ -97,13 +98,13 @@ public class ApiTest extends IntegrationTestHelper {
 
     @LogMessages(messages = {
             @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE),
-            @LogMessage(messageTemplate = Tesseract4OcrException.TESSERACT_FAILED),
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED),
             @LogMessage(messageTemplate = Tesseract4LogMessageConstant.TESSERACT_FAILED)
     })
     @Test
     public void testOcrResultForSinglePageForNullImage() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.TESSERACT_FAILED);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED);
         Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
         tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
                 new Tesseract4OcrEngineProperties()

@@ -25,7 +25,8 @@ package com.itextpdf.pdfocr.statistics;
 import com.itextpdf.commons.actions.AbstractStatisticsAggregator;
 import com.itextpdf.commons.actions.AbstractStatisticsEvent;
 import com.itextpdf.commons.actions.data.ProductData;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,10 +50,10 @@ public class PdfOcrOutputTypeStatisticsEvent extends AbstractStatisticsEvent {
     public PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType type, ProductData productData) {
         super(productData);
         if (type == null) {
-            throw new OcrException(OcrException.STATISTICS_EVENT_TYPE_CANT_BE_NULL);
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.STATISTICS_EVENT_TYPE_CANT_BE_NULL);
         }
         if (null == PdfOcrOutputTypeStatisticsAggregator.getKeyForType(type)) {
-            throw new OcrException(OcrException.STATISTICS_EVENT_TYPE_IS_NOT_DETECTED);
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.STATISTICS_EVENT_TYPE_IS_NOT_DETECTED);
         }
         this.type = type;
     }

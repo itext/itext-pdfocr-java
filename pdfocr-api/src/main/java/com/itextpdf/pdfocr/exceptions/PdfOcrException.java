@@ -31,37 +31,40 @@ import java.util.List;
 /**
  * Exception class for custom exceptions.
  */
-public class OcrException extends ITextException {
+public class PdfOcrException extends ITextException {
 
-    public static final String CANNOT_READ_INPUT_IMAGE =
-            "Cannot read input image";
-    public static final String CANNOT_RESOLVE_PROVIDED_FONTS = "Cannot resolve "
-            + "any of provided fonts. Please check provided FontProvider.";
-    public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create "
-            + "PDF document: {0}";
-    public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
-    public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
     private List<String> messageParams;
 
     /**
-     * Creates a new OcrException.
+     * Creates a new {@link PdfOcrException}.
      *
      * @param msg the detail message.
      * @param e   the cause
      *            (which is saved for later retrieval
      *            by {@link #getCause()} method).
      */
-    public OcrException(String msg, Throwable e) {
+    public PdfOcrException(String msg, Throwable e) {
         super(msg, e);
     }
 
     /**
-     * Creates a new OcrException.
+     * Creates a new {@link PdfOcrException}.
      *
      * @param msg the detail message.
      */
-    public OcrException(String msg) {
+    public PdfOcrException(String msg) {
         super(msg);
+    }
+
+    /**
+     * Creates a new {@link PdfOcrException}.
+     *
+     * @param e the cause
+     *          which is saved for later retrieval
+     *          by {@link #getCause()} method).
+     */
+    public PdfOcrException(Throwable e) {
+        super(e);
     }
 
     /**
@@ -71,7 +74,7 @@ public class OcrException extends ITextException {
     public String getMessage() {
         return this.messageParams != null && this.messageParams.size() != 0
                 ? MessageFormatUtil
-                        .format(super.getMessage(), this.getMessageParams())
+                .format(super.getMessage(), this.getMessageParams())
                 : super.getMessage();
     }
 
@@ -94,7 +97,7 @@ public class OcrException extends ITextException {
      * @param messageParams additional params.
      * @return object itself.
      */
-    public OcrException setMessageParams(String... messageParams) {
+    public PdfOcrException setMessageParams(String... messageParams) {
         this.messageParams = Arrays.<String>asList(messageParams);
         return this;
     }

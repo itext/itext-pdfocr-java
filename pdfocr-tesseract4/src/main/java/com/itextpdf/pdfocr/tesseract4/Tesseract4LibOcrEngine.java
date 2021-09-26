@@ -41,7 +41,9 @@ import java.util.regex.Pattern;
 
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import net.sourceforge.tess4j.ITesseract;
@@ -200,8 +202,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             StandardCharsets.UTF_8)) {
                         writer.write(result);
                     } catch (IOException e) {
-                        throw new Tesseract4OcrException(
-                                Tesseract4OcrException.CANNOT_WRITE_TO_FILE, e);
+                        throw new PdfOcrInputTesseract4Exception(
+                                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
                     }
                 }
             }
@@ -213,10 +215,10 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
                 eventHelper.onEvent(new ConfirmEvent(event));
             }
-        } catch (Tesseract4OcrException e) {
+        } catch (PdfOcrTesseract4Exception e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
-            throw new Tesseract4OcrException(e.getMessage(), e);
+            throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             if (tesseractInstance != null) {
                 TesseractOcrUtil.disposeTesseractInstance(tesseractInstance);
@@ -242,8 +244,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         Matcher asciiStringMatcher = ASCII_STRING_PATTERN.matcher(tessDataPath);
 
         if (!asciiStringMatcher.matches()) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS);
         }
     }
@@ -279,8 +281,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             e.getMessage());
             LoggerFactory.getLogger(getClass())
                     .error(msg);
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         } finally {
             TesseractOcrUtil
@@ -342,8 +344,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             .format(Tesseract4LogMessageConstant
                                             .TESSERACT_FAILED,
                                     e.getMessage()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         }
 

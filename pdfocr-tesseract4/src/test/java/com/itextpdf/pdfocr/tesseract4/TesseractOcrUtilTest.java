@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.Pix;
+import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -240,5 +241,4 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         rotation = TesseractOcrUtil.detectRotation(data);
         Assert.assertEquals(0, rotation);
     }
-
 }

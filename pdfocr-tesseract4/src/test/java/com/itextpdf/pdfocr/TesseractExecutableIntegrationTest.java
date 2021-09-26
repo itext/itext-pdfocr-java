@@ -23,9 +23,10 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -44,12 +45,12 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate =
-                Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
+                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
     })
     @Test
     public void testNullPathToTesseractExecutable() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         Tesseract4ExecutableOcrEngine tesseractExecutableReader =
                 new Tesseract4ExecutableOcrEngine(
@@ -60,12 +61,12 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate =
-                Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
+                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE, count = 1)
     })
     @Test
     public void testEmptyPathToTesseractExecutable() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file);
     }
@@ -74,12 +75,12 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
         @LogMessage(messageTemplate =
                 Tesseract4LogMessageConstant.COMMAND_FAILED, count = 1),
         @LogMessage(messageTemplate =
-                Tesseract4OcrException.TESSERACT_NOT_FOUND, count = 1)
+                PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND, count = 1)
     })
     @Test
     public void testIncorrectPathToTesseractExecutable() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.TESSERACT_NOT_FOUND);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         getTextFromPdf(new Tesseract4ExecutableOcrEngine("path\\to\\executable\\", new Tesseract4OcrEngineProperties()), file);
     }

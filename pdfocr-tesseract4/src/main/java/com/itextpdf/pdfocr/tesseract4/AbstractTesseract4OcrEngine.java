@@ -38,7 +38,9 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
-import com.itextpdf.pdfocr.tesseract4.exceptions.Tesseract4OcrException;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.io.File;
@@ -324,11 +326,11 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * checks if they all exist in given tess data directory.
      *
      * @param languagesList {@link java.util.List} of provided languages
-     * @throws Tesseract4OcrException if tess data wasn't found for one of the
+     * @throws PdfOcrTesseract4Exception if tess data wasn't found for one of the
      * languages from the provided list
      */
     public void validateLanguages(final List<String> languagesList)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         String suffix = ".traineddata";
         if (languagesList.size() == 0) {
             if (!new File(getTessData()
@@ -336,8 +338,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                     + getTesseract4OcrEngineProperties().getDefaultLanguage()
                     + suffix)
                     .exists()) {
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException.INCORRECT_LANGUAGE)
+                throw new PdfOcrInputTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
                         .setMessageParams(
                                 getTesseract4OcrEngineProperties()
                                         .getDefaultLanguage()
@@ -349,8 +351,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                 if (!new File(getTessData()
                         + java.io.File.separatorChar + lang + suffix)
                         .exists()) {
-                    throw new Tesseract4OcrException(
-                            Tesseract4OcrException.INCORRECT_LANGUAGE)
+                    throw new PdfOcrInputTesseract4Exception(
+                            PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
                             .setMessageParams(lang + suffix, getTessData());
                 }
             }
@@ -423,7 +425,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      */
     String getTessData() {
         if (getTesseract4OcrEngineProperties().getPathToTessData() == null) {
-            throw new Tesseract4OcrException(Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant
                     .PATH_TO_TESS_DATA_IS_NOT_SET);
         } else {
             return getTesseract4OcrEngineProperties().getPathToTessData()
@@ -545,10 +547,10 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * in {@link AbstractTesseract4OcrEngine#SUPPORTED_IMAGE_FORMATS}
      *
      * @param image input image {@link java.io.File}
-     * @throws Tesseract4OcrException if image format is invalid
+     * @throws PdfOcrTesseract4Exception if image format is invalid
      */
     private void verifyImageFormatValidity(final File image)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         ImageType type = ImagePreprocessingUtil.getImageType(image);
         boolean isValid = SUPPORTED_IMAGE_FORMATS.contains(type);
         if (!isValid) {
@@ -556,8 +558,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                     .format(Tesseract4LogMessageConstant
                                     .CANNOT_READ_INPUT_IMAGE,
                             image.getAbsolutePath()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.INCORRECT_INPUT_IMAGE_FORMAT)
+            throw new PdfOcrInputTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT)
                     .setMessageParams(image.getName());
         }
     }

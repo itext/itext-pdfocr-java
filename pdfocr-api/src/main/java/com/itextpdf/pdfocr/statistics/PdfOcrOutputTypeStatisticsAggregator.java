@@ -25,7 +25,8 @@ package com.itextpdf.pdfocr.statistics;
 import com.itextpdf.commons.actions.AbstractStatisticsAggregator;
 import com.itextpdf.commons.actions.AbstractStatisticsEvent;
 import com.itextpdf.commons.utils.MapUtil;
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,7 +71,7 @@ class PdfOcrOutputTypeStatisticsAggregator extends AbstractStatisticsAggregator 
         String fileTypeKey = getKeyForType(type);
         if (null == fileTypeKey) {
             // this line is not expected to be reached, since an exception should have been thrown on event creation
-            throw new OcrException(OcrException.STATISTICS_EVENT_TYPE_IS_NOT_DETECTED);
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.STATISTICS_EVENT_TYPE_IS_NOT_DETECTED);
         }
         synchronized (lock) {
             Long documentsOfThisRange = numberOfUsagesPerType.get(fileTypeKey);

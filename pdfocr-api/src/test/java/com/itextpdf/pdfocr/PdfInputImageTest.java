@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.pdfocr.exceptions.OcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
@@ -47,7 +47,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     })
     @Test
     public void testCorruptedImage() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted.jpg");
         String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImage");
@@ -60,7 +60,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     })
     @Test
     public void testCorruptedImageWithoutExtension() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
 
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted");
@@ -74,7 +74,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     })
     @Test
     public void testInvalidImagePathWithoutDot() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
 
         File file = new File("testName");
         String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithoutDot");
@@ -87,7 +87,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     })
     @Test
     public void testInvalidImagePathWithDot() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
 
         File file = new File("test.Name");
         String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithDot");
@@ -100,7 +100,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
     })
     @Test
     public void testValidImageWithoutExtension() {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrInputException.class);
 
         File file = new File(PdfHelper.getImagesTestDirectory() + "numbers_01");
         String realOutput = PdfHelper.getTextFromPdf(file, "testValidImageWithoutExtension");
