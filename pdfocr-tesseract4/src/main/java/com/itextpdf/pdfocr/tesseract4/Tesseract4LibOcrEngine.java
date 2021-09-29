@@ -22,7 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,7 +39,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -148,21 +157,27 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
-     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     * @param dispatchEvent indicates if event needs to be dispatched
+     * @param eventHelper event helper
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber, final boolean dispatchEvent) {
-        scheduledCheck();
+            final int pageNumber, final boolean dispatchEvent, AbstractPdfOcrEventHelper eventHelper) {
+        PdfOcrTesseract4ProductEvent event = null;
+        if (eventHelper == null) {
+            eventHelper = new Tesseract4EventHelper();
+        }
+        // usage event
+        if (dispatchEvent) {
+            event = onEvent(eventHelper);
+        }
         try {
             // check tess data path for non ASCII characters
             validateTessDataPath(getTessData());
             validateLanguages(getTesseract4OcrEngineProperties()
                     .getLanguages());
             initializeTesseract(outputFormat);
-            if (dispatchEvent) {
-                onEvent();
-            }
+
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
@@ -187,20 +202,23 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             StandardCharsets.UTF_8)) {
                         writer.write(result);
                     } catch (IOException e) {
-                        LoggerFactory.getLogger(getClass()).error(
-                                MessageFormatUtil.format(
-                                        Tesseract4LogMessageConstant
-                                                .CANNOT_WRITE_TO_FILE,
-                                        e.getMessage()));
-                        throw new Tesseract4OcrException(
-                                Tesseract4OcrException.TESSERACT_FAILED);
+                        throw new PdfOcrInputTesseract4Exception(
+                                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
                     }
                 }
             }
-        } catch (Tesseract4OcrException e) {
+
+            // statistics event
+            onEventStatistics(eventHelper);
+
+            // confirm on_demand event
+            if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                eventHelper.onEvent(new ConfirmEvent(event));
+            }
+        } catch (PdfOcrTesseract4Exception e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
-            throw new Tesseract4OcrException(e.getMessage(), e);
+            throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             if (tesseractInstance != null) {
                 TesseractOcrUtil.disposeTesseractInstance(tesseractInstance);
@@ -226,8 +244,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         Matcher asciiStringMatcher = ASCII_STRING_PATTERN.matcher(tessDataPath);
 
         if (!asciiStringMatcher.matches()) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS);
         }
     }
@@ -263,8 +281,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             e.getMessage());
             LoggerFactory.getLogger(getClass())
                     .error(msg);
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         } finally {
             TesseractOcrUtil
@@ -326,8 +344,8 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                             .format(Tesseract4LogMessageConstant
                                             .TESSERACT_FAILED,
                                     e.getMessage()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         }
 

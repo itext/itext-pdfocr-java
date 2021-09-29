@@ -46,15 +46,6 @@ public class TextInfo {
     private Rectangle bboxRect;
 
     /**
-     * Contains 4 float coordinates: bbox parameters.
-     * Alike bboxRect described by {@link Rectangle}
-     * coordinates are upper-left based and expressed in pixels.
-     * @deprecated since 1.0.1. Use {@link #bboxRect} instead
-     */
-    @Deprecated
-    private List<Float> bbox = Collections.<Float>emptyList();
-
-    /**
      * Creates a new {@link TextInfo} instance.
      */
     public TextInfo() {
@@ -68,7 +59,6 @@ public class TextInfo {
     public TextInfo(final TextInfo textInfo) {
         this.text = textInfo.text;
         this.bboxRect = new Rectangle(textInfo.bboxRect);
-        this.bbox = Collections.<Float>unmodifiableList(textInfo.bbox);
     }
 
     /**
@@ -80,34 +70,6 @@ public class TextInfo {
     public TextInfo(final String text, final Rectangle bbox) {
         this.text = text;
         this.bboxRect = new Rectangle(bbox);
-    }
-
-    /**
-     * Creates a new {@link TextInfo} instance.
-     *
-     * @param text any text
-     * @param bbox {@link java.util.List} of bbox parameters
-     * @deprecated since 1.0.1. Use {@link #TextInfo(String, Rectangle)} instead
-     */
-    @Deprecated
-    public TextInfo(final String text, final List<Float> bbox) {
-        this.text = text;
-        this.bbox = Collections.<Float>unmodifiableList(bbox);
-    }
-
-    /**
-     * Creates a new {@link TextInfo} instance.
-     *
-     * @param text any text
-     * @param bboxRect {@link Rectangle} describing text bbox
-     * @param bbox {@link java.util.List} of bbox parameters
-     * @deprecated since 1.0.1. Use {@link #TextInfo(String, Rectangle)} instead
-     */
-    @Deprecated
-    public TextInfo(final String text, final Rectangle bboxRect, final List<Float> bbox) {
-        this.text = text;
-        this.bboxRect = bboxRect;
-        this.bbox = Collections.<Float>unmodifiableList(bbox);
     }
 
     /**
@@ -144,29 +106,5 @@ public class TextInfo {
      */
     public void setBboxRect(final Rectangle bbox) {
         this.bboxRect = new Rectangle(bbox);
-        this.bbox = Collections.<Float>emptyList();
-    }
-
-    /**
-     * Gets bbox coordinates.
-     *
-     * @return {@link java.util.List} of bbox parameters
-     * @deprecated since 1.0.1. Use {@link #getBboxRect()} instead
-     */
-    @Deprecated
-    public List<Float> getBbox() {
-        return new ArrayList<Float>(bbox);
-    }
-
-    /**
-     * Sets bbox coordinates.
-     *
-     * @param bbox {@link java.util.List} of bbox parameters
-     * @deprecated since 1.0.1. Use {@link #setBboxRect(Rectangle)} instead
-     */
-    @Deprecated
-    public void setBbox(final List<Float> bbox) {
-        this.bbox = Collections.<Float>unmodifiableList(bbox);
-        this.bboxRect = null;
     }
 }

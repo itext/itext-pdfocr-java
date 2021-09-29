@@ -22,8 +22,11 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -104,9 +107,9 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
 
     @Test
     public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "spa"));
         String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
         Tesseract4OcrEngineProperties properties =
@@ -117,9 +120,9 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
 
     @Test
     public void testIncorrectLanguageForUserWordsAsList() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST,
                         "eng1"));
         Tesseract4OcrEngineProperties properties =
                 tesseractReader.getTesseract4OcrEngineProperties();

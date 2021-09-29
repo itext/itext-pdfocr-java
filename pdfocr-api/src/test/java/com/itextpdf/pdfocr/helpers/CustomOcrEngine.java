@@ -22,32 +22,26 @@
  */
 package com.itextpdf.pdfocr.helpers;
 
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.OcrEngineProperties;
+import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
+public class CustomOcrEngine implements IOcrEngine {
 
     private OcrEngineProperties ocrEngineProperties;
-    private IMetaInfo threadLocalMetaInfo;
-    private boolean textInfoDeprecationMode = false;
 
     public CustomOcrEngine() {
-        this(false);
-    }
-
-    public CustomOcrEngine(boolean textInfoDeprecationMode) {
-        this.textInfoDeprecationMode = textInfoDeprecationMode;
     }
 
     public CustomOcrEngine(OcrEngineProperties ocrEngineProperties) {
@@ -62,11 +56,14 @@ public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
         if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
             text = PdfHelper.THAI_TEXT;
         }
-        TextInfo textInfo = this.textInfoDeprecationMode ?
-                new TextInfo(text, Arrays.<Float>asList(204.0f, 158.0f, 742.0f, 294.0f)) :
-                new TextInfo(text, new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
+        TextInfo textInfo = new TextInfo(text, new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
         result.put(1, Collections.<TextInfo>singletonList(textInfo));
         return result;
+    }
+
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
+        return doImageOcr(input);
     }
 
     @Override
@@ -74,15 +71,10 @@ public class CustomOcrEngine implements IOcrEngine, IThreadLocalMetaInfoAware {
     }
 
     @Override
-    public IMetaInfo getThreadLocalMetaInfo() {
-        return threadLocalMetaInfo;
+    public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
+
     }
 
-    @Override
-    public IThreadLocalMetaInfoAware setThreadLocalMetaInfo(IMetaInfo metaInfo) {
-        this.threadLocalMetaInfo = metaInfo;
-        return this;
-    }
 
     public OcrEngineProperties getOcrEngineProperties() {
         return ocrEngineProperties;

@@ -22,12 +22,14 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.font.otf.ActualTextIterator;
 import com.itextpdf.io.font.otf.Glyph;
 import com.itextpdf.io.font.otf.GlyphLine;
 import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.kernel.counter.event.IMetaInfo;
+import com.itextpdf.kernel.actions.events.LinkDocumentIdEvent;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfTrueTypeFont;
 import com.itextpdf.kernel.font.PdfType0Font;
@@ -53,17 +55,19 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.font.FontProvider;
-import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.pdfa.PdfADocument;
-import com.itextpdf.pdfocr.OcrPdfCreatorMetaInfo.PdfDocumentType;
-import com.itextpdf.pdfocr.events.IThreadLocalMetaInfoAware;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,14 +92,6 @@ public class OcrPdfCreator {
      */
     private static final Logger LOGGER = LoggerFactory
             .getLogger(OcrPdfCreator.class);
-
-    /**
-     * Indices in array representing bbox.
-     */
-    private static final int LEFT_IDX = 0;
-    private static final int TOP_IDX = 1;
-    private static final int RIGHT_IDX = 2;
-    private static final int BOTTOM_IDX = 3;
 
     /**
      * Selected {@link IOcrEngine}.
@@ -150,37 +146,43 @@ public class OcrPdfCreator {
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
-     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter} and
-     * {@link com.itextpdf.kernel.pdf.PdfOutputIntent}.
-     * PDF/A-3u document will be created if
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}, {@link DocumentProperties }
+     * and {@link com.itextpdf.kernel.pdf.PdfOutputIntent}. PDF/A-3u document will be created if
      * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
      *
-     * @param inputImages {@link java.util.List} of images to be OCRed
-     * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final PDF document to
-     * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
-     *                        for PDF/A-3u document
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfAFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
+     * @param inputImages        {@link java.util.List} of images to be OCRed
+     * @param pdfWriter          the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                           to write final PDF document to
+     * @param documentProperties document properties
+     * @param pdfOutputIntent    {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
+     *                           for PDF/A-3u document
+     *
      * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
      * object
-     * @throws OcrException if it was not possible to read provided or
-     * default font
+     *
+     * @throws PdfOcrException if it was not possible to read provided or
+     *                      default font
      */
     public final PdfDocument createPdfA(final List<File> inputImages,
             final PdfWriter pdfWriter,
+            final DocumentProperties documentProperties,
             final PdfOutputIntent pdfOutputIntent)
-            throws OcrException {
+            throws PdfOcrException {
         LOGGER.info(MessageFormatUtil.format(
                 PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES,
                 inputImages.size()));
 
-        IMetaInfo storedMetaInfo = null;
-        if (ocrEngine instanceof IThreadLocalMetaInfoAware) {
-            storedMetaInfo = ((IThreadLocalMetaInfoAware)ocrEngine).getThreadLocalMetaInfo();
-            ((IThreadLocalMetaInfoAware)ocrEngine).setThreadLocalMetaInfo(
-                    new OcrPdfCreatorMetaInfo(((IThreadLocalMetaInfoAware)ocrEngine).getThreadLocalMetaInfo(),
-                            UUID.randomUUID(),
-                            null != pdfOutputIntent ? PdfDocumentType.PDFA : PdfDocumentType.PDF));
-        }
+        // create event helper
+        SequenceId pdfSequenceId = new SequenceId();
+        OcrPdfCreatorEventHelper ocrEventHelper =
+                new OcrPdfCreatorEventHelper(pdfSequenceId, ocrPdfCreatorProperties.getMetaInfo());
+        OcrProcessContext ocrProcessContext = new OcrProcessContext(ocrEventHelper);
 
         // map contains:
         // keys: image files
@@ -188,36 +190,143 @@ public class OcrPdfCreator {
         // map pageNumber -> retrieved text data(text and its coordinates)
         Map<File, Map<Integer, List<TextInfo>>> imagesTextData =
                 new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
-        try {
-            for (File inputImage : inputImages) {
-                imagesTextData.put(inputImage,
-                        ocrEngine.doImageOcr(inputImage));
-            }
-        } finally {
-            if (ocrEngine instanceof IThreadLocalMetaInfoAware) {
-                ((IThreadLocalMetaInfoAware)ocrEngine).setThreadLocalMetaInfo(storedMetaInfo);
-            }
+
+        for (File inputImage : inputImages) {
+            imagesTextData.put(inputImage,
+                    ocrEngine.doImageOcr(inputImage, ocrProcessContext));
         }
 
-
         // create PdfDocument
-        return createPdfDocument(pdfWriter, pdfOutputIntent, imagesTextData);
+        return createPdfDocument(pdfWriter, pdfOutputIntent, imagesTextData, pdfSequenceId, documentProperties);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter} and
+     * {@link com.itextpdf.kernel.pdf.PdfOutputIntent}. PDF/A-3u document will be created if
+     * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
+     *
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfAFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
+     * @param inputImages     {@link java.util.List} of images to be OCRed
+     * @param pdfWriter       the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                        to write final PDF document to
+     * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
+     *                        for PDF/A-3u document
+     *
+     * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
+     * object
+     *
+     * @throws PdfOcrException if it was not possible to read provided or
+     *                      default font
+     */
+    public final PdfDocument createPdfA(final List<File> inputImages,
+            final PdfWriter pdfWriter,
+            final PdfOutputIntent pdfOutputIntent)
+            throws PdfOcrException {
+        return createPdfA(inputImages, pdfWriter, new DocumentProperties(), pdfOutputIntent);
     }
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
      * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
      *
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
      * @param inputImages {@link java.util.List} of images to be OCRed
-     * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final PDF document to
+     * @param pdfWriter   the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                    to write final PDF document to
+     * @param documentProperties document properties
+     *
      * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
-     * @throws OcrException if provided font is incorrect
+     *
+     * @throws PdfOcrException if provided font is incorrect
+     */
+    public final PdfDocument createPdf(final List<File> inputImages,
+            final PdfWriter pdfWriter,
+            final DocumentProperties documentProperties)
+            throws PdfOcrException {
+        return createPdfA(inputImages, pdfWriter, documentProperties, null);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
+     *
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param pdfWriter   the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                    to write final PDF document to
+     *
+     * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
+     *
+     * @throws PdfOcrException if provided font is incorrect
      */
     public final PdfDocument createPdf(final List<File> inputImages,
             final PdfWriter pdfWriter)
-            throws OcrException {
-        return createPdfA(inputImages, pdfWriter, null);
+            throws PdfOcrException {
+        return createPdfA(inputImages, pdfWriter, new DocumentProperties(), null);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link java.io.File}.
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param outPdfFile  the {@link java.io.File} object to write final PDF document to
+     *
+     * @throws IOException  signals that an I/O exception of some sort has occurred.
+     * @throws PdfOcrException if it was not possible to read provided or
+     *                      default font
+     */
+    public void createPdfFile(final List<File> inputImages,
+            final File outPdfFile)
+            throws PdfOcrException, IOException {
+        createPdfAFile(inputImages, outPdfFile, null);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link java.io.File} and {@link com.itextpdf.kernel.pdf.PdfOutputIntent}.
+     * PDF/A-3u document will be created if provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
+     *
+     * @param inputImages     {@link java.util.List} of images to be OCRed
+     * @param outPdfFile      the {@link java.io.File} object to write final PDF document to
+     * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
+     *                        for PDF/A-3u document
+     *
+     * @throws IOException  signals that an I/O exception of some sort has occurred
+     * @throws PdfOcrException if it was not possible to read provided or
+     *                      default font
+     */
+    public void createPdfAFile(final List<File> inputImages,
+            final File outPdfFile,
+            final PdfOutputIntent pdfOutputIntent)
+            throws PdfOcrException, IOException {
+        DocumentProperties documentProperties = new DocumentProperties();
+        if (ocrPdfCreatorProperties.getMetaInfo() != null) {
+            documentProperties.setEventCountingMetaInfo(ocrPdfCreatorProperties.getMetaInfo());
+        } else if (ocrEngine instanceof IProductAware) {
+            documentProperties.setEventCountingMetaInfo(
+                    ((IProductAware) ocrEngine).getMetaInfoContainer().getMetaInfo());
+        }
+        try (PdfWriter pdfWriter = new PdfWriter(outPdfFile.getAbsolutePath())) {
+            PdfDocument pdfDocument = createPdfA(inputImages, pdfWriter, documentProperties, pdfOutputIntent);
+            pdfDocument.close();
+        }
     }
 
     /**
@@ -248,13 +357,13 @@ public class OcrPdfCreator {
      * @param imageData input image if it is a single page or its one page if
      *                 this is a multi-page image
      * @param createPdfA3u true if PDF/A3u document is being created
-     * @throws OcrException if PDF/A3u document is being created and provided
+     * @throws PdfOcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
     private void addToCanvas(final PdfDocument pdfDocument,
             final Rectangle imageSize,
             final List<TextInfo> pageText, final ImageData imageData,
-            final boolean createPdfA3u) throws OcrException {
+            final boolean createPdfA3u) throws PdfOcrException {
         final Rectangle rectangleSize =
                 ocrPdfCreatorProperties.getPageSize() == null
                         ? imageSize : ocrPdfCreatorProperties.getPageSize();
@@ -285,11 +394,11 @@ public class OcrPdfCreator {
         try {
             addTextToCanvas(imageSize, pageText, canvas, multiplier,
                     pdfPage.getMediaBox());
-        } catch (OcrException e) {
+        } catch (PdfOcrException e) {
             LOGGER.error(MessageFormatUtil.format(
-                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                    PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                     e.getMessage()));
-            throw new OcrException(OcrException.CANNOT_CREATE_PDF_DOCUMENT)
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT)
                     .setMessageParams(e.getMessage());
         }
         if (layers[1] != null) {
@@ -297,40 +406,31 @@ public class OcrPdfCreator {
         }
     }
 
-    /**
-     * Creates a new PDF document using provided properties, adds images with
-     * recognized text.
-     *
-     * @param pdfWriter the {@link com.itextpdf.kernel.pdf.PdfWriter} object
-     *                  to write final PDF document to
-     * @param pdfOutputIntent {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
-     *                        for PDF/A-3u document
-     * @param imagesTextData map that contains input image files as keys,
-     *                       and as value: map pageNumber -> text for the page
-     * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
-     */
     private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
             final PdfOutputIntent pdfOutputIntent,
-            final Map<File, Map<Integer, List<TextInfo>>> imagesTextData) {
+            final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
+            SequenceId pdfSequenceId, DocumentProperties documentProperties) {
         PdfDocument pdfDocument;
         boolean createPdfA3u = pdfOutputIntent != null;
         if (createPdfA3u) {
             pdfDocument = new PdfADocument(pdfWriter,
                     PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent,
-                    new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
+                    documentProperties);
         } else {
             pdfDocument = new PdfDocument(pdfWriter,
-                    new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
+                    documentProperties);
         }
+        LinkDocumentIdEvent linkDocumentIdEvent = new LinkDocumentIdEvent(pdfDocument, pdfSequenceId);
+        EventManager.getInstance().onEvent(linkDocumentIdEvent);
 
         // pdfLang should be set in PDF/A mode
         boolean hasPdfLangProperty = ocrPdfCreatorProperties.getPdfLang() != null
                 && !ocrPdfCreatorProperties.getPdfLang().equals("");
         if (createPdfA3u && !hasPdfLangProperty) {
             LOGGER.error(MessageFormatUtil.format(
-                    OcrException.CANNOT_CREATE_PDF_DOCUMENT,
+                    PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                     PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET));
-            throw new OcrException(OcrException.CANNOT_CREATE_PDF_DOCUMENT)
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT)
                     .setMessageParams(PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET);
         }
 
@@ -353,6 +453,15 @@ public class OcrPdfCreator {
 
         addDataToPdfDocument(imagesTextData, pdfDocument, createPdfA3u);
 
+        // statisctics event about type of created pdf
+        if (ocrEngine instanceof IProductAware
+                && ((IProductAware) ocrEngine).getProductData() != null) {
+            PdfOcrOutputType eventType = createPdfA3u ? PdfOcrOutputType.PDFA : PdfOcrOutputType.PDF;
+            PdfOcrOutputTypeStatisticsEvent docTypeStatisticsEvent =
+                    new PdfOcrOutputTypeStatisticsEvent(eventType, ((IProductAware) ocrEngine).getProductData());
+            EventManager.getInstance().onEvent(docTypeStatisticsEvent);
+        }
+
         return pdfDocument;
     }
 
@@ -364,13 +473,13 @@ public class OcrPdfCreator {
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
      * @param createPdfA3u true if PDF/A3u document is being created
-     * @throws OcrException if input image cannot be read or provided font
+     * @throws PdfOcrException if input image cannot be read or provided font
      * contains NOTDEF glyphs
      */
     private void addDataToPdfDocument(
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
             final PdfDocument pdfDocument,
-            final boolean createPdfA3u) throws OcrException {
+            final boolean createPdfA3u) throws PdfOcrException {
         for (Map.Entry<File, Map<Integer, List<TextInfo>>> entry
                 : imagesTextData.entrySet()) {
             File inputImage = entry.getKey();
@@ -414,7 +523,7 @@ public class OcrPdfCreator {
             final PdfCanvas pdfCanvas) {
         if (imageData != null) {
             if (ocrPdfCreatorProperties.getPageSize() == null) {
-                pdfCanvas.addImage(imageData, imageSize, false);
+                pdfCanvas.addImageFittedIntoRectangle(imageData, imageSize, false);
             } else {
                 final Point coordinates =
                         PdfCreatorUtil.calculateImageCoordinates(
@@ -423,7 +532,7 @@ public class OcrPdfCreator {
                         new Rectangle(
                                 (float)coordinates.x, (float)coordinates.y,
                                 imageSize.getWidth(), imageSize.getHeight());
-                pdfCanvas.addImage(imageData, rect, false);
+                pdfCanvas.addImageFittedIntoRectangle(imageData, rect, false);
             }
         }
     }
@@ -437,7 +546,7 @@ public class OcrPdfCreator {
      * @param pdfCanvas canvas to place the text
      * @param multiplier coefficient to adjust text placing on canvas
      * @param pageMediaBox page parameters
-     * @throws OcrException if PDF/A3u document is being created and provided
+     * @throws PdfOcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
     private void addTextToCanvas(
@@ -446,7 +555,7 @@ public class OcrPdfCreator {
             final PdfCanvas pdfCanvas,
             final float multiplier,
             final Rectangle pageMediaBox)
-            throws OcrException {
+            throws PdfOcrException {
         if (pageText != null && pageText.size() > 0) {
             final Point imageCoordinates =
                     PdfCreatorUtil.calculateImageCoordinates(
@@ -536,44 +645,28 @@ public class OcrPdfCreator {
      * Get left bound of text chunk.
      */
     private static float getLeft(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return textInfo.getBbox().get(LEFT_IDX) * multiplier;
-        } else {
-            return textInfo.getBboxRect().getLeft() * multiplier;
-        }
+        return textInfo.getBboxRect().getLeft() * multiplier;
     }
 
     /**
      * Get right bound of text chunk.
      */
     private static float getRight(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return (textInfo.getBbox().get(RIGHT_IDX) + 1) * multiplier - 1;
-        } else {
-            return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
-        }
+        return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
     }
 
     /**
      * Get top bound of text chunk.
      */
     private static float getTop(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return textInfo.getBbox().get(TOP_IDX) * multiplier;
-        } else {
-            return textInfo.getBboxRect().getTop() * multiplier;
-        }
+        return textInfo.getBboxRect().getTop() * multiplier;
     }
 
     /**
      * Get bottom bound of text chunk.
      */
     private static float getBottom(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return (textInfo.getBbox().get(BOTTOM_IDX) + 1) * multiplier - 1;
-        } else {
-            return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
-        }
+        return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
     }
 
     /**
@@ -633,7 +726,6 @@ public class OcrPdfCreator {
      * A handler for PDF canvas that validates existing glyphs.
      */
     private static class NotDefCheckingPdfCanvas extends PdfCanvas {
-        private static final long serialVersionUID = 708713860707664107L;
         private final boolean createPdfA3u;
         public NotDefCheckingPdfCanvas(PdfPage page, boolean createPdfA3u) {
             super(page);
@@ -659,7 +751,7 @@ public class OcrPdfCreator {
                     if (this.createPdfA3u) {
                         // exception is thrown only if PDF/A document is
                         // being created
-                        throw new OcrException(message);
+                        throw new PdfOcrException(message);
                     }
                     // setting actual text to NotDef glyph
                     glyphLine.setActualTextToGlyph(i,
@@ -696,7 +788,6 @@ public class OcrPdfCreator {
      * overwrite it.
      */
     private static class ActualTextCheckingGlyphLine extends GlyphLine {
-        private static final long serialVersionUID = -946356392098459518L;
 
         public ActualTextCheckingGlyphLine(GlyphLine other) {
             super(other);

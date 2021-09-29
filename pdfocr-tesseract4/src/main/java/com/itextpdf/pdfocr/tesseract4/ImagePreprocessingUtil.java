@@ -28,7 +28,11 @@ import com.itextpdf.io.image.TiffImageData;
 import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -96,8 +100,8 @@ class ImagePreprocessingUtil {
                     .format(Tesseract4LogMessageConstant
                                     .CANNOT_READ_INPUT_IMAGE,
                             e.getMessage()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE)
+            throw new PdfOcrInputTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputImage.getAbsolutePath());
         }
 
@@ -146,13 +150,13 @@ class ImagePreprocessingUtil {
      * @param pageNumber number of page to be preprocessed
      * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return created preprocessed image as {@link net.sourceforge.lept4j.Pix}
-     * @throws Tesseract4OcrException if it was not possible to read or convert
+     * @throws PdfOcrTesseract4Exception if it was not possible to read or convert
      * input file
      */
     static Pix preprocessImage(final File inputFile,
                                final int pageNumber,
                                final ImagePreprocessingOptions imagePreprocessingOptions)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         Pix pix = null;
         // read image
         if (isTiffImage(inputFile)) {
@@ -162,8 +166,8 @@ class ImagePreprocessingUtil {
             pix = TesseractOcrUtil.readPix(inputFile);
         }
         if (pix == null) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE)
+            throw new PdfOcrInputTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
         return TesseractOcrUtil.preprocessPix(pix, imagePreprocessingOptions);

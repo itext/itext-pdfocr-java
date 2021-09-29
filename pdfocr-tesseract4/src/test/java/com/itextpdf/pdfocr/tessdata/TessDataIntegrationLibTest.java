@@ -24,13 +24,11 @@ package com.itextpdf.pdfocr.tessdata;
 
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
-import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.tesseract4.OutputFormat;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
-import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -39,11 +37,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Category(IntegrationTest.class)
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
@@ -52,13 +47,13 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS)
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS)
     })
     @Test
     public void testTessDataWithNonAsciiPath() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(
-                Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS
+                PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS
         );
 
         // Throws exception for the tesseract lib test

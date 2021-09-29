@@ -22,10 +22,14 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
-import com.itextpdf.io.util.SystemUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.SystemUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -106,31 +110,6 @@ public class TesseractHelper {
      * Creates a new {@link TesseractHelper} instance.
      */
     private TesseractHelper() {
-    }
-
-    /**
-     * Parses each hocr file from the provided list, retrieves text, and
-     * returns data in the format described below.
-     *
-     * @param inputFiles list of input files
-     * @param textPositioning {@link TextPositioning}
-     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
-     *          representing the number of the page and value is
-     *          {@link java.util.List} of {@link TextInfo} elements where each
-     *          {@link TextInfo} element contains a word or a line and its 4
-     *          coordinates(bbox)
-     * @throws IOException if error occurred during reading one the provided
-     *          files
-     * @deprecated since 1.0.2. Use {@link #parseHocrFile(List, List, Tesseract4OcrEngineProperties)} instead
-     */
-    @Deprecated
-    public static Map<Integer, List<TextInfo>> parseHocrFile(
-            final List<File> inputFiles,
-            final TextPositioning textPositioning)
-            throws IOException {
-        return parseHocrFile(
-            inputFiles, null,
-                new Tesseract4OcrEngineProperties().setTextPositioning(textPositioning));
     }
 
     /**
@@ -374,10 +353,8 @@ public class TesseractHelper {
                 StandardCharsets.UTF_8)) {
             writer.write(data);
         } catch (IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant.CANNOT_WRITE_TO_FILE,
-                    path,
-                    e.getMessage()));
+            throw new PdfOcrInputTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
         }
     }
 
@@ -386,10 +363,10 @@ public class TesseractHelper {
      *
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
-     * @throws Tesseract4OcrException if provided command failed
+     * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
-                           final List<String> paramsList) throws Tesseract4OcrException {
+                           final List<String> paramsList) throws PdfOcrTesseract4Exception {
         runCommand(execPath, paramsList, null);
     }
 
@@ -399,11 +376,11 @@ public class TesseractHelper {
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
      * @param workingDirPath path to the working directory
-     * @throws Tesseract4OcrException if provided command failed
+     * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
                            final List<String> paramsList,
-                           final String workingDirPath) throws Tesseract4OcrException {
+                           final String workingDirPath) throws PdfOcrTesseract4Exception {
         try {
             String params = String.join(" ", paramsList);
             boolean cmdSucceeded = SystemUtil
@@ -413,16 +390,16 @@ public class TesseractHelper {
                 LOGGER.error(MessageFormatUtil
                         .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                                 execPath + " " + params));
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException
+                throw new PdfOcrTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant
                                 .TESSERACT_FAILED);
             }
         } catch (IOException | InterruptedException e) { // NOSONAR
             LOGGER.error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                             e.getMessage()));
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .TESSERACT_FAILED);
         }
     }
@@ -538,7 +515,7 @@ public class TesseractHelper {
                 final Rectangle bboxRect = getAlignedBBox(word,
                         textPositioning, pageBbox,
                         unparsedBBoxes);
-                addToTextData(textData, word.text(), bboxRect, pageBbox);
+                addToTextData(textData, word.text(), bboxRect);
             }
         } else {
             List<TextInfo> textInfos = new ArrayList<>();
@@ -554,7 +531,7 @@ public class TesseractHelper {
                 if (lineItems[0].replaceAll(NEW_LINE_OR_SPACE_PATTERN, "")
                         .equals(getTextInfosText(textInfos).replaceAll(SPACE_PATTERN, ""))) {
                     lineItems = Arrays.copyOfRange(lineItems, 1, lineItems.length);
-                    addToTextData(textData, mergeTextInfos(textInfos), pageBbox);
+                    addToTextData(textData, mergeTextInfos(textInfos));
                     textInfos.clear();
                 }
             }
@@ -574,9 +551,9 @@ public class TesseractHelper {
                 TextPositioning.BY_LINES, pageBbox,
                 unparsedBBoxes);
         if (txtLine == null) {
-            addToTextData(textData, lineOrCaption.text(), bboxRect, pageBbox);
+            addToTextData(textData, lineOrCaption.text(), bboxRect);
         } else {
-            addToTextData(textData, txtLine, bboxRect, pageBbox);
+            addToTextData(textData, txtLine, bboxRect);
         }
         return textData;
     }
@@ -586,13 +563,8 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       String text,
-                                      Rectangle bboxRect,
-                                      Rectangle pageBbox) {
-        final List<Float> bbox = Arrays.asList(toPixels(bboxRect.getLeft()),
-                toPixels(pageBbox.getTop() - bboxRect.getTop()),
-                toPixels(bboxRect.getRight()),
-                toPixels(pageBbox.getTop() - bboxRect.getBottom()));
-        final TextInfo textInfo = new TextInfo(text, bboxRect, bbox);
+                                      Rectangle bboxRect) {
+        final TextInfo textInfo = new TextInfo(text, bboxRect);
         textData.add(textInfo);
     }
 
@@ -600,22 +572,21 @@ public class TesseractHelper {
      * Add text chunk represented by text info to list of text infos.
      */
     private static void addToTextData(List<TextInfo> textData,
-                                      TextInfo textInfo,
-                                      Rectangle pageBbox) {
+                                      TextInfo textInfo) {
         String text = textInfo.getText();
         Rectangle bboxRect = textInfo.getBboxRect();
-        addToTextData(textData, text, bboxRect, pageBbox);
+        addToTextData(textData, text, bboxRect);
     }
 
     /**
      * Gets common text for list of text infos.
      */
     private static String getTextInfosText(List<TextInfo> textInfos) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
         for (TextInfo textInfo : textInfos) {
-            text = text + textInfo.getText();
+            text.append(textInfo.getText());
         }
-        return text;
+        return text.toString();
     }
 
     /**

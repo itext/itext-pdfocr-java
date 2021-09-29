@@ -28,9 +28,8 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
-import com.itextpdf.pdfocr.tesseract4.ImagePreprocessingOptions;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.test.annotations.LogMessage;
@@ -440,7 +439,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
-    public void testGeorgianText() throws IOException {
+    public void testGeorgianText() {
         String imgPath = TEST_IMAGES_DIRECTORY + "georgian_01.jpg";
         File file = new File(imgPath);
         // First sentence

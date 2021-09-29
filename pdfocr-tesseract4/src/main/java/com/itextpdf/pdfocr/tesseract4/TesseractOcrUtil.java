@@ -24,7 +24,10 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
@@ -167,59 +170,60 @@ class TesseractOcrUtil {
      * {@link net.sourceforge.lept4j.Leptonica#pixOtsuAdaptiveThreshold}
      * method.
      *
-     * @param pix {@link Pix} object to be processed
+     * @param inputPix {@link Pix} object to be processed
      * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return {@link net.sourceforge.lept4j.Pix} object after thresholding
      */
-    static Pix otsuImageThresholding(final Pix pix,
+    static Pix otsuImageThresholding(final Pix inputPix,
                                      final ImagePreprocessingOptions imagePreprocessingOptions) {
-        if (pix != null) {
-            Pix thresholdPix = null;
-            if (pix.d == 8) {
+        if (inputPix != null) {
+            Pix binarizedPix = null;
+            if (inputPix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
                 Leptonica.INSTANCE
-                        .pixOtsuAdaptiveThreshold(pix,
-                                getOtsuAdaptiveThresholdTileSize(pix.w,
+                        .pixOtsuAdaptiveThreshold(inputPix,
+                                getOtsuAdaptiveThresholdTileSize(inputPix.w,
                                         imagePreprocessingOptions.getTileWidth()),
-                                getOtsuAdaptiveThresholdTileSize(pix.h,
+                                getOtsuAdaptiveThresholdTileSize(inputPix.h,
                                         imagePreprocessingOptions.getTileHeight()),
-                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.w,
+                                getOtsuAdaptiveThresholdSmoothingTileSize(inputPix.w,
                                         imagePreprocessingOptions.isSmoothTiling()),
-                                getOtsuAdaptiveThresholdSmoothingTileSize(pix.h,
+                                getOtsuAdaptiveThresholdSmoothingTileSize(inputPix.h,
                                         imagePreprocessingOptions.isSmoothTiling()),
                                 0,null, pointer);
-                thresholdPix = new Pix(pointer.getValue());
-                if (thresholdPix.w > 0 && thresholdPix.h > 0) {
+                binarizedPix = new Pix(pointer.getValue());
+                if (binarizedPix.w > 0 && binarizedPix.h > 0) {
                     // destroying original pix
-                    destroyPix(pix);
-                    return thresholdPix;
+                    destroyPix(inputPix);
+                    return binarizedPix;
                 } else {
-                    LOGGER.info(MessageFormatUtil.format(
+                    final String logMessage = MessageFormatUtil.format(
                             Tesseract4LogMessageConstant.CANNOT_BINARIZE_IMAGE,
-                            pix.d));
+                            inputPix.d);
+                    LOGGER.info(logMessage);
                     // destroying created PointerByReference object
-                    destroyPix(thresholdPix);
-                    return pix;
+                    destroyPix(binarizedPix);
+                    return inputPix;
                 }
             } else {
                 LOGGER.info(MessageFormatUtil.format(
                         Tesseract4LogMessageConstant.CANNOT_BINARIZE_IMAGE,
-                        pix.d));
-                return pix;
+                        inputPix.d));
+                return inputPix;
             }
         } else {
-            return pix;
+            return inputPix;
         }
     }
 
     /**
      * Gets adaptive threshold tile size.
      */
-    static int getOtsuAdaptiveThresholdTileSize(int imageSize, int tileSize) {
-        if (tileSize == 0) {
-            return imageSize;
+    static int getOtsuAdaptiveThresholdTileSize(int sizeOfImage, int sizeOfTile) {
+        if (sizeOfTile == 0) {
+            return sizeOfImage;
         } else {
-            return tileSize;
+            return sizeOfTile;
         }
     }
 
@@ -227,9 +231,9 @@ class TesseractOcrUtil {
      * Gets adaptive threshold smoothing tile size.
      * Can be either equal to page size or 0.
      */
-    static int getOtsuAdaptiveThresholdSmoothingTileSize(int imageSize, boolean smoothTiling) {
-        if (smoothTiling) {
-            return imageSize;
+    static int getOtsuAdaptiveThresholdSmoothingTileSize(int sizeOfImage, boolean isSmoothTiling) {
+        if (isSmoothTiling) {
+            return sizeOfImage;
         } else {
             return 0;
         }
@@ -245,11 +249,11 @@ class TesseractOcrUtil {
     /**
      * Destroys {@link net.sourceforge.lept4j.Pix} object.
      *
-     * @param pix {@link net.sourceforge.lept4j.Pix} object to be destroyed
+     * @param inputPix {@link net.sourceforge.lept4j.Pix} object to be destroyed
      */
-    static void destroyPix(Pix pix) {
-        if (pix != null) {
-            Leptonica.INSTANCE.lept_free(pix.getPointer());
+    static void destroyPix(Pix inputPix) {
+        if (inputPix != null) {
+            Leptonica.INSTANCE.lept_free(inputPix.getPointer());
         }
     }
 
@@ -266,17 +270,17 @@ class TesseractOcrUtil {
      * @param tessData path to tess data directory
      * @param languages list of languages in required format
      *                  as {@link java.lang.String}
-     * @param pageSegMode page segmentation mode {@link java.lang.Integer}
+     * @param pageSegmentationMode page segmentation mode {@link java.lang.Integer}
      * @param userWordsFilePath path to a temporary file with user words
      */
     static void setTesseractProperties(
             final ITesseract tesseractInstance,
             final String tessData, final String languages,
-            final Integer pageSegMode, final String userWordsFilePath) {
+            final Integer pageSegmentationMode, final String userWordsFilePath) {
         tesseractInstance.setDatapath(tessData);
         tesseractInstance.setLanguage(languages);
-        if (pageSegMode != null) {
-            tesseractInstance.setPageSegMode(pageSegMode);
+        if (pageSegmentationMode != null) {
+            tesseractInstance.setPageSegMode(pageSegmentationMode);
         }
         tesseractInstance.setOcrEngineMode(userWordsFilePath != null ? 0 : 3);
     }
@@ -294,26 +298,26 @@ class TesseractOcrUtil {
      * java, but in .Net it happens only after all properties are validated,
      * i.e. just before OCR process.
      *
-     * @param isWindows true is current os is windows
+     * @param isWindowsPlatform true is current os is windows
      * @param tessData path to tess data directory
      * @param languages list of languages in required format as
      *                  {@link java.lang.String}
      * @param userWordsFilePath path to a temporary file with user words
      * @return initialized {@link net.sourceforge.tess4j.ITesseract} object
      */
-    static ITesseract initializeTesseractInstance(final boolean isWindows,
+    static ITesseract initializeTesseractInstance(final boolean isWindowsPlatform,
             final String tessData, final String languages,
             final String userWordsFilePath) {
         try {
-            if (isWindows) {
+            if (isWindowsPlatform) {
                 return new Tesseract1();
             } else {
                 return new Tesseract();
             }
         } catch (LinkageError e) {
-            throw new Tesseract4OcrException(isWindows ?
-                    Tesseract4OcrException.TESSERACT_LIB_NOT_INSTALLED_WIN :
-                    Tesseract4OcrException.TESSERACT_LIB_NOT_INSTALLED, e);
+            throw new PdfOcrTesseract4Exception(isWindowsPlatform ?
+                    PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_LIB_NOT_INSTALLED_WIN :
+                    PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_LIB_NOT_INSTALLED, e);
         }
     }
 
@@ -344,19 +348,19 @@ class TesseractOcrUtil {
      * to {@link java.awt.image.BufferedImage} with
      * {@link net.sourceforge.lept4j.ILeptonica#IFF_PNG} image format.
      *
-     * @param pix input {@link net.sourceforge.lept4j.Pix} object
+     * @param inputPix input {@link net.sourceforge.lept4j.Pix} object
      * @return result {@link java.awt.image.BufferedImage} object
      * @throws IOException if it is not possible to convert
      */
-    static BufferedImage convertPixToImage(final Pix pix)
+    static BufferedImage convertPixToImage(final Pix inputPix)
             throws IOException {
-        if (pix != null) {
+        if (inputPix != null) {
             Leptonica instance = Leptonica.INSTANCE;
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();
             try {
                 NativeSizeByReference psize = new NativeSizeByReference();
-                instance.pixWriteMem(pdata, psize, pix, ILeptonica.IFF_PNG);
+                instance.pixWriteMem(pdata, psize, inputPix, ILeptonica.IFF_PNG);
                 byte[] b = pdata.getValue().getByteArray(0,
                         psize.getValue().intValue());
                 try (InputStream in = new ByteArrayInputStream(b)) {
@@ -481,7 +485,7 @@ class TesseractOcrUtil {
      * @param path path to file
      * @return parent directory where the file is located
      */
-    static String getParentDirectory(final String path) {
+    static String getParentDirectoryFile(final String path) {
         return new File(path).getParent();
     }
 

@@ -22,7 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,7 +37,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.itextpdf.pdfocr.tesseract4.events.PdfOcrTesseract4Event;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -111,23 +119,31 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      *                                          (one per each page)
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
-     * @param dispatchEvent indicates if {@link PdfOcrTesseract4Event} needs to be dispatched
+     * @param dispatchEvent indicates if event needs to be dispatched
+     * @param eventHelper event helper
      */
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
-            final int pageNumber, final boolean dispatchEvent) {
-        scheduledCheck();
+            final int pageNumber, final boolean dispatchEvent,
+            AbstractPdfOcrEventHelper eventHelper) {
         List<String> params = new ArrayList<String>();
         String execPath = null;
         String imagePath = null;
         String workingDirectory = null;
+        PdfOcrTesseract4ProductEvent event = null;
+        if (eventHelper == null) {
+            eventHelper = new Tesseract4EventHelper();
+        }
+        if (dispatchEvent) {
+            event = onEvent(eventHelper);
+        }
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
             if (getPathToExecutable() == null
                     || getPathToExecutable().isEmpty()) {
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException
+                throw new PdfOcrTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant
                                 .CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
             } else {
                 if (isWindows()) {
@@ -149,7 +165,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
 
             // get the input file parent directory as working directory
             // as tesseract cannot parse non ascii characters in input path
-            String imageParentDir = TesseractOcrUtil.getParentDirectory(imagePath);
+            String imageParentDir = TesseractOcrUtil.getParentDirectoryFile(imagePath);
             String replacement = isWindows() ? "" : "/";
             workingDirectory = imageParentDir.replace("file:///", replacement)
                     .replace("file:/", replacement);
@@ -173,16 +189,20 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             // set default user defined dpi
             addDefaultDpi(params);
 
-            if (dispatchEvent) {
-                onEvent();
-            }
-
             // run tesseract process
             TesseractHelper.runCommand(execPath, params, workingDirectory);
-        } catch (Tesseract4OcrException e) {
+
+            // statistics event
+            onEventStatistics(eventHelper);
+
+            // confrim on_demand event
+            if (event != null && event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                eventHelper.onEvent(new ConfirmEvent(event));
+            }
+        } catch (PdfOcrTesseract4Exception e) {
             LoggerFactory.getLogger(getClass())
                     .error(e.getMessage());
-            throw new Tesseract4OcrException(e.getMessage(), e);
+            throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             try {
                 if (imagePath != null
@@ -359,7 +379,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                             outputFile.getAbsolutePath()));
             command.add(addQuotes(fileName));
         } catch (Exception e) { // NOSONAR
-            throw new Tesseract4OcrException(Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant
                     .TESSERACT_FAILED);
         }
     }
@@ -385,11 +405,11 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * @param inputImage original input image {@link java.io.File}
      * @param pageNumber number of page to be OCRed
      * @return path to output image as {@link java.lang.String}
-     * @throws Tesseract4OcrException if preprocessing cannot be done or file
+     * @throws PdfOcrTesseract4Exception if preprocessing cannot be done or file
      * is invalid
      */
     private String preprocessImage(final File inputImage,
-            final int pageNumber) throws Tesseract4OcrException {
+            final int pageNumber) throws PdfOcrTesseract4Exception {
         String tmpFileName = TesseractOcrUtil
                 .getTempFilePath(UUID.randomUUID().toString(),
                         getExtension(inputImage));
@@ -429,18 +449,18 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      * Check whether tesseract executable is installed on the machine and
      * provided path to tesseract executable is correct.
      * @param execPath path to tesseract executable
-     * @throws Tesseract4OcrException if tesseract is not installed or
+     * @throws PdfOcrTesseract4Exception if tesseract is not installed or
      * provided path to tesseract executable is incorrect,
      * i.e. running "{@link #getPathToExecutable()} --version" command failed.
      */
     private void checkTesseractInstalled(String execPath)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         try {
             TesseractHelper.runCommand(execPath,
                     Collections.<String>singletonList("--version"));
-        } catch (Tesseract4OcrException e) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException.TESSERACT_NOT_FOUND, e);
+        } catch (PdfOcrTesseract4Exception e) {
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND, e);
         }
     }
 
@@ -472,9 +492,9 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      */
     private boolean areEqualParentDirectories(final String firstPath,
             final String secondPath) {
-        String firstParentDir = TesseractOcrUtil.getParentDirectory(firstPath);
+        String firstParentDir = TesseractOcrUtil.getParentDirectoryFile(firstPath);
         String secondParentDir = TesseractOcrUtil
-                .getParentDirectory(secondPath);
+                .getParentDirectoryFile(secondPath);
         return firstParentDir != null
                 && firstParentDir.equals(secondParentDir);
     }

@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.layout.font.FontProvider;
 
 /**
@@ -95,6 +96,8 @@ public class OcrPdfCreatorProperties {
      * Handles rotated images as described in {@link com.itextpdf.pdfocr.IImageRotationHandler}.
      */
     private IImageRotationHandler imageRotationHandler;
+
+    private IMetaInfo metaInfo;
 
     /**
      * Creates a new {@link OcrPdfCreatorProperties} instance.
@@ -366,4 +369,24 @@ public class OcrPdfCreatorProperties {
         return this;
     }
 
+    /**
+     * Set meta info for this {@link OcrPdfCreatorProperties}.
+     *
+     * @param metaInfo meta info
+     *
+     * @return the instance of the current {@link OcrPdfCreatorProperties}
+     */
+    public OcrPdfCreatorProperties setMetaInfo(IMetaInfo metaInfo) {
+        this.metaInfo = metaInfo;
+        return this;
+    }
+
+    /**
+     * Returns meta info
+     *
+     * @return meta info
+     */
+    IMetaInfo getMetaInfo() {
+        return metaInfo;
+    }
 }

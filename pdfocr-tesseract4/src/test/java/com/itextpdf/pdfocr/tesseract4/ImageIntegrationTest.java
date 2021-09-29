@@ -88,8 +88,8 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         Assert.assertEquals("degrees", pageData.get(1).get(1).getText());
         Assert.assertEquals("rotated", pageData.get(1).get(2).getText());
         Assert.assertEquals("image", pageData.get(1).get(3).getText());
-        Assert.assertTrue(pageData.get(1).get(1).getBbox().get(2) - pageData.get(1).get(0).getBbox().get(0) > 100);
-        Assert.assertTrue(pageData.get(1).get(1).getBbox().get(3) - pageData.get(1).get(0).getBbox().get(1) < 100);
+        Assert.assertTrue(pageData.get(1).get(1).getBboxRect().getWidth() > 100);
+        Assert.assertTrue(pageData.get(1).get(1).getBboxRect().getHeight() < 100);
     }
 
     @Test

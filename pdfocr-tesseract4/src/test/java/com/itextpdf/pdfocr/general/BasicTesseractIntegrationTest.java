@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.general;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -38,10 +38,10 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrException;
-import com.itextpdf.pdfocr.tesseract4.TesseractHelper;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -171,9 +171,9 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     })
     @Test
     public void testInputInvalidImage() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.CANNOT_READ_PROVIDED_IMAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
                         new File(TEST_IMAGES_DIRECTORY + "example.txt")
                                 .getAbsolutePath()));
 
@@ -214,8 +214,8 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
 
     @Test
     public void testNullPathToTessData() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
@@ -225,8 +225,8 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
 
     @Test
     public void testPathToTessDataWithoutData() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
-        junitExpectedException.expectMessage(Tesseract4OcrException.PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
+        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
 
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
         tesseractReader.setTesseract4OcrEngineProperties(
@@ -236,13 +236,13 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE)
+        @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
     })
     @Test
     public void testEmptyPathToTessData() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                         "eng.traineddata",
                         new File(".").getAbsolutePath()));
 
@@ -258,14 +258,14 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testIncorrectLanguage() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                         "spa_new.traineddata",
                         new File(LANG_TESS_DATA_DIRECTORY).getAbsolutePath()));
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
@@ -273,14 +273,14 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testListOfLanguagesWithOneIncorrectLanguage() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                         "spa_new.traineddata",
                         new File(LANG_TESS_DATA_DIRECTORY).getAbsolutePath()));
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
@@ -288,14 +288,14 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE,
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                     count = 1)
     })
     @Test
     public void testIncorrectScriptsName() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                         "English.traineddata",
                         new File(SCRIPT_TESS_DATA_DIRECTORY).getAbsolutePath()));
 
@@ -307,14 +307,14 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4OcrException.INCORRECT_LANGUAGE, count
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE, count
                     = 1)
     })
     @Test
     public void testListOfScriptsWithOneIncorrect() {
-        junitExpectedException.expect(Tesseract4OcrException.class);
+        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         junitExpectedException.expectMessage(MessageFormatUtil
-                .format(Tesseract4OcrException.INCORRECT_LANGUAGE,
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
                         "English.traineddata",
                         new File(SCRIPT_TESS_DATA_DIRECTORY).getAbsolutePath()));
 

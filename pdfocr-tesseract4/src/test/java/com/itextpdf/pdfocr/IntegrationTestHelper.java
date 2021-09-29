@@ -23,9 +23,8 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -44,7 +43,7 @@ import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
-import com.itextpdf.pdfocr.tesseract4.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
 import com.itextpdf.test.ExtendedITextTest;
@@ -232,8 +231,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected String getTextFromPdfLayer(String pdfPath, String layerName,
                                          int page, boolean useActualText) throws IOException {
-        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath),
-                new DocumentProperties().setEventCountingMetaInfo(new PdfOcrMetaInfo()));
+        PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
         ExtractionStrategy textExtractionStrategy = new ExtractionStrategy(
                 layerName);

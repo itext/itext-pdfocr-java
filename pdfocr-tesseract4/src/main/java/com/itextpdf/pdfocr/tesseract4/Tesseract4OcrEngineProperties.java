@@ -22,10 +22,14 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.util.FileUtil;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.FileUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -161,7 +165,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      *
      * @param tessData path to train directory as {@link java.io.File}
      * @return the {@link Tesseract4OcrEngineProperties} instance
-     * @throws Tesseract4OcrException if path to tess data directory is
+     * @throws PdfOcrTesseract4Exception if path to tess data directory is
      * null or empty, or provided directory does not exist? or it is not
      * a directory
      */
@@ -169,8 +173,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
             final File tessData) {
         if (tessData == null
                 || !FileUtil.directoryExists(tessData.getAbsolutePath())) {
-            throw new Tesseract4OcrException(
-                    Tesseract4OcrException
+            throw new PdfOcrTesseract4Exception(
+                    PdfOcrTesseract4ExceptionMessageConstant
                             .PATH_TO_TESS_DATA_DIRECTORY_IS_INVALID);
         }
         this.tessDataDir = tessData;
@@ -270,12 +274,12 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      *                 this languages has to exist in tess data directory
      * @param userWords {@link java.util.List} of custom words
      * @return the {@link Tesseract4OcrEngineProperties} instance
-     * @throws Tesseract4OcrException if one of given languages wasn't specified in the
+     * @throws PdfOcrTesseract4Exception if one of given languages wasn't specified in the
      * list of required languages for OCR using
      */
     Tesseract4OcrEngineProperties setUserWords(final String language,
             final List<String> userWords)
-            throws Tesseract4OcrException {
+            throws PdfOcrTesseract4Exception {
         setPathToUserWordsFile(null);
         if (userWords != null && userWords.size() > 0) {
             try {
@@ -315,13 +319,13 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * @param language language as {@link java.lang.String}, tessdata for
      *                 this languages has to exist in tess data directory
      * @param inputStream custom user words as {@link java.io.InputStream}
-     * @throws Tesseract4OcrException if one of given languages wasn't specified
+     * @throws PdfOcrTesseract4Exception if one of given languages wasn't specified
      * in the list of required languages for OCR using
      * {@link Tesseract4OcrEngineProperties#setLanguages(List)} method
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
     Tesseract4OcrEngineProperties setUserWords(final String language,
-            final InputStream inputStream) throws Tesseract4OcrException {
+            final InputStream inputStream) throws PdfOcrTesseract4Exception {
         setPathToUserWordsFile(null);
         if (!getLanguages().contains(language)) {
             if (DEFAULT_LANGUAGE.equals(language.toLowerCase())) {
@@ -329,8 +333,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
                 languagesList.add(language);
                 setLanguages(languagesList);
             } else {
-                throw new Tesseract4OcrException(
-                        Tesseract4OcrException.LANGUAGE_IS_NOT_IN_THE_LIST)
+                throw new PdfOcrInputTesseract4Exception(
+                        PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST)
                         .setMessageParams(language);
             }
         }

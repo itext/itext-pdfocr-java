@@ -23,13 +23,16 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.util.MessageFormatUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.layout.font.FontProvider;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -71,15 +74,15 @@ public class PdfFontTest extends ExtendedITextTest {
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate = PdfOcrLogMessageConstant.PROVIDED_FONT_PROVIDER_IS_INVALID, count = 1),
-        @LogMessage(messageTemplate = OcrException.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+        @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
     })
     @Test
     public void testInvalidFontWithInvalidDefaultFontFamily()
             throws IOException {
-        junitExpectedException.expect(OcrException.class);
+        junitExpectedException.expect(PdfOcrException.class);
         junitExpectedException.expectMessage(MessageFormatUtil.format(
-                OcrException.CANNOT_CREATE_PDF_DOCUMENT,
-                OcrException.CANNOT_RESOLVE_PROVIDED_FONTS));
+                PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrExceptionMessageConstant.CANNOT_RESOLVE_PROVIDED_FONTS));
 
         String testName = "testInvalidFontWithInvalidDefaultFontFamily";
         String path = PdfHelper.getDefaultImagePath();
