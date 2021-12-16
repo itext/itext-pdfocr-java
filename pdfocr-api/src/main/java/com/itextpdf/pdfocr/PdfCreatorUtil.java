@@ -174,7 +174,6 @@ class PdfCreatorUtil {
      * @return list of {@link com.itextpdf.io.image.ImageData} objects
      * (more than one element in the list if it is a multipage tiff)
      * @throws PdfOcrException if error occurred during reading a file
-     * @throws IOException if error occurred during reading a file
      */
     static List<ImageData> getImageData(final File inputImage, IImageRotationHandler imageRotationHandler)
             throws PdfOcrException {

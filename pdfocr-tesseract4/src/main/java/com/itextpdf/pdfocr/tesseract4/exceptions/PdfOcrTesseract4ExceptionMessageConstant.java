@@ -22,6 +22,9 @@
  */
 package com.itextpdf.pdfocr.tesseract4.exceptions;
 
+/**
+ * Class that bundles all the error message templates as constants.
+ */
 public class PdfOcrTesseract4ExceptionMessageConstant {
 
     public static final String INCORRECT_INPUT_IMAGE_FORMAT = "{0} format is not supported.";

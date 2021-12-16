@@ -80,6 +80,8 @@ public class PdfOcrException extends ITextException {
 
     /**
      * Gets additional params for Exception message.
+     *
+     * @return params for exception message
      */
     protected Object[] getMessageParams() {
         Object[] parameters = new Object[this.messageParams.size()];

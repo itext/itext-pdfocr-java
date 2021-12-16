@@ -22,6 +22,9 @@
  */
 package com.itextpdf.pdfocr.exceptions;
 
+/**
+ * Class that bundles all the exception message templates as constants.
+ */
 public class PdfOcrExceptionMessageConstant {
 
     public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image";

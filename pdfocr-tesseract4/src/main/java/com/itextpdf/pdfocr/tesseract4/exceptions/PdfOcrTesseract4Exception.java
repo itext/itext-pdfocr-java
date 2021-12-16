@@ -24,6 +24,9 @@ package com.itextpdf.pdfocr.tesseract4.exceptions;
 
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 
+/**
+ * Exception class for Tesseract4 exceptions.
+ */
 public class PdfOcrTesseract4Exception extends PdfOcrException {
 
     /**

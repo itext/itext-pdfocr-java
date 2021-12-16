@@ -22,6 +22,9 @@
  */
 package com.itextpdf.pdfocr.tesseract4.logs;
 
+/**
+ * Class that bundles all the log message templates as constants.
+ */
 public class Tesseract4LogMessageConstant {
     public static final String TESSERACT_FAILED = "Tesseract failed: {0}";
 

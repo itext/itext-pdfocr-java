@@ -45,9 +45,19 @@ public class ImagePreprocessingOptions {
      */
     private boolean smoothTiling = true;
 
+    /**
+     * Creates {@link ImagePreprocessingOptions} instance.
+     */
     public ImagePreprocessingOptions() {
     }
 
+    /**
+     * Creates a new {@link ImagePreprocessingOptions} instance
+     * based on another {@link ImagePreprocessingOptions} instance (copy
+     * constructor).
+     *
+     * @param imagePreprocessingOptions the other {@link ImagePreprocessingOptions} instance
+     */
     public ImagePreprocessingOptions(ImagePreprocessingOptions imagePreprocessingOptions) {
         this.tileWidth = imagePreprocessingOptions.tileWidth;
         this.tileHeight = imagePreprocessingOptions.tileHeight;

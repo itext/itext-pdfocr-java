@@ -84,6 +84,13 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
 
     private ThreadLocal<IMetaInfo> threadLocalMetaInfo = new ThreadLocal<>();
 
+    /**
+     * Creates a new {@link Tesseract4OcrEngineProperties} instance
+     * based on another {@link Tesseract4OcrEngineProperties} instance (copy
+     * constructor).
+     *
+     * @param tesseract4OcrEngineProperties the other {@link Tesseract4OcrEngineProperties} instance
+     */
     public AbstractTesseract4OcrEngine(
             Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
         this.tesseract4OcrEngineProperties = tesseract4OcrEngineProperties;

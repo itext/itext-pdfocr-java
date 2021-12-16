@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class contains additional properties for ocr engine.
+ */
 public class OcrEngineProperties {
 
     /**

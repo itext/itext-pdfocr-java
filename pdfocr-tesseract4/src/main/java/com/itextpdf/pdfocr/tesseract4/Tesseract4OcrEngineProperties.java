@@ -435,6 +435,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
      *
      * @param useTxtToImproveHocrParsing {@link #useTxtToImproveHocrParsing}
+     *
+     * @return this {@link Tesseract4OcrEngineProperties} instance.
      */
     final public Tesseract4OcrEngineProperties setUseTxtToImproveHocrParsing(boolean useTxtToImproveHocrParsing) {
         this.useTxtToImproveHocrParsing = useTxtToImproveHocrParsing;
@@ -465,6 +467,8 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * If real confidence level is lower then line is ignored
      * Default value is 0 which means that everything is considered as properly recognized
      * Value may vary in range of 0-100
+     *
+     * @return minimal confidence level
      */
     final public int getMinimalConfidenceLevel() {
         return minimalConfidenceLevel;
@@ -475,6 +479,10 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
      * If real confidence level is lower then line is ignored
      * Default value is 0 which means that everything is considered as properly recognized
      * Value may vary in range of 0-100
+     *
+     * @param minimalConfidenceLevel minimal confidence level value
+     *
+     * @return this {@link Tesseract4OcrEngineProperties} instance
      */
     final public Tesseract4OcrEngineProperties setMinimalConfidenceLevel(int minimalConfidenceLevel) {
         this.minimalConfidenceLevel = minimalConfidenceLevel;
