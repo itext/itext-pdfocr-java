@@ -394,7 +394,7 @@ public class TesseractHelper {
                         PdfOcrTesseract4ExceptionMessageConstant
                                 .TESSERACT_FAILED);
             }
-        } catch (IOException | InterruptedException e) { // NOSONAR
+        } catch (Exception e) { // NOSONAR
             LOGGER.error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                             e.getMessage()));
