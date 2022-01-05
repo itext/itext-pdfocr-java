@@ -116,16 +116,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>com.github.siom79.japicmp</groupId>
-            <artifactId>japicmp-maven-plugin</artifactId>
-            <version>0.14.4</version>
-            <executions>
-              <execution>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-maven</artifactId>
             <version>${dependencyCheck.version}</version>
