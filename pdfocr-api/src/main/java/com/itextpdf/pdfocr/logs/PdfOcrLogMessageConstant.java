@@ -22,23 +22,35 @@
  */
 package com.itextpdf.pdfocr.logs;
 
+/**
+ * Class that bundles all the log message templates as constants.
+ */
 public class PdfOcrLogMessageConstant {
+
+    /** The constant CANNOT_READ_INPUT_IMAGE. */
     public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image {0}";
 
+    /** The constant PROVIDED_FONT_PROVIDER_IS_INVALID. */
     public static final String PROVIDED_FONT_PROVIDER_IS_INVALID =
             "Provided FontProvider is invalid. Please check that it contains valid fonts and default font family name.";
 
+    /** The constant CANNOT_READ_DEFAULT_FONT. */
     public static final String CANNOT_READ_DEFAULT_FONT = "Cannot default read font: {0}";
 
+    /** The constant CANNOT_ADD_DATA_TO_PDF_DOCUMENT. */
     public static final String CANNOT_ADD_DATA_TO_PDF_DOCUMENT = "Cannot add data to PDF document: {1}";
 
+    /** The constant START_OCR_FOR_IMAGES. */
     public static final String START_OCR_FOR_IMAGES = "Starting ocr for {0} image(s)";
 
+    /** The constant NUMBER_OF_PAGES_IN_IMAGE. */
     public static final String NUMBER_OF_PAGES_IN_IMAGE = "Image {0} contains {1} page(s)";
 
+    /** The constant COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER. */
     public static final String COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER =
             "Could not find a glyph corresponding to Unicode character {0} in any of the fonts";
 
+    /** The constant PDF_LANGUAGE_PROPERTY_IS_NOT_SET. */
     public static final String PDF_LANGUAGE_PROPERTY_IS_NOT_SET = "PDF language property is not set";
 
     private PdfOcrLogMessageConstant() {
