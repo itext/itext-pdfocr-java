@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2021 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -34,6 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.slf4j.LoggerFactory;
 
+/**
+ * {@link FontProvider} extension for ocr engine.
+ */
 public class PdfOcrFontProvider extends FontProvider {
 
     /**
@@ -55,8 +58,12 @@ public class PdfOcrFontProvider extends FontProvider {
         this.addFont(getDefaultFont(), PdfEncodings.IDENTITY_H);
     }
 
+
     /**
-     * Creates a new {@link PdfOcrFontProvider} instance.
+     * Creates a new {@link PdfOcrFontProvider} instance based on provided {@link FontSet} instance and font family.
+     *
+     * @param fontSet {@link FontSet} instance
+     * @param defaultFontFamily font family
      */
     public PdfOcrFontProvider(FontSet fontSet,
             String defaultFontFamily) {

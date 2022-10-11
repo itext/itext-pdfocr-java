@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2021 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
@@ -32,79 +33,44 @@ import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
 
 @Category(IntegrationTest.class)
 public class PdfInputImageTest extends ExtendedITextTest {
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
-    public void testCorruptedImage() {
-        junitExpectedException.expect(PdfOcrInputException.class);
+    public void corruptedImageTest() {
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted.jpg");
-        String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImage");
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
+        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+                () -> PdfHelper.getTextFromPdf(file, "testCorruptedImage"));
+        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 
     @LogMessages(messages = {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
-    public void testCorruptedImageWithoutExtension() {
-        junitExpectedException.expect(PdfOcrInputException.class);
-
+    public void corruptedImageWithoutExtensionTest() {
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted");
-        String realOutput = PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension");
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
+        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+                () -> PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension"));
+        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 
     @LogMessages(messages = {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
-    public void testInvalidImagePathWithoutDot() {
-        junitExpectedException.expect(PdfOcrInputException.class);
-
-        File file = new File("testName");
-        String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithoutDot");
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
-    }
-
-    @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
-    })
-    @Test
-    public void testInvalidImagePathWithDot() {
-        junitExpectedException.expect(PdfOcrInputException.class);
-
+    public void invalidPathWithDotTest() {
         File file = new File("test.Name");
-        String realOutput = PdfHelper.getTextFromPdf(file, "testInvalidImagePathWithDot");
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
-    }
-
-    @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
-    })
-    @Test
-    public void testValidImageWithoutExtension() {
-        junitExpectedException.expect(PdfOcrInputException.class);
-
-        File file = new File(PdfHelper.getImagesTestDirectory() + "numbers_01");
-        String realOutput = PdfHelper.getTextFromPdf(file, "testValidImageWithoutExtension");
-        Assert.assertNotNull(realOutput);
-        Assert.assertEquals("", realOutput);
+        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+                () -> PdfHelper.getTextFromPdf(file, "testInvalidPathWithDot"));
+        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 }

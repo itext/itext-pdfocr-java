@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2021 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -22,6 +22,9 @@
  */
 package com.itextpdf.pdfocr.tesseract4.exceptions;
 
+/**
+ * Class that bundles all the error message templates as constants.
+ */
 public class PdfOcrTesseract4ExceptionMessageConstant {
 
     public static final String INCORRECT_INPUT_IMAGE_FORMAT = "{0} format is not supported.";

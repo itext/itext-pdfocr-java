@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2021 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -24,6 +24,9 @@ package com.itextpdf.pdfocr.tesseract4.exceptions;
 
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 
+/**
+ * Exception class for Tesseract4 exceptions.
+ */
 public class PdfOcrTesseract4Exception extends PdfOcrException {
 
     /**

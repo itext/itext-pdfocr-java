@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2021 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
     Authors: iText Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -80,6 +80,8 @@ public class PdfOcrException extends ITextException {
 
     /**
      * Gets additional params for Exception message.
+     *
+     * @return params for exception message
      */
     protected Object[] getMessageParams() {
         Object[] parameters = new Object[this.messageParams.size()];
