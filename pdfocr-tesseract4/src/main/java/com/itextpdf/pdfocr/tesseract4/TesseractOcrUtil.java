@@ -31,6 +31,7 @@ import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -50,6 +51,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
 import net.sourceforge.lept4j.Leptonica;
+import net.sourceforge.lept4j.Leptonica1;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -150,15 +152,14 @@ class TesseractOcrUtil {
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object
      */
     static Pix convertToGrayscale(final Pix pix) {
-        Leptonica instance = Leptonica.INSTANCE;
         if (pix != null) {
-            int depth = instance.pixGetDepth(pix);
+            int depth = LeptonicaWrapper.pixGetDepth(pix);
 
             if (depth == 32) {
-                return instance.pixConvertRGBToLuminance(pix);
+                return LeptonicaWrapper.pixConvertRGBToLuminance(pix);
             } else {
-                return instance.pixRemoveColormap(pix,
-                        instance.REMOVE_CMAP_TO_GRAYSCALE);
+                return LeptonicaWrapper.pixRemoveColormap(pix,
+                        ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
             }
         } else {
             return pix;
@@ -180,7 +181,7 @@ class TesseractOcrUtil {
             Pix binarizedPix = null;
             if (inputPix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
-                Leptonica.INSTANCE
+                LeptonicaWrapper
                         .pixOtsuAdaptiveThreshold(inputPix,
                                 getOtsuAdaptiveThresholdTileSize(inputPix.w,
                                         imagePreprocessingOptions.getTileWidth()),
@@ -253,7 +254,7 @@ class TesseractOcrUtil {
      */
     static void destroyPix(Pix inputPix) {
         if (inputPix != null) {
-            Leptonica.INSTANCE.lept_free(inputPix.getPointer());
+            LeptonicaWrapper.lept_free(inputPix.getPointer());
         }
     }
 
@@ -343,6 +344,10 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance) {
     }
 
+    static Pix readPixFromFile(File inputImage) {
+        return LeptonicaWrapper.pixRead(inputImage.getAbsolutePath());
+    }
+
     /**
      * Converts Leptonica {@link net.sourceforge.lept4j.Pix}
      * to {@link java.awt.image.BufferedImage} with
@@ -355,19 +360,18 @@ class TesseractOcrUtil {
     static BufferedImage convertPixToImage(final Pix inputPix)
             throws IOException {
         if (inputPix != null) {
-            Leptonica instance = Leptonica.INSTANCE;
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();
             try {
                 NativeSizeByReference psize = new NativeSizeByReference();
-                instance.pixWriteMem(pdata, psize, inputPix, ILeptonica.IFF_PNG);
+                LeptonicaWrapper.pixWriteMem(pdata, psize, inputPix, ILeptonica.IFF_PNG);
                 byte[] b = pdata.getValue().getByteArray(0,
                         psize.getValue().intValue());
                 try (InputStream in = new ByteArrayInputStream(b)) {
                     bi = ImageIO.read(in);
                 }
             } finally {
-                instance.lept_free(pdata.getValue());
+                LeptonicaWrapper.lept_free(pdata.getValue());
             }
             return bi;
         } else {
@@ -456,7 +460,7 @@ class TesseractOcrUtil {
                                  final Pix pix) {
         if (pix != null) {
             try {
-                Leptonica.INSTANCE.pixWritePng(filename, pix,
+                LeptonicaWrapper.pixWritePng(filename, pix,
                         ILeptonica.IFF_PNG);
             } catch (Exception e) { // NOSONAR
                 LOGGER.info(MessageFormatUtil.format(
@@ -659,7 +663,7 @@ class TesseractOcrUtil {
         try {
             ByteBuffer bb = ByteBuffer.wrap(imageBytes);
             NativeSize size = new NativeSize(imageBytes.length);
-            pix = Leptonica.INSTANCE.pixReadMem(bb, size);
+            pix = LeptonicaWrapper.pixReadMem(bb, size);
         } catch (Exception e) {
             LOGGER.error(MessageFormatUtil.format(
                     Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
@@ -767,14 +771,13 @@ class TesseractOcrUtil {
      * @return rotated image, if rotation differs from 0
      */
     static Pix rotate(final Pix pix, int rotation) {
-        final Leptonica instance = Leptonica.INSTANCE;
         switch (rotation) {
             case ROTATION_90:
-                return instance.pixRotate90(pix, 1);
+                return LeptonicaWrapper.pixRotate90(pix, 1);
             case ROTATION_180:
-                return instance.pixRotate180(pix, pix);
+                return LeptonicaWrapper.pixRotate180(pix, pix);
             case ROTATION_270:
-                return instance.pixRotate90(pix, -1);
+                return LeptonicaWrapper.pixRotate90(pix, -1);
             default:
                 return pix;
         }
@@ -795,7 +798,7 @@ class TesseractOcrUtil {
             try {
                 PointerByReference data = new PointerByReference();
                 NativeSizeByReference size = new NativeSizeByReference();
-                if (Leptonica.INSTANCE.pixWriteMemPng(data, size, pix, 0) == 0) {
+                if (LeptonicaWrapper.pixWriteMemPng(data, size, pix, 0) == 0) {
                     newImageData = ImageDataFactory.create(
                             data.getValue().getByteArray(0, size.getValue().intValue())
                     );
@@ -804,6 +807,121 @@ class TesseractOcrUtil {
                 destroyPix(pix);
             }
             return newImageData;
+        }
+    }
+
+    private static final class LeptonicaWrapper {
+        private static final int LEPTONICA_NOT_SUPPORTED_JDK_VERSION = 19;
+        private static final int JDK_MAJOR_VERSION = getJavaMajorVersion();
+
+        private LeptonicaWrapper() {}
+
+        public static int pixGetDepth(Pix pix) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixGetDepth(pix);
+            }
+            return Leptonica1.pixGetDepth(pix);
+        }
+
+        public static Pix pixConvertRGBToLuminance(Pix pix) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixConvertRGBToLuminance(pix);
+            }
+            return Leptonica1.pixConvertRGBToLuminance(pix);
+        }
+
+        public static Pix pixRemoveColormap(Pix pix, int option) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixRemoveColormap(pix, option);
+            }
+            return Leptonica1.pixRemoveColormap(pix, option);
+        }
+
+        public static Pix pixRead(String var1) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixRead(var1);
+            }
+            return Leptonica1.pixRead(var1);
+        }
+
+        public static void pixOtsuAdaptiveThreshold(Pix pix, int i, int i1, int i2, int i3, float v,
+                PointerByReference pointerByReference, PointerByReference pointerByReference1) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                Leptonica.INSTANCE.pixOtsuAdaptiveThreshold(pix, i, i1, i2, i3, v, pointerByReference,
+                        pointerByReference1);
+                return;
+            }
+            Leptonica1.pixOtsuAdaptiveThreshold(pix, i, i1, i2, i3, v, pointerByReference, pointerByReference1);
+        }
+
+        public static void lept_free(Pointer pointer) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                Leptonica.INSTANCE.lept_free(pointer);
+                return;
+            }
+            Leptonica1.lept_free(pointer);
+        }
+
+        public static void pixWriteMem(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                Leptonica.INSTANCE.pixWriteMem(pointer, nativeSize, pix, i);
+                return;
+            }
+            Leptonica1.pixWriteMem(pointer, nativeSize, pix, i);
+        }
+
+        public static int pixWriteMemPng(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixWriteMemPng(pointer, nativeSize, pix, i);
+            }
+            return Leptonica1.pixWriteMemPng(pointer, nativeSize, pix, i);
+        }
+
+        public static void pixWritePng(String s, Pix pix, float v) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                Leptonica.INSTANCE.pixWritePng(s, pix, v);
+                return;
+            }
+            Leptonica1.pixWritePng(s, pix, v);
+        }
+
+        public static Pix pixReadMem(ByteBuffer buffer, NativeSize nativeSize) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixReadMem(buffer, nativeSize);
+            }
+            return Leptonica1.pixReadMem(buffer, nativeSize);
+        }
+
+        public static Pix pixRotate90(Pix pix, int i) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixRotate90(pix, i);
+            }
+            return Leptonica1.pixRotate90(pix, i);
+        }
+
+        public static Pix pixRotate180(Pix pix1, Pix pix2) {
+            if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+                return Leptonica.INSTANCE.pixRotate180(pix1, pix2);
+            }
+            return Leptonica1.pixRotate180(pix1, pix2);
+        }
+
+        /**
+         * gets java runtime version.
+         *
+         * @return major version of runtime java
+         */
+        private static int getJavaMajorVersion() {
+            String version = System.getProperty("java.version");
+            if (version.startsWith("1.")) {
+                version = version.substring(2, 3);
+            } else {
+                int dot = version.indexOf('.');
+                if(dot != -1) {
+                    version = version.substring(0, dot);
+                }
+            }
+            return Integer.parseInt(version);
         }
     }
 }
