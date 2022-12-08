@@ -68,7 +68,7 @@
   </dependencies>
 
   <properties>
-    <sonar.exclusions>src/main/java/com/itextpdf/pdfocr/tesseract4/TesseractOcrUtil.java</sonar.exclusions>
+    <sonar.exclusions>src/main/java/com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java</sonar.exclusions>
   </properties>
 
 </project>
