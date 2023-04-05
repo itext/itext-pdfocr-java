@@ -438,7 +438,7 @@ class TesseractOcrUtil {
         if (image != null) {
             try {
                 ImageIO.write(image, "png", new File(tmpFileName));
-            } catch (Exception e) { // NOSONAR
+            } catch (Exception e) {
                 LOGGER.error(MessageFormatUtil.format(
                         Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
                         e.getMessage()));
@@ -459,7 +459,7 @@ class TesseractOcrUtil {
             try {
                 LeptonicaWrapper.pixWritePng(filename, pix,
                         ILeptonica.IFF_PNG);
-            } catch (Exception e) { // NOSONAR
+            } catch (Exception e) {
                 LOGGER.info(MessageFormatUtil.format(
                         Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
                         e.getMessage()));
@@ -504,7 +504,7 @@ class TesseractOcrUtil {
             setListOfPages(Imaging
                     .getAllBufferedImages(is,
                             inputFile.getAbsolutePath()));
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LOGGER.error(MessageFormatUtil.format(
                     Tesseract4LogMessageConstant
                             .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,

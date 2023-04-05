@@ -94,7 +94,7 @@ class ImagePreprocessingUtil {
         ImageType type;
         try {
             type = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LoggerFactory.getLogger(ImagePreprocessingUtil.class).error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant
                                     .CANNOT_READ_INPUT_IMAGE,

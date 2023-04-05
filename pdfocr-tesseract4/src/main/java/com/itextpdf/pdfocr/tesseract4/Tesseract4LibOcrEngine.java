@@ -323,7 +323,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                         result = new TesseractOcrUtil()
                                 .getOcrResultAsString(getTesseractInstance(),
                                         bufferedImage, outputFormat);
-                    } catch (Exception e) { // NOSONAR
+                    } catch (Exception e) {
                         LoggerFactory.getLogger(getClass())
                                 .info(MessageFormatUtil.format(
                                         Tesseract4LogMessageConstant
@@ -338,7 +338,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                                     inputImage, outputFormat);
                 }
             }
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LoggerFactory.getLogger(getClass())
                     .error(MessageFormatUtil
                             .format(Tesseract4LogMessageConstant

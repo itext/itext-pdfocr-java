@@ -378,7 +378,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                             Tesseract4LogMessageConstant.CREATED_TEMPORARY_FILE,
                             outputFile.getAbsolutePath()));
             command.add(addQuotes(fileName));
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant
                     .TESSERACT_FAILED);
         }
