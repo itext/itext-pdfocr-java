@@ -1,7 +1,7 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2022 iText Group NV
-    Authors: iText Software.
+    Copyright (c) 1998-2023 Apryse Group NV
+    Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
     For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
@@ -49,7 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.ILeptonica;
-import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -150,15 +149,14 @@ class TesseractOcrUtil {
      * @return preprocessed {@link net.sourceforge.lept4j.Pix} object
      */
     static Pix convertToGrayscale(final Pix pix) {
-        Leptonica instance = Leptonica.INSTANCE;
         if (pix != null) {
-            int depth = instance.pixGetDepth(pix);
+            int depth = LeptonicaWrapper.pixGetDepth(pix);
 
             if (depth == 32) {
-                return instance.pixConvertRGBToLuminance(pix);
+                return LeptonicaWrapper.pixConvertRGBToLuminance(pix);
             } else {
-                return instance.pixRemoveColormap(pix,
-                        instance.REMOVE_CMAP_TO_GRAYSCALE);
+                return LeptonicaWrapper.pixRemoveColormap(pix,
+                        ILeptonica.REMOVE_CMAP_TO_GRAYSCALE);
             }
         } else {
             return pix;
@@ -180,7 +178,7 @@ class TesseractOcrUtil {
             Pix binarizedPix = null;
             if (inputPix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
-                Leptonica.INSTANCE
+                LeptonicaWrapper
                         .pixOtsuAdaptiveThreshold(inputPix,
                                 getOtsuAdaptiveThresholdTileSize(inputPix.w,
                                         imagePreprocessingOptions.getTileWidth()),
@@ -253,7 +251,7 @@ class TesseractOcrUtil {
      */
     static void destroyPix(Pix inputPix) {
         if (inputPix != null) {
-            Leptonica.INSTANCE.lept_free(inputPix.getPointer());
+            LeptonicaWrapper.lept_free(inputPix.getPointer());
         }
     }
 
@@ -343,6 +341,10 @@ class TesseractOcrUtil {
             final ITesseract tesseractInstance) {
     }
 
+    static Pix readPixFromFile(File inputImage) {
+        return LeptonicaWrapper.pixRead(inputImage.getAbsolutePath());
+    }
+
     /**
      * Converts Leptonica {@link net.sourceforge.lept4j.Pix}
      * to {@link java.awt.image.BufferedImage} with
@@ -355,19 +357,18 @@ class TesseractOcrUtil {
     static BufferedImage convertPixToImage(final Pix inputPix)
             throws IOException {
         if (inputPix != null) {
-            Leptonica instance = Leptonica.INSTANCE;
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();
             try {
                 NativeSizeByReference psize = new NativeSizeByReference();
-                instance.pixWriteMem(pdata, psize, inputPix, ILeptonica.IFF_PNG);
+                LeptonicaWrapper.pixWriteMem(pdata, psize, inputPix, ILeptonica.IFF_PNG);
                 byte[] b = pdata.getValue().getByteArray(0,
                         psize.getValue().intValue());
                 try (InputStream in = new ByteArrayInputStream(b)) {
                     bi = ImageIO.read(in);
                 }
             } finally {
-                instance.lept_free(pdata.getValue());
+                LeptonicaWrapper.lept_free(pdata.getValue());
             }
             return bi;
         } else {
@@ -437,7 +438,7 @@ class TesseractOcrUtil {
         if (image != null) {
             try {
                 ImageIO.write(image, "png", new File(tmpFileName));
-            } catch (Exception e) { // NOSONAR
+            } catch (Exception e) {
                 LOGGER.error(MessageFormatUtil.format(
                         Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
                         e.getMessage()));
@@ -456,9 +457,9 @@ class TesseractOcrUtil {
                                  final Pix pix) {
         if (pix != null) {
             try {
-                Leptonica.INSTANCE.pixWritePng(filename, pix,
+                LeptonicaWrapper.pixWritePng(filename, pix,
                         ILeptonica.IFF_PNG);
-            } catch (Exception e) { // NOSONAR
+            } catch (Exception e) {
                 LOGGER.info(MessageFormatUtil.format(
                         Tesseract4LogMessageConstant.CANNOT_PROCESS_IMAGE,
                         e.getMessage()));
@@ -503,7 +504,7 @@ class TesseractOcrUtil {
             setListOfPages(Imaging
                     .getAllBufferedImages(is,
                             inputFile.getAbsolutePath()));
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LOGGER.error(MessageFormatUtil.format(
                     Tesseract4LogMessageConstant
                             .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
@@ -659,7 +660,7 @@ class TesseractOcrUtil {
         try {
             ByteBuffer bb = ByteBuffer.wrap(imageBytes);
             NativeSize size = new NativeSize(imageBytes.length);
-            pix = Leptonica.INSTANCE.pixReadMem(bb, size);
+            pix = LeptonicaWrapper.pixReadMem(bb, size);
         } catch (Exception e) {
             LOGGER.error(MessageFormatUtil.format(
                     Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE,
@@ -767,14 +768,13 @@ class TesseractOcrUtil {
      * @return rotated image, if rotation differs from 0
      */
     static Pix rotate(final Pix pix, int rotation) {
-        final Leptonica instance = Leptonica.INSTANCE;
         switch (rotation) {
             case ROTATION_90:
-                return instance.pixRotate90(pix, 1);
+                return LeptonicaWrapper.pixRotate90(pix, 1);
             case ROTATION_180:
-                return instance.pixRotate180(pix, pix);
+                return LeptonicaWrapper.pixRotate180(pix, pix);
             case ROTATION_270:
-                return instance.pixRotate90(pix, -1);
+                return LeptonicaWrapper.pixRotate90(pix, -1);
             default:
                 return pix;
         }
@@ -795,7 +795,7 @@ class TesseractOcrUtil {
             try {
                 PointerByReference data = new PointerByReference();
                 NativeSizeByReference size = new NativeSizeByReference();
-                if (Leptonica.INSTANCE.pixWriteMemPng(data, size, pix, 0) == 0) {
+                if (LeptonicaWrapper.pixWriteMemPng(data, size, pix, 0) == 0) {
                     newImageData = ImageDataFactory.create(
                             data.getValue().getByteArray(0, size.getValue().intValue())
                     );

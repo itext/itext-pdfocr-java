@@ -1,7 +1,7 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2022 iText Group NV
-    Authors: iText Software.
+    Copyright (c) 1998-2023 Apryse Group NV
+    Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
     For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
@@ -394,7 +394,7 @@ public class TesseractHelper {
                         PdfOcrTesseract4ExceptionMessageConstant
                                 .TESSERACT_FAILED);
             }
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LOGGER.error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant.COMMAND_FAILED,
                             e.getMessage()));

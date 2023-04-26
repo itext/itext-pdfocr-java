@@ -1,7 +1,7 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2022 iText Group NV
-    Authors: iText Software.
+    Copyright (c) 1998-2023 Apryse Group NV
+    Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
     For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
@@ -39,7 +39,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import net.sourceforge.lept4j.Leptonica;
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +94,7 @@ class ImagePreprocessingUtil {
         ImageType type;
         try {
             type = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
-        } catch (Exception e) { // NOSONAR
+        } catch (Exception e) {
             LoggerFactory.getLogger(ImagePreprocessingUtil.class).error(MessageFormatUtil
                     .format(Tesseract4LogMessageConstant
                                     .CANNOT_READ_INPUT_IMAGE,
@@ -137,8 +136,7 @@ class ImagePreprocessingUtil {
     static BufferedImage readAsPixAndConvertToBufferedImage(
             final File inputImage)
             throws IOException {
-        Pix pix = Leptonica.INSTANCE
-                .pixRead(inputImage.getAbsolutePath());
+        Pix pix = TesseractOcrUtil.readPixFromFile(inputImage);
         return TesseractOcrUtil.convertPixToImage(pix);
     }
 
@@ -185,24 +183,24 @@ class ImagePreprocessingUtil {
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImagePreprocessingUtil
-                    .readImageFromFile(inputImage);
+                    .readAsPixAndConvertToBufferedImage(
+                            inputImage);
         } catch (IllegalArgumentException | IOException ex) {
-            LoggerFactory.getLogger(ImagePreprocessingUtil.class).info(
-                    MessageFormatUtil.format(
+            LoggerFactory.getLogger(ImagePreprocessingUtil.class)
+                    .info(MessageFormatUtil.format(
                             Tesseract4LogMessageConstant
-                                    .CANNOT_CREATE_BUFFERED_IMAGE,
+                                    .CANNOT_READ_INPUT_IMAGE,
                             ex.getMessage()));
         }
         if (bufferedImage == null) {
             try {
                 bufferedImage = ImagePreprocessingUtil
-                        .readAsPixAndConvertToBufferedImage(
-                                inputImage);
-            } catch (IOException ex) {
-                LoggerFactory.getLogger(ImagePreprocessingUtil.class)
-                        .info(MessageFormatUtil.format(
+                        .readImageFromFile(inputImage);
+            } catch (IllegalArgumentException | IOException ex) {
+                LoggerFactory.getLogger(ImagePreprocessingUtil.class).info(
+                        MessageFormatUtil.format(
                                 Tesseract4LogMessageConstant
-                                        .CANNOT_READ_INPUT_IMAGE,
+                                        .CANNOT_CREATE_BUFFERED_IMAGE,
                                 ex.getMessage()));
             }
         }
