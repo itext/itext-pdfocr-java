@@ -11,7 +11,7 @@
   <artifactId>pdfocr-tesseract4</artifactId>
 
   <name>pdfOCR-Tesseract4</name>
-  <description>pdfOCR-Tesseract4 is an iText 7 add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
+  <description>pdfOCR-Tesseract4 is an iText add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
 
   <dependencies>
     <dependency>
