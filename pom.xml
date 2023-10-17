@@ -5,16 +5,16 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
-    <version>8.0.0</version>
+    <version>8.0.2</version>
     <relativePath />
   </parent>
 
   <artifactId>pdfocr-root</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <packaging>pom</packaging>
 
   <name>pdfOCR</name>
-  <description>pdfOCR is an iText 7 add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
+  <description>pdfOCR is an iText add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
 
   <modules>
     <module>pdfocr-api</module>
@@ -22,7 +22,7 @@
   </modules>
 
   <properties>
-    <itext.version>8.0.0</itext.version>
+    <itext.version>8.0.2</itext.version>
     <java.version>1.8</java.version>
     <jdkLevel>${java.version}</jdkLevel>
     <maven.compiler.source>${java.version}</maven.compiler.source>

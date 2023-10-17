@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <ignored>
+        <java>
+            <fileset reason="Different implementation of Tesseract engine in Java and .NET">
+                <file path="com/itextpdf/pdfocr/tesseract4/TesseractOcrUtil.java" />
+                <file path="com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java" />
+            </fileset>
+        </java>
+    </ignored>
+</configuration>
