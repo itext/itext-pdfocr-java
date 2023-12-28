@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -31,13 +32,20 @@ import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfa.PdfADocument;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.CustomProductAwareOcrEngine;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
+import com.itextpdf.pdfocr.helpers.TestProcessProperties;
+import com.itextpdf.pdfocr.helpers.TestStructureDetectionOcrEngine;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.annotations.type.IntegrationTest;
@@ -242,6 +250,42 @@ public class ApiTest extends ExtendedITextTest {
                 properties);
 
         Assert.assertNotNull(properties.getImageRotationHandler());
+    }
+
+    @Test
+    public void testTableStructureTree() throws IOException, InterruptedException {
+        String pdfPath = PdfHelper.getTargetDirectory() + "tableStructureTree.pdf";
+        // Image doesn't really matter here
+        String input = PdfHelper.getImagesTestDirectory() + "numbers_01.jpg";
+        IOcrEngine ocrEngine = new TestStructureDetectionOcrEngine();
+
+        OcrPdfCreatorProperties creatorProperties = new OcrPdfCreatorProperties();
+        creatorProperties.setTextColor(DeviceRgb.RED);
+        creatorProperties.setTagged(true);
+        OcrPdfCreator pdfCreator = new OcrPdfCreator(ocrEngine, creatorProperties);
+        TestProcessProperties processProperties = new TestProcessProperties(5, 6, 50, 15, 100, 200);
+
+        try (PdfWriter pdfWriter = PdfHelper.getPdfWriter(pdfPath)) {
+            pdfCreator.createPdf(Collections.<File>singletonList(
+                    new File(input)), pdfWriter, new DocumentProperties(), processProperties).close();
+        }
+
+        Assert.assertNull(new CompareTool()
+                .compareByContent(pdfPath, PdfHelper.TEST_DIRECTORY + "cmp_tableStructureTree.pdf", PdfHelper.getTargetDirectory(), "diff_"));
+    }
+
+    @Test
+    @LogMessages(messages = @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
+            logLevel = LogLevelConstants.ERROR))
+    public void testTaggingNotSupported() {
+        String input = PdfHelper.getImagesTestDirectory() + "numbers_01.jpg";
+        String pdfPath = PdfHelper.getTargetDirectory() + "taggingNotSupported.pdf";
+
+        Exception e = Assert.assertThrows(PdfOcrException.class,
+                () -> PdfHelper.createPdf(pdfPath, new File(input), new OcrPdfCreatorProperties().setTagged(true))
+        );
+        Assert.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
+                PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED), e.getMessage());
     }
 
     static class NotImplementedImageRotationHandler implements IImageRotationHandler {

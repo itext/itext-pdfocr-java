@@ -20,22 +20,31 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.exceptions;
+package com.itextpdf.pdfocr.structuretree;
+
+import com.itextpdf.kernel.pdf.tagging.StandardRoles;
+import com.itextpdf.kernel.pdf.tagutils.DefaultAccessibilityProperties;
 
 /**
- * Class that bundles all the exception message templates as constants.
+ * A convenience class to associate certain text items with the table row structure item.
  */
-public class PdfOcrExceptionMessageConstant {
+public class TableRowTreeItem extends LogicalStructureTreeItem {
 
-    public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image";
-    public static final String CANNOT_RESOLVE_PROVIDED_FONTS =
-            "Cannot resolve any of provided fonts. Please check provided FontProvider.";
-    public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
-    public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
-    public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
-    public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";
+    /**
+     * Instantiate a new {@link TableRowTreeItem} instance.
+     */
+    public TableRowTreeItem() {
+        super(new DefaultAccessibilityProperties(StandardRoles.TR));
+    }
 
-    private PdfOcrExceptionMessageConstant() {
-        //Private constructor will prevent the instantiation of this class directly
+    /**
+     * Add a new table cell structure tree item to the table row.
+     *
+     * @param cellItem table cell structure tree item to be added.
+     * @return this {@link TableRowTreeItem} instance.
+     */
+    public TableRowTreeItem addCell(TableCellTreeItem cellItem) {
+        addChild(cellItem);
+        return this;
     }
 }

@@ -20,22 +20,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.exceptions;
+package com.itextpdf.pdfocr;
 
 /**
- * Class that bundles all the exception message templates as constants.
+ * OCR properties passed to the OCR engine as part of {@link OcrProcessContext}.
  */
-public class PdfOcrExceptionMessageConstant {
-
-    public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image";
-    public static final String CANNOT_RESOLVE_PROVIDED_FONTS =
-            "Cannot resolve any of provided fonts. Please check provided FontProvider.";
-    public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
-    public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
-    public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
-    public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";
-
-    private PdfOcrExceptionMessageConstant() {
-        //Private constructor will prevent the instantiation of this class directly
-    }
+public interface IOcrProcessProperties {
 }

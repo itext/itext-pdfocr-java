@@ -22,13 +22,10 @@
  */
 package com.itextpdf.pdfocr.helpers;
 
-import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.OcrEngineProperties;
-import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
 
 import java.io.File;

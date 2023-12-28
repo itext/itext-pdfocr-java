@@ -42,14 +42,19 @@ import com.itextpdf.kernel.pdf.DocumentProperties;
 import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;
+import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfString;
 import com.itextpdf.kernel.pdf.PdfViewerPreferences;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.CanvasArtifact;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvasConstants.TextRenderingMode;
 import com.itextpdf.kernel.pdf.layer.PdfLayer;
+import com.itextpdf.kernel.pdf.tagutils.AccessibilityProperties;
+import com.itextpdf.kernel.pdf.tagutils.DefaultAccessibilityProperties;
+import com.itextpdf.kernel.pdf.tagutils.TagTreePointer;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -62,9 +67,13 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
+import com.itextpdf.pdfocr.structuretree.ArtifactItem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,6 +171,7 @@ public class OcrPdfCreator {
      * @param documentProperties document properties
      * @param pdfOutputIntent    {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
      *                           for PDF/A-3u document
+     * @param ocrProcessProperties extra OCR process properties passed to {@link OcrProcessContext}
      *
      * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
      * object
@@ -172,7 +182,8 @@ public class OcrPdfCreator {
     public final PdfDocument createPdfA(final List<File> inputImages,
             final PdfWriter pdfWriter,
             final DocumentProperties documentProperties,
-            final PdfOutputIntent pdfOutputIntent)
+            final PdfOutputIntent pdfOutputIntent,
+            final IOcrProcessProperties ocrProcessProperties)
             throws PdfOcrException {
         LOGGER.info(MessageFormatUtil.format(
                 PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES,
@@ -183,6 +194,7 @@ public class OcrPdfCreator {
         OcrPdfCreatorEventHelper ocrEventHelper =
                 new OcrPdfCreatorEventHelper(pdfSequenceId, ocrPdfCreatorProperties.getMetaInfo());
         OcrProcessContext ocrProcessContext = new OcrProcessContext(ocrEventHelper);
+        ocrProcessContext.setOcrProcessProperties(ocrProcessProperties);
 
         // map contains:
         // keys: image files
@@ -233,6 +245,67 @@ public class OcrPdfCreator {
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}, {@link DocumentProperties }
+     * and {@link com.itextpdf.kernel.pdf.PdfOutputIntent}. PDF/A-3u document will be created if
+     * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
+     *
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfAFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
+     * @param inputImages        {@link java.util.List} of images to be OCRed
+     * @param pdfWriter          the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                           to write final PDF document to
+     * @param documentProperties document properties
+     * @param pdfOutputIntent    {@link com.itextpdf.kernel.pdf.PdfOutputIntent}
+     *                           for PDF/A-3u document
+     *
+     * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
+     * object
+     *
+     * @throws PdfOcrException if it was not possible to read provided or
+     *                      default font
+     */
+    public final PdfDocument createPdfA(final List<File> inputImages,
+            final PdfWriter pdfWriter,
+            final DocumentProperties documentProperties,
+            final PdfOutputIntent pdfOutputIntent)
+            throws PdfOcrException {
+        return createPdfA(inputImages, pdfWriter, documentProperties, pdfOutputIntent, null);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
+     *
+     * <p>
+     * NOTE that after executing this method you will have a product event from
+     * the both itextcore and pdfOcr. Therefore, use this method only if you need to work
+     * with the generated {@link PdfDocument}. If you don't need this, use the
+     * {@link OcrPdfCreator#createPdfFile} method. In this case, only the pdfOcr event will be dispatched.
+     *
+     * @param inputImages {@link java.util.List} of images to be OCRed
+     * @param pdfWriter   the {@link com.itextpdf.kernel.pdf.PdfWriter} object
+     *                    to write final PDF document to
+     * @param documentProperties document properties
+     * @param ocrProcessProperties extra OCR process properties passed to OcrProcessContext
+     *
+     * @return result {@link com.itextpdf.kernel.pdf.PdfDocument} object
+     *
+     * @throws PdfOcrException if provided font is incorrect
+     */
+    public final PdfDocument createPdf(final List<File> inputImages,
+            final PdfWriter pdfWriter,
+            final DocumentProperties documentProperties,
+            final IOcrProcessProperties ocrProcessProperties)
+            throws PdfOcrException {
+        return createPdfA(inputImages, pdfWriter, documentProperties, null, ocrProcessProperties);
+    }
+
+    /**
+     * Performs OCR with set parameters using provided {@link IOcrEngine} and
      * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}.
      *
      * <p>
@@ -254,7 +327,7 @@ public class OcrPdfCreator {
             final PdfWriter pdfWriter,
             final DocumentProperties documentProperties)
             throws PdfOcrException {
-        return createPdfA(inputImages, pdfWriter, documentProperties, null);
+        return createPdfA(inputImages, pdfWriter, documentProperties, null, null);
     }
 
     /**
@@ -278,7 +351,7 @@ public class OcrPdfCreator {
     public final PdfDocument createPdf(final List<File> inputImages,
             final PdfWriter pdfWriter)
             throws PdfOcrException {
-        return createPdfA(inputImages, pdfWriter, new DocumentProperties(), null);
+        return createPdfA(inputImages, pdfWriter, new DocumentProperties(), null, null);
     }
 
     /**
@@ -392,8 +465,25 @@ public class OcrPdfCreator {
         }
 
         try {
-            addTextToCanvas(imageSize, pageText, canvas, multiplier,
-                    pdfPage.getMediaBox());
+            // A map of TextInfo to a tag pointer, always empty if tagging is not supported
+            Map<TextInfo, TagTreePointer> flatLogicalTree = new HashMap<>();
+            if (ocrPdfCreatorProperties.isTagged()) {
+                // Logical tree, a list of top items, children can be retrieved out of them
+                List<LogicalStructureTreeItem> logicalTree = new ArrayList<>();
+                // A map of leaf LogicalStructureTreeItem's to TextInfo's attached to these leaves
+                Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = new HashMap<>();
+                final boolean taggedSupported = getLogicalTree(pageText, logicalTree, leavesTextInfos);
+                if (!taggedSupported) {
+                    throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
+                }
+                pdfDocument.setTagged();
+
+                // Create a map of TextInfo to tag pointers meanwhile creating the required tags.
+                // Tag pointers are later used to put all the required info into canvas (content stream)
+                buildLogicalTreeAndFlatten(logicalTree, leavesTextInfos,
+                        new TagTreePointer(pdfDocument).setPageForTagging(pdfPage), flatLogicalTree);
+            }
+            addTextToCanvas(imageSize, pageText, flatLogicalTree, canvas, multiplier, pdfPage);
         } catch (PdfOcrException e) {
             LOGGER.error(MessageFormatUtil.format(
                     PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
@@ -522,6 +612,9 @@ public class OcrPdfCreator {
             final Rectangle imageSize,
             final PdfCanvas pdfCanvas) {
         if (imageData != null) {
+            if (ocrPdfCreatorProperties.isTagged()) {
+                pdfCanvas.openTag(new CanvasArtifact());
+            }
             if (ocrPdfCreatorProperties.getPageSize() == null) {
                 pdfCanvas.addImageFittedIntoRectangle(imageData, imageSize, false);
             } else {
@@ -534,6 +627,86 @@ public class OcrPdfCreator {
                                 imageSize.getWidth(), imageSize.getHeight());
                 pdfCanvas.addImageFittedIntoRectangle(imageData, rect, false);
             }
+
+            if (ocrPdfCreatorProperties.isTagged()) {
+                pdfCanvas.closeTag();
+            }
+        }
+    }
+
+    /**
+     * @return {@code true} if tagging supported by the engine.
+     * @deprecated In next major version we need to add boolean taggingSupported() method into IOcrEngine
+     * and throw exception in OcrPdfCreator constructor if taggingSupported() returns false but
+     * OcrPdfCreatorProperties.getTagged returns true.
+     */
+    @Deprecated
+    private static boolean getLogicalTree(List<TextInfo> textInfos,
+            List<LogicalStructureTreeItem> logicalStructureTreeItems,
+            Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos) {
+        boolean taggedSupported = false;
+        if (textInfos == null) {
+            return taggedSupported;
+        }
+
+        for (TextInfo textInfo : textInfos) {
+            LogicalStructureTreeItem structTreeItem = textInfo.getLogicalStructureTreeItem();
+            LogicalStructureTreeItem topParent;
+            if (structTreeItem instanceof ArtifactItem) {
+                continue;
+            } else if (structTreeItem != null) {
+                topParent = getTopParent(structTreeItem);
+                taggedSupported = true;
+            } else {
+                structTreeItem = new LogicalStructureTreeItem();
+                textInfo.setLogicalStructureTreeItem(structTreeItem);
+                topParent = structTreeItem;
+            }
+            List<TextInfo> textInfosPerStructItem = leavesTextInfos.get(structTreeItem);
+            if (textInfosPerStructItem == null) {
+                textInfosPerStructItem = new ArrayList<>();
+                textInfosPerStructItem.add(textInfo);
+                leavesTextInfos.put(structTreeItem, textInfosPerStructItem);
+            } else {
+                textInfosPerStructItem.add(textInfo);
+            }
+            if (!logicalStructureTreeItems.contains(topParent)) {
+                logicalStructureTreeItems.add(topParent);
+            }
+        }
+
+        return taggedSupported;
+    }
+
+    private static LogicalStructureTreeItem getTopParent(LogicalStructureTreeItem structInfo) {
+        if (structInfo.getParent() != null) {
+            return getTopParent(structInfo.getParent());
+        } else {
+            return structInfo;
+        }
+    }
+
+    private void buildLogicalTreeAndFlatten(
+            List<LogicalStructureTreeItem> logicalStructureTreeItems,
+            Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos,
+            TagTreePointer tagPointer, Map<TextInfo, TagTreePointer> flatLogicalTree) {
+        for (LogicalStructureTreeItem structTreeItem : logicalStructureTreeItems) {
+            AccessibilityProperties accessibilityProperties = structTreeItem.getAccessibilityProperties();
+            if (accessibilityProperties == null) {
+                accessibilityProperties = new DefaultAccessibilityProperties(PdfName.Span.getValue());
+            }
+
+            tagPointer.addTag(accessibilityProperties);
+
+            List<TextInfo> textItems = leavesTextInfos.get(structTreeItem);
+            if (textItems != null) {
+                for (TextInfo item : textItems) {
+                    flatLogicalTree.put(item, new TagTreePointer(tagPointer));
+                }
+            }
+
+            buildLogicalTreeAndFlatten(structTreeItem.getChildren(), leavesTextInfos, tagPointer, flatLogicalTree);
+            tagPointer.moveToParent();
         }
     }
 
@@ -543,72 +716,91 @@ public class OcrPdfCreator {
      * @param imageSize size of the image according to the selected
      *                  {@link ScaleMode}
      * @param pageText text that was found on this image (or on this page)
+     * @param flatLogicalTree a map of TextInfo to a tag pointer
      * @param pdfCanvas canvas to place the text
      * @param multiplier coefficient to adjust text placing on canvas
-     * @param pageMediaBox page parameters
+     * @param page current page
      * @throws PdfOcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
     private void addTextToCanvas(
             final Rectangle imageSize,
             final List<TextInfo> pageText,
+            final Map<TextInfo, TagTreePointer> flatLogicalTree,
             final PdfCanvas pdfCanvas,
             final float multiplier,
-            final Rectangle pageMediaBox)
+            final PdfPage page)
             throws PdfOcrException {
-        if (pageText != null && pageText.size() > 0) {
-            final Point imageCoordinates =
-                    PdfCreatorUtil.calculateImageCoordinates(
-                    ocrPdfCreatorProperties.getPageSize(), imageSize);
-            for (TextInfo item : pageText) {
-                String line = item.getText();
+        if (pageText == null || pageText.size() == 0) {
+            return;
+        }
 
-                final float bboxWidthPt = getWidthPt(item, multiplier);
-                final float bboxHeightPt = getHeightPt(item, multiplier);
-                FontProvider fontProvider = getOcrPdfCreatorProperties()
-                        .getFontProvider();
-                String fontFamily = getOcrPdfCreatorProperties()
-                        .getDefaultFontFamily();
-                if (lineNotEmpty(line, bboxHeightPt, bboxWidthPt)) {
-                    Document document = new Document(pdfCanvas.getDocument());
-                    document.setFontProvider(fontProvider);
+        final Rectangle pageMediaBox = page.getMediaBox();
 
-                    // Scale the text width to fit the OCR bbox
-                    final float fontSize = PdfCreatorUtil.calculateFontSize(
-                            document, line, fontFamily,
-                            bboxHeightPt, bboxWidthPt);
-
-                    final float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
-                            line, fontFamily, fontSize);
-
-                    final float xOffset = getXOffsetPt(item, multiplier);
-                    final float yOffset = getYOffsetPt(item, multiplier, imageSize);
-
-                    Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
-                    canvas.setFontProvider(fontProvider);
-
-                    Text text = new Text(line)
-                            .setHorizontalScaling(bboxWidthPt / lineWidth);
-
-                    Paragraph paragraph = new Paragraph(text)
-                            .setMargin(0);
-                    paragraph.setFontFamily(fontFamily)
-                            .setFontSize(fontSize);
-                    paragraph.setWidth(bboxWidthPt * 1.5f);
-
-                    if (ocrPdfCreatorProperties.getTextColor() != null) {
-                        paragraph.setFontColor(ocrPdfCreatorProperties.getTextColor());
-                    } else {
-                        paragraph.setTextRenderingMode(TextRenderingMode.INVISIBLE);
-                    }
-
-                    canvas.showTextAligned(paragraph,
-                            xOffset + (float)imageCoordinates.x,
-                            yOffset + (float)imageCoordinates.y,
-                            TextAlignment.LEFT);
-                    canvas.close();
-                }
+        final Point imageCoordinates =
+                PdfCreatorUtil.calculateImageCoordinates(
+                ocrPdfCreatorProperties.getPageSize(), imageSize);
+        for (TextInfo item : pageText) {
+            final float bboxWidthPt = getWidthPt(item, multiplier);
+            final float bboxHeightPt = getHeightPt(item, multiplier);
+            FontProvider fontProvider = getOcrPdfCreatorProperties()
+                    .getFontProvider();
+            String fontFamily = getOcrPdfCreatorProperties()
+                    .getDefaultFontFamily();
+            String line = item.getText();
+            if (!lineNotEmpty(line, bboxHeightPt, bboxWidthPt)) {
+                continue;
             }
+
+            Document document = new Document(pdfCanvas.getDocument());
+            document.setFontProvider(fontProvider);
+
+            // Scale the text width to fit the OCR bbox
+            final float fontSize = PdfCreatorUtil.calculateFontSize(
+                    document, line, fontFamily,
+                    bboxHeightPt, bboxWidthPt);
+
+            final float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
+                    line, fontFamily, fontSize);
+
+            final float xOffset = getXOffsetPt(item, multiplier);
+            final float yOffset = getYOffsetPt(item, multiplier, imageSize);
+
+            TagTreePointer tagPointer = flatLogicalTree.get(item);
+            if (tagPointer != null) {
+                pdfCanvas.openTag(tagPointer.getTagReference());
+            } else if (ocrPdfCreatorProperties.isTagged()) {
+                pdfCanvas.openTag(new CanvasArtifact());
+            }
+
+            Canvas canvas = new Canvas(pdfCanvas, pageMediaBox);
+            canvas.setFontProvider(fontProvider);
+
+            Text text = new Text(line)
+                    .setHorizontalScaling(bboxWidthPt / lineWidth);
+
+            Paragraph paragraph = new Paragraph(text)
+                    .setMargin(0);
+            paragraph.setFontFamily(fontFamily)
+                    .setFontSize(fontSize);
+            paragraph.setWidth(bboxWidthPt * 1.5f);
+
+            if (ocrPdfCreatorProperties.getTextColor() != null) {
+                paragraph.setFontColor(ocrPdfCreatorProperties.getTextColor());
+            } else {
+                paragraph.setTextRenderingMode(TextRenderingMode.INVISIBLE);
+            }
+
+            canvas.showTextAligned(paragraph,
+                    xOffset + (float) imageCoordinates.x,
+                    yOffset + (float) imageCoordinates.y,
+                    TextAlignment.LEFT);
+
+            if (ocrPdfCreatorProperties.isTagged()) {
+                pdfCanvas.closeTag();
+            }
+
+            canvas.close();
         }
     }
 
