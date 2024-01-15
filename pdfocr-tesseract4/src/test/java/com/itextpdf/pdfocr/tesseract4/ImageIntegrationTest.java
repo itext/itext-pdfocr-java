@@ -118,9 +118,9 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         // So the goal of this test is to make text invisible and check if image is rotated.
         // Proper text recognition is compared in testHocrRotatedImage test by checking HOCR file.
         boolean javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         boolean dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         Assert.assertTrue(javaTest || dotNetTest);
 
         filename = "180_degrees_rotated";
@@ -134,9 +134,9 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
 
 
         javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
 
         Assert.assertTrue(javaTest || dotNetTest);
 
@@ -151,9 +151,9 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
 
 
         javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
 
         Assert.assertTrue(javaTest || dotNetTest);
     }

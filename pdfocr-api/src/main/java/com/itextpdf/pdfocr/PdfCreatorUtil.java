@@ -96,6 +96,7 @@ class PdfCreatorUtil {
 
         try {
             Paragraph paragraph = new Paragraph(line);
+            paragraph.setMargin(0);
             paragraph.setWidth(bbox.getWidth());
             paragraph.setFontFamily(fontFamily);
 

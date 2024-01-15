@@ -591,8 +591,7 @@ public class OcrPdfCreator {
                             .setHorizontalScaling(bboxWidthPt / lineWidth);
 
                     Paragraph paragraph = new Paragraph(text)
-                            .setMargin(0)
-                            .setMultipliedLeading(1.2f);
+                            .setMargin(0);
                     paragraph.setFontFamily(fontFamily)
                             .setFontSize(fontSize);
                     paragraph.setWidth(bboxWidthPt * 1.5f);

@@ -350,7 +350,7 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
                     Arrays.<String>asList("eng", "deu", "spa"), DeviceCmyk.BLACK);
 
             Assert.assertNull(new CompareTool().compareByContent(resultPdfPath, expectedPdfPath,
-                    TEST_DOCUMENTS_DIRECTORY, "diff_"));
+                    getTargetDirectory(), "diff_"));
         } finally {
             Assert.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
