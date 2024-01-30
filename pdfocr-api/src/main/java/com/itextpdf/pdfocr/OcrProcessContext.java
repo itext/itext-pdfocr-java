@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2023 Apryse Group NV
+    Copyright (c) 1998-2024 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -28,6 +28,8 @@ package com.itextpdf.pdfocr;
 public class OcrProcessContext {
     private AbstractPdfOcrEventHelper ocrEventHelper;
 
+    private IOcrProcessProperties ocrProcessProperties;
+
     /**
      * Creates an instance of ocr process context
      *
@@ -53,5 +55,23 @@ public class OcrProcessContext {
      */
     public void setOcrEventHelper(AbstractPdfOcrEventHelper eventHelper) {
         this.ocrEventHelper = eventHelper;
+    }
+
+    /**
+     * Set extra OCR process properties.
+     *
+     * @param ocrProcessProperties extra OCR process properties.
+     */
+    void setOcrProcessProperties(IOcrProcessProperties ocrProcessProperties) {
+        this.ocrProcessProperties = ocrProcessProperties;
+    }
+
+    /**
+     * Get extra OCR process properties.
+     *
+     * @return extra OCR process properties.
+     */
+    public IOcrProcessProperties getOcrProcessProperties() {
+        return ocrProcessProperties;
     }
 }

@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2023 Apryse Group NV
+    Copyright (c) 1998-2024 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -101,9 +101,9 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("tha", "eng"), Arrays.<String>asList(NOTO_SANS_THAI_FONT_PATH, NOTO_SANS_FONT_PATH), DeviceRgb.RED);
         boolean javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
 
         Assert.assertTrue(javaTest || dotNetTest);
     }
@@ -134,9 +134,9 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("tha"), Arrays.<String>asList(NOTO_SANS_THAI_FONT_PATH), DeviceRgb.RED);
         boolean javaTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathJava,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
         boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
-                TEST_DOCUMENTS_DIRECTORY, "diff_") == null;
+                getTargetDirectory(), "diff_") == null;
 
         Assert.assertTrue(javaTest || dotNetTest);
     }

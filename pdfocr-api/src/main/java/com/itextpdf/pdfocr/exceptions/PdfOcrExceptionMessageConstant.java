@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2023 Apryse Group NV
+    Copyright (c) 1998-2024 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -33,6 +33,7 @@ public class PdfOcrExceptionMessageConstant {
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
     public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
     public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
+    public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";
 
     private PdfOcrExceptionMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly

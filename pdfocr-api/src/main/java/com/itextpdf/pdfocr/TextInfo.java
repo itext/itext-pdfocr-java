@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2023 Apryse Group NV
+    Copyright (c) 1998-2024 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -23,11 +23,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.kernel.geom.Rectangle;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 
 /**
  * This class describes how recognized text is positioned on the image
@@ -44,6 +40,11 @@ public class TextInfo {
      * {@link Rectangle} describing text bbox (lower-left based) expressed in points.
      */
     private Rectangle bboxRect;
+
+    /**
+     * If LogicalStructureTreeItem is set, then {@link TextInfo}s are expected to be in logical order.
+     */
+    private LogicalStructureTreeItem logicalStructureTreeItem;
 
     /**
      * Creates a new {@link TextInfo} instance.
@@ -106,5 +107,28 @@ public class TextInfo {
      */
     public void setBboxRect(final Rectangle bbox) {
         this.bboxRect = new Rectangle(bbox);
+    }
+
+    /**
+     * Retrieves structure tree item for the text item.
+     *
+     * @return structure tree item.
+     */
+    public LogicalStructureTreeItem getLogicalStructureTreeItem() {
+        return logicalStructureTreeItem;
+    }
+
+    /**
+     * Sets logical structure tree parent item for the text info. It allows to organize text chunks
+     * into logical hierarchy, e.g. specify document paragraphs, tables, etc.
+     * <p>
+     *
+     * If LogicalStructureTreeItem is set, then the list of {@link TextInfo}s in {@link IOcrEngine#doImageOcr}
+     * return value is expected to be in logical order.
+     *
+     * @param logicalStructureTreeItem structure tree item.
+     */
+    public void setLogicalStructureTreeItem(LogicalStructureTreeItem logicalStructureTreeItem) {
+        this.logicalStructureTreeItem = logicalStructureTreeItem;
     }
 }

@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2023 Apryse Group NV
+    Copyright (c) 1998-2024 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -98,6 +98,11 @@ public class OcrPdfCreatorProperties {
     private IImageRotationHandler imageRotationHandler;
 
     private IMetaInfo metaInfo;
+
+    /**
+     * Indicates whether the created pdf is tagged or not.
+     */
+    private boolean tagged = false;
 
     /**
      * Creates a new {@link OcrPdfCreatorProperties} instance.
@@ -367,6 +372,26 @@ public class OcrPdfCreatorProperties {
             IImageRotationHandler imageRotationDetector) {
         this.imageRotationHandler = imageRotationDetector;
         return this;
+    }
+
+    /**
+     * Defines whether pdf document should be tagged or not.
+     *
+     * @param tagged {@code true} if the result pdf is expected to be tagged, {@code false} otherwise.
+     * @return this {@link OcrPdfCreatorProperties} instance.
+     */
+    public OcrPdfCreatorProperties setTagged(boolean tagged) {
+        this.tagged = tagged;
+        return this;
+    }
+
+    /**
+     * Retrieve information on whether pdf document should be tagged or not.
+     *
+     * @return {@code true} if the result pdf is expected to be tagged, {@code false} otherwise.
+     */
+    public boolean isTagged() {
+        return tagged;
     }
 
     /**
