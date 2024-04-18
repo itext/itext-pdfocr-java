@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>root</artifactId>
-    <version>8.0.4-SNAPSHOT</version>
+    <version>8.0.5-SNAPSHOT</version>
     <relativePath />
   </parent>
 
@@ -22,7 +22,7 @@
   </modules>
 
   <properties>
-    <itext.version>8.0.4-SNAPSHOT</itext.version>
+    <itext.version>8.0.5-SNAPSHOT</itext.version>
     <java.version>1.8</java.version>
     <jdkLevel>${java.version}</jdkLevel>
     <maven.compiler.source>${java.version}</maven.compiler.source>
