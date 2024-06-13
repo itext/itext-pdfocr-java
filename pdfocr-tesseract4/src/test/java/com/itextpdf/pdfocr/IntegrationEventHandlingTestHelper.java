@@ -45,7 +45,6 @@ import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,12 +55,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public abstract class IntegrationEventHandlingTestHelper extends IntegrationTestHelper {
     protected final AbstractTesseract4OcrEngine tesseractReader;
     protected StoreEventsHandler eventsHandler;
@@ -70,7 +69,7 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
         tesseractReader = getTesseractReader(type);
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         // init ocr engine
         Tesseract4OcrEngineProperties ocrEngineProperties =
@@ -83,44 +82,44 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
         EventManager.getInstance().register(eventsHandler);
     }
 
-    @After
+    @AfterEach
     public void after() {
         EventManager.getInstance().unregister(eventsHandler);
         eventsHandler = null;
     }
 
     protected static void validateUsageEvent(IEvent event, EventConfirmationType expectedConfirmationType) {
-        Assert.assertTrue(event instanceof PdfOcrTesseract4ProductEvent);
-        Assert.assertEquals("process-image", ((PdfOcrTesseract4ProductEvent) event).getEventType());
-        Assert.assertEquals(expectedConfirmationType, ((PdfOcrTesseract4ProductEvent) event).getConfirmationType());
-        Assert.assertEquals(PdfOcrTesseract4ProductData.getInstance(),
+        Assertions.assertTrue(event instanceof PdfOcrTesseract4ProductEvent);
+        Assertions.assertEquals("process-image", ((PdfOcrTesseract4ProductEvent) event).getEventType());
+        Assertions.assertEquals(expectedConfirmationType, ((PdfOcrTesseract4ProductEvent) event).getConfirmationType());
+        Assertions.assertEquals(PdfOcrTesseract4ProductData.getInstance(),
                 ((PdfOcrTesseract4ProductEvent) event).getProductData());
     }
 
     protected static void validateStatisticEvent(IEvent event, PdfOcrOutputType outputType) {
-        Assert.assertTrue(event instanceof PdfOcrOutputTypeStatisticsEvent);
-        Assert.assertEquals(outputType, ((PdfOcrOutputTypeStatisticsEvent) event).getPdfOcrStatisticsEventType());
-        Assert.assertEquals(PdfOcrTesseract4ProductData.getInstance(),
+        Assertions.assertTrue(event instanceof PdfOcrOutputTypeStatisticsEvent);
+        Assertions.assertEquals(outputType, ((PdfOcrOutputTypeStatisticsEvent) event).getPdfOcrStatisticsEventType());
+        Assertions.assertEquals(PdfOcrTesseract4ProductData.getInstance(),
                 ((PdfOcrOutputTypeStatisticsEvent) event).getProductData());
     }
 
     protected static void validateConfirmEvent(IEvent event, IEvent expectedConfirmedEvent) {
-        Assert.assertTrue(event instanceof ConfirmEvent);
-        Assert.assertSame(expectedConfirmedEvent, ((ConfirmEvent) event).getConfirmedEvent());
+        Assertions.assertTrue(event instanceof ConfirmEvent);
+        Assertions.assertSame(expectedConfirmedEvent, ((ConfirmEvent) event).getConfirmedEvent());
     }
 
     // we expect core events in case of API methods returning PdfDocument
     protected static void validateCoreConfirmEvent(IEvent event) {
-        Assert.assertTrue(event instanceof ConfirmEvent);
-        Assert.assertEquals(getCoreEvent().getEvent().getEventType(),
+        Assertions.assertTrue(event instanceof ConfirmEvent);
+        Assertions.assertEquals(getCoreEvent().getEvent().getEventType(),
                 ((ConfirmEvent) event).getConfirmedEvent().getEventType());
-        Assert.assertEquals(getCoreEvent().getEvent().getConfirmationType(),
+        Assertions.assertEquals(getCoreEvent().getEvent().getConfirmationType(),
                 ((ConfirmEvent) event).getConfirmedEvent().getConfirmationType());
     }
 
     protected void validatePdfProducerLine(String filePath, String expected) throws IOException {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePath))) {
-            Assert.assertEquals(expected, pdfDocument.getDocumentInfo().getProducer());
+            Assertions.assertEquals(expected, pdfDocument.getDocumentInfo().getProducer());
         }
     }
 

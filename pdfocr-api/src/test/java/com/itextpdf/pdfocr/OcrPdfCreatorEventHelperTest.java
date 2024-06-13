@@ -36,30 +36,29 @@ import com.itextpdf.kernel.actions.data.ITextCoreProductData;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
     private static final ProductData DUMMY_PRODUCT_DATA =
             new ProductData("test-product", "inner_product", "1.0.0", 1900, 2100);
     private StoreEventsHandler storeEventsHandler;
 
-    @Before
+    @BeforeEach
     public void before() {
         storeEventsHandler = new StoreEventsHandler();
         EventManager.getInstance().register(storeEventsHandler);
     }
 
-    @After
+    @AfterEach
     public void after() {
         EventManager.getInstance().unregister(storeEventsHandler);
         storeEventsHandler = null;
@@ -71,8 +70,8 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
         DummyITextEvent event = new DummyITextEvent();
         helper.onEvent(event);
 
-        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
-        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
+        Assertions.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assertions.assertEquals(event, storeEventsHandler.getEvents().get(0));
     }
 
     @Test
@@ -82,7 +81,7 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
                 DUMMY_PRODUCT_DATA);
         helper.onEvent(e);
 
-        Assert.assertEquals(0, storeEventsHandler.getEvents().size());
+        Assertions.assertEquals(0, storeEventsHandler.getEvents().size());
     }
 
     @Test
@@ -91,8 +90,8 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
         AbstractProductITextEvent event = new CustomProductITextEvent(DUMMY_PRODUCT_DATA);
         helper.onEvent(event);
 
-        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
-        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
+        Assertions.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assertions.assertEquals(event, storeEventsHandler.getEvents().get(0));
     }
 
     @Test
@@ -101,8 +100,8 @@ public class OcrPdfCreatorEventHelperTest extends ExtendedITextTest {
         CustomStatisticsEvent event = new CustomStatisticsEvent(DUMMY_PRODUCT_DATA);
         helper.onEvent(event);
 
-        Assert.assertEquals(1, storeEventsHandler.getEvents().size());
-        Assert.assertEquals(event, storeEventsHandler.getEvents().get(0));
+        Assertions.assertEquals(1, storeEventsHandler.getEvents().size());
+        Assertions.assertEquals(event, storeEventsHandler.getEvents().get(0));
     }
 
     private static class DummyMetaInfo implements IMetaInfo {

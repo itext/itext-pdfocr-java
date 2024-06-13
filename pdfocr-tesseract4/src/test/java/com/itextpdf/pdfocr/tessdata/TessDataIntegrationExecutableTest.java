@@ -22,13 +22,12 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TessDataIntegrationExecutableTest extends TessDataIntegrationTest {
     public TessDataIntegrationExecutableTest() {
         super(ReaderType.EXECUTABLE);
@@ -40,7 +39,7 @@ public class TessDataIntegrationExecutableTest extends TessDataIntegrationTest {
         String expected = "ღმერთი";
 
         // correct result with specified georgian+eng language
-        Assert.assertTrue(doOcrAndGetTextUsingTessDataByNonAsciiPath()
+        Assertions.assertTrue(doOcrAndGetTextUsingTessDataByNonAsciiPath()
                 .startsWith(expected));
     }
 }

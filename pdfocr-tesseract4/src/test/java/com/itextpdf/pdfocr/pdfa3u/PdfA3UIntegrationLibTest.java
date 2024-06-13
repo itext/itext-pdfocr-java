@@ -22,11 +22,10 @@
  */
 package com.itextpdf.pdfocr.pdfa3u;
 
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PdfA3UIntegrationLibTest extends PdfA3UIntegrationTest {
     public PdfA3UIntegrationLibTest() {
         super(ReaderType.LIB);

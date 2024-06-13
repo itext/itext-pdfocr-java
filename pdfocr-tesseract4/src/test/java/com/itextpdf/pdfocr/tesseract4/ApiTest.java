@@ -38,29 +38,27 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ApiTest extends IntegrationTestHelper {
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
             @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET)
     })
     @Test
     public void testDefaultTessDataPathValidationForLib() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        File imgFile = new File(path);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+            File imgFile = new File(path);
 
-        Tesseract4LibOcrEngine engine =
-                new Tesseract4LibOcrEngine(new Tesseract4OcrEngineProperties());
-        engine.doImageOcr(imgFile);
+            Tesseract4LibOcrEngine engine =
+                    new Tesseract4LibOcrEngine(new Tesseract4OcrEngineProperties());
+            engine.doImageOcr(imgFile);
+        });
+
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET,
+                exception.getMessage());
     }
 
     @LogMessages(messages = {
@@ -68,13 +66,16 @@ public class ApiTest extends IntegrationTestHelper {
     })
     @Test
     public void testDefaultTessDataPathValidationForExecutable() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET);
-        String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
-        File imgFile = new File(path);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            String path = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
+            File imgFile = new File(path);
 
-        Tesseract4ExecutableOcrEngine engine = new Tesseract4ExecutableOcrEngine(new Tesseract4OcrEngineProperties());
-        engine.doImageOcr(imgFile);
+            Tesseract4ExecutableOcrEngine engine = new Tesseract4ExecutableOcrEngine(new Tesseract4OcrEngineProperties());
+            engine.doImageOcr(imgFile);
+        });
+
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET,
+                exception.getMessage());
     }
 
     @LogMessages(messages = {
@@ -82,18 +83,20 @@ public class ApiTest extends IntegrationTestHelper {
     })
     @Test
     public void testDoTesseractOcrForIncorrectImageForExecutable() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(MessageFormatUtil.format(
-                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
-                new File(TEST_IMAGES_DIRECTORY + "numbers_01")
-                        .getAbsolutePath()));
-        String path = TEST_IMAGES_DIRECTORY + "numbers_01";
-        File imgFile = new File(path);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            String path = TEST_IMAGES_DIRECTORY + "numbers_01";
+            File imgFile = new File(path);
 
-        Tesseract4ExecutableOcrEngine engine =
-                new Tesseract4ExecutableOcrEngine(
-                        new Tesseract4OcrEngineProperties().setPathToTessData(getTessDataDirectory()));
-        engine.doTesseractOcr(imgFile, null, OutputFormat.HOCR);
+            Tesseract4ExecutableOcrEngine engine =
+                    new Tesseract4ExecutableOcrEngine(
+                            new Tesseract4OcrEngineProperties().setPathToTessData(getTessDataDirectory()));
+            engine.doTesseractOcr(imgFile, null, OutputFormat.HOCR);
+        });
+
+        Assertions.assertEquals(MessageFormatUtil.format(
+                        PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
+                        new File(TEST_IMAGES_DIRECTORY + "numbers_01").getAbsolutePath()),
+                exception.getMessage());
     }
 
     @LogMessages(messages = {
@@ -103,14 +106,16 @@ public class ApiTest extends IntegrationTestHelper {
     })
     @Test
     public void testOcrResultForSinglePageForNullImage() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED);
-        Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
-        tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
-                new Tesseract4OcrEngineProperties()
-                        .setPathToTessData(getTessDataDirectory()));
-        tesseract4LibOcrEngine.initializeTesseract(OutputFormat.TXT);
-        tesseract4LibOcrEngine.doTesseractOcr(null, null, OutputFormat.HOCR);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            Tesseract4LibOcrEngine tesseract4LibOcrEngine = getTesseract4LibOcrEngine();
+            tesseract4LibOcrEngine.setTesseract4OcrEngineProperties(
+                    new Tesseract4OcrEngineProperties()
+                            .setPathToTessData(getTessDataDirectory()));
+            tesseract4LibOcrEngine.initializeTesseract(OutputFormat.TXT);
+            tesseract4LibOcrEngine.doTesseractOcr(null, null, OutputFormat.HOCR);
+        });
+
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED, exception.getMessage());
     }
 
     @Test
@@ -125,9 +130,9 @@ public class ApiTest extends IntegrationTestHelper {
         properties.setPreprocessingImages(false);
         Tesseract4ExecutableOcrEngine engine = new Tesseract4ExecutableOcrEngine(properties);
         engine.doTesseractOcr(imgFile, outputFile, OutputFormat.HOCR);
-        Assert.assertTrue(Files.exists(Paths.get(outputFile.getAbsolutePath())));
+        Assertions.assertTrue(Files.exists(Paths.get(outputFile.getAbsolutePath())));
         TesseractHelper.deleteFile(outputFile.getAbsolutePath());
-        Assert.assertFalse(Files.exists(Paths.get(outputFile.getAbsolutePath())));
+        Assertions.assertFalse(Files.exists(Paths.get(outputFile.getAbsolutePath())));
     }
 
     @LogMessages(messages = {
@@ -141,10 +146,10 @@ public class ApiTest extends IntegrationTestHelper {
                 new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS_AND_LINES));
         TextInfo textInfo = parsedHocr.get(1).get(1);
 
-        Assert.assertEquals(287.25, (float)textInfo.getBboxRect().getLeft(), 0.1);
-        Assert.assertEquals(136.5f, (float)textInfo.getBboxRect().getBottom(), 0.1);
-        Assert.assertEquals(385.5, (float)textInfo.getBboxRect().getRight(), 0.1);
-        Assert.assertEquals(162.75, (float)textInfo.getBboxRect().getTop(), 0.1);
+        Assertions.assertEquals(287.25, (float)textInfo.getBboxRect().getLeft(), 0.1);
+        Assertions.assertEquals(136.5f, (float)textInfo.getBboxRect().getBottom(), 0.1);
+        Assertions.assertEquals(385.5, (float)textInfo.getBboxRect().getRight(), 0.1);
+        Assertions.assertEquals(162.75, (float)textInfo.getBboxRect().getTop(), 0.1);
     }
 
 }

@@ -24,11 +24,9 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +40,6 @@ public abstract class TesseractHelperTest extends IntegrationTestHelper {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TesseractHelperTest.class);
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
@@ -60,7 +55,7 @@ public abstract class TesseractHelperTest extends IntegrationTestHelper {
         tesseractReader = getTesseractReader(type);
     }
 
-    @Before
+    @BeforeEach
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
@@ -86,7 +81,7 @@ public abstract class TesseractHelperTest extends IntegrationTestHelper {
                 );
 
         String result = getTextFromPage(pageData.get(1));
-        Assert.assertEquals(expected, result.trim());
+        Assertions.assertEquals(expected, result.trim());
     }
 
     /**

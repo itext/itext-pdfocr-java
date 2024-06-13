@@ -25,11 +25,9 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +43,6 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ImageIntegrationTest.class);
 
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
-
     AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
     private boolean isExecutableReaderType;
@@ -62,7 +57,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         tesseractReader = getTesseractReader(type);
     }
 
-    @Before
+    @BeforeEach
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
@@ -84,12 +79,12 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                         new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS)
                 );
 
-        Assert.assertEquals("90", pageData.get(1).get(0).getText());
-        Assert.assertEquals("degrees", pageData.get(1).get(1).getText());
-        Assert.assertEquals("rotated", pageData.get(1).get(2).getText());
-        Assert.assertEquals("image", pageData.get(1).get(3).getText());
-        Assert.assertTrue(pageData.get(1).get(1).getBboxRect().getWidth() > 100);
-        Assert.assertTrue(pageData.get(1).get(1).getBboxRect().getHeight() < 100);
+        Assertions.assertEquals("90", pageData.get(1).get(0).getText());
+        Assertions.assertEquals("degrees", pageData.get(1).get(1).getText());
+        Assertions.assertEquals("rotated", pageData.get(1).get(2).getText());
+        Assertions.assertEquals("image", pageData.get(1).get(3).getText());
+        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getWidth() > 100);
+        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getHeight() < 100);
     }
 
     @Test
@@ -121,7 +116,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 getTargetDirectory(), "diff_") == null;
         boolean dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
                 getTargetDirectory(), "diff_") == null;
-        Assert.assertTrue(javaTest || dotNetTest);
+        Assertions.assertTrue(javaTest || dotNetTest);
 
         filename = "180_degrees_rotated";
         expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
@@ -138,7 +133,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
                 getTargetDirectory(), "diff_") == null;
 
-        Assert.assertTrue(javaTest || dotNetTest);
+        Assertions.assertTrue(javaTest || dotNetTest);
 
         filename = "270_degrees_rotated";
         expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
@@ -155,7 +150,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
                 getTargetDirectory(), "diff_") == null;
 
-        Assert.assertTrue(javaTest || dotNetTest);
+        Assertions.assertTrue(javaTest || dotNetTest);
     }
 
 }

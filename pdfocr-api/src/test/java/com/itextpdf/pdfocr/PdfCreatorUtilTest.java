@@ -34,34 +34,28 @@ import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.UnitTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PdfCreatorUtilTest extends ExtendedITextTest {
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @Test
     public void getImageDataFromValidSinglePagedTiffTest() throws IOException {
         File image = new File(PdfHelper.getImagesTestDirectory() + "single7x5cm.tif");
         List<ImageData> images = PdfCreatorUtil.getImageData(image, null);
 
-        Assert.assertEquals(1, images.size());
+        Assertions.assertEquals(1, images.size());
 
         ImageData imageDate = images.get(0);
-        Assert.assertNotNull(imageDate);
-        Assert.assertTrue(imageDate instanceof TiffImageData);
-        Assert.assertEquals(ImageType.TIFF, imageDate.getOriginalType());
+        Assertions.assertNotNull(imageDate);
+        Assertions.assertTrue(imageDate instanceof TiffImageData);
+        Assertions.assertEquals(ImageType.TIFF, imageDate.getOriginalType());
     }
 
     @Test
@@ -69,11 +63,11 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
         File image = new File(PdfHelper.getImagesTestDirectory() + "multipage.tiff");
         List<ImageData> images = PdfCreatorUtil.getImageData(image, null);
 
-        Assert.assertEquals(9, images.size());
+        Assertions.assertEquals(9, images.size());
         for (ImageData imageDate : images) {
-            Assert.assertNotNull(imageDate);
-            Assert.assertTrue(imageDate instanceof TiffImageData);
-            Assert.assertEquals(ImageType.TIFF, imageDate.getOriginalType());
+            Assertions.assertNotNull(imageDate);
+            Assertions.assertTrue(imageDate instanceof TiffImageData);
+            Assertions.assertEquals(ImageType.TIFF, imageDate.getOriginalType());
         }
     }
 
@@ -82,12 +76,12 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
         File image = new File(PdfHelper.getImagesTestDirectory() + "numbers_01.jpg");
         List<ImageData> images = PdfCreatorUtil.getImageData(image, null);
 
-        Assert.assertEquals(1, images.size());
+        Assertions.assertEquals(1, images.size());
 
         ImageData imageDate = images.get(0);
-        Assert.assertNotNull(imageDate);
-        Assert.assertTrue(imageDate instanceof JpegImageData);
-        Assert.assertEquals(ImageType.JPEG, imageDate.getOriginalType());
+        Assertions.assertNotNull(imageDate);
+        Assertions.assertTrue(imageDate instanceof JpegImageData);
+        Assertions.assertEquals(ImageType.JPEG, imageDate.getOriginalType());
     }
 
     @Test
@@ -95,9 +89,8 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     public void getImageDataFromNotExistingImageTest() throws IOException {
-        junitExpectedException.expect(PdfOcrInputException.class);
-
-        PdfCreatorUtil.getImageData(new File("no such path"), null);
+        Assertions.assertThrows(PdfOcrInputException.class,
+                () -> PdfCreatorUtil.getImageData(new File("no such path"), null));
     }
 
     @Test
@@ -105,11 +98,11 @@ public class PdfCreatorUtilTest extends ExtendedITextTest {
             @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     public void getImageDataFromInvalidImageTest() throws IOException {
-        junitExpectedException.expect(PdfOcrInputException.class);
-        junitExpectedException.expectMessage(MessageFormatUtil.format(
-                PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE));
+        Exception exception = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> PdfCreatorUtil.getImageData(new File(PdfHelper.getImagesTestDirectory() + "corrupted.jpg"),
+                        null));
 
-        PdfCreatorUtil.getImageData(new File(PdfHelper.getImagesTestDirectory() + "corrupted.jpg"),
-                null);
+        Assertions.assertEquals(MessageFormatUtil.format(
+                PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE), exception.getMessage());
     }
 }

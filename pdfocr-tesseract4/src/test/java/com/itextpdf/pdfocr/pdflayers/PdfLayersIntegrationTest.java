@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
 
@@ -65,15 +65,15 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         PdfDocument doc =
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
+        Assertions.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
         List<PdfLayer> layers = doc.getCatalog()
                 .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(numOfPages * 2, layers.size());
-        Assert.assertEquals("Image Layer",
+        Assertions.assertEquals(numOfPages * 2, layers.size());
+        Assertions.assertEquals("Image Layer",
                 layers.get(2).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals("Text Layer",
+        Assertions.assertEquals("Text Layer",
                 layers.get(3).getPdfObject().get(PdfName.Name).toString());
 
         doc.close();
@@ -81,12 +81,12 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         // Text layer should contain all text
         // Image layer shouldn't contain any text
         String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
-        Assert.assertEquals(expectedOutput,
+        Assertions.assertEquals(expectedOutput,
                 getTextFromPdfLayer(pdfPath, "Text Layer", 5));
-        Assert.assertEquals("",
+        Assertions.assertEquals("",
                 getTextFromPdfLayer(pdfPath,
                         "Image Layer", 5));
-        Assert.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
+        Assertions.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPreprocessingImages(preprocess));
@@ -109,12 +109,12 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         PdfDocument doc =
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
+        Assertions.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
         List<PdfLayer> layers = doc.getCatalog()
                 .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(0, layers.size());
+        Assertions.assertEquals(0, layers.size());
 
 
         doc.close();
@@ -122,9 +122,9 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         // Text layer should contain all text
         // Image layer shouldn't contain any text
         String expectedOutput = "Multipage\nTIFF\nExample\nPage 5";
-        Assert.assertEquals(expectedOutput,
+        Assertions.assertEquals(expectedOutput,
                 getTextFromPdfLayer(pdfPath, null, 5));
-        Assert.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
+        Assertions.assertFalse(tesseractReader.getTesseract4OcrEngineProperties().isPreprocessingImages());
         tesseractReader.setTesseract4OcrEngineProperties(
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setPreprocessingImages(preprocess));
@@ -149,16 +149,16 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
         PdfDocument doc = ocrPdfCreator.createPdf(files, getPdfWriter(pdfPath));
 
-        Assert.assertNotNull(doc);
+        Assertions.assertNotNull(doc);
         int numOfPages = doc.getNumberOfPages();
-        Assert.assertEquals(numOfPages, files.size());
+        Assertions.assertEquals(numOfPages, files.size());
         List<PdfLayer> layers = doc.getCatalog()
                 .getOCProperties(true).getLayers();
 
-        Assert.assertEquals(numOfPages * 2, layers.size());
-        Assert.assertEquals("image",
+        Assertions.assertEquals(numOfPages * 2, layers.size());
+        Assertions.assertEquals("image",
                 layers.get(2).getPdfObject().get(PdfName.Name).toString());
-        Assert.assertEquals("text",
+        Assertions.assertEquals("text",
                 layers.get(3).getPdfObject().get(PdfName.Name).toString());
 
         doc.close();
@@ -166,9 +166,9 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
         // Text layer should contain all text
         // Image layer shouldn't contain any text
         String expectedOutput = "619121";
-        Assert.assertEquals(expectedOutput,
+        Assertions.assertEquals(expectedOutput,
                 getTextFromPdfLayer(pdfPath, "text", 3));
-        Assert.assertEquals("",
+        Assertions.assertEquals("",
                 getTextFromPdfLayer(pdfPath, "image", 3));
     }
 }

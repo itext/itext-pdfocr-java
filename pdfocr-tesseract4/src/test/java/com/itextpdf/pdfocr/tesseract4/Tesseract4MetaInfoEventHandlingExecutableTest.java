@@ -22,11 +22,10 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class Tesseract4MetaInfoEventHandlingExecutableTest extends Tesseract4MetaInfoEventHandlingTest {
     public Tesseract4MetaInfoEventHandlingExecutableTest() {
         super(ReaderType.EXECUTABLE);

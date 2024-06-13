@@ -33,15 +33,14 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class Tesseract4FileResultEventHelperTest extends ExtendedITextTest {
 
     @Test
@@ -51,7 +50,7 @@ public class Tesseract4FileResultEventHelperTest extends ExtendedITextTest {
         Tesseract4FileResultEventHelper helper = new Tesseract4FileResultEventHelper();
         helper.onEvent(PdfOcrTesseract4ProductEvent.createProcessImageEvent(new SequenceId(), null,
                 EventConfirmationType.ON_CLOSE));
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
         EventManager.getInstance().unregister(eventsHandler);
     }
 
@@ -62,7 +61,7 @@ public class Tesseract4FileResultEventHelperTest extends ExtendedITextTest {
         Tesseract4FileResultEventHelper helper = new Tesseract4FileResultEventHelper();
         helper.onEvent(new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF,
                 PdfOcrTesseract4ProductData.getInstance()));
-        Assert.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
         EventManager.getInstance().unregister(eventsHandler);
     }
 

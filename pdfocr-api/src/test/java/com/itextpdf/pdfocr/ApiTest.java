@@ -48,7 +48,6 @@ import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,25 +56,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ApiTest extends ExtendedITextTest {
 
     public static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr";
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(DESTINATION_FOLDER);
     }
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @Test
     public void createPdfWithFileTest() {
@@ -88,7 +82,7 @@ public class ApiTest extends ExtendedITextTest {
                 new DocumentProperties().setEventCountingMetaInfo(new DummyMetaInfo())
         )) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
-            Assert.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
+            Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
         }
     }
 
@@ -105,7 +99,7 @@ public class ApiTest extends ExtendedITextTest {
 
         try (PdfDocument pdf = new PdfDocument(new PdfReader(output))) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
-            Assert.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
+            Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
         }
     }
 
@@ -122,8 +116,8 @@ public class ApiTest extends ExtendedITextTest {
                 PdfHelper.getRGBPdfOutputIntent()
         )) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
-            Assert.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
-            Assert.assertTrue(pdf instanceof PdfADocument);
+            Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
+            Assertions.assertTrue(pdf instanceof PdfADocument);
         }
     }
 
@@ -140,10 +134,10 @@ public class ApiTest extends ExtendedITextTest {
                 PdfHelper.getRGBPdfOutputIntent());
         try (PdfDocument pdf = new PdfDocument(new PdfReader(output))) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
-            Assert.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
+            Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
             PdfAConformanceLevel cl = pdf.getReader().getPdfAConformanceLevel();
-            Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
-            Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
+            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
+            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
         }
     }
 
@@ -159,10 +153,10 @@ public class ApiTest extends ExtendedITextTest {
                 PdfHelper.getRGBPdfOutputIntent());
         try (PdfDocument pdf = new PdfDocument(new PdfReader(output))) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
-            Assert.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
+            Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
             PdfAConformanceLevel cl = pdf.getReader().getPdfAConformanceLevel();
-            Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
-            Assert.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
+            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
+            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
         }
     }
 
@@ -178,14 +172,14 @@ public class ApiTest extends ExtendedITextTest {
                 new File(output),
                 PdfHelper.getRGBPdfOutputIntent());
 
-        Assert.assertTrue(ocrEngine.isGetMetaInfoContainerTriggered());
+        Assertions.assertTrue(ocrEngine.isGetMetaInfoContainerTriggered());
     }
 
     @Test
     public void testTextInfo() {
         String path = PdfHelper.getDefaultImagePath();
         Map<Integer, List<TextInfo>> result = new CustomOcrEngine().doImageOcr(new File(path));
-        Assert.assertEquals(1, result.size());
+        Assertions.assertEquals(1, result.size());
 
         TextInfo textInfo = new TextInfo();
         textInfo.setText("text");
@@ -193,8 +187,8 @@ public class ApiTest extends ExtendedITextTest {
         int page = 2;
         result.put(page, Collections.<TextInfo>singletonList(textInfo));
 
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
+        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals(textInfo.getText(), result.get(page).get(0).getText());
     }
 
     @LogMessages(messages = {
@@ -213,43 +207,43 @@ public class ApiTest extends ExtendedITextTest {
 
         PdfFont font = strategy.getPdfFont();
         String fontName = font.getFontProgram().getFontNames().getFontName();
-        Assert.assertTrue(fontName.contains("LiberationSans"));
+        Assertions.assertTrue(fontName.contains("LiberationSans"));
     }
 
     @Test
     public void testImageRotationHandler() {
-        junitExpectedException.expect(RuntimeException.class);
-        junitExpectedException
-                .expectMessage("applyRotation is not implemented");
+        Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+            properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
+            String testName = "testSetAndGetImageRotationHandler";
+            String path = PdfHelper.getImagesTestDirectory() + "90_degrees_rotated.jpg";
+            String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
-        String testName = "testSetAndGetImageRotationHandler";
-        String path = PdfHelper.getImagesTestDirectory() + "90_degrees_rotated.jpg";
-        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+            PdfHelper.createPdf(pdfPath, new File(path),
+                    properties);
 
-        PdfHelper.createPdf(pdfPath, new File(path),
-                properties);
+            Assertions.assertNotNull(properties.getImageRotationHandler());
+        });
 
-        Assert.assertNotNull(properties.getImageRotationHandler());
+        Assertions.assertEquals("applyRotation is not implemented", exception.getMessage());
     }
 
     @Test
     public void testImageRotationHandlerForTiff() {
-        junitExpectedException.expect(RuntimeException.class);
-        junitExpectedException
-                .expectMessage("applyRotation is not implemented");
+        Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
+            properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
+            String testName = "testSetAndGetImageRotationHandler";
+            String path = PdfHelper.getImagesTestDirectory() + "multipage.tiff";
+            String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
 
-        OcrPdfCreatorProperties properties = new OcrPdfCreatorProperties();
-        properties.setImageRotationHandler(new NotImplementedImageRotationHandler());
-        String testName = "testSetAndGetImageRotationHandler";
-        String path = PdfHelper.getImagesTestDirectory() + "multipage.tiff";
-        String pdfPath = PdfHelper.getTargetDirectory() + testName + ".pdf";
+            PdfHelper.createPdf(pdfPath, new File(path),
+                    properties);
 
-        PdfHelper.createPdf(pdfPath, new File(path),
-                properties);
+            Assertions.assertNotNull(properties.getImageRotationHandler());
+        });
 
-        Assert.assertNotNull(properties.getImageRotationHandler());
+        Assertions.assertEquals("applyRotation is not implemented", exception.getMessage());
     }
 
     @Test
@@ -270,7 +264,7 @@ public class ApiTest extends ExtendedITextTest {
                     new File(input)), pdfWriter, new DocumentProperties(), processProperties).close();
         }
 
-        Assert.assertNull(new CompareTool()
+        Assertions.assertNull(new CompareTool()
                 .compareByContent(pdfPath, PdfHelper.TEST_DIRECTORY + "cmp_tableStructureTree.pdf", PdfHelper.getTargetDirectory(), "diff_"));
     }
 
@@ -281,10 +275,10 @@ public class ApiTest extends ExtendedITextTest {
         String input = PdfHelper.getImagesTestDirectory() + "numbers_01.jpg";
         String pdfPath = PdfHelper.getTargetDirectory() + "taggingNotSupported.pdf";
 
-        Exception e = Assert.assertThrows(PdfOcrException.class,
+        Exception e = Assertions.assertThrows(PdfOcrException.class,
                 () -> PdfHelper.createPdf(pdfPath, new File(input), new OcrPdfCreatorProperties().setTagged(true))
         );
-        Assert.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
+        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                 PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED), e.getMessage());
     }
 

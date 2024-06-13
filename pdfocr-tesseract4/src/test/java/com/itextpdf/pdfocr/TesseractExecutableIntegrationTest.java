@@ -29,19 +29,14 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @LogMessages(messages = {
         @LogMessage(messageTemplate =
@@ -49,14 +44,17 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
     })
     @Test
     public void testNullPathToTesseractExecutable() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
-        Tesseract4ExecutableOcrEngine tesseractExecutableReader =
-                new Tesseract4ExecutableOcrEngine(
-                        new Tesseract4OcrEngineProperties());
-        tesseractExecutableReader.setPathToExecutable(null);
-        getTextFromPdf(tesseractExecutableReader, file);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            Tesseract4ExecutableOcrEngine tesseractExecutableReader =
+                    new Tesseract4ExecutableOcrEngine(
+                            new Tesseract4OcrEngineProperties());
+            tesseractExecutableReader.setPathToExecutable(null);
+            getTextFromPdf(tesseractExecutableReader, file);
+        });
+
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE,
+                exception.getMessage());
     }
 
     @LogMessages(messages = {
@@ -65,10 +63,11 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
     })
     @Test
     public void testEmptyPathToTesseractExecutable() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
-        getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+                () -> getTextFromPdf(new Tesseract4ExecutableOcrEngine("", new Tesseract4OcrEngineProperties()), file));
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE,
+                exception.getMessage());
     }
 
     @LogMessages(messages = {
@@ -79,9 +78,10 @@ public class TesseractExecutableIntegrationTest extends IntegrationTestHelper {
     })
     @Test
     public void testIncorrectPathToTesseractExecutable() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND);
         File file = new File(TEST_IMAGES_DIRECTORY + "spanish_01.jpg");
-        getTextFromPdf(new Tesseract4ExecutableOcrEngine("path\\to\\executable\\", new Tesseract4OcrEngineProperties()), file);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> getTextFromPdf(
+                new Tesseract4ExecutableOcrEngine("path\\to\\executable\\", new Tesseract4OcrEngineProperties()),
+                file));
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_NOT_FOUND, exception.getMessage());
     }
 }

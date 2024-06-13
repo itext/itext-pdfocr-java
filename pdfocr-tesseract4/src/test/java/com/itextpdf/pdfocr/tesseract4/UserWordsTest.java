@@ -27,11 +27,9 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,9 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class UserWordsTest extends IntegrationTestHelper {
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
@@ -59,7 +54,7 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
         tesseractReader = getTesseractReader(type);
     }
 
-    @Before
+    @BeforeEach
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
@@ -78,10 +73,10 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
         properties.setUserWords("fra", userWords);
         tesseractReader.setTesseract4OcrEngineProperties(properties);
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        Assert.assertTrue(result.contains(userWords.get(0))
+        Assertions.assertTrue(result.contains(userWords.get(0))
                 || result.contains(userWords.get(1)));
 
-        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
+        Assertions.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
                 .getPathToUserWordsFile().endsWith(".user-words"));
     }
 
@@ -99,35 +94,39 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
         result = result.replace("\n", "").replace("\f", "");
         result = result.replaceAll("[^\\u0009\\u000A\\u000D\\u0020-\\u007E]", "");
-        Assert.assertTrue(result.startsWith(expectedOutput));
+        Assertions.assertTrue(result.startsWith(expectedOutput));
 
-        Assert.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
+        Assertions.assertTrue(tesseractReader.getTesseract4OcrEngineProperties()
                 .getPathToUserWordsFile().endsWith(".user-words"));
     }
 
     @Test
     public void testUserWordsWithLanguageNotInList() throws FileNotFoundException {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST,
-                        "spa"));
-        String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("spa", new FileInputStream(userWords));
-        properties.setLanguages(new ArrayList<String>());
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            String userWords = TEST_DOCUMENTS_DIRECTORY + "userwords.txt";
+            Tesseract4OcrEngineProperties properties =
+                    tesseractReader.getTesseract4OcrEngineProperties();
+            properties.setUserWords("spa", new FileInputStream(userWords));
+            properties.setLanguages(new ArrayList<String>());
+        });
+
+        Assertions.assertEquals(MessageFormatUtil
+                        .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST, "spa"),
+                exception.getMessage());
     }
 
     @Test
     public void testIncorrectLanguageForUserWordsAsList() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST,
-                        "eng1"));
-        Tesseract4OcrEngineProperties properties =
-                tesseractReader.getTesseract4OcrEngineProperties();
-        properties.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
-        properties.setLanguages(new ArrayList<String>());
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+            Tesseract4OcrEngineProperties properties =
+                    tesseractReader.getTesseract4OcrEngineProperties();
+            properties.setUserWords("eng1", Arrays.<String>asList("word1", "word2"));
+            properties.setLanguages(new ArrayList<String>());
+        });
+
+        Assertions.assertEquals(MessageFormatUtil
+                        .format(PdfOcrTesseract4ExceptionMessageConstant.LANGUAGE_IS_NOT_IN_THE_LIST, "eng1"),
+                exception.getMessage());
     }
 
     @Test
@@ -142,7 +141,7 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
         String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         String expectedOutput = "619121";
         String result = getRecognizedTextFromTextFile(tesseractReader, imgPath);
-        Assert.assertTrue(result.startsWith(expectedOutput));
+        Assertions.assertTrue(result.startsWith(expectedOutput));
     }
 
     @Test
@@ -155,6 +154,6 @@ public abstract class UserWordsTest extends IntegrationTestHelper {
         tesseractReader.setTesseract4OcrEngineProperties(properties);
         String imgPath = TEST_IMAGES_DIRECTORY + "numbers_01.jpg";
         tesseractReader.doImageOcr(new File(imgPath));
-        Assert.assertTrue(new File(userWords).exists());
+        Assertions.assertTrue(new File(userWords).exists());
     }
 }

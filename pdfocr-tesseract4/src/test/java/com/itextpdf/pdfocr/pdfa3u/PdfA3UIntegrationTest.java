@@ -39,10 +39,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
 
@@ -52,9 +50,6 @@ public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
     private static final String DEFAULT_RGB_COLOR_PROFILE_PATH = TEST_DIRECTORY + "profiles/sRGB_CS_profile.icm";
 
     AbstractTesseract4OcrEngine tesseractReader;
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     public PdfA3UIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
@@ -79,7 +74,7 @@ public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
             tesseractReader.setTesseract4OcrEngineProperties(
                     tesseractReader.getTesseract4OcrEngineProperties()
                             .setTextPositioning(TextPositioning.BY_WORDS));
-            Assert.assertEquals(tesseractReader, ocrPdfCreator.getOcrEngine());
+            Assertions.assertEquals(tesseractReader, ocrPdfCreator.getOcrEngine());
             ocrPdfCreator.setOcrEngine(tesseractReader);
             PdfDocument doc =
                     ocrPdfCreator.createPdfA(
@@ -88,14 +83,14 @@ public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
                                     + filename + ".jpg")),
                             getPdfWriter(resultPdfPath),
                             getCMYKPdfOutputIntent());
-            Assert.assertNotNull(doc);
+            Assertions.assertNotNull(doc);
             doc.close();
 
-            Assert.assertNull(new CompareTool()
+            Assertions.assertNull(new CompareTool()
                     .compareByContent(resultPdfPath, expectedPdfPath,
                             getTargetDirectory(), "diff_"));
         } finally {
-            Assert.assertEquals(TextPositioning.BY_WORDS,
+            Assertions.assertEquals(TextPositioning.BY_WORDS,
                     tesseractReader.getTesseract4OcrEngineProperties().getTextPositioning());
             tesseractReader.setTesseract4OcrEngineProperties(
                     tesseractReader.getTesseract4OcrEngineProperties()
@@ -130,10 +125,10 @@ public abstract class PdfA3UIntegrationTest extends IntegrationTestHelper {
                         new File(TEST_IMAGES_DIRECTORY + filename
                                 + ".jpg")), getPdfWriter(resultPdfPath),
                 getRGBPdfOutputIntent());
-        Assert.assertNotNull(doc);
+        Assertions.assertNotNull(doc);
         doc.close();
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 

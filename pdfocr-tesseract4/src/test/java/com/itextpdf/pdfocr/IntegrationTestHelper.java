@@ -47,7 +47,6 @@ import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,12 +58,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class IntegrationTestHelper extends ExtendedITextTest {
 
     private static final Logger LOGGER = LoggerFactory
@@ -311,7 +310,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
                 new File(txtPath));
 
         if (languages != null) {
-            Assert.assertEquals(languages.size(),
+            Assertions.assertEquals(languages.size(),
                     tesseractReader.getTesseract4OcrEngineProperties().getLanguages().size());
         }
     }
@@ -365,7 +364,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
             properties.setTextColor(color);
         }
         if (languages != null) {
-            Assert.assertEquals(languages.size(),
+            Assertions.assertEquals(languages.size(),
                     tesseractReader.getTesseract4OcrEngineProperties().getLanguages().size());
         }
 
@@ -375,7 +374,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
                     Collections.<File>singletonList(new File(imgPath)),
                     pdfWriter);
 
-            Assert.assertNotNull(doc);
+            Assertions.assertNotNull(doc);
             doc.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());

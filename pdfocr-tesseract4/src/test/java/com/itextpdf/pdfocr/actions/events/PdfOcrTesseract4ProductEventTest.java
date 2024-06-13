@@ -27,23 +27,22 @@ import com.itextpdf.commons.actions.sequence.SequenceId;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PdfOcrTesseract4ProductEventTest extends ExtendedITextTest {
     @Test
     public void eventTypeTest() {
         PdfOcrTesseract4ProductEvent e = PdfOcrTesseract4ProductEvent
                 .createProcessImageEvent(new SequenceId(), null, EventConfirmationType.ON_DEMAND);
-        Assert.assertEquals(PdfOcrTesseract4ProductEvent.PROCESS_IMAGE, e.getEventType());
+        Assertions.assertEquals(PdfOcrTesseract4ProductEvent.PROCESS_IMAGE, e.getEventType());
     }
 
     @Test
     public void productDataNameTest() {
-        Assert.assertEquals("pdfOcr-tesseract4", PdfOcrTesseract4ProductData.getInstance().getProductName());
+        Assertions.assertEquals("pdfOcr-tesseract4", PdfOcrTesseract4ProductData.getInstance().getProductName());
     }
 }

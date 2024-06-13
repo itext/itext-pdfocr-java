@@ -24,18 +24,16 @@ package com.itextpdf.pdfocr.statistics;
 
 import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.commons.logs.CommonsLogMessageConstant;
-import com.itextpdf.kernel.pdf.statistics.NumberOfPagesStatisticsAggregator;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.UnitTest;
 
 import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PdfOcrOutputTypeStatisticsEventTest extends ExtendedITextTest {
     private static final ProductData DUMMY_PRODUCT_DATA =
             new ProductData("test-product", "inner_product", "1.0.0", 1900, 2100);
@@ -44,16 +42,16 @@ public class PdfOcrOutputTypeStatisticsEventTest extends ExtendedITextTest {
     public void defaultEventTest() {
         PdfOcrOutputTypeStatisticsEvent event = new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF, DUMMY_PRODUCT_DATA);
 
-        Assert.assertEquals(PdfOcrOutputType.PDF, event.getPdfOcrStatisticsEventType());
-        Assert.assertEquals(Collections.singletonList("ocrOutput"), event.getStatisticsNames());
-        Assert.assertEquals(
+        Assertions.assertEquals(PdfOcrOutputType.PDF, event.getPdfOcrStatisticsEventType());
+        Assertions.assertEquals(Collections.singletonList("ocrOutput"), event.getStatisticsNames());
+        Assertions.assertEquals(
                 PdfOcrOutputTypeStatisticsAggregator.class, event.createStatisticsAggregatorFromName("ocrOutput").getClass());
     }
 
     @Test
     @LogMessages(messages = @LogMessage(messageTemplate = CommonsLogMessageConstant.INVALID_STATISTICS_NAME))
     public void invalidAggregatorNameTest() {
-        Assert.assertNull(new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF, DUMMY_PRODUCT_DATA)
+        Assertions.assertNull(new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF, DUMMY_PRODUCT_DATA)
                 .createStatisticsAggregatorFromName("dummy name"));
     }
 }

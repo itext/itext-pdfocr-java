@@ -24,13 +24,12 @@ package com.itextpdf.pdfocr.structuretree;
 
 import com.itextpdf.kernel.pdf.tagutils.DefaultAccessibilityProperties;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class LogicalStructureTreeItemTest extends ExtendedITextTest {
 
     @Test
@@ -42,10 +41,10 @@ public class LogicalStructureTreeItemTest extends ExtendedITextTest {
         parent.addChild(child1);
         parent.addChild(child2);
 
-        Assert.assertEquals(2, parent.getChildren().size());
-        Assert.assertEquals(0, child1.getChildren().size());
-        Assert.assertEquals(parent, child1.getParent());
-        Assert.assertEquals(parent, child2.getParent());
+        Assertions.assertEquals(2, parent.getChildren().size());
+        Assertions.assertEquals(0, child1.getChildren().size());
+        Assertions.assertEquals(parent, child1.getParent());
+        Assertions.assertEquals(parent, child2.getParent());
     }
 
     @Test
@@ -57,9 +56,9 @@ public class LogicalStructureTreeItemTest extends ExtendedITextTest {
         parent.addChild(child1);
         parent.addChild(child2);
 
-        Assert.assertTrue(parent.removeChild(child1));
-        Assert.assertFalse(parent.removeChild(child1));
-        Assert.assertEquals(1, parent.getChildren().size());
+        Assertions.assertTrue(parent.removeChild(child1));
+        Assertions.assertFalse(parent.removeChild(child1));
+        Assertions.assertEquals(1, parent.getChildren().size());
     }
 
     @Test
@@ -67,6 +66,6 @@ public class LogicalStructureTreeItemTest extends ExtendedITextTest {
         LogicalStructureTreeItem item = new LogicalStructureTreeItem()
                 .setAccessibilityProperties(new DefaultAccessibilityProperties("Some role"));
 
-        Assert.assertEquals("Some role", item.getAccessibilityProperties().getRole());
+        Assertions.assertEquals("Some role", item.getAccessibilityProperties().getRole());
     }
 }

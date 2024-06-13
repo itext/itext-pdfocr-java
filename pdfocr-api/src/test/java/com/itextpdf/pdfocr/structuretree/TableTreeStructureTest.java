@@ -23,13 +23,12 @@
 package com.itextpdf.pdfocr.structuretree;
 
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class TableTreeStructureTest extends ExtendedITextTest {
 
     @Test
@@ -50,10 +49,10 @@ public class TableTreeStructureTest extends ExtendedITextTest {
                                 .addChild(new ParagraphTreeItem()
                                         .addChild(new SpanTreeItem()))));
 
-        Assert.assertEquals(2, table.getChildren().size());
-        Assert.assertEquals(2, table.getChildren().get(0).getChildren().size());
-        Assert.assertEquals(1, table.getChildren().get(0).getChildren().get(0).getChildren().size());
-        Assert.assertEquals(1, table.getChildren().get(0).getChildren().get(0).getChildren()
+        Assertions.assertEquals(2, table.getChildren().size());
+        Assertions.assertEquals(2, table.getChildren().get(0).getChildren().size());
+        Assertions.assertEquals(1, table.getChildren().get(0).getChildren().get(0).getChildren().size());
+        Assertions.assertEquals(1, table.getChildren().get(0).getChildren().get(0).getChildren()
                 .get(0).getChildren().size());
     }
 }

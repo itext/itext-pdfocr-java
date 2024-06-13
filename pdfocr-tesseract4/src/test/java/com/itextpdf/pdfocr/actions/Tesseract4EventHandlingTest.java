@@ -51,8 +51,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandlingTestHelper {
 
@@ -68,7 +68,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
         // check ocr events
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -90,11 +90,11 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         List<File> images = Collections.singletonList(imgFile);
         File outPdfFile = FileUtil.createTempFile("test", ".pdf");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(PdfOcrException.class,
+        Assertions.assertThrows(PdfOcrException.class,
                 () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
 
         // check ocr events
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -103,8 +103,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         List<File> images = Collections.singletonList(imgFile);
         File outPdfFile = new File("no/no_file");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(IOException.class, () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertThrows(IOException.class, () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -112,8 +112,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Collections.singletonList(imgFile);
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(NullPointerException.class, () -> ocrPdfCreator.createPdfFile(images, null));
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertThrows(NullPointerException.class, () -> ocrPdfCreator.createPdfFile(images, null));
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -124,7 +124,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         new OcrPdfCreator(tesseractReader).createPdfFile(Arrays.asList(imgFile, imgFile), outPdfFile);
 
         // check ocr events
-        Assert.assertEquals(5, eventsHandler.getEvents().size());
+        Assertions.assertEquals(5, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent1 = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent1, EventConfirmationType.ON_CLOSE);
@@ -152,7 +152,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
-        Assert.assertEquals(6, eventsHandler.getEvents().size());
+        Assertions.assertEquals(6, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -185,7 +185,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
                 new OcrPdfCreator(tesseractReader).createPdf(Collections.singletonList(imgFile), pdfWriter);
         pdfDocument.close();
 
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -210,11 +210,11 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(PdfOcrTesseract4Exception.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
+        Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
 
         pdfWriter.close();
 
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -222,8 +222,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Collections.singletonList(imgFile);
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assert.assertThrows(IllegalArgumentException.class, () -> ocrPdfCreator.createPdf(images, null));
-        Assert.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ocrPdfCreator.createPdf(images, null));
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
         validateUsageEvent(eventsHandler.getEvents().get(0), EventConfirmationType.ON_CLOSE);
     }
 
@@ -238,7 +238,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
                 outPdfFile, getRGBPdfOutputIntent());
 
         // check ocr events
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -266,7 +266,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         pdfDocument.close();
 
         // check ocr events
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -288,7 +288,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.doImageOcr(imgFile);
 
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -299,8 +299,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @LogMessages(messages = @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE))
     public void doImageOcrNoImageTest() {
         File imgFile = new File("uncknown");
-        Assert.assertThrows(PdfOcrException.class, () -> tesseractReader.doImageOcr(imgFile));
-        Assert.assertEquals(0, eventsHandler.getEvents().size());
+        Assertions.assertThrows(PdfOcrException.class, () -> tesseractReader.doImageOcr(imgFile));
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -310,7 +310,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         tesseractReader.doImageOcr(imgFile);
         tesseractReader.doImageOcr(imgFile);
 
-        Assert.assertEquals(6, eventsHandler.getEvents().size());
+        Assertions.assertEquals(6, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -328,7 +328,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
                 FileUtil.createTempFile("test", ".txt"));
 
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -343,7 +343,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
                 FileUtil.createTempFile("test", ".txt"),
                 new OcrProcessContext(null));
 
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -357,9 +357,9 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File("no_image");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = FileUtil.createTempFile("test", ".txt");
-        Assert.assertThrows(PdfOcrException.class, () -> tesseractReader.createTxtFile(images, outPdfFile));
+        Assertions.assertThrows(PdfOcrException.class, () -> tesseractReader.createTxtFile(images, outPdfFile));
         // only one usage event is expected and it is not confirmed (no confirm event
-        Assert.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
         validateUsageEvent(eventsHandler.getEvents().get(0), EventConfirmationType.ON_DEMAND);
     }
 
@@ -368,11 +368,11 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = new File("nopath/nofile");
-        Exception e = Assert.assertThrows(PdfOcrTesseract4Exception.class,
+        Exception e = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
                 () -> tesseractReader.createTxtFile(images, outPdfFile));
-        Assert.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e.getMessage());
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e.getMessage());
 
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -383,8 +383,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileNullOutFileTest() {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
-        Assert.assertThrows(NullPointerException.class, () -> tesseractReader.createTxtFile(images, null));
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertThrows(NullPointerException.class, () -> tesseractReader.createTxtFile(images, null));
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -399,7 +399,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
 
         createPdfAndSetEventCountingMetaInfo(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -423,7 +423,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         createPdfFileAndSetMetaInfoToProps(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
         // check ocr events
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -445,7 +445,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.doImageOcr(imgFile, new OcrProcessContext(new CustomEventHelper()));
 
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
@@ -459,7 +459,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
                 FileUtil.createTempFile("test", ".txt"),
                 new OcrProcessContext(new CustomEventHelper()));
 
-        Assert.assertEquals(4, eventsHandler.getEvents().size());
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
         validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
