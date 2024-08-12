@@ -67,8 +67,8 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
-import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 import com.itextpdf.pdfocr.structuretree.ArtifactItem;
+import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -623,7 +623,7 @@ public class OcrPdfCreator {
                         ocrPdfCreatorProperties.getPageSize(), imageSize);
                 final Rectangle rect =
                         new Rectangle(
-                                (float)coordinates.x, (float)coordinates.y,
+                                (float)coordinates.getX(), (float)coordinates.getY(),
                                 imageSize.getWidth(), imageSize.getHeight());
                 pdfCanvas.addImageFittedIntoRectangle(imageData, rect, false);
             }
@@ -792,8 +792,8 @@ public class OcrPdfCreator {
             }
 
             canvas.showTextAligned(paragraph,
-                    xOffset + (float) imageCoordinates.x,
-                    yOffset + (float) imageCoordinates.y,
+                    xOffset + (float) imageCoordinates.getX(),
+                    yOffset + (float) imageCoordinates.getY(),
                     TextAlignment.LEFT);
 
             if (ocrPdfCreatorProperties.isTagged()) {
