@@ -107,7 +107,7 @@ public class PdfHelper {
      *
      * Create pdfWriter using provided path to destination file.
      */
-    public static PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
+    public static PdfWriter getPdfWriter(String pdfPath) throws IOException {
         return new PdfWriter(pdfPath,
                 new WriterProperties().addUAXmpMetadata());
     }

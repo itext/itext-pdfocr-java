@@ -437,7 +437,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     /**
      * Create pdfWriter using provided path to destination file.
      */
-    protected PdfWriter getPdfWriter(String pdfPath) throws FileNotFoundException {
+    protected PdfWriter getPdfWriter(String pdfPath) throws IOException {
         return new PdfWriter(pdfPath,
                 new WriterProperties().addUAXmpMetadata());
     }
