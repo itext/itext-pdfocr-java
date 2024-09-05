@@ -269,8 +269,6 @@ public class ApiTest extends ExtendedITextTest {
     }
 
     @Test
-    @LogMessages(messages = @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
-            logLevel = LogLevelConstants.ERROR))
     public void testTaggingNotSupported() {
         String input = PdfHelper.getImagesTestDirectory() + "numbers_01.jpg";
         String pdfPath = PdfHelper.getTargetDirectory() + "taggingNotSupported.pdf";
@@ -278,8 +276,7 @@ public class ApiTest extends ExtendedITextTest {
         Exception e = Assertions.assertThrows(PdfOcrException.class,
                 () -> PdfHelper.createPdf(pdfPath, new File(input), new OcrPdfCreatorProperties().setTagged(true))
         );
-        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
-                PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED), e.getMessage());
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED, e.getMessage());
     }
 
     static class NotImplementedImageRotationHandler implements IImageRotationHandler {

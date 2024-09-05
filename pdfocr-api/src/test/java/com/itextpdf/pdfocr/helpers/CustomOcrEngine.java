@@ -47,8 +47,7 @@ public class CustomOcrEngine implements IOcrEngine {
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
-        Map<Integer, List<TextInfo>> result =
-                new HashMap<Integer, List<TextInfo>>();
+        Map<Integer, List<TextInfo>> result = new HashMap<Integer, List<TextInfo>>();
         String text = PdfHelper.DEFAULT_TEXT;
         if (input.getAbsolutePath().contains(PdfHelper.THAI_IMAGE_NAME)) {
             text = PdfHelper.THAI_TEXT;
@@ -72,6 +71,10 @@ public class CustomOcrEngine implements IOcrEngine {
 
     }
 
+    @Override
+    public boolean isTaggingSupported() {
+        return false;
+    }
 
     public OcrEngineProperties getOcrEngineProperties() {
         return ocrEngineProperties;

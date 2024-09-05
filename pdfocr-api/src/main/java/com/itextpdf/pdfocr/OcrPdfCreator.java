@@ -129,6 +129,9 @@ public class OcrPdfCreator {
      */
     public OcrPdfCreator(final IOcrEngine ocrEngine,
             final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
+        if (ocrPdfCreatorProperties.isTagged() && !ocrEngine.isTaggingSupported()) {
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
+        }
         setOcrEngine(ocrEngine);
         setOcrPdfCreatorProperties(ocrPdfCreatorProperties);
     }
@@ -471,11 +474,7 @@ public class OcrPdfCreator {
                 // Logical tree, a list of top items, children can be retrieved out of them
                 List<LogicalStructureTreeItem> logicalTree = new ArrayList<>();
                 // A map of leaf LogicalStructureTreeItem's to TextInfo's attached to these leaves
-                Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = new HashMap<>();
-                final boolean taggedSupported = getLogicalTree(pageText, logicalTree, leavesTextInfos);
-                if (!taggedSupported) {
-                    throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
-                }
+                Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = getLogicalTree(pageText, logicalTree);
                 pdfDocument.setTagged();
 
                 // Create a map of TextInfo to tag pointers meanwhile creating the required tags.
@@ -634,19 +633,12 @@ public class OcrPdfCreator {
         }
     }
 
-    /**
-     * @return {@code true} if tagging supported by the engine.
-     * @deprecated In next major version we need to add boolean taggingSupported() method into IOcrEngine
-     * and throw exception in OcrPdfCreator constructor if taggingSupported() returns false but
-     * OcrPdfCreatorProperties.getTagged returns true.
-     */
-    @Deprecated
-    private static boolean getLogicalTree(List<TextInfo> textInfos,
-            List<LogicalStructureTreeItem> logicalStructureTreeItems,
-            Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos) {
-        boolean taggedSupported = false;
+    private static Map<LogicalStructureTreeItem, List<TextInfo>> getLogicalTree(
+            List<TextInfo> textInfos, List<LogicalStructureTreeItem> logicalStructureTreeItems) {
+
+        Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = new HashMap<>();
         if (textInfos == null) {
-            return taggedSupported;
+            return leavesTextInfos;
         }
 
         for (TextInfo textInfo : textInfos) {
@@ -656,7 +648,6 @@ public class OcrPdfCreator {
                 continue;
             } else if (structTreeItem != null) {
                 topParent = getTopParent(structTreeItem);
-                taggedSupported = true;
             } else {
                 structTreeItem = new LogicalStructureTreeItem();
                 textInfo.setLogicalStructureTreeItem(structTreeItem);
@@ -675,7 +666,7 @@ public class OcrPdfCreator {
             }
         }
 
-        return taggedSupported;
+        return leavesTextInfos;
     }
 
     private static LogicalStructureTreeItem getTopParent(LogicalStructureTreeItem structInfo) {

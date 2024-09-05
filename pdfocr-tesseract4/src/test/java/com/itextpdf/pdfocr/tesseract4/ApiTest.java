@@ -24,7 +24,11 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
@@ -152,4 +156,21 @@ public class ApiTest extends IntegrationTestHelper {
         Assertions.assertEquals(162.75, (float)textInfo.getBboxRect().getTop(), 0.1);
     }
 
+    @Test
+    public void testTaggingNotSupportedForTesseract4ExecutableOcrEngine() {
+        Exception e = Assertions.assertThrows(PdfOcrException.class,
+                () -> new OcrPdfCreator(new Tesseract4ExecutableOcrEngine(new Tesseract4OcrEngineProperties()),
+                        new OcrPdfCreatorProperties().setTagged(true))
+        );
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED, e.getMessage());
+    }
+
+    @Test
+    public void testTaggingNotSupportedForTesseract4LibOcrEngine() {
+        Exception e = Assertions.assertThrows(PdfOcrException.class,
+                () -> new OcrPdfCreator(new Tesseract4LibOcrEngine(new Tesseract4OcrEngineProperties()),
+                        new OcrPdfCreatorProperties().setTagged(true))
+        );
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED, e.getMessage());
+    }
 }
