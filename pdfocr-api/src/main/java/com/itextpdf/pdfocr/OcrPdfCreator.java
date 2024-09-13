@@ -924,7 +924,7 @@ public class OcrPdfCreator {
             // unicode of the not found glyph
             String message = PdfOcrLogMessageConstant
                     .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER;
-            for (int i = glyphLine.start; i < glyphLine.end; i++) {
+            for (int i = glyphLine.getStart(); i < glyphLine.getEnd(); i++) {
                 if (isNotDefGlyph(currentFont, glyphLine.get(i))) {
                     notDefGlyphsExists = true;
                     message = MessageFormatUtil.format(PdfOcrLogMessageConstant
