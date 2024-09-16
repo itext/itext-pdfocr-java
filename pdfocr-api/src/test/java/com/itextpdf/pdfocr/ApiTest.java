@@ -23,13 +23,12 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
-import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.DocumentProperties;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
+import com.itextpdf.kernel.pdf.PdfAConformance;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -45,7 +44,6 @@ import com.itextpdf.pdfocr.helpers.TestProcessProperties;
 import com.itextpdf.pdfocr.helpers.TestStructureDetectionOcrEngine;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -57,9 +55,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class ApiTest extends ExtendedITextTest {
@@ -135,9 +133,9 @@ public class ApiTest extends ExtendedITextTest {
         try (PdfDocument pdf = new PdfDocument(new PdfReader(output))) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
             Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
-            PdfAConformanceLevel cl = pdf.getReader().getPdfAConformanceLevel();
-            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
-            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
+            PdfAConformance cl = pdf.getReader().getPdfConformance().getAConformance();
+            Assertions.assertEquals(PdfAConformance.PDF_A_3U.getLevel(), cl.getLevel());
+            Assertions.assertEquals(PdfAConformance.PDF_A_3U.getPart(), cl.getPart());
         }
     }
 
@@ -154,9 +152,9 @@ public class ApiTest extends ExtendedITextTest {
         try (PdfDocument pdf = new PdfDocument(new PdfReader(output))) {
             String contentBytes = new String(pdf.getPage(1).getContentBytes(), StandardCharsets.UTF_8);
             Assertions.assertTrue(contentBytes.contains("<00190014001c001400150014>"));
-            PdfAConformanceLevel cl = pdf.getReader().getPdfAConformanceLevel();
-            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getConformance(), cl.getConformance());
-            Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U.getPart(), cl.getPart());
+            PdfAConformance cl = pdf.getReader().getPdfConformance().getAConformance();
+            Assertions.assertEquals(PdfAConformance.PDF_A_3U.getLevel(), cl.getLevel());
+            Assertions.assertEquals(PdfAConformance.PDF_A_3U.getPart(), cl.getPart());
         }
     }
 

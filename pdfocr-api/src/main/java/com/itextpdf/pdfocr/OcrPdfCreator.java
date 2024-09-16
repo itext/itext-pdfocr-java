@@ -39,7 +39,7 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.DocumentProperties;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
+import com.itextpdf.kernel.pdf.PdfAConformance;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfName;
@@ -503,7 +503,7 @@ public class OcrPdfCreator {
         boolean createPdfA3u = pdfOutputIntent != null;
         if (createPdfA3u) {
             pdfDocument = new PdfADocument(pdfWriter,
-                    PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent,
+                    PdfAConformance.PDF_A_3U, pdfOutputIntent,
                     documentProperties);
         } else {
             pdfDocument = new PdfDocument(pdfWriter,

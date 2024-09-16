@@ -26,7 +26,7 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
+import com.itextpdf.kernel.pdf.PdfAConformance;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.layout.font.FontProvider;
@@ -43,8 +43,8 @@ import com.itextpdf.test.annotations.LogMessages;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class PdfA3uTest extends ExtendedITextTest {
@@ -107,8 +107,8 @@ public class PdfA3uTest extends ExtendedITextTest {
                 pdfDocument.getCatalog().getLang().toString());
         Assertions.assertEquals(null,
                 pdfDocument.getDocumentInfo().getTitle());
-        Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
+        Assertions.assertEquals(PdfAConformance.PDF_A_3U,
+                pdfDocument.getReader().getPdfConformance().getAConformance());
 
         pdfDocument.close();
     }
@@ -135,8 +135,8 @@ public class PdfA3uTest extends ExtendedITextTest {
                 pdfDocument.getCatalog().getLang().toString());
         Assertions.assertEquals(title,
                 pdfDocument.getDocumentInfo().getTitle());
-        Assertions.assertEquals(PdfAConformanceLevel.PDF_A_3U,
-                pdfDocument.getReader().getPdfAConformanceLevel());
+        Assertions.assertEquals(PdfAConformance.PDF_A_3U,
+                pdfDocument.getReader().getPdfConformance().getAConformance());
 
         pdfDocument.close();
     }
