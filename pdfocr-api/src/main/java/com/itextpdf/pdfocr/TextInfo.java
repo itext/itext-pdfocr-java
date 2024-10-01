@@ -25,6 +25,8 @@ package com.itextpdf.pdfocr;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 
+import java.util.Objects;
+
 /**
  * This class describes how recognized text is positioned on the image
  * providing bbox for each text item (could be a line or a word).
@@ -40,6 +42,12 @@ public class TextInfo {
      * {@link Rectangle} describing text bbox (lower-left based) expressed in points.
      */
     private Rectangle bboxRect;
+
+    /**
+     * {@link TextOrientation} describing the orientation of the text (i.e. rotation). Text is
+     * assumed to be horizontal without any rotation by default.
+     */
+    private TextOrientation orientation = TextOrientation.HORIZONTAL;
 
     /**
      * If LogicalStructureTreeItem is set, then {@link TextInfo}s are expected to be in logical order.
@@ -60,6 +68,7 @@ public class TextInfo {
     public TextInfo(final TextInfo textInfo) {
         this.text = textInfo.text;
         this.bboxRect = new Rectangle(textInfo.bboxRect);
+        this.orientation = textInfo.orientation;
     }
 
     /**
@@ -71,6 +80,19 @@ public class TextInfo {
     public TextInfo(final String text, final Rectangle bbox) {
         this.text = text;
         this.bboxRect = new Rectangle(bbox);
+    }
+
+    /**
+     * Creates a new {@link TextInfo} instance.
+     *
+     * @param text any text
+     * @param bbox {@link Rectangle} describing text bbox
+     * @param orientation orientation of the text
+     */
+    public TextInfo(final String text, final Rectangle bbox, final TextOrientation orientation) {
+        this.text = text;
+        this.bboxRect = new Rectangle(bbox);
+        this.orientation = Objects.requireNonNull(orientation);
     }
 
     /**
@@ -107,6 +129,24 @@ public class TextInfo {
      */
     public void setBboxRect(final Rectangle bbox) {
         this.bboxRect = new Rectangle(bbox);
+    }
+
+    /**
+     * Gets the text orientation.
+     *
+     * @return {@link TextOrientation} describing the orientation of the text (i.e. rotation)
+     */
+    public TextOrientation getOrientation() {
+        return orientation;
+    }
+
+    /**
+     * Sets the text orientation.
+     *
+     * @param orientation {@link TextOrientation} describing the orientation of the text (i.e. rotation)
+     */
+    public void setOrientation(final TextOrientation orientation) {
+        this.orientation = Objects.requireNonNull(orientation);
     }
 
     /**

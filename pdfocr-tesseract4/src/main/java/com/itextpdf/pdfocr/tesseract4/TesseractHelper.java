@@ -26,6 +26,7 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.SystemUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
@@ -74,6 +75,9 @@ public class TesseractHelper {
             .compile(
                     ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
     private static final Pattern WCONF_PATTERN = Pattern.compile("^.*(x_wconf *\\d+).*$");
+    private static final Pattern TEXTANGLE_PATTERN = Pattern.compile(
+            "(?:^|;)\\s*textangle\\s+(\\d+)\\s*(?:$|;)"
+    );
 
     /**
      * Size of the array containing bbox.
@@ -248,6 +252,34 @@ public class TesseractHelper {
                     pageBBox.getTop() - toPoints(bbox.get(TOP_IDX)),
                     toPoints(bbox.get(RIGHT_IDX)),
                     pageBBox.getTop() - toPoints(bbox.get(BOTTOM_IDX)));
+        }
+    }
+
+    /**
+     * Extracts text orientation from a line node. It is specified under a "textangle" key inside
+     * the "title" attribute string.
+     *
+     * @param line line element to get text orientation for
+     *
+     * @return {@link TextOrientation} of the line if present, otherwise HORIZONTAL
+     */
+    private static TextOrientation extractTextOrientation(Node line) {
+        final String title = line.attr(TITLE);
+        final Matcher matcher = TEXTANGLE_PATTERN.matcher(title);
+        if (!matcher.find()) {
+            return TextOrientation.HORIZONTAL;
+        }
+        final String angleString = matcher.group(1);
+        switch (angleString) {
+            case "270":
+                return TextOrientation.HORIZONTAL_ROTATED_270;
+            case "180":
+                return TextOrientation.HORIZONTAL_ROTATED_180;
+            case "90":
+                return TextOrientation.HORIZONTAL_ROTATED_90;
+            case "0":
+            default:
+                return TextOrientation.HORIZONTAL;
         }
     }
 
@@ -510,12 +542,13 @@ public class TesseractHelper {
                                                       Rectangle pageBbox,
                                                       Map<String, Node> unparsedBBoxes) {
         List<TextInfo> textData = new ArrayList<TextInfo>();
+        final TextOrientation textOrientation = extractTextOrientation(lineOrCaption);
         if (txtLine == null) {
             for (Element word : lineOrCaption.getElementsByClass(OCRX_WORD)) {
                 final Rectangle bboxRect = getAlignedBBox(word,
                         textPositioning, pageBbox,
                         unparsedBBoxes);
-                addToTextData(textData, word.text(), bboxRect);
+                addToTextData(textData, word.text(), bboxRect, textOrientation);
             }
         } else {
             List<TextInfo> textInfos = new ArrayList<>();
@@ -550,10 +583,11 @@ public class TesseractHelper {
         final Rectangle bboxRect = getAlignedBBox(lineOrCaption,
                 TextPositioning.BY_LINES, pageBbox,
                 unparsedBBoxes);
+        final TextOrientation textOrientation = extractTextOrientation(lineOrCaption);
         if (txtLine == null) {
-            addToTextData(textData, lineOrCaption.text(), bboxRect);
+            addToTextData(textData, lineOrCaption.text(), bboxRect, textOrientation);
         } else {
-            addToTextData(textData, txtLine, bboxRect);
+            addToTextData(textData, txtLine, bboxRect, textOrientation);
         }
         return textData;
     }
@@ -563,8 +597,9 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       String text,
-                                      Rectangle bboxRect) {
-        final TextInfo textInfo = new TextInfo(text, bboxRect);
+                                      Rectangle bboxRect,
+                                      TextOrientation orientation) {
+        final TextInfo textInfo = new TextInfo(text, bboxRect, orientation);
         textData.add(textInfo);
     }
 
@@ -573,9 +608,7 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       TextInfo textInfo) {
-        String text = textInfo.getText();
-        Rectangle bboxRect = textInfo.getBboxRect();
-        addToTextData(textData, text, bboxRect);
+        textData.add(new TextInfo(textInfo));
     }
 
     /**

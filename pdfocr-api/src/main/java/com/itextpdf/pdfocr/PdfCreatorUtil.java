@@ -79,17 +79,17 @@ class PdfCreatorUtil {
      *                object
      * @param line text line
      * @param fontFamily default font family
-     * @param bboxHeightPt height of bbox calculated by OCR Reader
-     * @param bboxWidthPt width of bbox calculated by OCR Reader
+     * @param lineHeightPt height of the line calculated by OCR Reader
+     * @param lineWidthPt width of the line calculated by OCR Reader
      * @return font size
      * @throws PdfOcrException if set font provider is invalid and/or fonts that
      * it contains are invalid
      */
     static float calculateFontSize(final Document document, final String line,
-            final String fontFamily, final float bboxHeightPt,
-            final float bboxWidthPt) throws PdfOcrException {
-        Rectangle bbox = new Rectangle(bboxWidthPt * 1.5f,
-                bboxHeightPt * 1.5f);
+            final String fontFamily, final float lineHeightPt,
+            final float lineWidthPt) throws PdfOcrException {
+        Rectangle bbox = new Rectangle(lineWidthPt * 1.5f,
+                lineHeightPt * 1.5f);
         // setting minimum and maximum (approx.) values for font size
         float fontSize = 1;
         float maxFontSize = bbox.getHeight();

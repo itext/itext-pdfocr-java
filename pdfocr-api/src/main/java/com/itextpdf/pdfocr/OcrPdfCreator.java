@@ -61,6 +61,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.VerticalAlignment;
 import com.itextpdf.pdfa.PdfADocument;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
@@ -732,14 +733,14 @@ public class OcrPdfCreator {
                 PdfCreatorUtil.calculateImageCoordinates(
                 ocrPdfCreatorProperties.getPageSize(), imageSize);
         for (TextInfo item : pageText) {
-            final float bboxWidthPt = getWidthPt(item, multiplier);
-            final float bboxHeightPt = getHeightPt(item, multiplier);
+            final float textWidthPt = getTextWidthPt(item, multiplier);
+            final float textHeightPt = getTextHeightPt(item, multiplier);
             FontProvider fontProvider = getOcrPdfCreatorProperties()
                     .getFontProvider();
             String fontFamily = getOcrPdfCreatorProperties()
                     .getDefaultFontFamily();
             String line = item.getText();
-            if (!lineNotEmpty(line, bboxHeightPt, bboxWidthPt)) {
+            if (!lineNotEmpty(line, textHeightPt, textWidthPt)) {
                 continue;
             }
 
@@ -749,13 +750,13 @@ public class OcrPdfCreator {
             // Scale the text width to fit the OCR bbox
             final float fontSize = PdfCreatorUtil.calculateFontSize(
                     document, line, fontFamily,
-                    bboxHeightPt, bboxWidthPt);
+                    textHeightPt, textWidthPt);
 
             final float lineWidth = PdfCreatorUtil.getRealLineWidth(document,
                     line, fontFamily, fontSize);
 
             final float xOffset = getXOffsetPt(item, multiplier);
-            final float yOffset = getYOffsetPt(item, multiplier, imageSize);
+            final float yOffset = getYOffsetPt(item, multiplier);
 
             TagTreePointer tagPointer = flatLogicalTree.get(item);
             if (tagPointer != null) {
@@ -768,13 +769,13 @@ public class OcrPdfCreator {
             canvas.setFontProvider(fontProvider);
 
             Text text = new Text(line)
-                    .setHorizontalScaling(bboxWidthPt / lineWidth);
+                    .setHorizontalScaling(textWidthPt / lineWidth);
 
             Paragraph paragraph = new Paragraph(text)
-                    .setMargin(0);
-            paragraph.setFontFamily(fontFamily)
-                    .setFontSize(fontSize);
-            paragraph.setWidth(bboxWidthPt * 1.5f);
+                    .setMargin(0)
+                    .setFontFamily(fontFamily)
+                    .setFontSize(fontSize)
+                    .setWidth(textWidthPt * 1.5f);
 
             if (ocrPdfCreatorProperties.getTextColor() != null) {
                 paragraph.setFontColor(ocrPdfCreatorProperties.getTextColor());
@@ -785,13 +786,37 @@ public class OcrPdfCreator {
             canvas.showTextAligned(paragraph,
                     xOffset + (float) imageCoordinates.getX(),
                     yOffset + (float) imageCoordinates.getY(),
-                    TextAlignment.LEFT);
+                    canvas.getPdfDocument().getNumberOfPages(),
+                    TextAlignment.LEFT,
+                    VerticalAlignment.BOTTOM,
+                    getRotationAngle(item.getOrientation()));
 
             if (ocrPdfCreatorProperties.isTagged()) {
                 pdfCanvas.closeTag();
             }
 
             canvas.close();
+        }
+    }
+
+    /**
+     * Returns the text rotation angle in radian for the provided {@link TextOrientation}.
+     *
+     * @param orientation text orientation to get the angle for
+     *
+     * @return the text rotation angle in radian for the provided {@link TextOrientation}
+     */
+    private static float getRotationAngle(TextOrientation orientation) {
+        switch (orientation) {
+            case HORIZONTAL_ROTATED_90:
+                return (float) (0.5 * Math.PI);
+            case HORIZONTAL_ROTATED_180:
+                return (float) Math.PI;
+            case HORIZONTAL_ROTATED_270:
+                return (float) (1.5 * Math.PI);
+            case HORIZONTAL:
+            default:
+                return 0;
         }
     }
 
@@ -861,24 +886,30 @@ public class OcrPdfCreator {
     /**
      * Get width of text chunk in points.
      */
-    private static float getWidthPt(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return PdfCreatorUtil.getPoints(
-                    getRight(textInfo, multiplier) - getLeft(textInfo, multiplier));
-        } else {
-            return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
+    private static float getTextWidthPt(TextInfo textInfo, float multiplier) {
+        switch (textInfo.getOrientation()) {
+            case HORIZONTAL_ROTATED_90:
+            case HORIZONTAL_ROTATED_270:
+                return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
+            case HORIZONTAL:
+            case HORIZONTAL_ROTATED_180:
+            default:
+                return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
         }
     }
 
     /**
      * Get height of text chunk in points.
      */
-    private static float getHeightPt(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return PdfCreatorUtil.getPoints(
-                    getBottom(textInfo, multiplier) - getTop(textInfo, multiplier));
-        } else {
-            return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
+    private static float getTextHeightPt(TextInfo textInfo, float multiplier) {
+        switch (textInfo.getOrientation()) {
+            case HORIZONTAL_ROTATED_90:
+            case HORIZONTAL_ROTATED_270:
+                return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
+            case HORIZONTAL:
+            case HORIZONTAL_ROTATED_180:
+            default:
+                return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
         }
     }
 
@@ -886,21 +917,29 @@ public class OcrPdfCreator {
      * Get horizontal text offset in points.
      */
     private static float getXOffsetPt(TextInfo textInfo, float multiplier) {
-        if (textInfo.getBboxRect() == null) {
-            return PdfCreatorUtil.getPoints(getLeft(textInfo, multiplier));
-        } else {
-            return getLeft(textInfo, multiplier);
+        switch (textInfo.getOrientation()) {
+            case HORIZONTAL_ROTATED_90:
+            case HORIZONTAL_ROTATED_180:
+                return getRight(textInfo, multiplier);
+            case HORIZONTAL:
+            case HORIZONTAL_ROTATED_270:
+            default:
+                return getLeft(textInfo, multiplier);
         }
     }
 
     /**
      * Get vertical text offset in points.
      */
-    private static float getYOffsetPt(TextInfo textInfo, float multiplier, Rectangle imageSize) {
-        if (textInfo.getBboxRect() == null) {
-            return imageSize.getHeight() - PdfCreatorUtil.getPoints(getBottom(textInfo, multiplier));
-        } else {
-            return getBottom(textInfo, multiplier);
+    private static float getYOffsetPt(TextInfo textInfo, float multiplier) {
+        switch (textInfo.getOrientation()) {
+            case HORIZONTAL_ROTATED_180:
+            case HORIZONTAL_ROTATED_270:
+                return getTop(textInfo, multiplier);
+            case HORIZONTAL:
+            case HORIZONTAL_ROTATED_90:
+            default:
+                return getBottom(textInfo, multiplier);
         }
     }
 
