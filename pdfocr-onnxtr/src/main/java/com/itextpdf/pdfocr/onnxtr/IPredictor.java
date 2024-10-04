@@ -20,26 +20,21 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.onnxtr;
+
+import java.util.Iterator;
 
 /**
- * Enumeration of supported text orientations.
+ * Interface of a generic predictor. It takes a stream of inputs and returns a
+ * same-sizes stream of outputs.
+ *
+ * @param <T> Input type.
+ * @param <R> Output type.
  */
-public enum TextOrientation {
-    /**
-     * Horizontal text, non-rotated.
-     */
-    HORIZONTAL,
-    /**
-     * Horizontal text, rotated 90 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_90,
-    /**
-     * Horizontal text, rotated 180 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_180,
-    /**
-     * Horizontal text, rotated 270 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_270
+public interface IPredictor<T, R> extends AutoCloseable {
+    Iterator<R> predict(Iterator<T> inputs);
+
+    default Iterator<R> predict(Iterable<T> inputs) {
+        return predict(inputs.iterator());
+    }
 }

@@ -20,26 +20,27 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.onnxtr;
 
 /**
- * Enumeration of supported text orientations.
+ * Interface for mapping an integer index (continuous from 0) to output values.
+ *
+ * @param <T> Output type.
  */
-public enum TextOrientation {
+public interface IOutputLabelMapper<T> {
     /**
-     * Horizontal text, non-rotated.
+     * Returns a number of mappable values.
+     *
+     * @return A number of mappable values.
      */
-    HORIZONTAL,
+    int size();
+
     /**
-     * Horizontal text, rotated 90 degrees counter-clockwise.
+     * Returns value, which is mapped to the specified index.
+     *
+     * @param index Index to map.
+     *
+     * @return Mapped output value.
      */
-    HORIZONTAL_ROTATED_90,
-    /**
-     * Horizontal text, rotated 180 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_180,
-    /**
-     * Horizontal text, rotated 270 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_270
+    T map(int index);
 }

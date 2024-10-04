@@ -20,26 +20,17 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.onnxtr.util;
+
+import java.util.List;
 
 /**
- * Enumeration of supported text orientations.
+ * Batch processor mapper interface. This is called by {@link BatchProcessingGenerator}.
+ *
+ * @param <T> Input batch type.
+ * @param <R> Output batch type.
  */
-public enum TextOrientation {
-    /**
-     * Horizontal text, non-rotated.
-     */
-    HORIZONTAL,
-    /**
-     * Horizontal text, rotated 90 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_90,
-    /**
-     * Horizontal text, rotated 180 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_180,
-    /**
-     * Horizontal text, rotated 270 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_270
+@FunctionalInterface
+public interface IBatchProcessor<T, R> {
+    List<R> processBatch(List<T> batch);
 }

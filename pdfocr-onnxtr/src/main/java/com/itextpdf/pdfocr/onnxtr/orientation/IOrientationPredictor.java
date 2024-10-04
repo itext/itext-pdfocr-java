@@ -20,26 +20,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.onnxtr.orientation;
+
+import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.onnxtr.IPredictor;
+
+import java.awt.image.BufferedImage;
 
 /**
- * Enumeration of supported text orientations.
+ * Interface for predictors, which take a cropped image of text and determine
+ * its orientation.
  */
-public enum TextOrientation {
-    /**
-     * Horizontal text, non-rotated.
-     */
-    HORIZONTAL,
-    /**
-     * Horizontal text, rotated 90 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_90,
-    /**
-     * Horizontal text, rotated 180 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_180,
-    /**
-     * Horizontal text, rotated 270 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_270
+public interface IOrientationPredictor extends IPredictor<BufferedImage, TextOrientation> {
 }

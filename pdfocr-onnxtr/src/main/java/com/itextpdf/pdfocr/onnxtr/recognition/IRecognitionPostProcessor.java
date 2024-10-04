@@ -20,26 +20,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.onnxtr.recognition;
+
+import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 
 /**
- * Enumeration of supported text orientations.
+ * Interface for post-processors, which convert raw output of an ML model and
+ * returns recognized characters as a string.
  */
-public enum TextOrientation {
+public interface IRecognitionPostProcessor {
     /**
-     * Horizontal text, non-rotated.
+     * Process ML model output and return recognized characters as string.
+     *
+     * @param output Raw output of the ML model.
+     *
+     * @return Recognized characters as string.
      */
-    HORIZONTAL,
+    String process(FloatBufferMdArray output);
+
     /**
-     * Horizontal text, rotated 90 degrees counter-clockwise.
+     * Returns the size of the output character label vector. I.e. how many
+     * distinct tokens/characters the model recognizes.
+     *
+     * @return The size of the output character label vector.
      */
-    HORIZONTAL_ROTATED_90,
-    /**
-     * Horizontal text, rotated 180 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_180,
-    /**
-     * Horizontal text, rotated 270 degrees counter-clockwise.
-     */
-    HORIZONTAL_ROTATED_270
+    int labelDimension();
 }
