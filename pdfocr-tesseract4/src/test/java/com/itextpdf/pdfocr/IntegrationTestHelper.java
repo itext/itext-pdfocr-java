@@ -22,12 +22,13 @@
  */
 package com.itextpdf.pdfocr;
 
-import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfUAConformance;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.CanvasTag;
@@ -41,15 +42,14 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStra
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
+import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4ExecutableOcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4LibOcrEngine;
-import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
-import com.itextpdf.pdfocr.tesseract4.LeptonicaImageRotationHandler;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -439,7 +439,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
      */
     protected PdfWriter getPdfWriter(String pdfPath) throws IOException {
         return new PdfWriter(pdfPath,
-                new WriterProperties().addUAXmpMetadata());
+                new WriterProperties().addPdfUaXmpMetadata(PdfUAConformance.PDF_UA_1));
     }
 
     /**

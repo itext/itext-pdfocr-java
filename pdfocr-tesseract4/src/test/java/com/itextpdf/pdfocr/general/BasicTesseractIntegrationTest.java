@@ -22,26 +22,27 @@
  */
 package com.itextpdf.pdfocr.general;
 
-import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfUAConformance;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
-import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -437,6 +438,6 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
      * Create pdfWriter.
      */
     private PdfWriter getPdfWriter() {
-        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
+        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addPdfUaXmpMetadata(PdfUAConformance.PDF_UA_1));
     }
 }

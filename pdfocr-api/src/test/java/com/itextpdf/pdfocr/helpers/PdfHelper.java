@@ -25,11 +25,13 @@ package com.itextpdf.pdfocr.helpers;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfUAConformance;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,9 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collections;
-
-import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.test.ExtendedITextTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,14 +108,14 @@ public class PdfHelper {
      */
     public static PdfWriter getPdfWriter(String pdfPath) throws IOException {
         return new PdfWriter(pdfPath,
-                new WriterProperties().addUAXmpMetadata());
+                new WriterProperties().addPdfUaXmpMetadata(PdfUAConformance.PDF_UA_1));
     }
 
     /**
      * Create pdfWriter.
      */
     public static PdfWriter getPdfWriter() {
-        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addUAXmpMetadata());
+        return new PdfWriter(new ByteArrayOutputStream(), new WriterProperties().addPdfUaXmpMetadata(PdfUAConformance.PDF_UA_1));
     }
 
     /**
