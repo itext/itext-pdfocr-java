@@ -25,27 +25,26 @@ package com.itextpdf.pdfocr.exceptions;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PdfOcrTesseract4ExceptionTest extends ExtendedITextTest {
 
     @Test
     public void tesseract4PdfOcrExceptionThrowableConstructorTest() {
         Exception cause = new IOException();
         PdfOcrTesseract4Exception exception = new PdfOcrTesseract4Exception(cause);
-        Assert.assertEquals(cause, exception.getCause());
+        Assertions.assertEquals(cause, exception.getCause());
     }
 
     @Test
     public void tesseract4PdfOcrInputExceptionThrowableConstructorTest() {
         Exception cause = new IOException();
         PdfOcrTesseract4Exception exception = new PdfOcrInputTesseract4Exception(cause);
-        Assert.assertEquals(cause, exception.getCause());
+        Assertions.assertEquals(cause, exception.getCause());
     }
 }

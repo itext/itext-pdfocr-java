@@ -38,16 +38,11 @@ import com.itextpdf.test.annotations.LogMessages;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     AbstractTesseract4OcrEngine tesseractReader;
     String testType;
@@ -57,7 +52,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         this.testType = type.toString().toLowerCase();
     }
 
-    @Before
+    @BeforeEach
     public void initTesseractProperties() {
         Tesseract4OcrEngineProperties ocrEngineProperties =
                 new Tesseract4OcrEngineProperties();
@@ -76,7 +71,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 Collections.<String>singletonList("eng"), DeviceCmyk.MAGENTA);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -89,7 +84,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                 Collections.<String>singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
         realOutputHocr = realOutputHocr.replaceAll("[‘]", "");
-        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
+        Assertions.assertTrue(realOutputHocr.contains((expectedOutput)));
     }
 
     @Test
@@ -103,7 +98,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 Collections.<String>singletonList("eng"), DeviceCmyk.MAGENTA);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -115,7 +110,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
         realOutputHocr = realOutputHocr.replaceAll("[\n]", " ");
-        Assert.assertTrue(realOutputHocr.contains((expectedOutput)));
+        Assertions.assertTrue(realOutputHocr.contains((expectedOutput)));
     }
 
     @Test
@@ -129,7 +124,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                 TEST_IMAGES_DIRECTORY + filename + ".JFIF",
                 resultPdfPath, null, DeviceCmyk.MAGENTA);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -145,7 +140,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 null, DeviceCmyk.BLACK);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -159,7 +154,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                         .getTesseract4OcrEngineProperties()
                         .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -174,7 +169,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 null, DeviceCmyk.BLACK);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -184,7 +179,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -199,7 +194,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 null, DeviceCmyk.BLACK);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -209,7 +204,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -223,7 +218,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                         .setPageSegMode(null));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -237,7 +232,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 Collections.<String>singletonList("eng"), DeviceCmyk.BLACK);
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 
@@ -250,8 +245,8 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 5,
                 Collections.<String>singletonList("eng"));
-        Assert.assertNotNull(realOutputHocr);
-        Assert.assertEquals(expectedOutput, realOutputHocr);
+        Assertions.assertNotNull(realOutputHocr);
+        Assertions.assertEquals(expectedOutput, realOutputHocr);
     }
 
     @Test
@@ -266,8 +261,8 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                         .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, file, 3,
                 Collections.<String>singletonList("eng"));
-        Assert.assertNotNull(realOutputHocr);
-        Assert.assertEquals(expectedOutput, realOutputHocr);
+        Assertions.assertNotNull(realOutputHocr);
+        Assertions.assertEquals(expectedOutput, realOutputHocr);
     }
 
     @LogMessages(messages = {
@@ -275,12 +270,12 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
     })
     @Test
     public void testInputWrongFormat() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(MessageFormatUtil
-                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT,
-                        "wierdwords.gif"));
         File file = new File(TEST_IMAGES_DIRECTORY + "wierdwords.gif");
-        getTextFromPdf(tesseractReader, file);
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+                () -> getTextFromPdf(tesseractReader, file));
+        Assertions.assertEquals(MessageFormatUtil
+                .format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT,
+                        "wierdwords.gif"), exception.getMessage());
     }
 
     @Test
@@ -289,7 +284,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
         String expectedOutput = "619121";
 
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -302,7 +297,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                         .setPreprocessingImages(false));
         String realOutputHocr = getTextFromPdf(tesseractReader, new File(path),
                 Collections.<String>singletonList("eng"));
-        Assert.assertTrue(realOutputHocr.contains(expectedOutput));
+        Assertions.assertTrue(realOutputHocr.contains(expectedOutput));
     }
 
     @Test
@@ -322,7 +317,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
                 tesseractReader.getTesseract4OcrEngineProperties()
                         .setTextPositioning(TextPositioning.BY_LINES));
 
-        Assert.assertNull(new CompareTool().compareByContent(resultPdfPath,
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
     }
 }

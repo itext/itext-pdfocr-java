@@ -29,14 +29,13 @@ import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PdfInputImageTest extends ExtendedITextTest {
 
     @LogMessages(messages = {
@@ -46,9 +45,9 @@ public class PdfInputImageTest extends ExtendedITextTest {
     public void corruptedImageTest() {
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted.jpg");
-        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> PdfHelper.getTextFromPdf(file, "testCorruptedImage"));
-        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 
     @LogMessages(messages = {
@@ -58,9 +57,9 @@ public class PdfInputImageTest extends ExtendedITextTest {
     public void corruptedImageWithoutExtensionTest() {
         File file = new File(PdfHelper.getImagesTestDirectory()
                 + "corrupted");
-        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension"));
-        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 
     @LogMessages(messages = {
@@ -69,8 +68,8 @@ public class PdfInputImageTest extends ExtendedITextTest {
     @Test
     public void invalidPathWithDotTest() {
         File file = new File("test.Name");
-        Exception e = Assert.assertThrows(PdfOcrInputException.class,
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> PdfHelper.getTextFromPdf(file, "testInvalidPathWithDot"));
-        Assert.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
+        Assertions.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
     }
 }

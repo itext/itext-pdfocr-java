@@ -26,15 +26,14 @@ import com.itextpdf.commons.actions.AbstractStatisticsAggregator;
 import com.itextpdf.commons.actions.AbstractStatisticsEvent;
 import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.UnitTest;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PdfOcrOutputTypeStatisticsAggregatorTest extends ExtendedITextTest {
     private static final ProductData DUMMY_PRODUCT_DATA =
             new ProductData("test-product", "inner_product", "1.0.0", 1900, 2100);
@@ -50,16 +49,16 @@ public class PdfOcrOutputTypeStatisticsAggregatorTest extends ExtendedITextTest 
 
         Map<String, Long> aggregation = (Map<String, Long>) aggregator.retrieveAggregation();
 
-        Assert.assertEquals(3, aggregation.size());
+        Assertions.assertEquals(3, aggregation.size());
 
         Long numberOfOcrProcessesWithGivenOutput = aggregation.get("data");
-        Assert.assertEquals(new Long(1L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(1L), numberOfOcrProcessesWithGivenOutput);
 
         numberOfOcrProcessesWithGivenOutput = aggregation.get("pdf");
-        Assert.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
 
         numberOfOcrProcessesWithGivenOutput = aggregation.get("pdfa");
-        Assert.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
     }
 
     @Test
@@ -77,23 +76,23 @@ public class PdfOcrOutputTypeStatisticsAggregatorTest extends ExtendedITextTest 
 
         Map<String, Long> aggregation = (Map<String, Long>) firstAggregator.retrieveAggregation();
 
-        Assert.assertEquals(3, aggregation.size());
+        Assertions.assertEquals(3, aggregation.size());
 
         Long numberOfOcrProcessesWithGivenOutput = aggregation.get("data");
-        Assert.assertEquals(new Long(1L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(1L), numberOfOcrProcessesWithGivenOutput);
 
         numberOfOcrProcessesWithGivenOutput = aggregation.get("pdf");
-        Assert.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
 
         numberOfOcrProcessesWithGivenOutput = aggregation.get("pdfa");
-        Assert.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
+        Assertions.assertEquals(new Long(2L), numberOfOcrProcessesWithGivenOutput);
     }
 
     @Test
     public void aggregateInvalidEventTest() {
         PdfOcrOutputTypeStatisticsAggregator aggregator = new PdfOcrOutputTypeStatisticsAggregator();
         aggregator.aggregate(new DummyAbstractStatisticsEvent(DUMMY_PRODUCT_DATA));
-        Assert.assertTrue(((Map<String, Long>) aggregator.retrieveAggregation()).isEmpty());
+        Assertions.assertTrue(((Map<String, Long>) aggregator.retrieveAggregation()).isEmpty());
 
     }
 
@@ -101,7 +100,7 @@ public class PdfOcrOutputTypeStatisticsAggregatorTest extends ExtendedITextTest 
     public void mergeInvalidAggregatorTest() {
         PdfOcrOutputTypeStatisticsAggregator aggregator = new PdfOcrOutputTypeStatisticsAggregator();
         aggregator.merge(new DummyAbstractStatisticsAggregator());
-        Assert.assertTrue(((Map<String, Long>) aggregator.retrieveAggregation()).isEmpty());
+        Assertions.assertTrue(((Map<String, Long>) aggregator.retrieveAggregation()).isEmpty());
     }
 
     private static class DummyAbstractStatisticsEvent extends AbstractStatisticsEvent {

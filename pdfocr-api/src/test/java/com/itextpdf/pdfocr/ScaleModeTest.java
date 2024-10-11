@@ -30,16 +30,15 @@ import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.ExtractionStrategy;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ScaleModeTest extends ExtendedITextTest {
 
     private static final float DELTA = 1e-4f;
@@ -71,8 +70,8 @@ public class ScaleModeTest extends ExtendedITextTest {
         // was set as page height result image width should be scaled
         // proportionally according to the provided image height
         // and original image size
-        Assert.assertEquals(pageHeightPt, rect.getHeight(), DELTA);
-        Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
+        Assertions.assertEquals(pageHeightPt, rect.getHeight(), DELTA);
+        Assertions.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
                 rect.getWidth() / rect.getHeight(), DELTA);
     }
 
@@ -98,8 +97,8 @@ public class ScaleModeTest extends ExtendedITextTest {
         com.itextpdf.kernel.geom.Rectangle rect = getImageBBoxRectangleFromPdf(pdfPath);
         ImageData originalImageData = ImageDataFactory.create(file.getAbsolutePath());
 
-        Assert.assertEquals(pageWidthPt, rect.getWidth(), DELTA);
-        Assert.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
+        Assertions.assertEquals(pageWidthPt, rect.getWidth(), DELTA);
+        Assertions.assertEquals(originalImageData.getWidth() / originalImageData.getHeight(),
                 rect.getWidth() / rect.getHeight(), DELTA);
     }
 
@@ -113,7 +112,7 @@ public class ScaleModeTest extends ExtendedITextTest {
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
                         PdfHelper.getPdfWriter());
 
-        Assert.assertNotNull(doc);
+        Assertions.assertNotNull(doc);
 
         ImageData imageData = ImageDataFactory.create(file.getAbsolutePath());
 
@@ -122,8 +121,8 @@ public class ScaleModeTest extends ExtendedITextTest {
         float realWidth = doc.getFirstPage().getPageSize().getWidth();
         float realHeight = doc.getFirstPage().getPageSize().getHeight();
 
-        Assert.assertEquals(imageWidth, realWidth, DELTA);
-        Assert.assertEquals(imageHeight, realHeight, DELTA);
+        Assertions.assertEquals(imageWidth, realWidth, DELTA);
+        Assertions.assertEquals(imageHeight, realHeight, DELTA);
 
         doc.close();
     }

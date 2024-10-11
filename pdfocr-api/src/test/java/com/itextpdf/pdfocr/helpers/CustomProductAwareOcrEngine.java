@@ -24,7 +24,6 @@ package com.itextpdf.pdfocr.helpers;
 
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.data.ProductData;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrEngineProperties;
@@ -34,7 +33,6 @@ import com.itextpdf.pdfocr.TextInfo;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +62,10 @@ public class CustomProductAwareOcrEngine implements IOcrEngine, IProductAware {
 
     }
 
+    @Override
+    public boolean isTaggingSupported() {
+        return true;
+    }
 
     public OcrEngineProperties getOcrEngineProperties() {
         return null;

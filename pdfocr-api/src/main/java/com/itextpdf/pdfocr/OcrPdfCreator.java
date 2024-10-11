@@ -39,7 +39,7 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.DocumentProperties;
-import com.itextpdf.kernel.pdf.PdfAConformanceLevel;
+import com.itextpdf.kernel.pdf.PdfAConformance;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfName;
@@ -67,8 +67,8 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
-import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 import com.itextpdf.pdfocr.structuretree.ArtifactItem;
+import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,6 +129,9 @@ public class OcrPdfCreator {
      */
     public OcrPdfCreator(final IOcrEngine ocrEngine,
             final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
+        if (ocrPdfCreatorProperties.isTagged() && !ocrEngine.isTaggingSupported()) {
+            throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
+        }
         setOcrEngine(ocrEngine);
         setOcrPdfCreatorProperties(ocrPdfCreatorProperties);
     }
@@ -471,11 +474,7 @@ public class OcrPdfCreator {
                 // Logical tree, a list of top items, children can be retrieved out of them
                 List<LogicalStructureTreeItem> logicalTree = new ArrayList<>();
                 // A map of leaf LogicalStructureTreeItem's to TextInfo's attached to these leaves
-                Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = new HashMap<>();
-                final boolean taggedSupported = getLogicalTree(pageText, logicalTree, leavesTextInfos);
-                if (!taggedSupported) {
-                    throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
-                }
+                Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = getLogicalTree(pageText, logicalTree);
                 pdfDocument.setTagged();
 
                 // Create a map of TextInfo to tag pointers meanwhile creating the required tags.
@@ -504,7 +503,7 @@ public class OcrPdfCreator {
         boolean createPdfA3u = pdfOutputIntent != null;
         if (createPdfA3u) {
             pdfDocument = new PdfADocument(pdfWriter,
-                    PdfAConformanceLevel.PDF_A_3U, pdfOutputIntent,
+                    PdfAConformance.PDF_A_3U, pdfOutputIntent,
                     documentProperties);
         } else {
             pdfDocument = new PdfDocument(pdfWriter,
@@ -623,7 +622,7 @@ public class OcrPdfCreator {
                         ocrPdfCreatorProperties.getPageSize(), imageSize);
                 final Rectangle rect =
                         new Rectangle(
-                                (float)coordinates.x, (float)coordinates.y,
+                                (float)coordinates.getX(), (float)coordinates.getY(),
                                 imageSize.getWidth(), imageSize.getHeight());
                 pdfCanvas.addImageFittedIntoRectangle(imageData, rect, false);
             }
@@ -634,19 +633,12 @@ public class OcrPdfCreator {
         }
     }
 
-    /**
-     * @return {@code true} if tagging supported by the engine.
-     * @deprecated In next major version we need to add boolean taggingSupported() method into IOcrEngine
-     * and throw exception in OcrPdfCreator constructor if taggingSupported() returns false but
-     * OcrPdfCreatorProperties.getTagged returns true.
-     */
-    @Deprecated
-    private static boolean getLogicalTree(List<TextInfo> textInfos,
-            List<LogicalStructureTreeItem> logicalStructureTreeItems,
-            Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos) {
-        boolean taggedSupported = false;
+    private static Map<LogicalStructureTreeItem, List<TextInfo>> getLogicalTree(
+            List<TextInfo> textInfos, List<LogicalStructureTreeItem> logicalStructureTreeItems) {
+
+        Map<LogicalStructureTreeItem, List<TextInfo>> leavesTextInfos = new HashMap<>();
         if (textInfos == null) {
-            return taggedSupported;
+            return leavesTextInfos;
         }
 
         for (TextInfo textInfo : textInfos) {
@@ -656,7 +648,6 @@ public class OcrPdfCreator {
                 continue;
             } else if (structTreeItem != null) {
                 topParent = getTopParent(structTreeItem);
-                taggedSupported = true;
             } else {
                 structTreeItem = new LogicalStructureTreeItem();
                 textInfo.setLogicalStructureTreeItem(structTreeItem);
@@ -675,7 +666,7 @@ public class OcrPdfCreator {
             }
         }
 
-        return taggedSupported;
+        return leavesTextInfos;
     }
 
     private static LogicalStructureTreeItem getTopParent(LogicalStructureTreeItem structInfo) {
@@ -792,8 +783,8 @@ public class OcrPdfCreator {
             }
 
             canvas.showTextAligned(paragraph,
-                    xOffset + (float) imageCoordinates.x,
-                    yOffset + (float) imageCoordinates.y,
+                    xOffset + (float) imageCoordinates.getX(),
+                    yOffset + (float) imageCoordinates.getY(),
                     TextAlignment.LEFT);
 
             if (ocrPdfCreatorProperties.isTagged()) {
@@ -933,7 +924,7 @@ public class OcrPdfCreator {
             // unicode of the not found glyph
             String message = PdfOcrLogMessageConstant
                     .COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER;
-            for (int i = glyphLine.start; i < glyphLine.end; i++) {
+            for (int i = glyphLine.getStart(); i < glyphLine.getEnd(); i++) {
                 if (isNotDefGlyph(currentFont, glyphLine.get(i))) {
                     notDefGlyphsExists = true;
                     message = MessageFormatUtil.format(PdfOcrLogMessageConstant

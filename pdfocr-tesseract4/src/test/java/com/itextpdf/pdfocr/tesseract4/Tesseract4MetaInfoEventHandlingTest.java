@@ -32,8 +32,8 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public abstract class Tesseract4MetaInfoEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
@@ -49,7 +49,7 @@ public abstract class Tesseract4MetaInfoEventHandlingTest extends IntegrationEve
 
         createPdfAndSetEventCountingMetaInfo(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);
@@ -70,7 +70,7 @@ public abstract class Tesseract4MetaInfoEventHandlingTest extends IntegrationEve
         createPdfFileAndSetMetaInfoToProps(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
         // check ocr events
-        Assert.assertEquals(3, eventsHandler.getEvents().size());
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
 
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
         validateUsageEvent(ocrUsageEvent, EventConfirmationType.ON_CLOSE);

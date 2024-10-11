@@ -22,11 +22,10 @@
  */
 package com.itextpdf.pdfocr.pdflayers;
 
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PdfLayersIntegrationLibTest extends PdfLayersIntegrationTest {
     public PdfLayersIntegrationLibTest() {
         super(ReaderType.LIB);

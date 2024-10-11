@@ -31,16 +31,17 @@ import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.util.Arrays;
 import java.util.Collections;
+import org.junit.jupiter.api.Timeout;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     public TessDataIntegrationLibTest() {
         super(ReaderType.LIB);
@@ -51,18 +52,16 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     })
     @Test
     public void testTessDataWithNonAsciiPath() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
-        junitExpectedException.expectMessage(
-                PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS
-        );
+        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+                // Throws exception for the tesseract lib test
+                () -> doOcrAndGetTextUsingTessDataByNonAsciiPath());
 
-        // Throws exception for the tesseract lib test
-        doOcrAndGetTextUsingTessDataByNonAsciiPath();
-
-        Assert.fail("Should throw exception for the tesseract lib when tess data path contains non ASCII characters");
+        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_DIRECTORY_CONTAINS_NON_ASCII_CHARACTERS,
+                exception.getMessage());
     }
 
-    @Test(timeout = 60000)
+    @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void textOutputFromHalftoneFile() {
         String imgPath = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness Enablers";
@@ -73,9 +72,9 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
                 Collections.<String>singletonList("eng"));
 
         // correct result for a halftone input image
-        Assert.assertTrue(result.contains(expected01));
-        Assert.assertTrue(result.contains(expected02));
-        Assert.assertTrue(result.contains(expected03));
+        Assertions.assertTrue(result.contains(expected01));
+        Assertions.assertTrue(result.contains(expected02));
+        Assertions.assertTrue(result.contains(expected03));
     }
 
     @Test
@@ -105,7 +104,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
                 getTargetDirectory(), "diff_") == null;
 
-        Assert.assertTrue(javaTest || dotNetTest);
+        Assertions.assertTrue(javaTest || dotNetTest);
     }
 
     @LogMessages(messages = {
@@ -138,7 +137,7 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
         boolean dotNetTest = new CompareTool().compareByContent(resultPdfPath, expectedPdfPathDotNet,
                 getTargetDirectory(), "diff_") == null;
 
-        Assert.assertTrue(javaTest || dotNetTest);
+        Assertions.assertTrue(javaTest || dotNetTest);
     }
 
 }

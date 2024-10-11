@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
 
 public class TestStructureDetectionOcrEngine implements IOcrEngine {
 
@@ -100,5 +99,10 @@ public class TestStructureDetectionOcrEngine implements IOcrEngine {
 
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
+    }
+
+    @Override
+    public boolean isTaggingSupported() {
+        return true;
     }
 }

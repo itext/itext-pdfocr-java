@@ -60,9 +60,10 @@ import org.slf4j.LoggerFactory;
 /**
  * The implementation of {@link IOcrEngine}.
  *
+ * <p>
  * This class provides possibilities to perform OCR, to read data from input
  * files and to return contained text in the required format.
- * Also there are possibilities to use features of "tesseract"
+ * Also, there are possibilities to use features of "tesseract"
  * (optical character recognition engine for various operating systems).
  */
 public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProductAware {
@@ -377,6 +378,11 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
     @Override
     public ProductData getProductData() {
         return PdfOcrTesseract4ProductData.getInstance();
+    }
+
+    @Override
+    public boolean isTaggingSupported() {
+        return false;
     }
 
     /**

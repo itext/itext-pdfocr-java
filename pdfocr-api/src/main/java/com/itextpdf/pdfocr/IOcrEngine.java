@@ -85,4 +85,11 @@ public interface IOcrEngine {
      * @param ocrProcessContext ocr processing context
      */
     void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext);
+
+    /**
+     * Checks whether tagging is supported by the OCR engine.
+     *
+     * @return {@code true} if tagging is supported by the engine, {@code false} otherwise
+     */
+    boolean isTaggingSupported();
 }

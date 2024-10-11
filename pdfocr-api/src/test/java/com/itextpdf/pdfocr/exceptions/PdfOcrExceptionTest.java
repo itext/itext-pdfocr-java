@@ -23,35 +23,34 @@
 package com.itextpdf.pdfocr.exceptions;
 
 import com.itextpdf.test.ExtendedITextTest;
-import com.itextpdf.test.annotations.type.IntegrationTest;
 
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PdfOcrExceptionTest extends ExtendedITextTest {
 
     @Test
     public void ocrExceptionThrowableConstructorTest() {
         Exception cause = new IOException();
         PdfOcrException exception = new PdfOcrException(cause);
-        Assert.assertEquals(cause, exception.getCause());
+        Assertions.assertEquals(cause, exception.getCause());
     }
 
     @Test
     public void ocrInputExceptionThrowableConstructorTest() {
         Exception cause = new IOException();
         PdfOcrException exception = new PdfOcrInputException(cause);
-        Assert.assertEquals(cause, exception.getCause());
+        Assertions.assertEquals(cause, exception.getCause());
     }
 
     @Test
     public void ocrInputExceptionStringConstructorTest() {
         String message = "test message";
         PdfOcrException exception = new PdfOcrInputException(message);
-        Assert.assertEquals(message, exception.getMessage());
+        Assertions.assertEquals(message, exception.getMessage());
     }
 
     @Test
@@ -61,6 +60,6 @@ public class PdfOcrExceptionTest extends ExtendedITextTest {
         String expectedMessage = "test message param";
         PdfOcrException exception = new PdfOcrInputException(message);
         exception.setMessageParams(param);
-        Assert.assertEquals(expectedMessage, exception.getMessage());
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
 }

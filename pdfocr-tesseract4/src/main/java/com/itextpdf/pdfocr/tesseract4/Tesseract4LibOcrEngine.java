@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.commons.actions.EventManager;
 import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.utils.MessageFormatUtil;
@@ -53,9 +52,11 @@ import org.slf4j.LoggerFactory;
 /**
  * The implementation of {@link AbstractTesseract4OcrEngine} for tesseract OCR.
  *
+ * <p>
  * This class provides possibilities to use features of "tesseract"
  * using tess4j.
  *
+ * <p>
  * Please note that this class is not thread-safe, in other words this Tesseract engine cannot
  * be used for multithreaded processing. You should create one instance per thread
  */

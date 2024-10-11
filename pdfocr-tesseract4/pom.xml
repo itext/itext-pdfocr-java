@@ -5,13 +5,17 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>pdfocr-root</artifactId>
-    <version>3.0.2</version>
+    <version>4.0.0</version>
   </parent>
 
   <artifactId>pdfocr-tesseract4</artifactId>
 
   <name>pdfOCR-Tesseract4</name>
   <description>pdfOCR-Tesseract4 is an iText add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
+
+  <properties>
+    <sonar.exclusions>src/main/java/com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java</sonar.exclusions>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -59,6 +63,13 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!--Direct dependency added for commons-IO because of CVE-2024-47554 for lower versions.
+    This dependency originally comes from tess4j.-->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.14.0</version>
+    </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>pdftest</artifactId>
@@ -66,9 +77,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <properties>
-    <sonar.exclusions>src/main/java/com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java</sonar.exclusions>
-  </properties>
-
 </project>

@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.commons.actions.EventManager;
 import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.utils.MessageFormatUtil;
@@ -49,6 +48,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The implementation of {@link AbstractTesseract4OcrEngine} for tesseract OCR.
  *
+ * <p>
  * This class provides possibilities to use features of "tesseract" CL tool
  * (optical character recognition engine for various operating systems).
  * Please note that it's assumed that "tesseract" has already been

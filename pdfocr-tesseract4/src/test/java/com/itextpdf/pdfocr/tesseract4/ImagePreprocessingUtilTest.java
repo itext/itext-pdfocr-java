@@ -34,21 +34,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
-
-    @Rule
-    public ExpectedException junitExpectedException = ExpectedException.none();
 
     @Test
     public void testCheckForInvalidTiff() {
         String path = TEST_IMAGES_DIRECTORY + "example_04.png";
         File imgFile = new File(path);
-        Assert.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
+        Assertions.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
     }
 
     @LogMessages(messages = {
@@ -56,10 +51,10 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
     })
     @Test
     public void testReadingInvalidImagePath() {
-        junitExpectedException.expect(PdfOcrTesseract4Exception.class);
         String path = TEST_IMAGES_DIRECTORY + "numbers_02";
         File imgFile = new File(path);
-        ImagePreprocessingUtil.preprocessImage(imgFile, 1, new ImagePreprocessingOptions());
+        Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+                () -> ImagePreprocessingUtil.preprocessImage(imgFile, 1, new ImagePreprocessingOptions()));
     }
 
     @Test
@@ -101,8 +96,8 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
         ImageData imageData1 = ImageDataFactory.create(img1);
         ImageData imageData2 = ImageDataFactory.create(img2);
 
-        Assert.assertEquals(0, Float.compare(imageData1.getWidth(), imageData2.getWidth()));
-        Assert.assertEquals(0, Float.compare(imageData1.getHeight(), imageData2.getHeight()));
+        Assertions.assertEquals(0, Float.compare(imageData1.getWidth(), imageData2.getWidth()));
+        Assertions.assertEquals(0, Float.compare(imageData1.getHeight(), imageData2.getHeight()));
 
         BufferedImage image1 = ImagePreprocessingUtil.readImageFromFile(new File(img1));
         BufferedImage image2 = ImagePreprocessingUtil.readImageFromFile(new File(img2));
@@ -117,7 +112,7 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
         }
 
         float differencePercentage = (float)(100 * inconsistentPixelsCount) / (imageData1.getWidth() * imageData1.getHeight());
-        Assert.assertTrue(differencePercentage < precisionPercents);
+        Assertions.assertTrue(differencePercentage < precisionPercents);
     }
 
 }

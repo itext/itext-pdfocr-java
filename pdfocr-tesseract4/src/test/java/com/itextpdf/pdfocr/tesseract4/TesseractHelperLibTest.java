@@ -24,24 +24,27 @@ package com.itextpdf.pdfocr.tesseract4;
 
 
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.test.annotations.type.IntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Timeout;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TesseractHelperLibTest extends TesseractHelperTest {
     public TesseractHelperLibTest() {
         super(ReaderType.LIB);
     }
 
 
-    @Test(timeout = 60000)
+    @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void hocrOutputFromHalftoneFile() throws java.io.IOException {
         String path = TEST_IMAGES_DIRECTORY + "halftone.jpg";
         String expected01 = "Silliness";
@@ -63,20 +66,20 @@ public class TesseractHelperLibTest extends TesseractHelperTest {
                 .parseHocrFile(Collections.<File>singletonList(outputFile), null,
                         new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS)
                 );
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected01));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected02));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected03));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected04));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected05));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected06));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected07));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected01));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected02));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected03));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected04));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected05));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected06));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected07));
 
         pageData = TesseractHelper
                 .parseHocrFile(Collections.<File>singletonList(outputFile), null,
                         new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_LINES)
                 );
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected08));
-        Assert.assertTrue(findTextInPageData(pageData, 1, expected09));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected08));
+        Assertions.assertTrue(findTextInPageData(pageData, 1, expected09));
     }
 
     /**
