@@ -28,6 +28,8 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <skipTests>false</skipTests>
+    <sharpen.builddotnet>false</sharpen.builddotnet>
+    <sharpen.showdiff>false</sharpen.showdiff>
   </properties>
 
   <repositories>
