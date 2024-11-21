@@ -89,6 +89,14 @@ final class LeptonicaWrapper {
         Leptonica1.lept_free(pointer);
     }
 
+    public static void pixFreeData(Pix pix) {
+        if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+            Leptonica.INSTANCE.pixFreeData(pix);
+            return;
+        }
+        Leptonica1.pixFreeData(pix);
+    }
+
     public static void pixWriteMem(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.pixWriteMem(pointer, nativeSize, pix, i);

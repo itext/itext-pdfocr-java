@@ -61,6 +61,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         String result = new TesseractOcrUtil().getOcrResultAsString(
                 tesseract4LibOcrEngine.getTesseractInstance(),
                 pix, OutputFormat.TXT);
+        TesseractOcrUtil.destroyPix(pix);
         Assertions.assertTrue(result.contains(expected));
     }
 
@@ -182,6 +183,7 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         Assertions.assertFalse(Files.exists(Paths.get(tmpFileName)));
         Pix pix = TesseractOcrUtil.readPix(new File(path));
         TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
+        TesseractOcrUtil.destroyPix(pix);
         Assertions.assertTrue(Files.exists(Paths.get(tmpFileName)));
         TesseractHelper.deleteFile(tmpFileName);
         Assertions.assertFalse(Files.exists(Paths.get(tmpFileName)));

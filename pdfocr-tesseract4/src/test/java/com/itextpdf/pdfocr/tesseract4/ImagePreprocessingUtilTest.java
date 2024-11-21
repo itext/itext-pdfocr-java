@@ -34,6 +34,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import net.sourceforge.lept4j.Pix;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -63,32 +64,32 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
         String processedImg = getTargetDirectory() + "thai_02_processed.jpg";
         String compareImg = TEST_IMAGES_DIRECTORY + "thai_02_cmp_01.jpg";
 
-        TesseractOcrUtil.savePixToPngFile(processedImg,
-                ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
-                        1,
-                        new ImagePreprocessingOptions())
-        );
+        Pix pix = ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
+                1,
+                new ImagePreprocessingOptions());
+        TesseractOcrUtil.savePixToPngFile(processedImg, pix);
+        TesseractOcrUtil.destroyPix(pix);
         compareImagesWithPrecision(compareImg, processedImg, 0.1);
 
         compareImg = TEST_IMAGES_DIRECTORY + "thai_02_cmp_02.jpg";
-        TesseractOcrUtil.savePixToPngFile(processedImg,
-                ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
-                        1,
-                        new ImagePreprocessingOptions()
-                                .setTileWidth(300)
-                                .setTileHeight(300))
-        );
+        pix = ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
+                1,
+                new ImagePreprocessingOptions()
+                        .setTileWidth(300)
+                        .setTileHeight(300));
+        TesseractOcrUtil.savePixToPngFile(processedImg, pix);
+        TesseractOcrUtil.destroyPix(pix);
         compareImagesWithPrecision(compareImg, processedImg, 0.1);
 
         compareImg = TEST_IMAGES_DIRECTORY + "thai_02_cmp_03.jpg";
-        TesseractOcrUtil.savePixToPngFile(processedImg,
-                ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
-                        1,
-                        new ImagePreprocessingOptions()
-                                .setTileWidth(300)
-                                .setTileHeight(300)
-                                .setSmoothTiling(false))
-        );
+        pix = ImagePreprocessingUtil.preprocessImage(new File(sourceImg),
+                1,
+                new ImagePreprocessingOptions()
+                        .setTileWidth(300)
+                        .setTileHeight(300)
+                        .setSmoothTiling(false));
+        TesseractOcrUtil.savePixToPngFile(processedImg, pix);
+        TesseractOcrUtil.destroyPix(pix);
         compareImagesWithPrecision(compareImg, processedImg, 0.1);
     }
 

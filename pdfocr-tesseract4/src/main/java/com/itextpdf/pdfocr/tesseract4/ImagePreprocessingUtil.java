@@ -137,7 +137,9 @@ class ImagePreprocessingUtil {
             final File inputImage)
             throws IOException {
         Pix pix = TesseractOcrUtil.readPixFromFile(inputImage);
-        return TesseractOcrUtil.convertPixToImage(pix);
+        BufferedImage img = TesseractOcrUtil.convertPixToImage(pix);
+        TesseractOcrUtil.destroyPix(pix);
+        return img;
     }
 
     /**
@@ -155,7 +157,7 @@ class ImagePreprocessingUtil {
                                final int pageNumber,
                                final ImagePreprocessingOptions imagePreprocessingOptions)
             throws PdfOcrTesseract4Exception {
-        Pix pix = null;
+        Pix pix;
         // read image
         if (isTiffImage(inputFile)) {
             pix = TesseractOcrUtil.readPixPageFromTiff(inputFile,
@@ -168,7 +170,11 @@ class ImagePreprocessingUtil {
                     PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE)
                     .setMessageParams(inputFile.getAbsolutePath());
         }
-        return TesseractOcrUtil.preprocessPix(pix, imagePreprocessingOptions);
+        Pix preprocessedPix = TesseractOcrUtil.preprocessPix(pix, imagePreprocessingOptions);
+        if (!TesseractOcrUtil.samePix(pix, preprocessedPix)) {
+            TesseractOcrUtil.destroyPix(pix);
+        }
+        return preprocessedPix;
     }
 
     /**

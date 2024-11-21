@@ -135,8 +135,14 @@ class TesseractOcrUtil {
     static Pix preprocessPix(final Pix pix,
                              final ImagePreprocessingOptions imagePreprocessingOptions) {
         Pix pix1 = convertToGrayscale(pix);
-        pix1 = otsuImageThresholding(pix1, imagePreprocessingOptions);
-        return pix1;
+        Pix pix2 = otsuImageThresholding(pix1, imagePreprocessingOptions);
+        if (!TesseractOcrUtil.samePix(pix, pix1) && !TesseractOcrUtil.samePix(pix1, pix2)) {
+            // pix1 is cleaned only if it's unique here.
+            // If it points to the same memory as pix then it should be cleaned higher in the call stack.
+            // If it points to the same memory as pix2 then it is still required.
+            TesseractOcrUtil.destroyPix(pix1);
+        }
+        return pix2;
     }
 
     /**
@@ -175,7 +181,6 @@ class TesseractOcrUtil {
     static Pix otsuImageThresholding(final Pix inputPix,
                                      final ImagePreprocessingOptions imagePreprocessingOptions) {
         if (inputPix != null) {
-            Pix binarizedPix = null;
             if (inputPix.d == 8) {
                 PointerByReference pointer = new PointerByReference();
                 LeptonicaWrapper
@@ -189,10 +194,8 @@ class TesseractOcrUtil {
                                 getOtsuAdaptiveThresholdSmoothingTileSize(inputPix.h,
                                         imagePreprocessingOptions.isSmoothTiling()),
                                 0,null, pointer);
-                binarizedPix = new Pix(pointer.getValue());
+                Pix binarizedPix = new Pix(pointer.getValue());
                 if (binarizedPix.w > 0 && binarizedPix.h > 0) {
-                    // destroying original pix
-                    destroyPix(inputPix);
                     return binarizedPix;
                 } else {
                     final String logMessage = MessageFormatUtil.format(
@@ -200,7 +203,7 @@ class TesseractOcrUtil {
                             inputPix.d);
                     LOGGER.info(logMessage);
                     // destroying created PointerByReference object
-                    destroyPix(binarizedPix);
+                    TesseractOcrUtil.destroyPix(binarizedPix);
                     return inputPix;
                 }
             } else {
@@ -251,8 +254,27 @@ class TesseractOcrUtil {
      */
     static void destroyPix(Pix inputPix) {
         if (inputPix != null) {
-            LeptonicaWrapper.lept_free(inputPix.getPointer());
+            LeptonicaWrapper.pixFreeData(inputPix);
         }
+    }
+
+    /**
+     * Checks whether two {@link Pix} objects refer to the same content.
+     *
+     * @param pix1 the object to compare
+     * @param pix2 the object to compare
+     * @return {@code true} if objects refer to the same content, {@code false} otherwise
+     */
+    static boolean samePix(Pix pix1, Pix pix2) {
+        if (pix1 == pix2) {
+            return true;
+        }
+        if (pix1 == null || pix2 == null) {
+            return false;
+        }
+
+        // Both not null
+        return pix1.getPointer().equals(pix2.getPointer());
     }
 
     /**
@@ -668,7 +690,11 @@ class TesseractOcrUtil {
         }
         if (pix != null) {
             int rotation = detectRotation(imageBytes);
-            pix = rotate(pix, rotation);
+            Pix rotatedPix = rotate(pix, rotation);
+            if (!TesseractOcrUtil.samePix(rotatedPix, pix)) {
+                TesseractOcrUtil.destroyPix(pix);
+            }
+            pix = rotatedPix;
         }
         return pix;
     }
@@ -801,7 +827,7 @@ class TesseractOcrUtil {
                     );
                 }
             } finally {
-                destroyPix(pix);
+                TesseractOcrUtil.destroyPix(pix);
             }
             return newImageData;
         }

@@ -427,6 +427,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                                 img);
                     }
                 }
+                TesseractOcrUtil.destroyPix(pix);
             }
             if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
                     || !Files.exists(Paths.get(tmpFileName))) {
