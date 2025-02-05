@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2024 Apryse Group NV
+    Copyright (c) 1998-2025 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -87,6 +87,14 @@ final class LeptonicaWrapper {
             return;
         }
         Leptonica1.lept_free(pointer);
+    }
+
+    public static void pixFreeData(Pix pix) {
+        if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
+            Leptonica.INSTANCE.pixFreeData(pix);
+            return;
+        }
+        Leptonica1.pixFreeData(pix);
     }
 
     public static void pixWriteMem(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {

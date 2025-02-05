@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2024 Apryse Group NV
+    Copyright (c) 1998-2025 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -427,6 +427,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                                 img);
                     }
                 }
+                TesseractOcrUtil.destroyPix(pix);
             }
             if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
                     || !Files.exists(Paths.get(tmpFileName))) {

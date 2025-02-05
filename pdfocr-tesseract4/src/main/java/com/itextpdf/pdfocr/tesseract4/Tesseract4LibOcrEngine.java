@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2024 Apryse Group NV
+    Copyright (c) 1998-2025 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -45,6 +45,7 @@ import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessag
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
+import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.LoggerFactory;
@@ -309,12 +310,14 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             // preprocess if required
             if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
                 // preprocess and try to ocr
+                Pix pix = ImagePreprocessingUtil
+                        .preprocessImage(inputImage, pageNumber,
+                                getTesseract4OcrEngineProperties().getImagePreprocessingOptions());
                 result = new TesseractOcrUtil().getOcrResultAsString(
                         getTesseractInstance(),
-                        ImagePreprocessingUtil
-                                .preprocessImage(inputImage, pageNumber,
-                                        getTesseract4OcrEngineProperties().getImagePreprocessingOptions()),
+                        pix,
                         outputFormat);
+                TesseractOcrUtil.destroyPix(pix);
             }
             if (result == null) {
                 BufferedImage bufferedImage = ImagePreprocessingUtil
