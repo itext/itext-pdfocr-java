@@ -30,7 +30,7 @@ import com.itextpdf.commons.actions.data.ProductData;
 public class PdfOcrTesseract4ProductData {
     private static final String PDF_OCR_TESSERACT4_PRODUCT_NAME = "pdfOcr-tesseract4";
     private static final String PDF_OCR_TESSERACT4_PUBLIC_PRODUCT_NAME = "pdfOCR-Tesseract4";
-    private static final String PDF_OCR_VERSION = "4.0.1-SNAPSHOT";
+    private static final String PDF_OCR_VERSION = "4.0.1";
     private static final int PDF_OCR_COPYRIGHT_SINCE = 2000;
     private static final int PDF_OCR_COPYRIGHT_TO = 2025;
 
