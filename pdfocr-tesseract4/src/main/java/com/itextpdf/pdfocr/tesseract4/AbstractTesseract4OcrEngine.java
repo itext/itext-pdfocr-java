@@ -27,6 +27,7 @@ import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.io.image.ImageType;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.IOcrEngine;
@@ -315,7 +316,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @return boolean true is current os is windows, otherwise - false
      */
     public boolean isWindows() {
-        return identifyOsType().toLowerCase().contains("win");
+        return StringNormalizer.toLowerCase(identifyOsType()).contains("win");
     }
 
     /**
@@ -326,7 +327,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
     public String identifyOsType() {
         String os = System.getProperty("os.name") == null
                 ? System.getProperty("OS") : System.getProperty("os.name");
-        return os.toLowerCase();
+        return StringNormalizer.toLowerCase(os);
     }
 
     /**

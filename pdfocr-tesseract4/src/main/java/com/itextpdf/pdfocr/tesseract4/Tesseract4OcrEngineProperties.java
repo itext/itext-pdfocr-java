@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
@@ -328,7 +329,7 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
             final InputStream inputStream) throws PdfOcrTesseract4Exception {
         setPathToUserWordsFile(null);
         if (!getLanguages().contains(language)) {
-            if (DEFAULT_LANGUAGE.equals(language.toLowerCase())) {
+            if (DEFAULT_LANGUAGE.equals(StringNormalizer.toLowerCase(language))) {
                 List<String> languagesList = getLanguages();
                 languagesList.add(language);
                 setLanguages(languagesList);

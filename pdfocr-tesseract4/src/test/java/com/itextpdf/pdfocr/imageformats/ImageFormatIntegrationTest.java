@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr.imageformats;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
@@ -49,7 +50,7 @@ public abstract class ImageFormatIntegrationTest extends IntegrationTestHelper {
 
     public ImageFormatIntegrationTest(ReaderType type) {
         tesseractReader = getTesseractReader(type);
-        this.testType = type.toString().toLowerCase();
+        this.testType = StringNormalizer.toLowerCase(type.toString());
     }
 
     @BeforeEach
