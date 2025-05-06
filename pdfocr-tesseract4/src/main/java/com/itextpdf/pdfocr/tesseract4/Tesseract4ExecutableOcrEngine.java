@@ -25,6 +25,12 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.StringNormalizer;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -35,13 +41,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
-import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
-
 import net.sourceforge.lept4j.Pix;
 import org.slf4j.LoggerFactory;
 
@@ -478,7 +477,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                 String extension = new String(
                         inputImage.getAbsolutePath().toCharArray(), index,
                         inputImage.getAbsolutePath().length() - index);
-                return extension.toLowerCase();
+                return StringNormalizer.toLowerCase(extension);
             }
         }
         return ".png";
