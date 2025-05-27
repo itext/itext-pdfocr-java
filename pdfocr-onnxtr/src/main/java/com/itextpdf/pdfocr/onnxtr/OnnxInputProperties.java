@@ -27,10 +27,10 @@ import java.util.Objects;
 
 /**
  * Properties of the input of an ONNX model, which expects an RGB image.
+ *
  * <p>
  * It contains the input shape, as a [batchSize, channel, height, width] array, mean and standard
  * deviation values for normalization, whether padding should be symmetrical or not.
- * </p>
  */
 public class OnnxInputProperties {
     /**
@@ -62,13 +62,10 @@ public class OnnxInputProperties {
     /**
      * Creates model input properties.
      *
-     * @param mean         Per-channel mean, used for normalization.
-     *                     Should be EXPECTED_SHAPE_SIZE length.
-     * @param std          Per-channel standard deviation, used for normalization.
-     *                     Should be EXPECTED_SHAPE_SIZE length.
-     * @param shape        Target input shape.
-     *                     Should be EXPECTED_SHAPE_SIZE length.
-     * @param symmetricPad Whether padding should be symmetrical during input resizing.
+     * @param mean per-channel mean, used for normalization. Should be EXPECTED_SHAPE_SIZE length
+     * @param std per-channel standard deviation, used for normalization. Should be EXPECTED_SHAPE_SIZE length
+     * @param shape target input shape. Should be EXPECTED_SHAPE_SIZE length
+     * @param symmetricPad whether padding should be symmetrical during input resizing
      */
     public OnnxInputProperties(float[] mean, float[] std, long[] shape, boolean symmetricPad) {
         Objects.requireNonNull(mean);
@@ -101,7 +98,7 @@ public class OnnxInputProperties {
     /**
      * Returns per-channel mean, used for normalization.
      *
-     * @return Per-channel mean, used for normalization.
+     * @return per-channel mean, used for normalization
      */
     public float[] getMean() {
         return mean.clone();
@@ -110,9 +107,9 @@ public class OnnxInputProperties {
     /**
      * Returns channel-specific mean, used for normalization.
      *
-     * @param index Index of the channel.
+     * @param index index of the channel
      *
-     * @return Channel-specific mean, used for normalization.
+     * @return channel-specific mean, used for normalization
      */
     public float getMean(int index) {
         return mean[index];
@@ -121,7 +118,7 @@ public class OnnxInputProperties {
     /**
      * Returns red channel mean, used for normalization.
      *
-     * @return Red channel mean, used for normalization.
+     * @return red channel mean, used for normalization
      */
     public float getRedMean() {
         return getMean(0);
@@ -130,7 +127,7 @@ public class OnnxInputProperties {
     /**
      * Returns green channel mean, used for normalization.
      *
-     * @return Green channel mean, used for normalization.
+     * @return green channel mean, used for normalization
      */
     public float getGreenMean() {
         return getMean(1);
@@ -139,7 +136,7 @@ public class OnnxInputProperties {
     /**
      * Returns blue channel mean, used for normalization.
      *
-     * @return Blue channel mean, used for normalization.
+     * @return blue channel mean, used for normalization
      */
     public float getBlueMean() {
         return getMean(2);
@@ -148,7 +145,7 @@ public class OnnxInputProperties {
     /**
      * Returns per-channel standard deviation, used for normalization.
      *
-     * @return Per-channel standard deviation, used for normalization.
+     * @return per-channel standard deviation, used for normalization
      */
     public float[] getStd() {
         return std.clone();
@@ -157,9 +154,9 @@ public class OnnxInputProperties {
     /**
      * Returns channel-specific standard deviation, used for normalization.
      *
-     * @param index Index of the channel.
+     * @param index index of the channel
      *
-     * @return Channel-specific standard deviation, used for normalization.
+     * @return channel-specific standard deviation, used for normalization
      */
     public float getStd(int index) {
         return std[index];
@@ -168,7 +165,7 @@ public class OnnxInputProperties {
     /**
      * Returns red channel standard deviation, used for normalization.
      *
-     * @return Red channel standard deviation, used for normalization.
+     * @return red channel standard deviation, used for normalization
      */
     public float getRedStd() {
         return getStd(0);
@@ -177,7 +174,7 @@ public class OnnxInputProperties {
     /**
      * Returns green channel standard deviation, used for normalization.
      *
-     * @return Green channel standard deviation, used for normalization.
+     * @return green channel standard deviation, used for normalization
      */
     public float getGreenStd() {
         return getStd(1);
@@ -186,7 +183,7 @@ public class OnnxInputProperties {
     /**
      * Returns blue channel standard deviation, used for normalization.
      *
-     * @return Blue channel standard deviation, used for normalization.
+     * @return blue channel standard deviation, used for normalization
      */
     public float getBlueStd() {
         return getStd(2);
@@ -195,7 +192,7 @@ public class OnnxInputProperties {
     /**
      * Returns target input shape.
      *
-     * @return Target input shape.
+     * @return target input shape
      */
     public long[] getShape() {
         return shape.clone();
@@ -204,9 +201,9 @@ public class OnnxInputProperties {
     /**
      * Returns target input dimension value.
      *
-     * @param index Index of the dimension.
+     * @param index index of the dimension
      *
-     * @return Target input dimension value.
+     * @return target input dimension value
      */
     public int getShape(int index) {
         return (int) shape[index];
@@ -215,7 +212,7 @@ public class OnnxInputProperties {
     /**
      * Returns input batch size.
      *
-     * @return Input batch size.
+     * @return input batch size
      */
     public int getBatchSize() {
         return getShape(0);
@@ -224,7 +221,7 @@ public class OnnxInputProperties {
     /**
      * Returns input channel count.
      *
-     * @return Input channel count.
+     * @return input channel count
      */
     public int getChannelCount() {
         return getShape(1);
@@ -233,7 +230,7 @@ public class OnnxInputProperties {
     /**
      * Returns input height.
      *
-     * @return Input height.
+     * @return input height
      */
     public int getHeight() {
         return getShape(2);
@@ -242,7 +239,7 @@ public class OnnxInputProperties {
     /**
      * Returns input width.
      *
-     * @return Input width.
+     * @return input width
      */
     public int getWidth() {
         return getShape(3);
@@ -251,7 +248,7 @@ public class OnnxInputProperties {
     /**
      * Returns whether padding should be symmetrical during input resizing.
      *
-     * @return Whether padding should be symmetrical during input resizing.
+     * @return whether padding should be symmetrical during input resizing
      */
     public boolean useSymmetricPad() {
         return symmetricPad;

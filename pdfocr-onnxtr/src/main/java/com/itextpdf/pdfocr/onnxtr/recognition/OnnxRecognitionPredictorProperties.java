@@ -6,10 +6,10 @@ import java.util.Objects;
 
 /**
  * Properties for configuring text recognition ONNX models.
+ *
  * <p>
  * It contains a path to the model, model input properties and a model
  * output post-processor.
- * </p>
  */
 public class OnnxRecognitionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
@@ -37,9 +37,9 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Creates new text recognition predictor properties.
      *
-     * @param modelPath       Path to the ONNX model to load.
-     * @param inputProperties ONNX model input properties.
-     * @param postProcessor   ONNX model output post-processor.
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param postProcessor ONNX model output post-processor
      */
     public OnnxRecognitionPredictorProperties(
             String modelPath,
@@ -55,6 +55,7 @@ public class OnnxRecognitionPredictorProperties {
      * Creates a new text recognition properties object for existing pre-trained
      * CRNN models with a VGG-16 backbone, stored on disk. This is the default
      * text recognition model in OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -69,12 +70,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a CRNN model with a
-     * VGG-16 backbone.
+     * @return a new text recognition properties object for a CRNN model with a VGG-16 backbone
      */
     public static OnnxRecognitionPredictorProperties crnnVgg16(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -87,6 +86,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Creates a new text recognition properties object for existing pre-trained
      * CRNN models with a MobileNet V3 backbone, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -111,12 +111,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a CRNN model with a
-     * MobileNet V3 backbone.
+     * @return a new text recognition properties object for a CRNN model with a MobileNet V3 backbone
      */
     public static OnnxRecognitionPredictorProperties crnnMobileNetV3(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -127,8 +125,8 @@ public class OnnxRecognitionPredictorProperties {
     }
 
     /**
-     * Creates a new text recognition properties object for existing pre-trained
-     * MASTER models, stored on disk.
+     * Creates a new text recognition properties object for existing pre-trained MASTER models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -143,11 +141,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a MASTER model.
+     * @return a new text recognition properties object for a MASTER model
      */
     public static OnnxRecognitionPredictorProperties master(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -161,6 +158,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Creates a new text recognition properties object for existing pre-trained
      * PARSeq models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -175,11 +173,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a PARSeq model.
+     * @return a new text recognition properties object for a PARSeq model
      */
     public static OnnxRecognitionPredictorProperties parSeq(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -192,6 +189,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Creates a new text recognition properties object for existing pre-trained
      * SAR models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -206,11 +204,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a SAR model.
+     * @return a new text recognition properties object for a SAR model
      */
     public static OnnxRecognitionPredictorProperties sar(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -223,6 +220,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Creates a new text recognition properties object for existing pre-trained
      * ViTSTR models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -247,11 +245,10 @@ public class OnnxRecognitionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text recognition properties object for a ViTSTR model.
+     * @return a new text recognition properties object for a ViTSTR model
      */
     public static OnnxRecognitionPredictorProperties viTstr(String modelPath) {
         return new OnnxRecognitionPredictorProperties(
@@ -264,7 +261,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Returns the path to the ONNX model.
      *
-     * @return The path to the ONNX model.
+     * @return the path to the ONNX model
      */
     public String getModelPath() {
         return modelPath;
@@ -273,7 +270,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Returns the ONNX model input properties.
      *
-     * @return The ONNX model input properties.
+     * @return the ONNX model input properties
      */
     public OnnxInputProperties getInputProperties() {
         return inputProperties;
@@ -282,7 +279,7 @@ public class OnnxRecognitionPredictorProperties {
     /**
      * Returns the ONNX model output post-processor.
      *
-     * @return The ONNX model output post-processor.
+     * @return the ONNX model output post-processor
      */
     public IRecognitionPostProcessor getPostProcessor() {
         return postProcessor;

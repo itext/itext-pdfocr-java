@@ -34,20 +34,22 @@ public final class OpenCvUtil {
 
     /**
      * Normalizes RotatedRect, so that its angle is in the [-45; 45) range.
+     *
      * <p>
      * We want our boxes to have the point order, so that it matches input image orientation.
      * Otherwise, the orientation detection model will get a different box, which is already
      * pre-rotated in some way. Here we will alter the rectangle, so that points would output the
      * expected order.
-     * </p>
+     *
      * <p>
      * This will make box have points in the following order, relative to the page: BL, TL, TR, BR.
      * Bottom as in bottom of the image, not the lowest Y coordinate.
-     * </p>
      *
-     * @param rect RotatedRect to normalize.
+     * @param rect RotatedRect to normalize
+     *
+     * @return normalized RotatedRect
      */
-    public static void normalizeRotatedRect(RotatedRect rect) {
+    public static RotatedRect normalizeRotatedRect(RotatedRect rect) {
         final float angle = rect.angle();
         final float clampedAngle = MathUtil.euclideanModulo(angle, 360);
         /*
@@ -73,5 +75,6 @@ public final class OpenCvUtil {
             assert 0F <= clampedAngle && clampedAngle < 45F;
             rect.angle(clampedAngle);
         }
+        return rect;
     }
 }

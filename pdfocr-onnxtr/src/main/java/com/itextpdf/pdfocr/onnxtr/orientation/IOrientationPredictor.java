@@ -28,8 +28,7 @@ import com.itextpdf.pdfocr.onnxtr.IPredictor;
 import java.awt.image.BufferedImage;
 
 /**
- * Interface for predictors, which take a cropped image of text and determine
- * its orientation.
+ * Interface for predictors, which take a cropped image of text and determine its orientation.
  */
 public interface IOrientationPredictor extends IPredictor<BufferedImage, TextOrientation> {
 }

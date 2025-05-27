@@ -45,7 +45,7 @@ public class OnnxRecognitionPredictor
     /**
      * Creates a text recognition predictor with the specified properties.
      *
-     * @param properties Properties of the predictor.
+     * @param properties properties of the predictor
      */
     public OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties properties) {
         super(properties.getModelPath(), properties.getInputProperties(), getExpectedOutputShape(properties));
@@ -56,6 +56,7 @@ public class OnnxRecognitionPredictor
      * Creates a new text recognition predictor using an existing pre-trained
      * CRNN model with a VGG-16 backbone, stored on disk. This is the default
      * text recognition model in OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -70,12 +71,10 @@ public class OnnxRecognitionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the CRNN model loaded with a VGG-16
-     * backbone.
+     * @return a new predictor object with the CRNN model loaded with a VGG-16 backbone
      */
     public static OnnxRecognitionPredictor crnnVgg16(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.crnnVgg16(modelPath));
@@ -84,6 +83,7 @@ public class OnnxRecognitionPredictor
     /**
      * Creates a new text recognition predictor using an existing pre-trained
      * CRNN model with a MobileNet V3 backbone, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -108,12 +108,10 @@ public class OnnxRecognitionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the CRNN model loaded with a
-     * MobileNet V3 backbone.
+     * @return a new predictor object with the CRNN model loaded with a MobileNet V3 backbone
      */
     public static OnnxRecognitionPredictor crnnMobileNetV3(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.crnnMobileNetV3(modelPath));
@@ -122,6 +120,7 @@ public class OnnxRecognitionPredictor
     /**
      * Creates a new text recognition predictor using an existing pre-trained
      * MASTER model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -138,9 +137,9 @@ public class OnnxRecognitionPredictor
      * </ul>
      * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the MASTER model loaded.
+     * @return a new predictor object with the MASTER model loaded
      */
     public static OnnxRecognitionPredictor master(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.master(modelPath));
@@ -149,6 +148,7 @@ public class OnnxRecognitionPredictor
     /**
      * Creates a new text recognition predictor using an existing pre-trained
      * PARSeq model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -163,11 +163,10 @@ public class OnnxRecognitionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the PARSeq model loaded.
+     * @return a new predictor object with the PARSeq model loaded
      */
     public static OnnxRecognitionPredictor parSeq(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.parSeq(modelPath));
@@ -176,6 +175,7 @@ public class OnnxRecognitionPredictor
     /**
      * Creates a new text recognition predictor using an existing pre-trained
      * SAR model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -190,19 +190,18 @@ public class OnnxRecognitionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the SAR model loaded.
+     * @return a new predictor object with the SAR model loaded
      */
     public static OnnxRecognitionPredictor sar(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.sar(modelPath));
     }
 
     /**
-     * Creates a new text recognition predictor using an existing pre-trained
-     * ViTSTR model, stored on disk.
+     * Creates a new text recognition predictor using an existing pre-trained ViTSTR model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -227,11 +226,10 @@ public class OnnxRecognitionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor object with the ViTSTR model loaded.
+     * @return a new predictor object with the ViTSTR model loaded
      */
     public static OnnxRecognitionPredictor viTstr(String modelPath) {
         return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.viTstr(modelPath));
@@ -240,7 +238,7 @@ public class OnnxRecognitionPredictor
     /**
      * Returns the text recognition predictor properties.
      *
-     * @return The text recognition predictor properties.
+     * @return the text recognition predictor properties
      */
     public OnnxRecognitionPredictorProperties getProperties() {
         return properties;

@@ -56,15 +56,12 @@ public final class BufferedImageUtil {
      * Converts a collection of images to a batched ML model input in a BCHW format with 3 channels.
      * This does aspect-preserving image resizing to fit the input shape.
      *
-     * @param images     Collection of images to convert to model input.
-     * @param properties Model input properties.
+     * @param images collection of images to convert to model input
+     * @param properties model input properties
      *
-     * @return Batched BCHW model input MD-array.
+     * @return batched BCHW model input MD-array
      */
-    public static FloatBufferMdArray toBchwInput(
-            Collection<BufferedImage> images,
-            OnnxInputProperties properties
-    ) {
+    public static FloatBufferMdArray toBchwInput(Collection<BufferedImage> images, OnnxInputProperties properties) {
         // Currently properties guarantee RGB, this is just in case this changes later
         if (properties.getChannelCount() != 3) {
             throw new IllegalArgumentException("toBchwInput only support RGB images");
@@ -131,9 +128,9 @@ public final class BufferedImageUtil {
     /**
      * Converts an image to an RGB Mat for use in OpenCV.
      *
-     * @param image Image to convert.
+     * @param image image to convert
      *
-     * @return RGB 8UC3 OpenCV Mat with the image.
+     * @return RGB 8UC3 OpenCV Mat with the image
      */
     public static Mat toRgbMat(BufferedImage image) {
         final Mat resultMat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
@@ -154,9 +151,9 @@ public final class BufferedImageUtil {
     /**
      * Converts an RGB 8UC3 OpenCV Mat to a buffered image.
      *
-     * @param rgb RGB 8UC3 OpenCV Mat to convert.
+     * @param rgb RGB 8UC3 OpenCV Mat to convert
      *
-     * @return Buffered image based on Mat.
+     * @return buffered image based on Mat
      */
     public static BufferedImage fromRgbMat(Mat rgb) {
         if (rgb.type() != CvType.CV_8UC3) {
@@ -180,10 +177,10 @@ public final class BufferedImageUtil {
     /**
      * Rotates image based on text orientation. If no rotation necessary, same image is returned.
      *
-     * @param image       Image to rotate.
-     * @param orientation Text orientation used to rotate the image.
+     * @param image image to rotate
+     * @param orientation text orientation used to rotate the image
      *
-     * @return New rotated image, or same image, if no rotation is required.
+     * @return new rotated image, or same image, if no rotation is required
      */
     public static BufferedImage rotate(BufferedImage image, TextOrientation orientation) {
         if (orientation == TextOrientation.HORIZONTAL) {
@@ -218,15 +215,14 @@ public final class BufferedImageUtil {
     }
 
     /**
-     * Creates a new image with an aspect ratio preserving resize. New blank pixel will have black
-     * color.
+     * Creates a new image with an aspect ratio preserving resize. New blank pixel will have black color.
      *
-     * @param image        Image to resize.
-     * @param width        Target width.
-     * @param height       Target height.
-     * @param symmetricPad Whether padding should be symmetric or should it be bottom-right.
+     * @param image image to resize
+     * @param width target width
+     * @param height target height
+     * @param symmetricPad whether padding should be symmetric or should it be bottom-right
      *
-     * @return New resized image.
+     * @return new resized image
      */
     public static BufferedImage resize(BufferedImage image, int width, int height, boolean symmetricPad) {
         // It is pretty unlikely, that the image is already the correct size, so no need for an exception
@@ -270,10 +266,10 @@ public final class BufferedImageUtil {
      * Extracts sub-images from an image, based on provided rotated 4-point boxes. Sub-images are
      * transformed to fit the whole image without (in our use cases it is just rotation).
      *
-     * @param image Original image to be used for extraction.
-     * @param boxes List of 4-point boxes. Points should be in the following order: BL, TL, TR, BR.
+     * @param image original image to be used for extraction
+     * @param boxes list of 4-point boxes. Points should be in the following order: BL, TL, TR, BR
      *
-     * @return List of extracted image boxes.
+     * @return list of extracted image boxes
      */
     public static List<BufferedImage> extractBoxes(BufferedImage image, Collection<Point[]> boxes) {
         final List<BufferedImage> boxesImages = new ArrayList<>(boxes.size());
@@ -310,9 +306,9 @@ public final class BufferedImageUtil {
     /**
      * Returns the byte capacity required for a float32 buffer of the specified shape.
      *
-     * @param shape Shape of the MD-array.
+     * @param shape shape of the MD-array
      *
-     * @return The byte capacity required for a float32 buffer of the specified shape.
+     * @return the byte capacity required for a float32 buffer of the specified shape
      */
     private static int calculateBufferCapacity(long[] shape) {
         int capacity = Float.BYTES;

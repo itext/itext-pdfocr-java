@@ -39,8 +39,7 @@ import java.util.function.Consumer;
  * A text detection predictor implementation, which is using ONNX Runtime and
  * its ML models to find, where text is located on an image.
  */
-public class OnnxDetectionPredictor
-        extends AbstractOnnxPredictor<BufferedImage, List<Point[]>>
+public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage, List<Point[]>>
         implements IDetectionPredictor {
     /**
      * Configuration properties of the predictor.
@@ -50,7 +49,7 @@ public class OnnxDetectionPredictor
     /**
      * Creates a text detection predictor with the specified properties.
      *
-     * @param properties Properties of the predictor.
+     * @param properties properties of the predictor
      */
     public OnnxDetectionPredictor(OnnxDetectionPredictorProperties properties) {
         super(properties.getModelPath(), properties.getInputProperties(), getExpectedOutputShape(properties));
@@ -58,8 +57,8 @@ public class OnnxDetectionPredictor
     }
 
     /**
-     * Creates a new text detection predictor using an existing pre-trained
-     * DBNet model, stored on disk.
+     * Creates a new text detection predictor using an existing pre-trained DBNet model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -94,20 +93,19 @@ public class OnnxDetectionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor with the DBNet model loaded.
+     * @return a new predictor with the DBNet model loaded
      */
     public static OnnxDetectionPredictor dbNet(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.dbNet(modelPath));
     }
 
     /**
-     * Creates a new text detection predictor using an existing pre-trained
-     * FAST model, stored on disk. This is the default text detection model in
-     * OnnxTR.
+     * Creates a new text detection predictor using an existing pre-trained FAST model, stored on disk.
+     * This is the default text detection model in OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -127,19 +125,18 @@ public class OnnxDetectionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor with the FAST model loaded.
+     * @return a new predictor with the FAST model loaded
      */
     public static OnnxDetectionPredictor fast(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.fast(modelPath));
     }
 
     /**
-     * Creates a new text detection predictor using an existing pre-trained
-     * LinkNet model, stored on disk.
+     * Creates a new text detection predictor using an existing pre-trained LinkNet model, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -174,11 +171,10 @@ public class OnnxDetectionPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor with the LinkNet model loaded.
+     * @return a new predictor with the LinkNet model loaded
      */
     public static OnnxDetectionPredictor linkNet(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.linkNet(modelPath));
@@ -187,7 +183,7 @@ public class OnnxDetectionPredictor
     /**
      * Returns the text detection predictor properties.
      *
-     * @return The text detection predictor properties.
+     * @return the text detection predictor properties
      */
     public OnnxDetectionPredictorProperties getProperties() {
         return properties;

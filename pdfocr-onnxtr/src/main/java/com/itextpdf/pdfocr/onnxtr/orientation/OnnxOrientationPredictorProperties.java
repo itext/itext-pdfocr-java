@@ -8,10 +8,10 @@ import java.util.Objects;
 
 /**
  * Properties for configuring crop orientation ONNX models.
+ *
  * <p>
  * It contains a path to the model, model input properties and a model
  * output mapper.
- * </p>
  */
 public class OnnxOrientationPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
@@ -40,15 +40,14 @@ public class OnnxOrientationPredictorProperties {
     /**
      * Creates new crop orientation predictor properties.
      *
-     * @param modelPath       Path to the ONNX model to load.
-     * @param inputProperties ONNX model input properties.
-     * @param outputMapper    ONNX model output mapper.
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param outputMapper ONNX model output mapper
      */
     public OnnxOrientationPredictorProperties(
             String modelPath,
             OnnxInputProperties inputProperties,
-            IOutputLabelMapper<TextOrientation> outputMapper
-    ) {
+            IOutputLabelMapper<TextOrientation> outputMapper) {
         this.modelPath = Objects.requireNonNull(modelPath);
         this.inputProperties = Objects.requireNonNull(inputProperties);
         this.outputMapper = Objects.requireNonNull(outputMapper);
@@ -58,6 +57,7 @@ public class OnnxOrientationPredictorProperties {
      * Creates a new crop orientation properties object for existing pre-trained
      * MobileNetV3 models, stored on disk. This is the only crop orientation
      * model architecture available in OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -72,11 +72,10 @@ public class OnnxOrientationPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new crop orientation properties object for a MobileNetV3 model.
+     * @return a new crop orientation properties object for a MobileNetV3 model
      */
     public static OnnxOrientationPredictorProperties mobileNetV3(String modelPath) {
         return new OnnxOrientationPredictorProperties(modelPath, DEFAULT_INPUT_PROPERTIES, DEFAULT_OUTPUT_MAPPER);
@@ -85,7 +84,7 @@ public class OnnxOrientationPredictorProperties {
     /**
      * Returns the path to the ONNX model.
      *
-     * @return The path to the ONNX model.
+     * @return the path to the ONNX model
      */
     public String getModelPath() {
         return modelPath;
@@ -94,7 +93,7 @@ public class OnnxOrientationPredictorProperties {
     /**
      * Returns the ONNX model input properties.
      *
-     * @return The ONNX model input properties.
+     * @return the ONNX model input properties
      */
     public OnnxInputProperties getInputProperties() {
         return inputProperties;
@@ -103,7 +102,7 @@ public class OnnxOrientationPredictorProperties {
     /**
      * Returns the ONNX model output mapper.
      *
-     * @return The ONNX model output mapper.
+     * @return the ONNX model output mapper
      */
     public IOutputLabelMapper<TextOrientation> getOutputMapper() {
         return outputMapper;

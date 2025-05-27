@@ -50,25 +50,27 @@ import java.util.Objects;
 /**
  * Abstract predictor, based on models running over ONNX runtime.
  *
- * @param <T> Predictor input type.
- * @param <R> Predictor output type.
+ * @param <T> predictor input type
+ * @param <R> predictor output type
  */
 public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     /**
      * Model input properties.
      */
     private final OnnxInputProperties inputProperties;
+
     /**
-     * ONNX runtime session options. Not sure, whether {@link OrtSession} takes
-     * ownership of options, when you pass them, so it might not be safe to
-     * close the object just after the session creation. So storing to dispose
+     * ONNX runtime session options. {@link OrtSession} does not take ownership of the options, when you pass them.
+     * It uses the options during initialization but does not manage their lifetime afterward. So storing to dispose
      * it after session disposal.
      */
     private final OrtSession.SessionOptions sessionOptions;
+
     /**
      * ONNX runtime session. Contains the machine learning model.
      */
     private final OrtSession session;
+
     /**
      * Key for the singular input of a model.
      */
@@ -76,14 +78,14 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
 
     /**
      * Creates a new abstract predictor.
+     *
      * <p>
      * If the specified model does not match input and output properties, it will throw an exception.
-     * </p>
      *
-     * @param modelPath       Path to the ONNX runtime model to load.
-     * @param inputProperties Expected input properties of a model.
-     * @param outputShape     Expected shape of the output. -1 entries mean that the dimension can
-     *                        be of any size (ex. batch size).
+     * @param modelPath path to the ONNX runtime model to load
+     * @param inputProperties expected input properties of a model
+     * @param outputShape expected shape of the output. -1 entries mean that the dimension can be
+     *                    of any size (ex. batch size)
      */
     protected AbstractOnnxPredictor(String modelPath, OnnxInputProperties inputProperties, long[] outputShape) {
         this.inputProperties = Objects.requireNonNull(inputProperties);
@@ -104,8 +106,7 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
         try {
             this.inputName = validateModel(this.session, inputProperties, outputShape);
         } catch (Exception e) {
-            final PdfOcrException userException =
-                    new PdfOcrException("ONNX Runtime model did not pass validation", e);
+            final PdfOcrException userException = new PdfOcrException("ONNX Runtime model did not pass validation", e);
             try {
                 this.session.close();
             } catch (OrtException closeException) {
@@ -144,19 +145,19 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     /**
      * Converts predictor inputs to an ONNX runtime model batched input MD-array buffer.
      *
-     * @param batch Batch of raw predictor inputs.
+     * @param batch batch of raw predictor inputs
      *
-     * @return Batched model input MD-array buffer.
+     * @return batched model input MD-array buffer
      */
     protected abstract FloatBufferMdArray toInputBuffer(List<T> batch);
 
     /**
      * Converts ONNX runtime model batched output MD-array buffer to a list of predictor outputs.
      *
-     * @param inputBatch  List of raw predictor inputs, matching the output.
-     * @param outputBatch Batched model output MD-array buffer.
+     * @param inputBatch list of raw predictor inputs, matching the output
+     * @param outputBatch batched model output MD-array buffer
      *
-     * @return A list of predictor output.
+     * @return a list of predictor output
      */
     protected abstract List<R> fromOutputBuffer(List<T> inputBatch, FloatBufferMdArray outputBatch);
 
@@ -185,6 +186,14 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     /**
      * Validates model, loaded in session, against expected inputs and outputs.
      * If model is invalid, then an exception is thrown.
+     *
+     * @param session current {@link OrtSession} with the loaded ONNX runtime model
+     * @param properties {@link OnnxInputProperties} properties of the input of an ONNX model which expects an RGB image
+     * @param outputShape expected shape of the output. -1 entries mean that the dimension can be of any size
+     *
+     * @return input info
+     *
+     * @throws OrtException in case model is invalid
      */
     private static String validateModel(OrtSession session, OnnxInputProperties properties, long[] outputShape)
             throws OrtException {
@@ -247,9 +256,9 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     /**
      * Wraps a model output into an MD-array.
      *
-     * @param result Model output.
+     * @param result model output
      *
-     * @return MD-array wrapper.
+     * @return MD-array wrapper
      */
     private static FloatBufferMdArray parseModelOutput(OrtSession.Result result) {
         final OnnxValue output = result.get(0);
@@ -260,13 +269,12 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     }
 
     /**
-     * Returns whether two shapes are compatible. I.e. have the same size and dimensions (except for
-     * -1 wildcards).
+     * Returns whether two shapes are compatible. I.e. have the same size and dimensions (except for -1 wildcards).
      *
-     * @param expectedShape Expected shape.
-     * @param actualShape   Actual model shape.
+     * @param expectedShape expected shape
+     * @param actualShape actual model shape
      *
-     * @return Whether shapes are compatible.
+     * @return whether shapes are compatible
      */
     private static boolean isShapeIncompatible(long[] expectedShape, long[] actualShape) {
         if (actualShape.length != expectedShape.length) {

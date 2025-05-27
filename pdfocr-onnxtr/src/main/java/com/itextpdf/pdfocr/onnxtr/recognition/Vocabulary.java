@@ -4,16 +4,16 @@ import java.util.Objects;
 
 /**
  * A string-based LUT for mapping text recognition model results to characters.
+ *
  * <p>
  * This class assumes, that each character is represented with a single UTF-16
  * code unit. So the string itself can be used as a LUT. If this is not the
  * case, results will be unpredictable.
- * </p>
+ *
  * <p>
  * It pretty much implements {@link com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper}
  * for {@link Character} but since it would involve unnecessary boxing, it is a
  * standalone thing instead.
- * </p>
  */
 public class Vocabulary {
     public static final Vocabulary ASCII_LOWERCASE = new Vocabulary(
@@ -102,9 +102,9 @@ public class Vocabulary {
      * Returns character, which is mapped to the specified index in the lookup
      * string.
      *
-     * @param index Index to map.
+     * @param index index to map
      *
-     * @return Mapped character.
+     * @return mapped character
      */
     public char map(int index) {
         return lookUpString.charAt(index);

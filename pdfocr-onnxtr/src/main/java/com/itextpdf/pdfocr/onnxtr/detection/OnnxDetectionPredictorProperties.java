@@ -6,10 +6,10 @@ import java.util.Objects;
 
 /**
  * Properties for configuring text detection ONNX models.
+ *
  * <p>
  * It contains a path to the model, model input properties and a model
  * output post-processor.
- * </p>
  */
 public class OnnxDetectionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
@@ -45,9 +45,9 @@ public class OnnxDetectionPredictorProperties {
     /**
      * Creates new text detection predictor properties.
      *
-     * @param modelPath       Path to the ONNX model to load.
-     * @param inputProperties ONNX model input properties.
-     * @param postProcessor   ONNX model output post-processor.
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param postProcessor ONNX model output post-processor
      */
     public OnnxDetectionPredictorProperties(
             String modelPath,
@@ -62,6 +62,7 @@ public class OnnxDetectionPredictorProperties {
     /**
      * Creates a new text detection properties object for existing pre-trained
      * DBNet models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -96,11 +97,10 @@ public class OnnxDetectionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text detection properties object for a DBNet model.
+     * @return a new text detection properties object for a DBNet model
      */
     public static OnnxDetectionPredictorProperties dbNet(String modelPath) {
         return new OnnxDetectionPredictorProperties(
@@ -114,6 +114,7 @@ public class OnnxDetectionPredictorProperties {
      * Creates a new text detection properties object for existing pre-trained
      * FAST models, stored on disk. This is the default text detection model in
      * OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -133,11 +134,10 @@ public class OnnxDetectionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text detection properties object for a FAST model.
+     * @return a new text detection properties object for a FAST model
      */
     public static OnnxDetectionPredictorProperties fast(String modelPath) {
         return new OnnxDetectionPredictorProperties(
@@ -148,8 +148,8 @@ public class OnnxDetectionPredictorProperties {
     }
 
     /**
-     * Creates a new text detection properties object for existing pre-trained
-     * LinkNet models, stored on disk.
+     * Creates a new text detection properties object for existing pre-trained LinkNet models, stored on disk.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -184,11 +184,10 @@ public class OnnxDetectionPredictorProperties {
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new text detection properties object for a LinkNet model.
+     * @return a new text detection properties object for a LinkNet model
      */
     public static OnnxDetectionPredictorProperties linkNet(String modelPath) {
         return new OnnxDetectionPredictorProperties(
@@ -201,7 +200,7 @@ public class OnnxDetectionPredictorProperties {
     /**
      * Returns the path to the ONNX model.
      *
-     * @return The path to the ONNX model.
+     * @return the path to the ONNX model
      */
     public String getModelPath() {
         return modelPath;
@@ -210,7 +209,7 @@ public class OnnxDetectionPredictorProperties {
     /**
      * Returns the ONNX model input properties.
      *
-     * @return The ONNX model input properties.
+     * @return the ONNX model input properties
      */
     public OnnxInputProperties getInputProperties() {
         return inputProperties;
@@ -219,7 +218,7 @@ public class OnnxDetectionPredictorProperties {
     /**
      * Returns the ONNX model output post-processor.
      *
-     * @return The ONNX model output post-processor.
+     * @return the ONNX model output post-processor
      */
     public IDetectionPostProcessor getPostProcessor() {
         return postProcessor;

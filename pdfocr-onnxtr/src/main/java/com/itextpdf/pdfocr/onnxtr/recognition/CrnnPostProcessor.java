@@ -9,11 +9,11 @@ import java.util.Objects;
 /**
  * Implementation of a text recognition predictor post-processor, used for
  * OnnxTR CRNN model outputs.
+ *
  * <p>
  * Notably it does not have end-of-string tokens. Only token, besides the
  * vocabulary one, is blank, which is just skipped or used as a char separator.
  * Multiple of the same label in a row is aggregated into one.
- * </p>
  */
 public class CrnnPostProcessor implements IRecognitionPostProcessor {
     /**
@@ -24,8 +24,7 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
     /**
      * Creates a new post-processor.
      *
-     * @param vocabulary Vocabulary used for the model output (without special
-     *                   tokens).
+     * @param vocabulary vocabulary used for the model output (without special tokens)
      */
     public CrnnPostProcessor(Vocabulary vocabulary) {
         this.vocabulary = Objects.requireNonNull(vocabulary);

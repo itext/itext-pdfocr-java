@@ -85,6 +85,7 @@ import org.slf4j.LoggerFactory;
  * {@link OcrPdfCreator} is the class that creates PDF documents containing input
  * images and text that was recognized using provided {@link IOcrEngine}.
  *
+ * <p>
  * {@link OcrPdfCreator} provides possibilities to set list of input images to
  * be used for OCR, to set scaling mode for images, to set color of text in
  * output PDF document, to set fixed size of the PDF document's page and to
@@ -100,8 +101,7 @@ public class OcrPdfCreator {
     /**
      * The logger.
      */
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(OcrPdfCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OcrPdfCreator.class);
 
     /**
      * Selected {@link IOcrEngine}.
@@ -128,8 +128,7 @@ public class OcrPdfCreator {
      * @param ocrEngine selected OCR Reader {@link IOcrEngine}
      * @param ocrPdfCreatorProperties set of properties for {@link OcrPdfCreator}
      */
-    public OcrPdfCreator(final IOcrEngine ocrEngine,
-            final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
+    public OcrPdfCreator(final IOcrEngine ocrEngine, final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
         if (ocrPdfCreatorProperties.isTagged() && !ocrEngine.isTaggingSupported()) {
             throw new PdfOcrException(PdfOcrExceptionMessageConstant.TAGGING_IS_NOT_SUPPORTED);
         }
@@ -152,14 +151,13 @@ public class OcrPdfCreator {
      * @param ocrPdfCreatorProperties set of properties
      * {@link OcrPdfCreatorProperties} for {@link OcrPdfCreator}
      */
-    public final void setOcrPdfCreatorProperties(
-            final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
+    public final void setOcrPdfCreatorProperties(final OcrPdfCreatorProperties ocrPdfCreatorProperties) {
         this.ocrPdfCreatorProperties = ocrPdfCreatorProperties;
     }
 
     /**
      * Performs OCR with set parameters using provided {@link IOcrEngine} and
-     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}, {@link DocumentProperties }
+     * creates PDF using provided {@link com.itextpdf.kernel.pdf.PdfWriter}, {@link DocumentProperties}
      * and {@link com.itextpdf.kernel.pdf.PdfOutputIntent}. PDF/A-3u document will be created if
      * provided {@link com.itextpdf.kernel.pdf.PdfOutputIntent} is not null.
      *
@@ -180,8 +178,7 @@ public class OcrPdfCreator {
      * @return result PDF/A-3u {@link com.itextpdf.kernel.pdf.PdfDocument}
      * object
      *
-     * @throws PdfOcrException if it was not possible to read provided or
-     *                      default font
+     * @throws PdfOcrException if it was not possible to read provided or default font
      */
     public final PdfDocument createPdfA(final List<File> inputImages,
             final PdfWriter pdfWriter,
@@ -204,12 +201,10 @@ public class OcrPdfCreator {
         // keys: image files
         // values:
         // map pageNumber -> retrieved text data(text and its coordinates)
-        Map<File, Map<Integer, List<TextInfo>>> imagesTextData =
-                new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
+        Map<File, Map<Integer, List<TextInfo>>> imagesTextData = new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
 
         for (File inputImage : inputImages) {
-            imagesTextData.put(inputImage,
-                    ocrEngine.doImageOcr(inputImage, ocrProcessContext));
+            imagesTextData.put(inputImage, ocrEngine.doImageOcr(inputImage, ocrProcessContext));
         }
 
         // create PdfDocument
@@ -407,9 +402,8 @@ public class OcrPdfCreator {
     }
 
     /**
-     * Gets used {@link IOcrEngine}.
+     * Gets used {@link IOcrEngine} reader object to perform OCR.
      *
-     * Returns {@link IOcrEngine} reader object to perform OCR.
      * @return selected {@link IOcrEngine} instance
      */
     public final IOcrEngine getOcrEngine() {
@@ -515,7 +509,7 @@ public class OcrPdfCreator {
 
         // pdfLang should be set in PDF/A mode
         boolean hasPdfLangProperty = ocrPdfCreatorProperties.getPdfLang() != null
-                && !ocrPdfCreatorProperties.getPdfLang().equals("");
+                && !ocrPdfCreatorProperties.getPdfLang().isEmpty();
         if (createPdfA3u && !hasPdfLangProperty) {
             LOGGER.error(MessageFormatUtil.format(
                     PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
@@ -543,7 +537,7 @@ public class OcrPdfCreator {
 
         addDataToPdfDocument(imagesTextData, pdfDocument, createPdfA3u);
 
-        // statisctics event about type of created pdf
+        // statistics event about type of created pdf
         if (ocrEngine instanceof IProductAware
                 && ((IProductAware) ocrEngine).getProductData() != null) {
             PdfOcrOutputType eventType = createPdfA3u ? PdfOcrOutputType.PDFA : PdfOcrOutputType.PDF;
@@ -563,8 +557,8 @@ public class OcrPdfCreator {
      *                       map pageNumber -> text for the page
      * @param pdfDocument result {@link com.itextpdf.kernel.pdf.PdfDocument}
      * @param createPdfA3u true if PDF/A3u document is being created
-     * @throws PdfOcrException if input image cannot be read or provided font
-     * contains NOTDEF glyphs
+     *
+     * @throws PdfOcrException if input image cannot be read or provided font contains NOTDEF glyphs
      */
     private void addDataToPdfDocument(
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
@@ -585,15 +579,12 @@ public class OcrPdfCreator {
                 for (int page = 0; page < imageDataList.size(); ++page) {
                     ImageData imageData = imageDataList.get(page);
                     final Rectangle imageSize =
-                            PdfCreatorUtil.calculateImageSize(
-                                    imageData,
+                            PdfCreatorUtil.calculateImageSize(imageData,
                                     ocrPdfCreatorProperties.getScaleMode(),
                                     ocrPdfCreatorProperties.getPageSize());
 
                     if (imageTextData.containsKey(page + 1)) {
-                        addToCanvas(pdfDocument, imageSize,
-                                imageTextData.get(page + 1),
-                                imageData, createPdfA3u);
+                        addToCanvas(pdfDocument, imageSize, imageTextData.get(page + 1), imageData, createPdfA3u);
                     }
                 }
             }

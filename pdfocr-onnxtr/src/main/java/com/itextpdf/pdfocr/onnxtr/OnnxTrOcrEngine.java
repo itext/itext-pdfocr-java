@@ -39,17 +39,18 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
      * Aspect ratio, at which a text box is split for better text recognition.
      */
     private static final float SPLIT_CROPS_MAX_RATIO = 8;
+
     /**
      * Target aspect ratio for the text box splits.
      */
     private static final float SPLIT_CROPS_TARGET_RATIO = 6;
+
     /**
-     * Multiplier, which controls the overlap between splits. Factor of 1 means, that there will
-     * be no overlap.
+     * Multiplier, which controls the overlap between splits. Factor of 1 means, that there will be no overlap.
+     *
      * <p>
-     * This is for cases, when a split happens in the middle of a character. With some overlap, at
-     * least one of the sub-images will contain the character in full.
-     * </p>
+     * This is for cases, when a split happens in the middle of a character. With some overlap, at least one of the
+     * sub-images will contain the character in full.
      */
     private static final float SPLIT_CROPS_DILATION_FACTOR = 1.4F;
 
@@ -57,49 +58,43 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
      * Text detector. For an input image it outputs a list of text boxes.
      */
     private final IDetectionPredictor detectionPredictor;
+
     /**
-     * Text orientation predictor. For an input image, which is a tight crop of text, it outputs
-     * its orientation in 90 degrees steps. Can be null.
+     * Text orientation predictor. For an input image, which is a tight crop of text, it outputs its orientation
+     * in 90 degrees steps. Can be null.
      */
     private final IOrientationPredictor orientationPredictor;
+
     /**
-     * Text recognizer. For an input image, which is a tight crop of text, it outputs the displayed
-     * string.
+     * Text recognizer. For an input image, which is a tight crop of text, it outputs the displayed string.
      */
     private final IRecognitionPredictor recognitionPredictor;
 
     /**
      * Create a new OCR engine with the provided predictors.
      *
-     * @param detectionPredictor   Text detector. For an input image it outputs a list of text boxes.
-     * @param orientationPredictor Text orientation predictor. For an input image, which is a tight
-     *                             crop of text, it outputs its orientation in 90 degrees steps. Can
-     *                             be null, in that case all text is assumed to be upright.
-     * @param recognitionPredictor Text recognizer. For an input image, which is a tight crop of
-     *                             text, it outputs the displayed string.
+     * @param detectionPredictor   text detector. For an input image it outputs a list of text boxes
+     * @param orientationPredictor text orientation predictor. For an input image, which is a tight  crop of text,
+     *                             it outputs its orientation in 90 degrees steps. Can be null, in that case all text
+     *                             is assumed to be upright
+     * @param recognitionPredictor text recognizer. For an input image, which is a tight crop of text, it outputs the
+     *                             displayed string
      */
-    public OnnxTrOcrEngine(
-            IDetectionPredictor detectionPredictor,
-            IOrientationPredictor orientationPredictor,
-            IRecognitionPredictor recognitionPredictor
-    ) {
+    public OnnxTrOcrEngine(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
+                           IRecognitionPredictor recognitionPredictor) {
         this.detectionPredictor = Objects.requireNonNull(detectionPredictor);
         this.orientationPredictor = orientationPredictor;
         this.recognitionPredictor = Objects.requireNonNull(recognitionPredictor);
     }
 
     /**
-     * Create a new OCR engine with the provided predictors, without text
-     * orientation prediction.
+     * Create a new OCR engine with the provided predictors, without text orientation prediction.
      *
-     * @param detectionPredictor   Text detector. For an input image it outputs a list of text boxes.
-     * @param recognitionPredictor Text recognizer. For an input image, which is a tight crop of
-     *                             text, it outputs the displayed string.
+     * @param detectionPredictor text detector. For an input image it outputs a list of text boxes
+     * @param recognitionPredictor text recognizer. For an input image, which is a tight crop of text,
+     *                             it outputs the displayed string
      */
-    public OnnxTrOcrEngine(
-            IDetectionPredictor detectionPredictor,
-            IRecognitionPredictor recognitionPredictor
-    ) {
+    public OnnxTrOcrEngine(IDetectionPredictor detectionPredictor, IRecognitionPredictor recognitionPredictor) {
         this(detectionPredictor, null, recognitionPredictor);
     }
 
@@ -119,25 +114,13 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
-        /*
-         * TODO: Make this interface better.
-         *
-         * There are two problems. First, we get only one image per call. But the text detector
-         * can batch multiple images and for on them at once, which is a performance improvement,
-         * at least on GPU.
-         *
-         * Second problem is that it forces all OCR engines to reimplement image reading code.
-         * Image reading should happen on a layer higher, so that the code is common. This should
-         * also be a performance improvement, since images get read again anyway to create the
-         * final PDF.
-         */
         final List<BufferedImage> images = getImages(input);
         final Map<Integer, List<TextInfo>> result = new HashMap<>(images.size());
         int imageIndex = 0;
         final Iterator<List<Point[]>> textBoxGenerator = detectionPredictor.predict(images);
         while (textBoxGenerator.hasNext()) {
             /*
-             * TODO: Potential performance improvement (at least for GPU).
+             * TODO DEVSIX-9153: Potential performance improvement (at least for GPU).
              *
              * There is a potential for performance improvements here. Currently, this mirrors the
              * behavior in OnnxTR/DocTR, where inputs for orientation and recognition models are
@@ -162,18 +145,9 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
                 if (textOrientations != null) {
                     textOrientation = textOrientations.get(i);
                 }
-                textInfos.add(new TextInfo(
-                        textString.get(i),
-                        /*
-                         * FIXME: Why not return rectangles in image pixels?..
-                         *
-                         * Seems odd, that an OCR engine should be concerned by PDF specific. It
-                         * would make sense for an engine to return results, which could be directly
-                         * applied to images inputs instead...
-                         */
+                textInfos.add(new TextInfo(textString.get(i),
                         toPdfRectangle(textBoxes.get(i), image.getHeight()),
-                        textOrientation
-                ));
+                        textOrientation));
             }
             result.put(imageIndex + 1, textInfos);
             ++imageIndex;
@@ -189,7 +163,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
         /*
-         * TODO: Implement this interface.
+         * TODO DEVSIX-9153: Implement this interface.
          *
          * With how this engine is build, there is no concept of "lines" or "paragraphs". It just
          * find boxes with text and recognizes them.
@@ -200,7 +174,24 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
          * Ideally we would want a default implementation, which just takes doImageOcr output and
          * builds a text document out of it. Some of this already happens with Tesseract, IIRC.
          */
-        throw new UnsupportedOperationException();
+        StringBuilder content = new StringBuilder();
+        for (File inputImage : inputImages) {
+            StringBuilder outputText = new StringBuilder();
+            Map<Integer, List<TextInfo>> outputMap = doImageOcr(inputImage, ocrProcessContext);
+            for (int page : outputMap.keySet()) {
+                StringBuilder pageText = new StringBuilder();
+                // Each TextInfo is one word, we should layout all of them to try to keep human-readable text
+                for (TextInfo textInfo : outputMap.get(page)) {
+                    pageText.append(textInfo.getText());
+                    pageText.append(System.lineSeparator());
+                }
+                outputText.append(pageText);
+                outputText.append(System.lineSeparator());
+            }
+            content.append(outputText);
+        }
+
+        // TODO DEVSIX-9153: write to file
     }
 
     @Override
@@ -211,9 +202,9 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     /**
      * Runs text recognition on the provided text images.
      *
-     * @param textImages Images with text to recognize.
+     * @param textImages images with text to recognize
      *
-     * @return List of strings, recognized in the images.
+     * @return list of strings, recognized in the images
      */
     private List<String> recognizeText(List<BufferedImage> textImages) {
         // For better recognition results we want to split text images to have better aspect ratios
@@ -243,8 +234,8 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
      * Rotates all images in the text image list, so that they are upright, based on the found text
      * orientation information.
      *
-     * @param textImages       Text images to rotate.
-     * @param textOrientations Orientations of text images. Should be the same size as textImages.
+     * @param textImages text images to rotate
+     * @param textOrientations orientations of text images. Should be the same size as textImages
      */
     private static void correctOrientations(List<BufferedImage> textImages, List<TextOrientation> textOrientations) {
         assert textImages.size() == textOrientations.size();
@@ -257,9 +248,9 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     /**
      * Splits text images to smaller images with better aspect ratios.
      *
-     * @param images Text images to split.
+     * @param images text images to split
      *
-     * @return A list with image splits together with a map to restore them back.
+     * @return a list with image splits together with a map to restore them back
      */
     private static SplitResult splitTextImages(List<BufferedImage> images) {
         final SplitResult result = new SplitResult(images.size());
@@ -297,19 +288,19 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
     /**
      * Merges strings, collected from splits of text images.
-     * <p>
-     * This code is pretty much 1-to-1 to what is in OnnxTR. Logic is not that trivial...
-     * </p>
      *
-     * @param collector  String builder collector, which contains the current left part of the string.
-     * @param nextString Next string to add to the collector.
+     * <p>
+     * TODO DEVSIX-9153 This code is pretty much 1-to-1 to what is in OnnxTR. Logic is not that trivial.
+     *
+     * @param collector string builder collector, which contains the current left part of the string
+     * @param nextString next string to add to the collector
      */
     private static void mergeStrings(StringBuilder collector, String nextString) {
         // Comments are also pretty much copies from OnnxTR...
         final int commonLength = Math.min(collector.length(), nextString.length());
         final double[] scores = new double[commonLength];
         for (int i = 0; i < commonLength; ++i) {
-            // FIXME: org.apache.commons.commons-text is used only for this, but
+            // TODO DEVSIX-9153: org.apache.commons.commons-text is used only for this, but
             //        since Levenshtein distance is relatively trivial, might be
             //        better to just reimplement it
             scores[i] = LevenshteinDistance.getDefaultInstance().apply(
@@ -356,10 +347,10 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     /**
      * Convert a text polygon to a bounding box in PDF points.
      *
-     * @param polygon     Polygon to convert.
-     * @param imageHeight Height of the image (to change the y origin).
+     * @param polygon polygon to convert
+     * @param imageHeight height of the image (to change the y origin)
      *
-     * @return A bounding box in PDF points.
+     * @return a bounding box in PDF points
      */
     private static Rectangle toPdfRectangle(Point[] polygon, int imageHeight) {
         float minX = (float) polygon[0].getX();
@@ -389,7 +380,6 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     }
 
     private static List<BufferedImage> getImages(File input) {
-        // TODO: As mentioned before, this should be abstracted away from OcrEngine.
         try {
             return Collections.singletonList(ImageIO.read(input));
         } catch (IOException e) {
@@ -417,6 +407,11 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
          */
         public final int[] restoreMap;
 
+        /**
+         * Creates new {@link SplitResult} instance.
+         *
+         * @param capacity capacity of the list of sub-images
+         */
         public SplitResult(int capacity) {
             this.splitImages = new ArrayList<>(capacity);
             this.restoreMap = new int[capacity];

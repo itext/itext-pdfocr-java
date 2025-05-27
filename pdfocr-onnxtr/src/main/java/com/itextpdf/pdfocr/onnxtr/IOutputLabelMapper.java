@@ -25,22 +25,22 @@ package com.itextpdf.pdfocr.onnxtr;
 /**
  * Interface for mapping an integer index (continuous from 0) to output values.
  *
- * @param <T> Output type.
+ * @param <T> output type
  */
 public interface IOutputLabelMapper<T> {
     /**
      * Returns a number of mappable values.
      *
-     * @return A number of mappable values.
+     * @return a number of mappable values
      */
     int size();
 
     /**
      * Returns value, which is mapped to the specified index.
      *
-     * @param index Index to map.
+     * @param index index to map
      *
-     * @return Mapped output value.
+     * @return mapped output value
      */
     T map(int index);
 }

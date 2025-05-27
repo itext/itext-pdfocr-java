@@ -1,5 +1,6 @@
 package com.itextpdf.pdfocr.onnxtr.detection;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
@@ -23,6 +24,7 @@ import org.opencv.core.CvType;
 /**
  * Implementation of a text detection predictor post-processor, used for OnnxTR
  * model outputs.
+ *
  * <p>
  * Current implementation works somewhat like this:
  * <ol>
@@ -31,7 +33,6 @@ import org.opencv.core.CvType;
  *     <li>Contours with less certainty score are discarded.</li>
  *     <li>Remaining contours are wrapped into boxes with relative [0, 1] coordinates.</li>
  * </ol>
- * </p>
  */
 public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
     /**
@@ -60,13 +61,10 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
     /**
      * Creates a new post-processor.
      *
-     * @param binarizationThreshold Threshold value used, when binarizing a
-     *                              monochromatic image. If pixel value is
-     *                              greater or equal to the threshold, it is
-     *                              mapped to 1, otherwise it is mapped to 0.
-     * @param scoreThreshold        Score threshold for a detected box. If score
-     *                              is lower than this value, the box gets
-     *                              discarded.
+     * @param binarizationThreshold threshold value used, when binarizing a monochromatic image. If pixel value is
+     *                              greater or equal to the threshold, it is mapped to 1, otherwise it is mapped to 0
+     * @param scoreThreshold score threshold for a detected box. If score is lower than this value,
+     *                       the box gets discarded
      */
     public OnnxDetectionPostProcessor(float binarizationThreshold, float scoreThreshold) {
         this.binarizationThreshold = binarizationThreshold;
@@ -85,7 +83,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         final int height = output.getDimension(1);
         final int width = output.getDimension(2);
         final List<Point[]> boxes = new ArrayList<>();
-        // TODO: Ideally we would want to either cache the score mask (as model
+        // TODO DEVSIX-9153: Ideally we would want to either cache the score mask (as model
         //       dimensions won't change) or use a smaller mask with only the
         //       contour. Though based on profiling, it doesn't look like it is
         //       that bad, when it is only once per input image.
@@ -191,8 +189,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
     }
 
     private static Point2fVector getPaddedBox(Mat points) {
-        try (final RotatedRect rect = opencv_imgproc.minAreaRect(points)) {
-            OpenCvUtil.normalizeRotatedRect(rect);
+        try (final RotatedRect rect = OpenCvUtil.normalizeRotatedRect(opencv_imgproc.minAreaRect(points))) {
             try (final Size2f rectSize = rect.size()) {
                 final float rectWidth = rectSize.width();
                 final float rectHeight = rectSize.height();

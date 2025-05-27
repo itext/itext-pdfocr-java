@@ -28,12 +28,12 @@ import com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper;
 /**
  * Default implementation for mapping output of a crop orientation model to
  * {@link TextOrientation} values.
+ *
  * <p>
  * It expects the output to be an integer in the [0, 3] range, where the value
  * specifies the amount of 90 degree rotations. Usually the model output would
  * be a 4-element vector of probability-like values, which is then converted to
  * an integer index via an {@code argmax} function.
- * </p>
  */
 public class DefaultOrientationMapper implements IOutputLabelMapper<TextOrientation> {
     public DefaultOrientationMapper() {

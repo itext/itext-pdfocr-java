@@ -32,8 +32,8 @@ import java.util.Objects;
  * are cached. This is useful for use in ML-models, where you want to process stuff in batches
  * instead of one-by-ine.
  *
- * @param <T> Input type.
- * @param <R> Output type.
+ * @param <T> input type
+ * @param <R> output type
  */
 public class BatchProcessingGenerator<T, R> implements Iterator<R> {
     private final Iterator<List<T>> batchIterator;
@@ -50,8 +50,8 @@ public class BatchProcessingGenerator<T, R> implements Iterator<R> {
     /**
      * Creates a new generator with the provided batch iterator and processor.
      *
-     * @param batchIterator  Input batch iterator.
-     * @param batchProcessor Batch processor.
+     * @param batchIterator input batch iterator
+     * @param batchProcessor batch processor
      */
     public BatchProcessingGenerator(Iterator<List<T>> batchIterator, IBatchProcessor<T, R> batchProcessor) {
         this.batchIterator = Objects.requireNonNull(batchIterator);

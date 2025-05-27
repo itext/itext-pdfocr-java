@@ -38,12 +38,12 @@ public final class Batching {
     /**
      * Wraps an existing iterator into a new one, which output List-based batches,
      *
-     * @param iterator Iterator to wrap.
-     * @param batchSize Target batch size. Last batch might have smaller size.
+     * @param iterator iterator to wrap
+     * @param batchSize target batch size. Last batch might have smaller size
      *
-     * @return Batch iterator wrapper.
+     * @return batch iterator wrapper
      *
-     * @param <E> Input iterator element type.
+     * @param <E> input iterator element type
      */
     public static <E> Iterator<List<E>> wrap(Iterator<E> iterator, int batchSize) {
         Objects.requireNonNull(iterator);

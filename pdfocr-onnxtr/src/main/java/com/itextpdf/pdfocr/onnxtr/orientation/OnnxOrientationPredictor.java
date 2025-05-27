@@ -48,7 +48,7 @@ public class OnnxOrientationPredictor
     /**
      * Creates a crop orientation predictor with the specified properties.
      *
-     * @param properties Properties of the predictor.
+     * @param properties properties of the predictor
      */
     public OnnxOrientationPredictor(OnnxOrientationPredictorProperties properties) {
         super(properties.getModelPath(), properties.getInputProperties(), getExpectedOutputShape(properties));
@@ -59,6 +59,7 @@ public class OnnxOrientationPredictor
      * Creates a new crop orientation predictor using an existing pre-trained
      * MobileNetV3 model, stored on disk. This is the only crop orientation
      * model architecture available in OnnxTR.
+     *
      * <p>
      * This can be used to load the following models from OnnxTR:
      * <ul>
@@ -73,11 +74,10 @@ public class OnnxOrientationPredictor
      *         </a>
      *     </li>
      * </ul>
-     * </p>
      *
-     * @param modelPath Path to the pre-trained model.
+     * @param modelPath path to the pre-trained model
      *
-     * @return A new predictor with the MobileNetV3 model loaded.
+     * @return a new predictor with the MobileNetV3 model loaded
      */
     public static OnnxOrientationPredictor mobileNetV3(String modelPath) {
         return new OnnxOrientationPredictor(OnnxOrientationPredictorProperties.mobileNetV3(modelPath));
@@ -86,7 +86,7 @@ public class OnnxOrientationPredictor
     /**
      * Returns the crop orientation predictor properties.
      *
-     * @return The crop orientation predictor properties.
+     * @return the crop orientation predictor properties
      */
     public OnnxOrientationPredictorProperties getProperties() {
         return properties;

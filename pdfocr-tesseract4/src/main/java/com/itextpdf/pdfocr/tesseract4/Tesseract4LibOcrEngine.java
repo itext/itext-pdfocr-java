@@ -320,8 +320,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 TesseractOcrUtil.destroyPix(pix);
             }
             if (result == null) {
-                BufferedImage bufferedImage = ImagePreprocessingUtil
-                        .readImage(inputImage);
+                BufferedImage bufferedImage = ImagePreprocessingUtil.readImage(inputImage);
                 if (bufferedImage != null) {
                     try {
                         result = new TesseractOcrUtil()

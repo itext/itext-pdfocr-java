@@ -27,8 +27,8 @@ import java.util.List;
 /**
  * Batch processor mapper interface. This is called by {@link BatchProcessingGenerator}.
  *
- * @param <T> Input batch type.
- * @param <R> Output batch type.
+ * @param <T> input batch type
+ * @param <R> output batch type
  */
 @FunctionalInterface
 public interface IBatchProcessor<T, R> {

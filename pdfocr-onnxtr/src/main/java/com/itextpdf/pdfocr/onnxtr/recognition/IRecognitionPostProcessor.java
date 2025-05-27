@@ -32,9 +32,9 @@ public interface IRecognitionPostProcessor {
     /**
      * Process ML model output and return recognized characters as string.
      *
-     * @param output Raw output of the ML model.
+     * @param output raw output of the ML model
      *
-     * @return Recognized characters as string.
+     * @return recognized characters as string
      */
     String process(FloatBufferMdArray output);
 
@@ -42,7 +42,7 @@ public interface IRecognitionPostProcessor {
      * Returns the size of the output character label vector. I.e. how many
      * distinct tokens/characters the model recognizes.
      *
-     * @return The size of the output character label vector.
+     * @return the size of the output character label vector
      */
     int labelDimension();
 }

@@ -25,11 +25,10 @@ package com.itextpdf.pdfocr.onnxtr;
 import java.util.Iterator;
 
 /**
- * Interface of a generic predictor. It takes a stream of inputs and returns a
- * same-sizes stream of outputs.
+ * Interface of a generic predictor. It takes a stream of inputs and returns a same-sizes stream of outputs.
  *
- * @param <T> Input type.
- * @param <R> Output type.
+ * @param <T> input type
+ * @param <R> output type
  */
 public interface IPredictor<T, R> extends AutoCloseable {
     Iterator<R> predict(Iterator<T> inputs);

@@ -58,8 +58,8 @@ class OpenCvUtilTest {
             float newAngle
     ) {
         try (final Point2f center = new Point2f(0, 0);
-            final Size2f size = new Size2f(WIDTH, HEIGHT);
-            final RotatedRect rect = new RotatedRect(center, size, originalAngle)) {
+             final Size2f size = new Size2f(WIDTH, HEIGHT);
+             final RotatedRect rect = new RotatedRect(center, size, originalAngle)) {
             OpenCvUtil.normalizeRotatedRect(rect);
             try (final Size2f newSize = rect.size()) {
                 Assertions.assertEquals(newWidth, newSize.width(), 1e-6);
