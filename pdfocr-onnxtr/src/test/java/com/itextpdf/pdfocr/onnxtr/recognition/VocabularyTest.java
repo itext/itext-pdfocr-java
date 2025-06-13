@@ -22,10 +22,14 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
+import com.itextpdf.test.ExtendedITextTest;
+
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class VocabularyTest {
+@Tag("UnitTest")
+public class VocabularyTest extends ExtendedITextTest {
     @Test
     void initWithInvalidArgs() {
         Assertions.assertThrows(

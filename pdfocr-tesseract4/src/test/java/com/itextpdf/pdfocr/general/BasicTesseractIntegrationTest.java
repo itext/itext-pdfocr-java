@@ -140,6 +140,46 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @Test
+    public void rotatedTextBasicTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedTextBasic.png";
+        String expectedOutput = "A N ™~ & S 0 TEST Q sAemapls sl 1xa3 sIyL";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedTextCapsLCTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedCapsLC.png";
+        String expectedOutput = "CapITALS anD .. lowerCaSE + .\\mm\\ 2% 7 . /\\/MJ% ‘¢";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedColorsMixTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedColorsMix.png";
+        String expectedOutput = "ReD tEXT Colored TEXT";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedColorsMix2Test() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedColorsMix2.png";
+        String expectedOutput = "";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedBy90DegreesTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedBy90Degrees.png";
+        String expectedOutput = "";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
     public void testImageWithoutText() throws IOException {
         String testName = "testImageWithoutText";
         String filePath = TEST_IMAGES_DIRECTORY + "pantone_blue.jpg";

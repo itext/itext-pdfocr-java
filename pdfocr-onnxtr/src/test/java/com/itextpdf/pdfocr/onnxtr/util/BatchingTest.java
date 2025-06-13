@@ -22,17 +22,21 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.test.ExtendedITextTest;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class BatchingTest {
+@Tag("UnitTest")
+public class BatchingTest extends ExtendedITextTest {
     @Test
-    void wrapWithValidArgs() {
+    public void wrapWithValidArgs() {
         final Iterator<List<Integer>> wrapped =
                 Batching.wrap(Arrays.asList(1, 2, 3, 4, 5, 6, 7).iterator(), 2);
         Assertions.assertEquals(Arrays.asList(1, 2), wrapped.next());
@@ -43,7 +47,7 @@ class BatchingTest {
     }
 
     @Test
-    void wrapWithInvalidArgs() {
+    public void wrapWithInvalidArgs() {
         Assertions.assertThrowsExactly(
                 NullPointerException.class,
                 () -> Batching.wrap(null, 2)

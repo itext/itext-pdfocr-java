@@ -22,18 +22,22 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.test.ExtendedITextTest;
+
 import org.bytedeco.opencv.opencv_core.Point2f;
 import org.bytedeco.opencv.opencv_core.RotatedRect;
 import org.bytedeco.opencv.opencv_core.Size2f;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class OpenCvUtilTest {
+@Tag("UnitTest")
+public class OpenCvUtilTest extends ExtendedITextTest {
     private static final float WIDTH = 5;
     private static final float HEIGHT = 10;
 
     @Test
-    void normalizeRotatedRect() {
+    public void normalizeRotatedRect() {
         for (int rotationIdx = -2; rotationIdx <= 2; ++rotationIdx) {
             final float baseAngle = rotationIdx * 360;
             testNormalizeRotatedRect(baseAngle + 0, WIDTH, HEIGHT, 0);

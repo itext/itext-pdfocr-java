@@ -22,13 +22,17 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.test.ExtendedITextTest;
+
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MathUtilTest {
+@Tag("UnitTest")
+public class MathUtilTest extends ExtendedITextTest {
     @Test
-    void argmaxWithInvalidArgs() {
+    public void argmaxWithInvalidArgs() {
         Assertions.assertThrows(
                 NullPointerException.class,
                 () -> MathUtil.argmax(null)
@@ -40,14 +44,14 @@ class MathUtilTest {
     }
 
     @Test
-    void argmaxWithValidArgs() {
+    public void argmaxWithValidArgs() {
         Assertions.assertEquals(0, MathUtil.argmax(new float[] {1}));
         Assertions.assertEquals(1, MathUtil.argmax(new float[] {1, 3, 2}));
         Assertions.assertEquals(1, MathUtil.argmax(new float[] {1, 3, 3}));
     }
 
     @Test
-    void clampWithInvalidArgs() {
+    public void clampWithInvalidArgs() {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> MathUtil.clamp(2, 3, 1)
@@ -55,7 +59,7 @@ class MathUtilTest {
     }
 
     @Test
-    void clampWithValidArgs() {
+    public void clampWithValidArgs() {
         Assertions.assertEquals(1.1, MathUtil.clamp(1.0, 1.1, 1.9));
         Assertions.assertEquals(1.5, MathUtil.clamp(1.5, 1.1, 1.9));
         Assertions.assertEquals(1.9, MathUtil.clamp(2.0, 1.1, 1.9));

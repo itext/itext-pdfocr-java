@@ -22,17 +22,21 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.test.ExtendedITextTest;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class BatchProcessingGeneratorTest {
+@Tag("UnitTest")
+public class BatchProcessingGeneratorTest extends ExtendedITextTest {
     @Test
-    void initWithInvalidArgs() {
+    public void initWithInvalidArgs() {
         Assertions.assertThrows(
                 NullPointerException.class,
                 () -> new BatchProcessingGenerator<>(null, null)
@@ -50,7 +54,7 @@ class BatchProcessingGeneratorTest {
     }
 
     @Test
-    void processorReturnsNull() {
+    public void processorReturnsNull() {
         final BatchProcessingGenerator<Integer, Object> generator = new BatchProcessingGenerator<>(
                 Collections.singletonList(Collections.singletonList(1)).iterator(),
                 batch -> null
@@ -62,7 +66,7 @@ class BatchProcessingGeneratorTest {
     }
 
     @Test
-    void processorReturnsIncorrectSize() {
+    public void processorReturnsIncorrectSize() {
         final BatchProcessingGenerator<Integer, Object> generator = new BatchProcessingGenerator<>(
                 Collections.singletonList(Collections.singletonList(1)).iterator(),
                 batch -> Collections.nCopies(batch.size() + 1, batch.get(0))
@@ -74,7 +78,7 @@ class BatchProcessingGeneratorTest {
     }
 
     @Test
-    void valid() {
+    public void valid() {
         final int[] processorCallCount = {0};
         final BatchProcessingGenerator<Integer, String> generator = new BatchProcessingGenerator<>(
                 Arrays.asList(Collections.singletonList(1), Arrays.asList(2, 3)).iterator(),
