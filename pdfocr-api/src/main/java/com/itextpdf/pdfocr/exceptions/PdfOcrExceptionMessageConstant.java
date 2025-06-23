@@ -32,6 +32,7 @@ public class PdfOcrExceptionMessageConstant {
     public static final String CANNOT_RESOLVE_PROVIDED_FONTS =
             "Cannot resolve any of provided fonts. Please check provided FontProvider.";
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
+    public static final String CANNOT_WRITE_TO_FILE = "Cannot write to file {0}: {1}";
     public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
     public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
     public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";

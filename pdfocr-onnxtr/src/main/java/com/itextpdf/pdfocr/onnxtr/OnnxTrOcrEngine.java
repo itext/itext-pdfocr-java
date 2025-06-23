@@ -1,17 +1,22 @@
 package com.itextpdf.pdfocr.onnxtr;
 
+import com.itextpdf.commons.utils.FileUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
+import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
@@ -19,6 +24,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -164,41 +172,32 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
-        /*
-         * TODO DEVSIX-9153: Implement this interface.
-         *
-         * With how this engine is build, there is no concept of "lines" or "paragraphs". It just
-         * find boxes with text and recognizes them.
-         *
-         * OnnxTR/DocTR doesn't have a text output. But they have a doc builder, which sorts out
-         * recognized text boxes into blocks/lines/words/... for output.
-         *
-         * Ideally we would want a default implementation, which just takes doImageOcr output and
-         * builds a text document out of it. Some of this already happens with Tesseract, IIRC.
-         */
         StringBuilder content = new StringBuilder();
         for (File inputImage : inputImages) {
-            StringBuilder outputText = new StringBuilder();
             Map<Integer, List<TextInfo>> outputMap = doImageOcr(inputImage, ocrProcessContext);
-            for (int page : outputMap.keySet()) {
-                StringBuilder pageText = new StringBuilder();
-                // Each TextInfo is one word, we should layout all of them to try to keep human-readable text
-                for (TextInfo textInfo : outputMap.get(page)) {
-                    pageText.append(textInfo.getText());
-                    pageText.append(System.lineSeparator());
-                }
-                outputText.append(pageText);
-                outputText.append(System.lineSeparator());
-            }
-            content.append(outputText);
+            content.append(PdfOcrTextBuilder.buildText(outputMap));
         }
-
-        // TODO DEVSIX-9153: write to file
+        writeToTextFile(txtFile.getAbsolutePath(), content.toString());
     }
 
     @Override
     public boolean isTaggingSupported() {
         return false;
+    }
+
+    /**
+     * Writes provided {@link java.lang.String} to text file using provided path.
+     *
+     * @param path path as {@link java.lang.String} to file to be created
+     * @param data text data in required format as {@link java.lang.String}
+     */
+    private static void writeToTextFile(final String path, final String data) {
+        try (Writer writer = new OutputStreamWriter(FileUtil.getFileOutputStream(path), StandardCharsets.UTF_8)) {
+            writer.write(data);
+        } catch (IOException e) {
+            throw new PdfOcrException(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE,
+                    path, e.getMessage()), e);
+        }
     }
 
     /**

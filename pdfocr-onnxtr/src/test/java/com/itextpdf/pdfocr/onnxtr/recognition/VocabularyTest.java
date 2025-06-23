@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 @Tag("UnitTest")
 public class VocabularyTest extends ExtendedITextTest {
     @Test
-    void initWithInvalidArgs() {
+    public void initWithInvalidArgs() {
         Assertions.assertThrows(
                 NullPointerException.class,
                 () -> new Vocabulary(null)
@@ -44,7 +44,7 @@ public class VocabularyTest extends ExtendedITextTest {
     }
 
     @Test
-    void valid() {
+    public void valid() {
         final Vocabulary vocabulary = new Vocabulary("ABC");
         Assertions.assertEquals("ABC", vocabulary.getLookUpString());
         Assertions.assertEquals("ABC", vocabulary.toString());

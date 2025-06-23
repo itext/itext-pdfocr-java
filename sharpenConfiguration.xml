@@ -10,7 +10,6 @@
               <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java" />
             </fileset>
 			<fileset reason="Difference in text output expected in tests">
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxCreateTxtFileTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrLanguagesTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrRotatedTest.java" />
@@ -23,6 +22,8 @@
     </ignored>
 	<resource>
         <fileset reason="Compare files differ in .NET for Onnx tests.">
+            <file path="com/itextpdf/pdfocr/OnnxCreateTxtFileTest/cmp_createTxtFile.txt" />
+
             <file path="com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/cmp_multiFiles.pdf" />
 			
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_arabicTest.pdf" />
