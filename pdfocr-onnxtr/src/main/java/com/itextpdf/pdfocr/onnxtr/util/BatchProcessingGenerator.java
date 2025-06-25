@@ -60,7 +60,7 @@ public class BatchProcessingGenerator<T, R> implements Iterator<R> {
 
     @Override
     public boolean hasNext() {
-        return batchIterator.hasNext() || batchResult != null;
+        return batchResult != null || batchIterator.hasNext();
     }
 
     @Override

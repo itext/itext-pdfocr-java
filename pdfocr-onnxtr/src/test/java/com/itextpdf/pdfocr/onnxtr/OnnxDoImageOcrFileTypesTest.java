@@ -31,7 +31,6 @@ import com.itextpdf.test.ExtendedITextTest;
 import java.io.File;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -82,7 +81,6 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("DEVSIX-9193")
     public void example10mvTIFFDoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "example_03_10MB.tiff";
         File imageFile = new File(src);
@@ -92,16 +90,20 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("DEVSIX-9193")
     public void multipageTiffDoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "multipage.tiff";
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("1\nPage\nExample\nTIFF\nMultipage\n-\n2\nPage\nExample\nTIFF\n"
-                + "Multipage\nPage\n3\nExample\nTIFF\nMultipage\n4\nPage\nExample\nTIFF\nMultipage\nPage5\nExample\n"
-                + "TIFF\nMultipage\nPage\n6\nExample\nTIFF\nMultipage\n/\nPage\nExample\nTIFF\nMultipage\n8\nPage\n"
-                + "Example\nTIFF\nMultipage\nPage\n9\nExample\nTIFF\nMultipage\n", textFromImage);
+        Assertions.assertEquals("1\nPage\nExample\nTIFF\nMultipage\n" +
+                "-\n2\nPage\nExample\nTIFF\nMultipage\n" +
+                "Page\n3\nExample\nTIFF\nMultipage\n" +
+                "4\nPage\nExample\nTIFF\nMultipage\n" +
+                "Page5\nExample\nTIFF\nMultipage\n" +
+                "Page\n6\nExample\nTIFF\nMultipage\n" +
+                "/\nPage\nExample\nTIFF\nMultipage\n" +
+                "8\nPage\nExample\nTIFF\nMultipage\n" +
+                "Page\n9\nExample\nTIFF\nMultipage\n", textFromImage);
     }
 
     @Test
@@ -123,7 +125,6 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("DEVSIX-9193")
     public void numbersTifDoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "numbers_01.tif";
         File imageFile = new File(src);

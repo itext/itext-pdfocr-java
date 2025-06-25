@@ -45,6 +45,7 @@ import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessag
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -184,7 +185,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
             if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    && ImagePreprocessingUtil.isTiffImage(inputImage)) {
+                    && TiffImageUtil.isTiffImage(inputImage)) {
                 resultList = getOcrResultForMultiPage(inputImage,
                         outputFormat);
             } else {

@@ -22,18 +22,20 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.detection.OnnxDetectionPredictor;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.File;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
 
 @Tag("IntegrationTest")
 public class OnnxDoImageOcrTest extends ExtendedITextTest {
@@ -118,7 +120,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
 
     @Test
     @Disabled("This test is failing on java 8 with ImageIO exception. In newer versions it works that is why we don't" +
-            "want to use Leptonica or any other 3rd-party to read such images.")
+            " want to use Leptonica or any other 3rd-party to read such images.")
     public void numbers2DoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "numbers_02.jpg";
         File imageFile = new File(src);
@@ -175,8 +177,8 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
     public void corruptedDoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "corrupted.jpg";
         File imageFile = new File(src);
-        Assertions.assertThrows(NullPointerException.class,
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE));
-
+        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
     }
 }

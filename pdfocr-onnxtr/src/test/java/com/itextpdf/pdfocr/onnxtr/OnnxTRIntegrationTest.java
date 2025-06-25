@@ -38,7 +38,6 @@ import com.itextpdf.test.ExtendedITextTest;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -76,15 +75,6 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void corruptedTest() {
-        String src = TEST_IMAGE_DIRECTORY + "corrupted.jpg";
-        String dest = TARGET_DIRECTORY + "corruptedTest.pdf";
-
-        Assertions.assertThrows(NullPointerException.class,
-                () -> doOcrAndCreatePdf(src, dest));
-    }
-
-    @Test
     public void bmpTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
         String dest = TARGET_DIRECTORY + "bmpTest.pdf";
@@ -119,7 +109,6 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("DEVSIX-9193")
     public void tiff10MBTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "example_03_10MB.tiff";
         String dest = TARGET_DIRECTORY + "tiff10MBTest.pdf";
@@ -184,7 +173,6 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("DEVSIX-9193")
     public void multipageTiffTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "multipage.tiff";
         String dest = TARGET_DIRECTORY + "multipageTiffTest.pdf";
@@ -197,6 +185,13 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("Multipage\nTIFF\nExample\n1\nPage", extractionStrategy.getResultantText());
+
+            extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 7, "Text1");
+            // Model glitch
+            Assertions.assertEquals("Multipage\nTIFF\nExample\n/\nPage", extractionStrategy.getResultantText());
+
+            extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 9, "Text1");
+            Assertions.assertEquals("Multipage\nTIFF\nExample\n9\nPage", extractionStrategy.getResultantText());
         }
     }
 

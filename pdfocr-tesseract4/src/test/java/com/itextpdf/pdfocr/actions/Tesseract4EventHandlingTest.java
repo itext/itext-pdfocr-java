@@ -39,6 +39,7 @@ import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
@@ -210,7 +211,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
+        Assertions.assertThrows(PdfOcrInputException.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
 
         pdfWriter.close();
 

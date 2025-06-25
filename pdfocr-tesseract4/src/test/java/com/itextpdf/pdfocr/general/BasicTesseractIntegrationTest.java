@@ -37,6 +37,8 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
@@ -207,7 +209,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     })
     @Test
     public void testInputInvalidImage() {
-        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+        Exception exception = Assertions.assertThrows(PdfOcrException.class, () -> {
             File file1 = new File(TEST_IMAGES_DIRECTORY + "example.txt");
             File file2 = new File(TEST_IMAGES_DIRECTORY
                     + "example_05_corrupted.bmp");
@@ -222,7 +224,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         });
 
         Assertions.assertEquals(MessageFormatUtil
-                .format(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
+                .format(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE_PARAMS,
                         new File(TEST_IMAGES_DIRECTORY + "example.txt")
                                 .getAbsolutePath()), exception.getMessage());
     }

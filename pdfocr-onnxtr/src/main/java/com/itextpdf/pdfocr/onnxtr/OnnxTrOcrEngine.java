@@ -6,12 +6,16 @@ import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
-import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.imageio.ImageIO;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 
 /**
  * {@link IOcrEngine} implementation, based on OnnxTR/DocTR machine learning OCR projects.
@@ -381,9 +383,23 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
     private static List<BufferedImage> getImages(File input) {
         try {
-            return Collections.singletonList(ImageIO.read(input));
+            if (TiffImageUtil.isTiffImage(input)) {
+                List<BufferedImage> images = TiffImageUtil.getAllImages(input);
+                if (images.size() == 0) {
+                    throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE);
+                }
+
+                return images;
+            } else {
+                BufferedImage image = ImageIO.read(input);
+                if (image == null) {
+                    throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE);
+                }
+
+                return Collections.singletonList(image);
+            }
         } catch (IOException e) {
-            throw new PdfOcrException("Failed to read image", e);
+            throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e);
         }
     }
 

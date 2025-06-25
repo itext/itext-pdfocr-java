@@ -53,6 +53,8 @@ public class PdfOcrLogMessageConstant {
     /** The constant PDF_LANGUAGE_PROPERTY_IS_NOT_SET. */
     public static final String PDF_LANGUAGE_PROPERTY_IS_NOT_SET = "PDF language property is not set";
 
+    public static final String CANNOT_RETRIEVE_PAGES_FROM_IMAGE = "Cannot get pages from image {0}: {1}";
+
     private PdfOcrLogMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly
     }

@@ -6,6 +6,9 @@
                 <file path="com/itextpdf/pdfocr/tesseract4/TesseractOcrUtil.java" />
                 <file path="com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java" />
             </fileset>
+            <fileset reason="Different implementation for multipage images handling">
+              <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java" />
+            </fileset>
 			<fileset reason="Difference in text output expected in tests">
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxCreateTxtFileTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />

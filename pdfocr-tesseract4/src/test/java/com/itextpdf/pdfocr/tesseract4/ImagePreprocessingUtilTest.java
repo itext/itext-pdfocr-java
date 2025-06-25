@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
@@ -40,13 +41,6 @@ import org.junit.jupiter.api.Test;
 
 public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
 
-    @Test
-    public void testCheckForInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_04.png";
-        File imgFile = new File(path);
-        Assertions.assertFalse(ImagePreprocessingUtil.isTiffImage(imgFile));
-    }
-
     @LogMessages(messages = {
             @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
@@ -54,7 +48,7 @@ public class ImagePreprocessingUtilTest extends IntegrationTestHelper{
     public void testReadingInvalidImagePath() {
         String path = TEST_IMAGES_DIRECTORY + "numbers_02";
         File imgFile = new File(path);
-        Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+        Assertions.assertThrows(PdfOcrException.class,
                 () -> ImagePreprocessingUtil.preprocessImage(imgFile, 1, new ImagePreprocessingOptions()));
     }
 

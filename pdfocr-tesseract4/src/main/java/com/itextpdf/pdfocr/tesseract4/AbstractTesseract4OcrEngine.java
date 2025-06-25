@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -482,7 +484,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
         try {
             // image needs to be paginated only if it's tiff
             // or preprocessing isn't required
-            int realNumOfPages = !ImagePreprocessingUtil.isTiffImage(input)
+            int realNumOfPages = !TiffImageUtil.isTiffImage(input)
                     ? 1 : ImagePreprocessingUtil.getNumberOfPageTiff(input);
             int numOfPages =
                     getTesseract4OcrEngineProperties().isPreprocessingImages()
@@ -565,7 +567,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      */
     private void verifyImageFormatValidity(final File image)
             throws PdfOcrTesseract4Exception {
-        ImageType type = ImagePreprocessingUtil.getImageType(image);
+        ImageType type = TiffImageUtil.getImageType(image);
         boolean isValid = SUPPORTED_IMAGE_FORMATS.contains(type);
         if (!isValid) {
             LoggerFactory.getLogger(getClass()).error(MessageFormatUtil
