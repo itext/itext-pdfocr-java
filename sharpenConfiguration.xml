@@ -9,7 +9,7 @@
             <fileset reason="Different implementation for multipage images handling">
               <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java" />
             </fileset>
-			<fileset reason="Difference in text output expected in tests">
+            <fileset reason="Difference in text output expected in tests">
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrLanguagesTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrRotatedTest.java" />
@@ -17,6 +17,32 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRIntegrationTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRPdfAIntegrationTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRRotationIntegrationTest.java" />
+            </fileset>
+            <fileset reason="Difference in Iterators in java and enumerators in .net">
+                <file path="com/itextpdf/pdfocr/onnxtr/util/Batching.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchingTest.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java"/>
+                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTrOcrEngine.java" />
+            </fileset>
+            <fileset>
+                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
+            </fileset>
+            <fileset reason="differnt api for onnxruntime classes in java and .NET">
+                <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
+            </fileset>
+            <fileset reason="Lack of similar API as ByteBuffer in .NET">
+                <file path="com/itextpdf/pdfocr/onnxtr/FloatBufferMdArray.java" />
+            </fileset>
+            <fileset reason="Utility classes for keeping compatibility between .NET and java">
+                <file path="com/itextpdf/pdfocr/onnxtr/recognition/RecognitionUtil.java" />
+            </fileset>
+            <fileset reason="Interface extending autoclosable can't be ported">
+                <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
+            </fileset>
+            <fileset reason="Different opencv API in between .NET and java">
+                <file path="com/itextpdf/pdfocr/onnxtr/util/OnnxTRTestUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/detection/OnnxDetectionPostProcessor.java" />
             </fileset>
         </java>
     </ignored>

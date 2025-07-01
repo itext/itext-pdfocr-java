@@ -26,7 +26,6 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import sharpen.config.MappingConfiguration;
 import sharpen.config.MappingConfigurator;
 import sharpen.config.ModuleOption;
@@ -56,11 +55,8 @@ public class SharpenConfigMapping implements MappingConfiguration {
         // images
         configurator.addFullName("System.Drawing.Bitmap");
         configurator.ignoreUsing("Javax.Imageio");
-    }
 
-    @Override
-    public void setConfigModuleSettings(ModulesConfigurator modulesConfigurator) {
-
+        configurator.mapType("java.util.Objects", "iText.Pdfocr.Util.Objects");
     }
 
     @Override
@@ -70,6 +66,11 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
     public void applyConfigModuleSettings(ModulesConfigurator configurator) {
+
+    }
+
+    @Override
+    public void setConfigModuleSettings(ModulesConfigurator modulesConfigurator) {
 
     }
 

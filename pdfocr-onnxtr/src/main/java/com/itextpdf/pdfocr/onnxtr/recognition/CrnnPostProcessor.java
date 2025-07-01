@@ -3,6 +3,7 @@ package com.itextpdf.pdfocr.onnxtr.recognition;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Objects;
 
@@ -42,10 +43,11 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
         final int maxWordLength = output.getDimension(0);
         final StringBuilder wordBuilder = new StringBuilder(maxWordLength);
         final float[] values = new float[labelDimension()];
-        final FloatBuffer outputBuffer = output.getData();
+        final float[] outputBuffer = output.getData().array();
         int prevLetterIndex = -1;
-        while (outputBuffer.hasRemaining()) {
-            outputBuffer.get(values);
+        int arrayOffset = output.getArrayOffset();
+        for (int i = arrayOffset; i < arrayOffset + output.getArraySize(); i += values.length) {
+            System.arraycopy(outputBuffer, i, values, 0, values.length);
             final int letterIndex = MathUtil.argmax(values);
             // Last letter is <blank>
             if (prevLetterIndex != letterIndex && letterIndex < vocabulary.size()) {

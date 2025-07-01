@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -43,12 +46,16 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
         );
         Assertions.assertThrows(
                 NullPointerException.class,
-                () -> new BatchProcessingGenerator<>(Collections.emptyIterator(), null)
+                () -> new BatchProcessingGenerator<>(Collections.<List<Object>>emptyIterator(), null)
         );
         Assertions.assertThrows(
                 NullPointerException.class,
-                () -> new BatchProcessingGenerator<>(null, batch ->
-                        Collections.nCopies(batch.size(), 1)
+                () -> new BatchProcessingGenerator<>(null, new IBatchProcessor<Object, Integer>() {
+                    @Override
+                    public List<Integer> processBatch(List<Object> batch) {
+                        return Collections.nCopies(batch.size(), 1);
+                    }
+                }
                 )
         );
     }
@@ -56,12 +63,17 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
     @Test
     public void processorReturnsNull() {
         final BatchProcessingGenerator<Integer, Object> generator = new BatchProcessingGenerator<>(
-                Collections.singletonList(Collections.singletonList(1)).iterator(),
-                batch -> null
+                Collections.singletonList(Collections.singletonList(new Integer(1))).iterator(),
+                new IBatchProcessor<Integer, Object>() {
+                    @Override
+                    public List<Object> processBatch(List<Integer> batch) {
+                        return null;
+                    }
+                }
         );
         Assertions.assertThrows(
                 IllegalStateException.class,
-                generator::next
+                () -> generator.next()
         );
     }
 
@@ -69,11 +81,16 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
     public void processorReturnsIncorrectSize() {
         final BatchProcessingGenerator<Integer, Object> generator = new BatchProcessingGenerator<>(
                 Collections.singletonList(Collections.singletonList(1)).iterator(),
-                batch -> Collections.nCopies(batch.size() + 1, batch.get(0))
+                new IBatchProcessor<Integer, Object>() {
+                    @Override
+                    public List<Object> processBatch(List<Integer> batch) {
+                        return Collections.nCopies(batch.size() + 1, batch.get(0));
+                    }
+                }
         );
         Assertions.assertThrows(
                 IllegalStateException.class,
-                generator::next
+                () -> generator.next()
         );
     }
 
@@ -82,17 +99,20 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
         final int[] processorCallCount = {0};
         final BatchProcessingGenerator<Integer, String> generator = new BatchProcessingGenerator<>(
                 Arrays.asList(Collections.singletonList(1), Arrays.asList(2, 3)).iterator(),
-                (List<Integer> batch) -> {
-                    ++processorCallCount[0];
-                    return batch.stream()
-                            .map(x -> Integer.toString(x * 2))
-                            .collect(Collectors.toList());
+                new IBatchProcessor<Integer, String>() {
+                    @Override
+                    public List<String> processBatch(List<Integer> batch) {
+                        ++processorCallCount[0];
+                        return batch.stream()
+                                .map(x -> Integer.toString(x * 2))
+                                .collect(Collectors.toList());
+                    }
                 }
         );
         Assertions.assertEquals("2", generator.next());
         Assertions.assertEquals("4", generator.next());
         Assertions.assertEquals("6", generator.next());
-        Assertions.assertThrows(NoSuchElementException.class, generator::next);
+        Assertions.assertThrows(NoSuchElementException.class, () -> generator.next());
         Assertions.assertEquals(2, processorCallCount[0]);
     }
 }

@@ -76,7 +76,7 @@
               </dependency>
             </dependencies>
             <configuration>
-              <projectName>pdfocr</projectName>
+              <projectName>pdfocr-api</projectName>
               <cSharpTargetFolder>./../../../sharp/pdfocr</cSharpTargetFolder>
               <cSharpSourceCodeDestination>itext/itext.pdfocr.api</cSharpSourceCodeDestination>
               <cSharpTestCodeDestination>itext.tests/itext.pdfocr.api.tests</cSharpTestCodeDestination>

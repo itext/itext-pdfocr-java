@@ -89,9 +89,12 @@ public class OnnxInputProperties {
             }
         }
 
-        this.mean = mean.clone();
-        this.std = std.clone();
-        this.shape = shape.clone();
+        this.mean = new float[mean.length];
+        System.arraycopy(mean, 0, this.mean, 0, mean.length);
+        this.std = new float[std.length];
+        System.arraycopy(std, 0, this.std, 0, std.length);
+        this.shape = new long[shape.length];
+        System.arraycopy(shape, 0, this.shape, 0, shape.length);
         this.symmetricPad = symmetricPad;
     }
 
@@ -101,7 +104,9 @@ public class OnnxInputProperties {
      * @return per-channel mean, used for normalization
      */
     public float[] getMean() {
-        return mean.clone();
+        float[] copy = new float[shape.length];
+        System.arraycopy(mean, 0, copy, 0, copy.length);
+        return copy;
     }
 
     /**
@@ -148,7 +153,9 @@ public class OnnxInputProperties {
      * @return per-channel standard deviation, used for normalization
      */
     public float[] getStd() {
-        return std.clone();
+        float[] copy = new float[shape.length];
+        System.arraycopy(std, 0, copy, 0, copy.length);
+        return copy;
     }
 
     /**
@@ -195,7 +202,9 @@ public class OnnxInputProperties {
      * @return target input shape
      */
     public long[] getShape() {
-        return shape.clone();
+        long[] copy = new long[shape.length];
+        System.arraycopy(shape, 0, copy, 0, copy.length);
+        return copy;
     }
 
     /**
@@ -256,7 +265,7 @@ public class OnnxInputProperties {
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.hashCode(mean), Arrays.hashCode(std), Arrays.hashCode(shape), symmetricPad);
+        return Objects.hash((Object) Arrays.hashCode(mean), Arrays.hashCode(std), Arrays.hashCode(shape), symmetricPad);
     }
 
     @Override
@@ -268,8 +277,8 @@ public class OnnxInputProperties {
             return false;
         }
         final OnnxInputProperties that = (OnnxInputProperties) o;
-        return symmetricPad == that.symmetricPad && Objects.deepEquals(mean, that.mean)
-                && Objects.deepEquals(std, that.std) && Objects.deepEquals(shape, that.shape);
+        return symmetricPad == that.symmetricPad && Arrays.equals(mean, that.mean)
+                && Arrays.equals(std, that.std) && Arrays.equals(shape, that.shape);
     }
 
     @Override

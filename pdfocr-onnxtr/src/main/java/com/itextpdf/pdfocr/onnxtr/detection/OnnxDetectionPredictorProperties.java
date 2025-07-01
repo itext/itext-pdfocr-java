@@ -240,7 +240,7 @@ public class OnnxDetectionPredictorProperties {
 
     @Override
     public int hashCode() {
-        return Objects.hash(modelPath, inputProperties, postProcessor);
+        return Objects.hash((Object)modelPath, inputProperties, postProcessor);
     }
 
     @Override

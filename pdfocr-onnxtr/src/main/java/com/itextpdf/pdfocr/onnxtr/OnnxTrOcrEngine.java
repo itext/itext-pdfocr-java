@@ -317,7 +317,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
             // Edge case (split in the middle of char repetitions): if it starts with 2 or more 0
 
             // Compute n_overlap (number of overlapping chars, geometrically determined)
-            final int overlap = Math.round(
+            final int overlap = (int) Math.round(
                     nextString.length() *
                             (OnnxTrOcrEngine.SPLIT_CROPS_DILATION_FACTOR - 1)
                             / OnnxTrOcrEngine.SPLIT_CROPS_DILATION_FACTOR

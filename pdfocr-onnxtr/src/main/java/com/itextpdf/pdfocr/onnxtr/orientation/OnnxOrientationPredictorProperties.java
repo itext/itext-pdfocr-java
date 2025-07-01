@@ -110,7 +110,7 @@ public class OnnxOrientationPredictorProperties {
 
     @Override
     public int hashCode() {
-        return Objects.hash(modelPath, inputProperties, outputMapper);
+        return Objects.hash((Object) modelPath, inputProperties, outputMapper);
     }
 
     @Override

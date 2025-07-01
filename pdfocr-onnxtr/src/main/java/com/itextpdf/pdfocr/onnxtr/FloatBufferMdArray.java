@@ -89,4 +89,22 @@ public class FloatBufferMdArray {
         }
         return data.get(index);
     }
+
+    /**
+     * Gets internal offset of the provided float buffer array.
+     *
+     * @return internal offset
+     */
+    public int getArrayOffset() {
+        return data.arrayOffset();
+    }
+
+    /**
+     * Gets number of available bytes for read from provided float buffer array.
+     *
+     * @return number of available bytes for read
+     */
+    public int getArraySize() {
+        return data.limit();
+    }
 }

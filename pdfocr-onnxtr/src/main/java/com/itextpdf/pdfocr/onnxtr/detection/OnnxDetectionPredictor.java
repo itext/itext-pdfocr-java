@@ -30,7 +30,6 @@ import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
 import java.awt.image.BufferedImage;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -199,9 +198,10 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
     protected List<List<Point[]>> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
         final IDetectionPostProcessor postProcessor = properties.getPostProcessor();
         // Normalizing pixel values via a sigmoid expit function
-        final FloatBuffer outputBuffer = outputBatch.getData();
-        for (int i = 0; i < outputBuffer.limit(); ++i) {
-            outputBuffer.put(i, MathUtil.expit(outputBuffer.get(i)));
+        final float[] outputBuffer = outputBatch.getData().array();
+        int offset = outputBatch.getArrayOffset();
+        for (int i = offset; i < offset + outputBatch.getArraySize(); ++i) {
+            outputBuffer[i] = MathUtil.expit(outputBuffer[i]);
         }
         final List<List<Point[]>> batchTextBoxes = new ArrayList<>(inputBatch.size());
         for (int i = 0; i < inputBatch.size(); ++i) {
@@ -234,10 +234,10 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
         final float heightScale;
         // We preserve ratio, when resizing input
         if (heightRatio > widthRatio) {
-            heightScale = targetHeight / Math.round(sourceHeight * widthRatio);
+            heightScale = targetHeight / (float) Math.round(sourceHeight * widthRatio);
             widthScale = 1;
         } else {
-            widthScale = targetWidth / Math.round(sourceWidth * heightRatio);
+            widthScale = targetWidth / (float) Math.round(sourceWidth * heightRatio);
             heightScale = 1;
         }
         final Consumer<Point> updater;

@@ -112,7 +112,7 @@ public class Vocabulary {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(lookUpString);
+        return lookUpString.hashCode();
     }
 
     @Override

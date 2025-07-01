@@ -48,13 +48,15 @@ public class BatchingTest extends ExtendedITextTest {
 
     @Test
     public void wrapWithInvalidArgs() {
-        Assertions.assertThrowsExactly(
+        NullPointerException nullPtrException = Assertions.assertThrows(
                 NullPointerException.class,
                 () -> Batching.wrap(null, 2)
         );
-        Assertions.assertThrowsExactly(
+        Assertions.assertEquals(NullPointerException.class, nullPtrException.getClass());
+        IllegalArgumentException illegalArgException = Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Batching.wrap(Collections.emptyIterator(), 0)
         );
+        Assertions.assertEquals(IllegalArgumentException.class, illegalArgException.getClass());
     }
 }

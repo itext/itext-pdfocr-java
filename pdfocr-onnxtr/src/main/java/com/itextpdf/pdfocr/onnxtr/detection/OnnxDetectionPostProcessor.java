@@ -1,6 +1,5 @@
 package com.itextpdf.pdfocr.onnxtr.detection;
 
-import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
@@ -44,7 +43,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
     /**
      * Cached 3x3 kernel, which is used in morphological operations.
      */
-    private static final Mat OPENING_KERNEL = new Mat(3, 3, CvType.CV_8U, Scalar.ONE);
+    private static final Mat OPENING_KERNEL = new Mat(3, 3, CvType.CV_8U, new Scalar(1));
 
     /**
      * Threshold value used, when binarizing a monochromatic image. If pixel
@@ -87,7 +86,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         //       dimensions won't change) or use a smaller mask with only the
         //       contour. Though based on profiling, it doesn't look like it is
         //       that bad, when it is only once per input image.
-        try (final Mat scoreMask = new Mat(height, width, CvType.CV_8U, Scalar.ZERO);
+        try (final Mat scoreMask = new Mat(height, width, CvType.CV_8U, new Scalar(0));
                 final MatVector contours = findTextContours(output, binarizationThreshold)) {
             final long contourCount = contours.size();
             for (long contourIdx = 0; contourIdx < contourCount; ++contourIdx) {

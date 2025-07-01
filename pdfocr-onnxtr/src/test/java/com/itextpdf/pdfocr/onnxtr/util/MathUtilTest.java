@@ -33,10 +33,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MathUtilTest extends ExtendedITextTest {
     @Test
     public void argmaxWithInvalidArgs() {
-        Assertions.assertThrows(
-                NullPointerException.class,
+        Exception exception = Assertions.assertThrows(
+                Exception.class,
                 () -> MathUtil.argmax(null)
         );
+        Assertions.assertTrue(exception instanceof NullPointerException
+                || exception instanceof IllegalArgumentException);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> MathUtil.argmax(new float[0])

@@ -59,9 +59,11 @@ public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
         final int maxWordLength = output.getDimension(0);
         final StringBuilder wordBuilder = new StringBuilder(maxWordLength);
         final float[] values = new float[labelDimension()];
-        final FloatBuffer outputBuffer = output.getData();
-        while (outputBuffer.hasRemaining()) {
-            outputBuffer.get(values);
+
+        final float[] outputBuffer = output.getData().array();
+        int arrayOffset = output.getArrayOffset();
+        for (int i = arrayOffset; i < arrayOffset + output.getArraySize(); i += values.length) {
+            System.arraycopy(outputBuffer, i, values, 0, values.length);
             final int letterIndex = MathUtil.argmax(values);
             if (letterIndex < vocabulary.size()) {
                 wordBuilder.append(vocabulary.map(letterIndex));
@@ -70,6 +72,7 @@ public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
                 break;
             }
         }
+
         return wordBuilder.toString();
     }
 

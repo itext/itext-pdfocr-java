@@ -29,7 +29,6 @@ import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
 import java.awt.image.BufferedImage;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,9 +102,10 @@ public class OnnxOrientationPredictor
         // Just extracting the highest scoring "orientation class" for each image via argmax
         final List<TextOrientation> orientations = new ArrayList<>(outputBatch.getDimension(0));
         final float[] values = new float[outputBatch.getDimension(1)];
-        final FloatBuffer outputBuffer = outputBatch.getData();
-        while (outputBuffer.hasRemaining()) {
-            outputBuffer.get(values);
+        final float[] outputBuffer = outputBatch.getData().array();
+        int offset = outputBatch.getArrayOffset();
+        for (int i = offset; i < offset + outputBatch.getArraySize(); i += values.length) {
+            System.arraycopy(outputBuffer, i, values, 0, values.length);
             final int label = MathUtil.argmax(values);
             orientations.add(properties.getOutputMapper().map(label));
         }

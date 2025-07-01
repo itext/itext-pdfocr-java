@@ -40,36 +40,18 @@ public class OpenCvUtilTest extends ExtendedITextTest {
     public void normalizeRotatedRect() {
         for (int rotationIdx = -2; rotationIdx <= 2; ++rotationIdx) {
             final float baseAngle = rotationIdx * 360;
-            testNormalizeRotatedRect(baseAngle + 0, WIDTH, HEIGHT, 0);
-            testNormalizeRotatedRect(baseAngle + 30, WIDTH, HEIGHT, 30);
-            testNormalizeRotatedRect(baseAngle + 60, HEIGHT, WIDTH, -30);
-            testNormalizeRotatedRect(baseAngle + 90, HEIGHT, WIDTH, 0);
-            testNormalizeRotatedRect(baseAngle + 120, HEIGHT, WIDTH, 30);
-            testNormalizeRotatedRect(baseAngle + 150, WIDTH, HEIGHT, -30);
-            testNormalizeRotatedRect(baseAngle + 180, WIDTH, HEIGHT, 0);
-            testNormalizeRotatedRect(baseAngle + 210, WIDTH, HEIGHT, 30);
-            testNormalizeRotatedRect(baseAngle + 240, HEIGHT, WIDTH, -30);
-            testNormalizeRotatedRect(baseAngle + 270, HEIGHT, WIDTH, 0);
-            testNormalizeRotatedRect(baseAngle + 300, HEIGHT, WIDTH, 30);
-            testNormalizeRotatedRect(baseAngle + 330, WIDTH, HEIGHT, -30);
-        }
-    }
-
-    private void testNormalizeRotatedRect(
-            float originalAngle,
-            float newWidth,
-            float newHeight,
-            float newAngle
-    ) {
-        try (final Point2f center = new Point2f(0, 0);
-             final Size2f size = new Size2f(WIDTH, HEIGHT);
-             final RotatedRect rect = new RotatedRect(center, size, originalAngle)) {
-            OpenCvUtil.normalizeRotatedRect(rect);
-            try (final Size2f newSize = rect.size()) {
-                Assertions.assertEquals(newWidth, newSize.width(), 1e-6);
-                Assertions.assertEquals(newHeight, newSize.height(), 1e-6);
-            }
-            Assertions.assertEquals(newAngle, rect.angle(), 1e-6);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 0, WIDTH, HEIGHT, 0);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 30, WIDTH, HEIGHT, 30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 60, HEIGHT, WIDTH, -30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 90, HEIGHT, WIDTH, 0);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 120, HEIGHT, WIDTH, 30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 150, WIDTH, HEIGHT, -30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 180, WIDTH, HEIGHT, 0);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 210, WIDTH, HEIGHT, 30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 240, HEIGHT, WIDTH, -30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 270, HEIGHT, WIDTH, 0);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 300, HEIGHT, WIDTH, 30);
+            OnnxTRTestUtil.testNormalizeRotatedRect(baseAngle + 330, WIDTH, HEIGHT, -30);
         }
     }
 }
