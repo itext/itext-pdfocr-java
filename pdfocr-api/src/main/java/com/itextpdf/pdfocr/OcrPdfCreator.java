@@ -201,7 +201,8 @@ public class OcrPdfCreator {
         // keys: image files
         // values:
         // map pageNumber -> retrieved text data(text and its coordinates)
-        Map<File, Map<Integer, List<TextInfo>>> imagesTextData = new LinkedHashMap<File, Map<Integer, List<TextInfo>>>();
+        Map<File, Map<Integer, List<TextInfo>>> imagesTextData = new LinkedHashMap<File, Map<Integer, List<TextInfo>>>(
+                 inputImages.size() * 2);
 
         for (File inputImage : inputImages) {
             imagesTextData.put(inputImage, ocrEngine.doImageOcr(inputImage, ocrProcessContext));

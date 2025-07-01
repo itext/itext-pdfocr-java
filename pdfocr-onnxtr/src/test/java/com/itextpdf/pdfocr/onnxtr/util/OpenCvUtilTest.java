@@ -24,10 +24,6 @@ package com.itextpdf.pdfocr.onnxtr.util;
 
 import com.itextpdf.test.ExtendedITextTest;
 
-import org.bytedeco.opencv.opencv_core.Point2f;
-import org.bytedeco.opencv.opencv_core.RotatedRect;
-import org.bytedeco.opencv.opencv_core.Size2f;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

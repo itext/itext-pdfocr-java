@@ -65,12 +65,10 @@ public class OnnxOrientationPredictorProperties {
      *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/mobilenet_v3_small_crop_orientation-5620cf7e.onnx">
      *             mobilenet_v3_small_crop_orientation
      *         </a>
-     *     </li>
      *     <li>
      *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/mobilenet_v3_small_crop_orientation_static_8_bit-4cfaa621.onnx">
      *             mobilenet_v3_small_crop_orientation (8-bit quantized)
      *         </a>
-     *     </li>
      * </ul>
      *
      * @param modelPath path to the pre-trained model

@@ -208,8 +208,8 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals(textFromImage,
-                "19008791914497907597\n15790707047005\n19n8\n3581991\n19n8\n1\n&\na\nI\n1\nA\nA\n", textFromImage);
+        Assertions.assertEquals(
+                "19008791914497907597\n15790707047005\n19n8\n3581991\n19n8\n1\n&\na\nI\n1\nA\nA\n", textFromImage, textFromImage);
     }
 
     @Test

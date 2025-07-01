@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.onnxtr;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
+import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.TextInfo;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class OnnxTestUtils {
         return strategy;
     }
 
-    protected static String getTextFromImage(File imageFile, OnnxTrOcrEngine ocrEngine) {
+    protected static String getTextFromImage(File imageFile, IOcrEngine ocrEngine) {
         Map<Integer, List<TextInfo>> integerListMap = ocrEngine.doImageOcr(imageFile);
         return getStringFromListMap(integerListMap);
     }
@@ -51,7 +52,7 @@ public class OnnxTestUtils {
         for(Entry<Integer, List<TextInfo>> entry : listMap.entrySet()) {
             for (TextInfo textInfo : entry.getValue()) {
                 if (textInfo.getText() != null) {
-                    stringBuilder.append(textInfo.getText()).append("\n");
+                    stringBuilder.append(textInfo.getText()).append('\n');
                 }
             }
         }

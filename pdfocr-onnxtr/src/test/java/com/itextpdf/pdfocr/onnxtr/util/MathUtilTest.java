@@ -27,7 +27,6 @@ import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("UnitTest")
 public class MathUtilTest extends ExtendedITextTest {

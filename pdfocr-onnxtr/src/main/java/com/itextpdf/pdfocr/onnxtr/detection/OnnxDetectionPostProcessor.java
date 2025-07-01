@@ -27,10 +27,10 @@ import org.opencv.core.CvType;
  * <p>
  * Current implementation works somewhat like this:
  * <ol>
- *     <li>Model output is binarized and then cleaned-up via erosion and dilation.</li>
- *     <li>Large-enough contours from the image in the previous step are found.</li>
- *     <li>Contours with less certainty score are discarded.</li>
- *     <li>Remaining contours are wrapped into boxes with relative [0, 1] coordinates.</li>
+ *     <li>Model output is binarized and then cleaned-up via erosion and dilation.
+ *     <li>Large-enough contours from the image in the previous step are found.
+ *     <li>Contours with less certainty score are discarded.
+ *     <li>Remaining contours are wrapped into boxes with relative [0, 1] coordinates.
  * </ol>
  */
 public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {

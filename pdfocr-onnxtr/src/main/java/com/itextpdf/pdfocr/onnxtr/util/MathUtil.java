@@ -31,6 +31,16 @@ public final class MathUtil {
     private MathUtil() {
     }
 
+    /**
+     * Returns the index of the maximum value in the given array.
+     *
+     * @param values the array of float values (must not be null or empty)
+     *
+     * @return the index of the maximum value in the array
+     *
+     * @throws NullPointerException     if {@code values} is {@code null}
+     * @throws IllegalArgumentException if {@code values} is empty
+     */
     public static int argmax(float[] values) {
         Objects.requireNonNull(values);
         if (values.length == 0) {
@@ -92,10 +102,25 @@ public final class MathUtil {
         return previousRow[targetChars.length];
     }
 
+    /**
+     * Computes the sigmoid function, also known as the logistic function, for the given input.
+     *
+     * @param x the input value
+     *
+     * @return the sigmoid of the input value
+     */
     public static float expit(float x) {
         return (float) (1 / (1 + Math.exp(-x)));
     }
 
+    /**
+     * Computes the Euclidean modulo (non-negative remainder) of {@code x} modulo {@code y}.
+     *
+     * @param x the dividend
+     * @param y the divisor (must not be zero)
+     *
+     * @return the non-negative remainder of {@code x} modulo {@code y}
+     */
     public static float euclideanModulo(float x, float y) {
         final float remainder = x % y;
         if (remainder < 0) {
@@ -104,6 +129,17 @@ public final class MathUtil {
         return remainder;
     }
 
+    /**
+     * Clamps a value between a specified minimum and maximum range.
+     *
+     * @param value the value to clamp
+     * @param min   the minimum allowed value
+     * @param max   the maximum allowed value
+     *
+     * @return {@code value} if it falls within the range; otherwise, the nearest bound (min or max)
+     *
+     * @throws IllegalArgumentException if {@code max} is less than {@code min}
+     */
     public static double clamp(double value, double min, double max) {
         if (max < min) {
             throw new IllegalArgumentException("max should not be less than min");

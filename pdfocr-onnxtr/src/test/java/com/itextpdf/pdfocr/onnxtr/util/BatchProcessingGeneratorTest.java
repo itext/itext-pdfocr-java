@@ -29,9 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -63,7 +60,7 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
     @Test
     public void processorReturnsNull() {
         final BatchProcessingGenerator<Integer, Object> generator = new BatchProcessingGenerator<>(
-                Collections.singletonList(Collections.singletonList(new Integer(1))).iterator(),
+                Collections.singletonList(Collections.singletonList(Integer.valueOf(1))).iterator(),
                 new IBatchProcessor<Integer, Object>() {
                     @Override
                     public List<Object> processBatch(List<Integer> batch) {

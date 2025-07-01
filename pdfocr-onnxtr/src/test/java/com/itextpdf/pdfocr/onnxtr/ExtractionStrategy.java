@@ -53,14 +53,13 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
     public void eventOccurred(IEventData data, EventType type) {
         if (type.equals(EventType.RENDER_TEXT) || type.equals(EventType.RENDER_IMAGE)) {
             String tagName = getTagName(data, type);
-            if ((tagName == null && layerName == null) || (layerName != null && layerName.equals(tagName))) {
-                if (type.equals(EventType.RENDER_TEXT)) {
+            if (((tagName == null && layerName == null) || (layerName != null && layerName.equals(tagName)))
+            && type.equals(EventType.RENDER_TEXT)) {
                     TextRenderInfo renderInfo = (TextRenderInfo) data;
                     setFillColor(renderInfo.getGraphicsState()
                             .getFillColor());
                     super.eventOccurred(data, type);
                 }
-            }
         }
     }
 

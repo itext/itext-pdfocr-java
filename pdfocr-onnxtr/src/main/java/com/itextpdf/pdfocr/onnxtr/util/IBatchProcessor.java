@@ -32,5 +32,15 @@ import java.util.List;
  */
 @FunctionalInterface
 public interface IBatchProcessor<T, R> {
+
+    /**
+     * Processes a batch of input items and produces a corresponding batch of output items.
+     *
+     * @param batch the list of input items to process
+     *
+     * @return a list of output items corresponding to the input batch.
+     *         The size and ordering of the output list should correspond to the input list,
+     *         unless otherwise specified by the implementation
+     */
     List<R> processBatch(List<T> batch);
 }

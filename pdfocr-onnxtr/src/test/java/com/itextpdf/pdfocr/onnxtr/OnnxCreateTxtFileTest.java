@@ -31,19 +31,17 @@ import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 @Tag("IntegrationTest")
 public class OnnxCreateTxtFileTest extends ExtendedITextTest {
@@ -88,7 +86,7 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
                 SOURCE_DIRECTORY + "differentSizes.png",
                 SOURCE_DIRECTORY + "rotated.png"
         };
-        List<File> images = new ArrayList<>();
+        List<File> images = new ArrayList<>(sourceImages.length * 2);
         for (String sourceImage : sourceImages) {
             images.add(new File(sourceImage));
         }

@@ -95,8 +95,7 @@ public final class PdfOcrTextBuilder {
                         }
                         sb.append(chunk.getText());
                     } else {
-                        sb.append('\n');
-                        sb.append(chunk.getText());
+                        sb.append('\n').append(chunk.getText());
                     }
                 }
                 lastChunk = chunk;

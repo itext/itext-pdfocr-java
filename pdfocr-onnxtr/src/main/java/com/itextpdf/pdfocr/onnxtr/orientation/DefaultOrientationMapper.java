@@ -36,6 +36,11 @@ import com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper;
  * an integer index via an {@code argmax} function.
  */
 public class DefaultOrientationMapper implements IOutputLabelMapper<TextOrientation> {
+
+    /**
+     * Constructs a new {@code DefaultOrientationMapper} with default behavior.
+     * This constructor performs no initialization logic.
+     */
     public DefaultOrientationMapper() {
         // noop
     }
@@ -45,6 +50,9 @@ public class DefaultOrientationMapper implements IOutputLabelMapper<TextOrientat
         return 4;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TextOrientation map(int index) {
         switch (index) {

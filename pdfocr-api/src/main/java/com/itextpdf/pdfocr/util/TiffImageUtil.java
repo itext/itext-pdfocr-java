@@ -30,20 +30,20 @@ import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
-import org.apache.commons.imaging.Imaging;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.imaging.Imaging;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to handle tiff images.
  */
-public class TiffImageUtil {
+public final class TiffImageUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TiffImageUtil.class);
 

@@ -3,8 +3,6 @@ package com.itextpdf.pdfocr.onnxtr.recognition;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.Objects;
 
 /**

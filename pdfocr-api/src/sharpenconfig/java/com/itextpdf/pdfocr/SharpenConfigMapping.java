@@ -32,6 +32,9 @@ import sharpen.config.ModuleOption;
 import sharpen.config.ModulesConfigurator;
 import sharpen.config.OptionsConfigurator;
 
+/**
+ * Service implementation of {@link sharpen.config.MappingConfiguration} containing the module's Sharpen configuration.
+ */
 public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override

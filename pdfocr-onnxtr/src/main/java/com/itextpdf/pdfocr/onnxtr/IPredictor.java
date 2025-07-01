@@ -31,8 +31,27 @@ import java.util.Iterator;
  * @param <R> output type
  */
 public interface IPredictor<T, R> extends AutoCloseable {
+
+    /**
+     * Performs prediction on a sequence of input items.
+     *
+     * <p>
+     * This method consumes the provided {@link Iterator} of inputs and produces an {@link Iterator}
+     * of outputs, typically yielding one result per input item.
+     *
+     * @param inputs an {@link Iterator} over the input items to be processed
+     *
+     * @return an {@link Iterator} over the predicted output items
+     */
     Iterator<R> predict(Iterator<T> inputs);
 
+    /**
+     * Performs prediction on a sequence of input items provided as an {@link Iterable}.
+     *
+     * @param inputs an {@link Iterable} over the input items to be processed
+     *
+     * @return an {@link Iterator} over the predicted output items
+     */
     default Iterator<R> predict(Iterable<T> inputs) {
         return predict(inputs.iterator());
     }
