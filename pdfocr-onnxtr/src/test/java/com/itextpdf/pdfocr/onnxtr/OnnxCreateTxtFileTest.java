@@ -31,6 +31,7 @@ import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -51,9 +52,9 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
     private static final String TEST_IMAGE_DIRECTORY = BASE_DIRECTORY + "images/";
     private static final String SOURCE_DIRECTORY = BASE_DIRECTORY + "OnnxCreateTxtFileTest/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxCreateTxtFileTest/";
-    private final static String FAST = BASE_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
-    private final static String CRNNVGG16 = BASE_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
-    private final static String MOBILENETV3 = BASE_DIRECTORY + "models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
+    private static final String FAST = BASE_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
+    private static final String CRNNVGG16 = BASE_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
+    private static final String MOBILENETV3 = BASE_DIRECTORY + "models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
 
     private static OnnxTrOcrEngine OCR_ENGINE;
 
@@ -66,6 +67,11 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
         OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
+    }
+
+    @AfterAll
+    public static void afterClass() throws Exception {
+        OCR_ENGINE.close();
     }
 
     @Test

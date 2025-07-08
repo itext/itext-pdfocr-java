@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
-import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.canvas.CanvasTag;
 import com.itextpdf.kernel.pdf.canvas.parser.EventType;
@@ -34,10 +33,8 @@ import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStra
 import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 
 public class ExtractionStrategy extends LocationTextExtractionStrategy {
-    private com.itextpdf.kernel.geom.Rectangle imageBBoxRectangle;
+    private final String layerName;
     private com.itextpdf.kernel.colors.Color fillColor;
-    private String layerName;
-    private PdfFont pdfFont;
 
     public ExtractionStrategy(String name) {
         super();
@@ -52,22 +49,6 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         fillColor = color;
     }
 
-    public PdfFont getPdfFont() {
-        return pdfFont;
-    }
-
-    public void setPdfFont(PdfFont font) {
-        pdfFont = font;
-    }
-
-    public com.itextpdf.kernel.geom.Rectangle getImageBBoxRectangle() {
-        return this.imageBBoxRectangle;
-    }
-
-    public void setImageBBoxRectangle(com.itextpdf.kernel.geom.Rectangle imageBBoxRectangle) {
-        this.imageBBoxRectangle = imageBBoxRectangle;
-    }
-
     @Override
     public void eventOccurred(IEventData data, EventType type) {
         if (type.equals(EventType.RENDER_TEXT) || type.equals(EventType.RENDER_IMAGE)) {
@@ -77,21 +58,14 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
                     TextRenderInfo renderInfo = (TextRenderInfo) data;
                     setFillColor(renderInfo.getGraphicsState()
                             .getFillColor());
-                    setPdfFont(renderInfo.getGraphicsState().getFont());
                     super.eventOccurred(data, type);
-                } else if (type.equals(EventType.RENDER_IMAGE)) {
-                    ImageRenderInfo renderInfo = (ImageRenderInfo) data;
-                    com.itextpdf.kernel.geom.Matrix ctm = renderInfo.getImageCtm();
-                    setImageBBoxRectangle(new com.itextpdf.kernel.geom.Rectangle(ctm.get(6), ctm.get(7),
-                            ctm.get(0), ctm.get(4)));
                 }
             }
         }
     }
 
     @Override
-    protected boolean isChunkAtWordBoundary(TextChunk chunk,
-            TextChunk previousChunk) {
+    protected boolean isChunkAtWordBoundary(TextChunk chunk, TextChunk previousChunk) {
         ITextChunkLocation curLoc = chunk.getLocation();
         ITextChunkLocation prevLoc = previousChunk.getLocation();
 
@@ -102,8 +76,7 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         }
 
         return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
-                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth())
-                        / 2.0f;
+                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth()) / 2.0f;
     }
 
     private String getTagName(IEventData data, EventType type) {

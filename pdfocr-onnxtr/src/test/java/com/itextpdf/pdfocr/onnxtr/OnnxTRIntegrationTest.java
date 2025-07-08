@@ -36,6 +36,7 @@ import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -47,8 +48,8 @@ import java.util.Collections;
 
 @Tag("IntegrationTest")
 public class OnnxTRIntegrationTest extends ExtendedITextTest {
-    private final static String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
-    private final static String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
+    private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
+    private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxTRIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxTRIntegrationTest/";
@@ -62,6 +63,11 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
         OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+    }
+
+    @AfterAll
+    public static void afterClass() throws Exception {
+        OCR_ENGINE.close();
     }
 
     @Test

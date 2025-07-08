@@ -38,6 +38,9 @@ import java.util.Objects;
 
 /**
  * {@link IOcrEngine} implementation, based on OnnxTR/DocTR machine learning OCR projects.
+ *
+ * <p>
+ * NOTE: {@link OnnxTrOcrEngine} instance shall be closed after all usages to avoid native allocations leak.
  */
 public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
     /**
@@ -397,7 +400,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
                 return Collections.singletonList(image);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e);
         }
     }

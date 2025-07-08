@@ -29,6 +29,8 @@ import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -39,8 +41,8 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     private static final String TEST_IMAGE_DIRECTORY = TEST_DIRECTORY + "images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxDoImageOcrFileTypesTest";
-    private final static String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
-    private final static String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
+    private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
+    private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
     private static OnnxTrOcrEngine OCR_ENGINE;
 
     @BeforeAll
@@ -51,6 +53,11 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
         OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+    }
+
+    @AfterAll
+    public static void afterClass() throws Exception {
+        OCR_ENGINE.close();
     }
 
     @Test

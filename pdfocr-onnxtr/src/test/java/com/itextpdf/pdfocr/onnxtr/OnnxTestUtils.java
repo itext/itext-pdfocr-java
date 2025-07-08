@@ -33,11 +33,6 @@ import java.util.Map.Entry;
 
 public class OnnxTestUtils {
 
-    public static String getTextFromLayer(PdfDocument pdfDocument, int pageNr, String layerName) {
-        ExtractionStrategy extractionStrategy = extractTextFromLayer(pdfDocument, pageNr, layerName);
-        return extractionStrategy.getResultantText();
-    }
-
     public static ExtractionStrategy extractTextFromLayer(PdfDocument pdfDocument, int pageNr, String layerName) {
         ExtractionStrategy strategy = new ExtractionStrategy(layerName);
         PdfCanvasProcessor processor = new PdfCanvasProcessor(strategy);

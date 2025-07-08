@@ -41,6 +41,8 @@ import com.itextpdf.test.ExtendedITextTest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -48,12 +50,12 @@ import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
-    private final static String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
-    private final static String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/";
-    private final static String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
+    private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
+    private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
+    private static final String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
     private static OnnxTrOcrEngine OCR_ENGINE;
 
     @BeforeAll
@@ -66,6 +68,12 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
 
         OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
     }
+
+    @AfterAll
+    public static void afterClass() throws Exception {
+        OCR_ENGINE.close();
+    }
+
     @Test
     public void rotated90Test() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "90_degrees_rotated.jpg";
