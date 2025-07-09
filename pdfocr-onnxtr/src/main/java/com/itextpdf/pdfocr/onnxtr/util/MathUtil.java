@@ -47,6 +47,51 @@ public final class MathUtil {
         return resultIndex;
     }
 
+    /**
+     * Calculates the Levenshtein distance between two input strings.
+     *
+     * @param source the original string to be transformed
+     * @param target the target string to transform into
+     *
+     * @return the minimum number of single-character edits required
+     * to convert the source string into the target string
+     */
+    public static int calculateLevenshteinDistance(String source, String target) {
+
+        if (source == null || source.isEmpty()) {
+            return target == null || target.isEmpty() ? 0 : target.length();
+        }
+        if (target == null || target.isEmpty()) {
+            return source.length();
+        }
+
+        char[] sourceChars = source.toCharArray();
+        char[] targetChars = target.toCharArray();
+
+        int[] previousRow = new int[targetChars.length + 1];
+
+        for (int i = 0; i <= targetChars.length; i++) {
+            previousRow[i] = i;
+        }
+
+        for (int i = 1; i <= sourceChars.length; i++) {
+            int[] currentRow = new int[targetChars.length + 1];
+            currentRow[0] = i;
+
+            for (int j = 1; j <= targetChars.length; j++) {
+                int costDelete = previousRow[j] + 1;
+                int costInsert = currentRow[j - 1] + 1;
+                int costReplace = previousRow[j - 1] + (sourceChars[i - 1] == targetChars[j - 1] ? 0 : 1);
+
+                currentRow[j] = Math.min(Math.min(costDelete, costInsert), costReplace);
+            }
+
+            previousRow = currentRow;
+        }
+
+        return previousRow[targetChars.length];
+    }
+
     public static float expit(float x) {
         return (float) (1 / (1 + Math.exp(-x)));
     }

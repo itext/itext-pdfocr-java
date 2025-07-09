@@ -16,11 +16,10 @@ import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstan
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
+import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.imageio.ImageIO;
 
 /**
  * {@link IOcrEngine} implementation, based on OnnxTR/DocTR machine learning OCR projects.
@@ -304,10 +304,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
         final int commonLength = Math.min(collector.length(), nextString.length());
         final double[] scores = new double[commonLength];
         for (int i = 0; i < commonLength; ++i) {
-            // TODO DEVSIX-9153: org.apache.commons.commons-text is used only for this, but
-            //        since Levenshtein distance is relatively trivial, might be
-            //        better to just reimplement it
-            scores[i] = LevenshteinDistance.getDefaultInstance().apply(
+            scores[i] = MathUtil.calculateLevenshteinDistance(
                     collector.substring(collector.length() - i - 1),
                     nextString.substring(0, i + 1)
             ) / (i + 1.0);

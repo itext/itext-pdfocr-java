@@ -64,4 +64,16 @@ public class MathUtilTest extends ExtendedITextTest {
         Assertions.assertEquals(1.5, MathUtil.clamp(1.5, 1.1, 1.9));
         Assertions.assertEquals(1.9, MathUtil.clamp(2.0, 1.1, 1.9));
     }
+
+    @Test
+    public void levenshteinDistanceTest(){
+        Assertions.assertEquals(5, MathUtil.calculateLevenshteinDistance("kitten", "meat"));
+        Assertions.assertEquals(1, MathUtil.calculateLevenshteinDistance("kitten", "kitte"));
+        Assertions.assertEquals(7, MathUtil.calculateLevenshteinDistance("kitten", "testString"));
+        Assertions.assertEquals(10, MathUtil.calculateLevenshteinDistance("", "testString"));
+        Assertions.assertEquals(6, MathUtil.calculateLevenshteinDistance("kitten", ""));
+        Assertions.assertEquals(0, MathUtil.calculateLevenshteinDistance("", ""));
+        Assertions.assertEquals(0, MathUtil.calculateLevenshteinDistance(null, null));
+        Assertions.assertEquals(10, MathUtil.calculateLevenshteinDistance(null, "testString"));
+    }
 }
