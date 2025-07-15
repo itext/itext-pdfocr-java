@@ -55,6 +55,11 @@ public class PdfOcrLogMessageConstant {
 
     public static final String CANNOT_RETRIEVE_PAGES_FROM_IMAGE = "Cannot get pages from image {0}: {1}";
 
+    public static final String PAGE_SIZE_IS_NOT_APPLIED = "Page size has no effect when pdf file is being OCRed";
+
+    public static final String IMAGE_LAYER_NAME_IS_NOT_APPLIED =
+            "Image layer name has no effect when pdf file is being OCRed";
+
     private PdfOcrLogMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly
     }

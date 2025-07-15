@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Utility class for working with files.
@@ -53,5 +55,20 @@ public final class PdfOcrFileUtil {
             throw new PdfOcrException(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE,
                     path, e.getMessage()), e);
         }
+    }
+
+    /**
+     * Gets path to temp file in current system temporary directory.
+     *
+     * @param name temp file name
+     * @param extension temp file extension
+     *
+     * @return path to temp file in the system temporary directory
+     *
+     * @throws IOException when temp file cannot be obtained
+     */
+    public static String getTempFilePath(String name, String extension) throws IOException {
+        Path tempPath = Files.createTempFile(name, extension);
+        return tempPath.toString();
     }
 }

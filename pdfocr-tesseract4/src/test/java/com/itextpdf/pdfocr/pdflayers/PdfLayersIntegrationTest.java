@@ -66,15 +66,14 @@ public abstract class PdfLayersIntegrationTest extends IntegrationTestHelper {
                 ocrPdfCreator.createPdf(Collections.<File>singletonList(file), getPdfWriter(pdfPath));
 
         Assertions.assertNotNull(doc);
-        int numOfPages = doc.getNumberOfPages();
         List<PdfLayer> layers = doc.getCatalog()
                 .getOCProperties(true).getLayers();
 
-        Assertions.assertEquals(numOfPages * 2, layers.size());
+        Assertions.assertEquals(2, layers.size());
         Assertions.assertEquals("Image Layer",
-                layers.get(2).getPdfObject().get(PdfName.Name).toString());
+                layers.get(0).getPdfObject().get(PdfName.Name).toString());
         Assertions.assertEquals("Text Layer",
-                layers.get(3).getPdfObject().get(PdfName.Name).toString());
+                layers.get(1).getPdfObject().get(PdfName.Name).toString());
 
         doc.close();
 

@@ -572,6 +572,34 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         validateConfirmEvent(eventsHandler.getEvents().get(2), usageEvent);
     }
 
+    @Test
+    public void ocrPdfCreatorMakeSearchableTest() throws IOException {
+        File inPdfFile = new File(TEST_PDFS_DIRECTORY + "2pages.pdf");
+        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+
+        try {
+            new OcrPdfCreator(tesseractReader).makePdfSearchable(inPdfFile, outPdfFile);
+
+            // Check ocr events. No stats events.
+            // 3 images == 6 events + 1 confirm event for process_pdf event which is not caught by eventHandler
+            Assertions.assertEquals(7, eventsHandler.getEvents().size());
+            for (int i = 0; i < 3; i++) {
+                IEvent usageEvent = eventsHandler.getEvents().get(i);
+                validateUsageEvent(usageEvent, EventConfirmationType.ON_CLOSE);
+                // There is no statistic event
+                validateConfirmEvent(eventsHandler.getEvents().get(4 + i), usageEvent);
+            }
+
+            // Check producer line in the output pdf
+            String expectedProdLine = createExpectedProducerLine(
+                    new ConfirmedEventWrapper[] {getCoreEvent(), getPdfOcrEvent()});
+            validatePdfProducerLine(outPdfFile.getAbsolutePath(), expectedProdLine);
+        } finally {
+            outPdfFile.delete();
+        }
+    }
+
+
     private static class CustomEventHelper extends AbstractPdfOcrEventHelper {
         @Override
         public void onEvent(AbstractProductITextEvent event) {

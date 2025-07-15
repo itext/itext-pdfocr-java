@@ -153,8 +153,9 @@ class PdfCreatorUtil {
     static com.itextpdf.kernel.geom.Point calculateImageCoordinates(
             final com.itextpdf.kernel.geom.Rectangle size,
             final com.itextpdf.kernel.geom.Rectangle imageSize) {
-        float x = 0;
-        float y = 0;
+        float x = imageSize.getX();
+        float y = imageSize.getY();
+        // In pdf2pdf mode page size is always null
         if (size != null) {
             if (imageSize.getHeight() < size.getHeight()) {
                 y = (size.getHeight() - imageSize.getHeight()) / 2;

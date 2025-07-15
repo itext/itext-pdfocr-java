@@ -9,6 +9,9 @@
             <fileset reason="Different implementation for multipage images handling">
               <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java" />
             </fileset>
+            <fileset reason="Different implementation for files handling">
+                <file path="com/itextpdf/pdfocr/util/PdfOcrFileUtil.java" />
+            </fileset>
             <fileset reason="Difference in text output expected in tests">
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrLanguagesTest.java" />
@@ -42,7 +45,11 @@
         </java>
     </ignored>
 	<resource>
-        <fileset reason="Compare files differ in .NET for Onnx tests.">
+      <fileset reason="Some compare files differ on .NET">
+          <file path="com/itextpdf/pdfocr/documents/OcrPdfIntegrationTest/notRecognizable.pdf" />
+      </fileset>
+
+      <fileset reason="Compare files differ in .NET for Onnx tests.">
             <file path="com/itextpdf/pdfocr/OnnxCreateTxtFileTest/cmp_createTxtFile.txt" />
 
             <file path="com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/cmp_multiFiles.pdf" />
@@ -89,6 +96,19 @@
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2TestByLines.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTestByLines.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedTextBasicTestByLines.pdf" />
+
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2images.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2pages.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_changedImageProportion.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_imageIntersection.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_layers.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_mixedRotation.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_notRecognizable.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_numbers.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_pageRotation.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_rotated.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_textWithImages.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_whiteText.pdf" />
         </fileset>
     </resource>
 </configuration>

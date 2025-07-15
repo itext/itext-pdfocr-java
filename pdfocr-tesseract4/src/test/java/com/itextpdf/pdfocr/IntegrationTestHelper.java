@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -83,8 +84,10 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     protected static final String TEST_IMAGES_DIRECTORY = TEST_DIRECTORY + "images" + File.separator;
     // directory with fonts
     protected static final String TEST_FONTS_DIRECTORY = TEST_DIRECTORY + "fonts" + File.separator;
-    // directory with fonts
+    // directory with reference pdf files and other
     protected static final String TEST_DOCUMENTS_DIRECTORY = TEST_DIRECTORY + "documents" + File.separator;
+    // directory with test pdf files
+    protected static final String TEST_PDFS_DIRECTORY = TEST_DIRECTORY + "pdfs" + File.separator;
 
     // path to font for hindi
     protected static final String NOTO_SANS_FONT_PATH = TEST_FONTS_DIRECTORY + "NotoSans-Regular.ttf";
@@ -328,6 +331,15 @@ public class IntegrationTestHelper extends ExtendedITextTest {
                 languages, fonts, color, false);
     }
 
+    protected void doOcrAndSavePdfToPath(
+            AbstractTesseract4OcrEngine tesseractReader, String imgPath,
+            String pdfPath, List<String> languages,
+            List<String> fonts, com.itextpdf.kernel.colors.Color color, boolean applyRotation) {
+        doOcrAndSavePdfToPath(tesseractReader,
+                imgPath, pdfPath,
+                languages, fonts, color, applyRotation, true);
+    }
+
     /**
      * Perform OCR using provided path to image (imgPath)
      * and save result PDF document to "pdfPath".
@@ -336,7 +348,7 @@ public class IntegrationTestHelper extends ExtendedITextTest {
     protected void doOcrAndSavePdfToPath(
             AbstractTesseract4OcrEngine tesseractReader, String imgPath,
             String pdfPath, List<String> languages,
-            List<String> fonts, com.itextpdf.kernel.colors.Color color, boolean applyRotation) {
+            List<String> fonts, com.itextpdf.kernel.colors.Color color, boolean applyRotation, boolean addLangAndTitle) {
         if (languages != null) {
             Tesseract4OcrEngineProperties properties =
                     tesseractReader.getTesseract4OcrEngineProperties();
@@ -345,8 +357,10 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         }
 
         OcrPdfCreatorProperties properties =  new OcrPdfCreatorProperties();
-        properties.setPdfLang("en-US");
-        properties.setTitle("");
+        if (addLangAndTitle) {
+            properties.setPdfLang("en-US");
+            properties.setTitle("");
+        }
         if (applyRotation) {
             properties.setImageRotationHandler(new LeptonicaImageRotationHandler());
         }
@@ -368,15 +382,19 @@ public class IntegrationTestHelper extends ExtendedITextTest {
         }
 
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
-        try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
-            PdfDocument doc = ocrPdfCreator.createPdf(
-                    Collections.<File>singletonList(new File(imgPath)),
-                    pdfWriter);
+        if (StringNormalizer.toLowerCase(imgPath).endsWith(".pdf")) {
+            ocrPdfCreator.makePdfSearchable(new File(imgPath), new File(pdfPath));
+        } else {
+            try (PdfWriter pdfWriter = getPdfWriter(pdfPath)) {
+                PdfDocument doc = ocrPdfCreator.createPdf(
+                        Collections.<File>singletonList(new File(imgPath)),
+                        pdfWriter);
 
-            Assertions.assertNotNull(doc);
-            doc.close();
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+                Assertions.assertNotNull(doc);
+                doc.close();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
         }
     }
 

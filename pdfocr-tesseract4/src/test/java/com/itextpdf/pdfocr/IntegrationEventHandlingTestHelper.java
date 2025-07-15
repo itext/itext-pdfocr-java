@@ -119,7 +119,7 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
 
     protected void validatePdfProducerLine(String filePath, String expected) throws IOException {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePath))) {
-            Assertions.assertEquals(expected, pdfDocument.getDocumentInfo().getProducer());
+            Assertions.assertTrue(pdfDocument.getDocumentInfo().getProducer().contains(expected));
         }
     }
 

@@ -71,6 +71,7 @@ import org.junit.jupiter.api.Tag;
 public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTest {
     protected static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     protected static final String TEST_IMAGE_DIRECTORY = TEST_DIRECTORY + "images/";
+    protected static final String TEST_PDFS_DIRECTORY = TEST_DIRECTORY + "pdfs/";
     private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
 
@@ -127,7 +128,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
 
     protected void validatePdfProducerLine(String filePath, String expected) throws IOException {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePath))) {
-            Assertions.assertEquals(expected, pdfDocument.getDocumentInfo().getProducer());
+            Assertions.assertTrue(pdfDocument.getDocumentInfo().getProducer().contains(expected));
         }
     }
 
