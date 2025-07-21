@@ -39,23 +39,25 @@ public class BatchingTest extends ExtendedITextTest {
     public void wrapWithValidArgs() {
         final Iterator<List<Integer>> wrapped =
                 Batching.wrap(Arrays.asList(1, 2, 3, 4, 5, 6, 7).iterator(), 2);
+        Assertions.assertTrue(wrapped.hasNext());
         Assertions.assertEquals(Arrays.asList(1, 2), wrapped.next());
+        Assertions.assertTrue(wrapped.hasNext());
         Assertions.assertEquals(Arrays.asList(3, 4), wrapped.next());
+        Assertions.assertTrue(wrapped.hasNext());
         Assertions.assertEquals(Arrays.asList(5, 6), wrapped.next());
+        Assertions.assertTrue(wrapped.hasNext());
         Assertions.assertEquals(Collections.singletonList(7), wrapped.next());
-        Assertions.assertThrows(NoSuchElementException.class, wrapped::next);
+        Assertions.assertFalse(wrapped.hasNext());
     }
 
     @Test
     public void wrapWithInvalidArgs() {
-        NullPointerException nullPtrException = Assertions.assertThrows(
-                NullPointerException.class,
-                () -> Batching.wrap(null, 2)
+        Exception nullPtrException = Assertions.assertThrows(NullPointerException.class,
+                () -> Batching.wrap((Iterator<Object>) null, 2).hasNext()
         );
         Assertions.assertEquals(NullPointerException.class, nullPtrException.getClass());
-        IllegalArgumentException illegalArgException = Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> Batching.wrap(Collections.emptyIterator(), 0)
+        Exception illegalArgException = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Batching.wrap(Collections.<Object>emptyIterator(), 0).hasNext()
         );
         Assertions.assertEquals(IllegalArgumentException.class, illegalArgException.getClass());
     }

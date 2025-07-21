@@ -202,10 +202,7 @@ class OnnxTrProcessor {
 
             // Compute n_overlap (number of overlapping chars, geometrically determined)
             final int overlap = (int) Math.round(
-                    nextString.length() *
-                            (SPLIT_CROPS_DILATION_FACTOR - 1)
-                            / SPLIT_CROPS_DILATION_FACTOR
-            );
+                    nextString.length() * (SPLIT_CROPS_DILATION_FACTOR - 1) / SPLIT_CROPS_DILATION_FACTOR);
             // Find the number of consecutive zeros in the scores list
             // Impossible to have a zero after a non-zero score in that case
             final int zeros = (int) Arrays.stream(scores).filter(x -> x == 0).count();
@@ -245,11 +242,11 @@ class OnnxTrProcessor {
         for (int j = 0; j < split.restoreMap.length; ++j) {
             int stringPartsLeft = split.restoreMap[j];
             final String testString;
-            if (stringPartsLeft == 1) {
+            if (stringPartsLeft == 1 && recognitionIterator.hasNext()) {
                 testString = recognitionIterator.next();
             } else {
                 final StringBuilder sb = new StringBuilder();
-                while (stringPartsLeft > 0) {
+                while (stringPartsLeft > 0 && recognitionIterator.hasNext()) {
                     OnnxTrProcessor.mergeStrings(sb, recognitionIterator.next());
                     --stringPartsLeft;
                 }

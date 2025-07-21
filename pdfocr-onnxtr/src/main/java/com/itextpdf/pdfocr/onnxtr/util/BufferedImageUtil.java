@@ -26,6 +26,12 @@ import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
+import org.bytedeco.javacpp.indexer.FloatIndexer;
+import org.bytedeco.javacpp.indexer.UByteIndexer;
+import org.bytedeco.opencv.global.opencv_imgproc;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_core.Size;
+import org.opencv.core.CvType;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -38,12 +44,6 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.bytedeco.javacpp.indexer.FloatIndexer;
-import org.bytedeco.javacpp.indexer.UByteIndexer;
-import org.bytedeco.opencv.global.opencv_imgproc;
-import org.bytedeco.opencv.opencv_core.Mat;
-import org.bytedeco.opencv.opencv_core.Size;
-import org.opencv.core.CvType;
 
 /**
  * Additional algorithms for working with {@link BufferedImage}.
@@ -73,7 +73,7 @@ public final class BufferedImageUtil {
                             + "for the provided batch size (" + properties.getBatchSize() + ")"
             );
         }
-        final long[] inputShape = new long[] {
+        final long[] inputShape = new long[]{
                 images.size(),
                 properties.getChannelCount(),
                 properties.getHeight(),
@@ -126,55 +126,6 @@ public final class BufferedImageUtil {
     }
 
     /**
-     * Converts an image to an RGB Mat for use in OpenCV.
-     *
-     * @param image image to convert
-     *
-     * @return RGB 8UC3 OpenCV Mat with the image
-     */
-    public static Mat toRgbMat(BufferedImage image) {
-        final Mat resultMat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
-        try (final UByteIndexer resultMatIndexer = resultMat.createIndexer()) {
-            for (int y = 0; y < image.getHeight(); ++y) {
-                for (int x = 0; x < image.getWidth(); ++x) {
-                    final int rgb = image.getRGB(x, y);
-                    final int r = (rgb >> 16) & 0xFF;
-                    final int g = (rgb >> 8) & 0xFF;
-                    final int b = rgb & 0xFF;
-                    resultMatIndexer.put(y, (long) x, r, g, b);
-                }
-            }
-        }
-        return resultMat;
-    }
-
-    /**
-     * Converts an RGB 8UC3 OpenCV Mat to a buffered image.
-     *
-     * @param rgb RGB 8UC3 OpenCV Mat to convert
-     *
-     * @return buffered image based on Mat
-     */
-    public static BufferedImage fromRgbMat(Mat rgb) {
-        if (rgb.type() != CvType.CV_8UC3) {
-            throw new IllegalArgumentException("Unexpected Mat type");
-        }
-
-        final BufferedImage image = new BufferedImage(rgb.cols(), rgb.rows(), BufferedImage.TYPE_3BYTE_BGR);
-        final int[] rgbBuffer = new int[3];
-        try (final UByteIndexer rgbIndexer = rgb.createIndexer()) {
-            for (int y = 0; y < image.getHeight(); ++y) {
-                for (int x = 0; x < image.getWidth(); ++x) {
-                    rgbIndexer.get(y, x, rgbBuffer);
-                    final int rgbValue = 0xFF000000 | (rgbBuffer[0] << 16) | (rgbBuffer[1] << 8) | rgbBuffer[2];
-                    image.setRGB(x, y, rgbValue);
-                }
-            }
-        }
-        return image;
-    }
-
-    /**
      * Rotates image based on text orientation. If no rotation necessary, same image is returned.
      *
      * @param image image to rotate
@@ -215,6 +166,81 @@ public final class BufferedImageUtil {
     }
 
     /**
+     * Extracts sub-images from an image, based on provided rotated 4-point boxes. Sub-images are
+     * transformed to fit the whole image without (in our use cases it is just rotation).
+     *
+     * @param image original image to be used for extraction
+     * @param boxes list of 4-point boxes. Points should be in the following order: BL, TL, TR, BR
+     *
+     * @return list of extracted image boxes
+     */
+    public static List<BufferedImage> extractBoxes(BufferedImage image, Collection<Point[]> boxes) {
+        final List<BufferedImage> boxesImages = new ArrayList<>(boxes.size());
+        try (final Mat imageMat = BufferedImageUtil.toRgbMat(image)) {
+            for (final Point[] box : boxes) {
+                final float boxWidth = (float) box[1].distance(box[2]);
+                final float boxHeight = (float) box[1].distance(box[0]);
+                try (final Mat transformationMat = calculateBoxTransformationMat(box, boxWidth, boxHeight);
+                     final Mat boxImageMat = new Mat((int) boxHeight, (int) boxWidth, CvType.CV_8UC3);
+                     final Size size = new Size((int) boxWidth, (int) boxHeight)) {
+                    opencv_imgproc.warpAffine(imageMat, boxImageMat, transformationMat, size);
+                    boxesImages.add(BufferedImageUtil.fromRgbMat(boxImageMat));
+                }
+            }
+        }
+        return boxesImages;
+    }
+
+    /**
+     * Converts an image to an RGB Mat for use in OpenCV.
+     *
+     * @param image image to convert
+     *
+     * @return RGB 8UC3 OpenCV Mat with the image
+     */
+    private static Mat toRgbMat(BufferedImage image) {
+        final Mat resultMat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
+        try (final UByteIndexer resultMatIndexer = resultMat.createIndexer()) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                for (int x = 0; x < image.getWidth(); ++x) {
+                    final int rgb = image.getRGB(x, y);
+                    final int r = (rgb >> 16) & 0xFF;
+                    final int g = (rgb >> 8) & 0xFF;
+                    final int b = rgb & 0xFF;
+                    resultMatIndexer.put(y, (long) x, r, g, b);
+                }
+            }
+        }
+        return resultMat;
+    }
+
+    /**
+     * Converts an RGB 8UC3 OpenCV Mat to a buffered image.
+     *
+     * @param rgb RGB 8UC3 OpenCV Mat to convert
+     *
+     * @return buffered image based on Mat
+     */
+    private static BufferedImage fromRgbMat(Mat rgb) {
+        if (rgb.type() != CvType.CV_8UC3) {
+            throw new IllegalArgumentException("Unexpected Mat type");
+        }
+
+        final BufferedImage image = new BufferedImage(rgb.cols(), rgb.rows(), BufferedImage.TYPE_3BYTE_BGR);
+        final int[] rgbBuffer = new int[3];
+        try (final UByteIndexer rgbIndexer = rgb.createIndexer()) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                for (int x = 0; x < image.getWidth(); ++x) {
+                    rgbIndexer.get(y, x, rgbBuffer);
+                    final int rgbValue = 0xFF000000 | (rgbBuffer[0] << 16) | (rgbBuffer[1] << 8) | rgbBuffer[2];
+                    image.setRGB(x, y, rgbValue);
+                }
+            }
+        }
+        return image;
+    }
+
+    /**
      * Creates a new image with an aspect ratio preserving resize. New blank pixel will have black color.
      *
      * @param image image to resize
@@ -224,7 +250,7 @@ public final class BufferedImageUtil {
      *
      * @return new resized image
      */
-    public static BufferedImage resize(BufferedImage image, int width, int height, boolean symmetricPad) {
+    private static BufferedImage resize(BufferedImage image, int width, int height, boolean symmetricPad) {
         // It is pretty unlikely, that the image is already the correct size, so no need for an exception
         final BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         final Graphics2D graphics = result.createGraphics();
@@ -262,37 +288,11 @@ public final class BufferedImageUtil {
         return result;
     }
 
-    /**
-     * Extracts sub-images from an image, based on provided rotated 4-point boxes. Sub-images are
-     * transformed to fit the whole image without (in our use cases it is just rotation).
-     *
-     * @param image original image to be used for extraction
-     * @param boxes list of 4-point boxes. Points should be in the following order: BL, TL, TR, BR
-     *
-     * @return list of extracted image boxes
-     */
-    public static List<BufferedImage> extractBoxes(BufferedImage image, Collection<Point[]> boxes) {
-        final List<BufferedImage> boxesImages = new ArrayList<>(boxes.size());
-        try (final Mat imageMat = BufferedImageUtil.toRgbMat(image)) {
-            for (final Point[] box : boxes) {
-                final float boxWidth = (float) box[1].distance(box[2]);
-                final float boxHeight = (float) box[1].distance(box[0]);
-                try (final Mat transformationMat = calculateBoxTransformationMat(box, boxWidth, boxHeight);
-                        final Mat boxImageMat = new Mat((int) boxHeight, (int) boxWidth, CvType.CV_8UC3);
-                        final Size size = new Size((int) boxWidth, (int) boxHeight)) {
-                    opencv_imgproc.warpAffine(imageMat, boxImageMat, transformationMat, size);
-                    boxesImages.add(BufferedImageUtil.fromRgbMat(boxImageMat));
-                }
-            }
-        }
-        return boxesImages;
-    }
-
     private static Mat calculateBoxTransformationMat(Point[] box, float boxWidth, float boxHeight) {
         try (final Mat srcPoints = new Mat(3, 2, CvType.CV_32F);
-                final Mat dstPoints = new Mat(3, 2, CvType.CV_32F);
-                final FloatIndexer srcPointsIndexer = srcPoints.createIndexer();
-                final FloatIndexer dstPointsIndexer = dstPoints.createIndexer()) {
+             final Mat dstPoints = new Mat(3, 2, CvType.CV_32F);
+             final FloatIndexer srcPointsIndexer = srcPoints.createIndexer();
+             final FloatIndexer dstPointsIndexer = dstPoints.createIndexer()) {
             for (int i = 0; i < 3; ++i) {
                 srcPointsIndexer.put(i, (float) box[i].getX(), (float) box[i].getY());
             }

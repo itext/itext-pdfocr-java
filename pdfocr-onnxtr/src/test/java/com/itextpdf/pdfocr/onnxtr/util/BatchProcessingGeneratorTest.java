@@ -106,10 +106,13 @@ public class BatchProcessingGeneratorTest extends ExtendedITextTest {
                     }
                 }
         );
+        Assertions.assertTrue(generator.hasNext());
         Assertions.assertEquals("2", generator.next());
+        Assertions.assertTrue(generator.hasNext());
         Assertions.assertEquals("4", generator.next());
+        Assertions.assertTrue(generator.hasNext());
         Assertions.assertEquals("6", generator.next());
-        Assertions.assertThrows(NoSuchElementException.class, () -> generator.next());
+        Assertions.assertFalse(generator.hasNext());
         Assertions.assertEquals(2, processorCallCount[0]);
     }
 }

@@ -20,7 +20,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr;
+package com.itextpdf.pdfocr.tesseract4;
 
 import sharpen.config.MappingConfiguration;
 import sharpen.config.MappingConfigurator;
@@ -34,35 +34,24 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Service implementation of {@link sharpen.config.MappingConfiguration} containing the module's Sharpen configuration.
+ * Service implementation of {@link MappingConfiguration} containing the module's Sharpen configuration.
  */
 public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
     public int getMappingPriority() {
-        return 6;
+        return 1;
     }
 
     @Override
     public String getModuleName() {
-        return "pdfocr-api";
+        return "pdfocr-tesseract4";
     }
 
     @Override
     public void applyMappingConfiguration(MappingConfigurator configurator) {
-        configurator.mapStringLiteral("com.itextpdf.pdfocr.PdfOcrFontProvider.DEFAULT_FONT_PATH", "iText.Pdfocr.Api.font.LiberationSans-Regular.ttf");
-
-        // It's fine to use System.IO.StreamWriter in this mapping instead of the iText.Commons.Utils.FormattingStreamWriter
-        // because java.io.FileWriter only works with the characters writing, so there are no locale-dependent conversions.
-        configurator.ignoreUsing("Java.IO");
-        configurator.ignoreUsing("Java.Nio");
-
-        // Images
-        configurator.mapType("java.awt.image.BufferedImage", "IronSoftware.Drawing.AnyBitmap");
-        configurator.addFullName("IronSoftware.Drawing.AnyBitmap");
-        configurator.ignoreUsing("Javax.Imageio");
-
-        configurator.mapType("java.util.Objects", "iText.Pdfocr.Util.Objects");
+        configurator.mapType("java.awt.image.BufferedImage", "System.Drawing.Bitmap");
+        configurator.addFullName("System.Drawing.Bitmap");
     }
 
     @Override

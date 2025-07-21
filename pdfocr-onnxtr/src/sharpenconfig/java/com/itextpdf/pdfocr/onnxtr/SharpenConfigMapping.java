@@ -21,16 +21,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.itextpdf.pdfocr.onnxtr;
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import sharpen.config.MappingConfiguration;
 import sharpen.config.MappingConfigurator;
 import sharpen.config.ModuleOption;
 import sharpen.config.ModulesConfigurator;
 import sharpen.config.OptionsConfigurator;
+
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Service implementation of {@link sharpen.config.MappingConfiguration} containing the module's Sharpen configuration.
@@ -39,7 +40,7 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
     public int getMappingPriority() {
-        return 7;
+        return 1;
     }
 
     @Override
@@ -51,6 +52,13 @@ public class SharpenConfigMapping implements MappingConfiguration {
     public void applyMappingConfiguration(MappingConfigurator configurator) {
         configurator.addCustomUsingForMethodInvocation("java.awt.image.BufferedImage",
                 Collections.singletonList("iText.Pdfocr.Onnxtr.Util"));
+        configurator.mapMethod("java.awt.image.BufferedImage.getWidth", "BufferedImageUtil.GetWidth");
+        configurator.mapMethod("java.awt.image.BufferedImage.getHeight", "BufferedImageUtil.GetHeight");
+        configurator.mapMethod("javax.imageio.ImageIO.read", "IronSoftware.Drawing.AnyBitmap.FromFile");
+        configurator.mapMethodWithParameterConversion("javax.imageio.ImageIO.read", "1:memberCall:FullName");
+
+        configurator.mapMethod("java.util.Iterator.hasNext", "MoveNext");
+        configurator.mapProperty("java.util.Iterator.next", "Current");
         mapOpenCv(configurator);
     }
 
@@ -63,8 +71,6 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.RotatedRect.angle", "Angle");
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.Size2f.width", "Width");
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.Size2f.height", "Height");
-        configurator.mapProperty("java.awt.image.BufferedImage.getWidth", "Width");
-        configurator.mapProperty("java.awt.image.BufferedImage.getHeight", "Height");
         configurator.mapMethod("java.nio.FloatBuffer.array", "");
 
         configurator.removeMethod("org.bytedeco.javacpp.Pointer.close");
@@ -96,6 +102,7 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
     public void setConfigModuleSettings(ModulesConfigurator modulesConfigurator) {
+
     }
 
     @Override
