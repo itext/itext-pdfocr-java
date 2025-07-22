@@ -24,6 +24,7 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java"/>
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTrOcrEngine.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTrProcessor.java" />
             </fileset>
             <fileset>
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
