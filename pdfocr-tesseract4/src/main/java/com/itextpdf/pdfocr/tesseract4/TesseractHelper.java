@@ -39,10 +39,7 @@ import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -370,24 +367,6 @@ public class TesseractHelper {
                     e.getMessage()));
         }
         return content;
-    }
-
-    /**
-     * Writes provided {@link java.lang.String} to text file using
-     * provided path.
-     *
-     * @param path path as {@link java.lang.String} to file to be created
-     * @param data text data in required format as {@link java.lang.String}
-     */
-    static void writeToTextFile(final String path,
-                                final String data) {
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(path),
-                StandardCharsets.UTF_8)) {
-            writer.write(data);
-        } catch (IOException e) {
-            throw new PdfOcrInputTesseract4Exception(
-                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
-        }
     }
 
     /**

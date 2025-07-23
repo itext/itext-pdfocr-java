@@ -27,9 +27,9 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 
 import java.io.ByteArrayInputStream;
@@ -222,12 +222,10 @@ public class Tesseract4OcrEngineProperties extends OcrEngineProperties {
     /**
      * Sets true if image preprocessing is needed.
      *
-     * @param preprocess true if images need to be preprocessed,
-     *                   otherwise - false
+     * @param preprocess true if images need to be preprocessed, otherwise - false
      * @return the {@link Tesseract4OcrEngineProperties} instance
      */
-    public final Tesseract4OcrEngineProperties setPreprocessingImages(
-            final boolean preprocess) {
+    public final Tesseract4OcrEngineProperties setPreprocessingImages(final boolean preprocess) {
         if (preprocess) {
             if (imagePreprocessingOptions == null) {
                 imagePreprocessingOptions = new ImagePreprocessingOptions();

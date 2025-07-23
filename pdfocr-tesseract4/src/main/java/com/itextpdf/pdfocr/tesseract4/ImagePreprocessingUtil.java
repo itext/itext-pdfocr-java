@@ -31,14 +31,14 @@ import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
-import net.sourceforge.lept4j.Pix;
-import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import net.sourceforge.lept4j.Pix;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities class to work with images.
@@ -115,18 +115,15 @@ class ImagePreprocessingUtil {
      * @param pageNumber number of page to be preprocessed
      * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return created preprocessed image as {@link net.sourceforge.lept4j.Pix}
-     * @throws PdfOcrTesseract4Exception if it was not possible to read or convert
-     * input file
+     * @throws PdfOcrTesseract4Exception if it was not possible to read or convert input file
      */
-    static Pix preprocessImage(final File inputFile,
-                               final int pageNumber,
-                               final ImagePreprocessingOptions imagePreprocessingOptions)
-            throws PdfOcrTesseract4Exception {
+    static Pix preprocessImage(final File inputFile, final int pageNumber,
+            final ImagePreprocessingOptions imagePreprocessingOptions) throws PdfOcrTesseract4Exception {
+
         Pix pix;
         // read image
         if (TiffImageUtil.isTiffImage(inputFile)) {
-            pix = TesseractOcrUtil.readPixPageFromTiff(inputFile,
-                    pageNumber - 1);
+            pix = TesseractOcrUtil.readPixPageFromTiff(inputFile, pageNumber - 1);
         } else {
             pix = TesseractOcrUtil.readPix(inputFile);
         }

@@ -66,8 +66,7 @@ import org.slf4j.LoggerFactory;
 @Tag("IntegrationTest")
 public class IntegrationTestHelper extends ExtendedITextTest {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(IntegrationTestHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTestHelper.class);
 
     // directory with test files
     public static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";

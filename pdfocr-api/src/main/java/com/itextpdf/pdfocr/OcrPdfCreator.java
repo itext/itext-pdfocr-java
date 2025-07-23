@@ -186,9 +186,7 @@ public class OcrPdfCreator {
             final PdfOutputIntent pdfOutputIntent,
             final IOcrProcessProperties ocrProcessProperties)
             throws PdfOcrException {
-        LOGGER.info(MessageFormatUtil.format(
-                PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES,
-                inputImages.size()));
+        LOGGER.info(MessageFormatUtil.format(PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES, inputImages.size()));
 
         // create event helper
         SequenceId pdfSequenceId = new SequenceId();
@@ -491,19 +489,16 @@ public class OcrPdfCreator {
         }
     }
 
-    private PdfDocument createPdfDocument(final PdfWriter pdfWriter,
-            final PdfOutputIntent pdfOutputIntent,
+    private PdfDocument createPdfDocument(final PdfWriter pdfWriter, final PdfOutputIntent pdfOutputIntent,
             final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
             SequenceId pdfSequenceId, DocumentProperties documentProperties) {
+
         PdfDocument pdfDocument;
         boolean createPdfA3u = pdfOutputIntent != null;
         if (createPdfA3u) {
-            pdfDocument = new PdfADocument(pdfWriter,
-                    PdfAConformance.PDF_A_3U, pdfOutputIntent,
-                    documentProperties);
+            pdfDocument = new PdfADocument(pdfWriter, PdfAConformance.PDF_A_3U, pdfOutputIntent, documentProperties);
         } else {
-            pdfDocument = new PdfDocument(pdfWriter,
-                    documentProperties);
+            pdfDocument = new PdfDocument(pdfWriter, documentProperties);
         }
         LinkDocumentIdEvent linkDocumentIdEvent = new LinkDocumentIdEvent(pdfDocument, pdfSequenceId);
         EventManager.getInstance().onEvent(linkDocumentIdEvent);
@@ -512,8 +507,7 @@ public class OcrPdfCreator {
         boolean hasPdfLangProperty = ocrPdfCreatorProperties.getPdfLang() != null
                 && !ocrPdfCreatorProperties.getPdfLang().isEmpty();
         if (createPdfA3u && !hasPdfLangProperty) {
-            LOGGER.error(MessageFormatUtil.format(
-                    PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
+            LOGGER.error(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT,
                     PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET));
             throw new PdfOcrException(PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT)
                     .setMessageParams(PdfOcrLogMessageConstant.PDF_LANGUAGE_PROPERTY_IS_NOT_SET);
@@ -521,14 +515,12 @@ public class OcrPdfCreator {
 
         // add metadata
         if (hasPdfLangProperty) {
-            pdfDocument.getCatalog()
-                    .setLang(new PdfString(ocrPdfCreatorProperties.getPdfLang()));
+            pdfDocument.getCatalog().setLang(new PdfString(ocrPdfCreatorProperties.getPdfLang()));
         }
 
         // set title if it is not empty
         if (ocrPdfCreatorProperties.getTitle() != null) {
-            pdfDocument.getCatalog().setViewerPreferences(
-                    new PdfViewerPreferences().setDisplayDocTitle(true));
+            pdfDocument.getCatalog().setViewerPreferences(new PdfViewerPreferences().setDisplayDocTitle(true));
             PdfDocumentInfo info = pdfDocument.getDocumentInfo();
             info.setTitle(ocrPdfCreatorProperties.getTitle());
         }
@@ -539,8 +531,7 @@ public class OcrPdfCreator {
         addDataToPdfDocument(imagesTextData, pdfDocument, createPdfA3u);
 
         // statistics event about type of created pdf
-        if (ocrEngine instanceof IProductAware
-                && ((IProductAware) ocrEngine).getProductData() != null) {
+        if (ocrEngine instanceof IProductAware && ((IProductAware) ocrEngine).getProductData() != null) {
             PdfOcrOutputType eventType = createPdfA3u ? PdfOcrOutputType.PDFA : PdfOcrOutputType.PDF;
             PdfOcrOutputTypeStatisticsEvent docTypeStatisticsEvent =
                     new PdfOcrOutputTypeStatisticsEvent(eventType, ((IProductAware) ocrEngine).getProductData());

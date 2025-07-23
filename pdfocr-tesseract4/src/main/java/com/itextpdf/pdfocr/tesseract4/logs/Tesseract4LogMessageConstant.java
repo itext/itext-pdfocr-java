@@ -55,6 +55,7 @@ public class Tesseract4LogMessageConstant {
     public static final String CANNOT_CREATE_BUFFERED_IMAGE =
             "Cannot create a buffered image from the input image: {0}";
 
+    @Deprecated
     public static final String START_OCR_FOR_IMAGES = "Starting ocr for {0} image(s)";
 
     public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image {0}";

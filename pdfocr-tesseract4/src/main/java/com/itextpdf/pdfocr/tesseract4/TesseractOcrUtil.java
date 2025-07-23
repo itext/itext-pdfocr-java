@@ -22,14 +22,14 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
-
 import com.itextpdf.pdfocr.util.TiffImageUtil;
+
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -347,8 +347,7 @@ class TesseractOcrUtil {
      *                          object to check
      * @return true if tesseract instance is disposed.
      */
-    static boolean isTesseractInstanceDisposed(
-            final ITesseract tesseractInstance) {
+    static boolean isTesseractInstanceDisposed(final ITesseract tesseractInstance) {
         return false;
     }
 
@@ -358,8 +357,7 @@ class TesseractOcrUtil {
      * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      *                          object to dispose
      */
-    static void disposeTesseractInstance(
-            final ITesseract tesseractInstance) {
+    static void disposeTesseractInstance(final ITesseract tesseractInstance) {
     }
 
     static Pix readPixFromFile(File inputImage) {
@@ -375,8 +373,7 @@ class TesseractOcrUtil {
      * @return result {@link java.awt.image.BufferedImage} object
      * @throws IOException if it is not possible to convert
      */
-    static BufferedImage convertPixToImage(final Pix inputPix)
-            throws IOException {
+    static BufferedImage convertPixToImage(final Pix inputPix) throws IOException {
         if (inputPix != null) {
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();

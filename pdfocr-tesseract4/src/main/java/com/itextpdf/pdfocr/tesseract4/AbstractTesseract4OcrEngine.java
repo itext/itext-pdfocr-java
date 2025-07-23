@@ -35,14 +35,17 @@ import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.tesseract4.actions.data.PdfOcrTesseract4ProductData;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.util.PdfOcrFileUtil;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,8 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.itextpdf.pdfocr.util.TiffImageUtil;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -148,10 +149,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      */
     public void createTxtFile(final List<File> inputImages, final File txtFile,
             final OcrProcessContext ocrProcessContext) {
-        LoggerFactory.getLogger(getClass())
-                .info(MessageFormatUtil.format(
-                        Tesseract4LogMessageConstant.START_OCR_FOR_IMAGES,
-                        inputImages.size()));
+        LoggerFactory.getLogger(getClass()).info(
+                MessageFormatUtil.format(PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES, inputImages.size()));
 
         AbstractPdfOcrEventHelper storedEventHelper;
         if (ocrProcessContext.getOcrEventHelper() == null) {
@@ -165,7 +164,6 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
         storedEventHelper.onEvent(event);
 
         try {
-            // set Tesseract4FileResultEventHelper
             ocrProcessContext.setOcrEventHelper(new Tesseract4FileResultEventHelper(storedEventHelper));
 
             StringBuilder content = new StringBuilder();
@@ -173,9 +171,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                 content.append(doImageOcr(inputImage, OutputFormat.TXT, ocrProcessContext));
             }
 
-            // write to file
-            TesseractHelper.writeToTextFile(txtFile.getAbsolutePath(),
-                    content.toString());
+            PdfOcrFileUtil.writeToTextFile(txtFile.getAbsolutePath(), content.toString());
 
             if (event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
                 storedEventHelper.onEvent(new ConfirmEvent(event));
@@ -267,20 +263,18 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @return OCR result as a {@link java.lang.String} that is
      * returned after processing the given image
      */
-    public final String doImageOcr(final File input,
-            final OutputFormat outputFormat,
+    public final String doImageOcr(final File input, final OutputFormat outputFormat,
             final OcrProcessContext ocrProcessContext) {
+
         String result = "";
         verifyImageFormatValidity(input);
-        ITesseractOcrResult processedData = processInputFiles(input, outputFormat,
-                ocrProcessContext.getOcrEventHelper());
+        ITesseractOcrResult processedData = processInputFiles(input, outputFormat, ocrProcessContext.getOcrEventHelper());
         if (processedData != null) {
             if (outputFormat.equals(OutputFormat.TXT)) {
                 result = ((StringTesseractOcrResult)processedData).getData();
             } else {
                 StringBuilder outputText = new StringBuilder();
-                Map<Integer, List<TextInfo>> outputMap =
-                        ((TextInfoTesseractOcrResult)processedData).getTextInfos();
+                Map<Integer, List<TextInfo>> outputMap = ((TextInfoTesseractOcrResult)processedData).getTextInfos();
                 for (int page : outputMap.keySet()) {
                     StringBuilder pageText = new StringBuilder();
                     for (TextInfo textInfo : outputMap.get(page)) {
@@ -343,7 +337,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
     public void validateLanguages(final List<String> languagesList)
             throws PdfOcrTesseract4Exception {
         String suffix = ".traineddata";
-        if (languagesList.size() == 0) {
+        if (languagesList.isEmpty()) {
             if (!new File(getTessData()
                     + java.io.File.separatorChar
                     + getTesseract4OcrEngineProperties().getDefaultLanguage()
@@ -359,9 +353,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
             }
         } else {
             for (String lang : languagesList) {
-                if (!new File(getTessData()
-                        + java.io.File.separatorChar + lang + suffix)
-                        .exists()) {
+                if (!new File(getTessData() + java.io.File.separatorChar + lang + suffix).exists()) {
                     throw new PdfOcrInputTesseract4Exception(
                             PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
                             .setMessageParams(lang + suffix, getTessData());
@@ -392,6 +384,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * Performs tesseract OCR using command line tool
      * or a wrapper for Tesseract OCR API.
      *
+     * <p>
      * Please note that list of output files is accepted instead of a single file because
      * page number parameter is not respected in case of TIFF images not requiring preprocessing.
      * In other words, if the passed image is the TIFF image and according to the {@link Tesseract4OcrEngineProperties}
@@ -404,9 +397,9 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @param outputFormat selected {@link OutputFormat} for tesseract
      * @param pageNumber number of page to be processed
      */
-    void doTesseractOcr(File inputImage,
-            List<File> outputFiles, OutputFormat outputFormat,
-            int pageNumber, AbstractPdfOcrEventHelper eventHelper) {
+    void doTesseractOcr(File inputImage, List<File> outputFiles, OutputFormat outputFormat, int pageNumber,
+            AbstractPdfOcrEventHelper eventHelper) {
+
         doTesseractOcr(inputImage, outputFiles, outputFormat, pageNumber, true, eventHelper);
     }
 
@@ -414,6 +407,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * Performs tesseract OCR using command line tool
      * or a wrapper for Tesseract OCR API.
      *
+     * <p>
      * Please note that list of output files is accepted instead of a single file because
      * page number parameter is not respected in case of TIFF images not requiring preprocessing.
      * In other words, if the passed image is the TIFF image and according to the {@link Tesseract4OcrEngineProperties}
@@ -428,10 +422,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @param dispatchEvent indicates if event needs to be dispatched
      * @param eventHelper event helper
      */
-    abstract void doTesseractOcr(File inputImage,
-            List<File> outputFiles, OutputFormat outputFormat,
-            int pageNumber, boolean dispatchEvent,
-            AbstractPdfOcrEventHelper eventHelper);
+    abstract void doTesseractOcr(File inputImage, List<File> outputFiles, OutputFormat outputFormat, int pageNumber,
+            boolean dispatchEvent, AbstractPdfOcrEventHelper eventHelper);
 
     /**
      * Gets path to provided tess data directory.
@@ -441,11 +433,9 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      */
     String getTessData() {
         if (getTesseract4OcrEngineProperties().getPathToTessData() == null) {
-            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant
-                    .PATH_TO_TESS_DATA_IS_NOT_SET);
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant.PATH_TO_TESS_DATA_IS_NOT_SET);
         } else {
-            return getTesseract4OcrEngineProperties().getPathToTessData()
-                    .getAbsolutePath();
+            return getTesseract4OcrEngineProperties().getPathToTessData().getAbsolutePath();
         }
     }
 
@@ -473,29 +463,21 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @return {@link ITesseractOcrResult} instance, either {@link StringTesseractOcrResult}
      *     if output format is TXT, or {@link TextInfoTesseractOcrResult} if the output format is HOCR
      */
-    private ITesseractOcrResult processInputFiles(
-            final File input, final OutputFormat outputFormat,
+    private ITesseractOcrResult processInputFiles(final File input, final OutputFormat outputFormat,
             final AbstractPdfOcrEventHelper eventHelper) {
-        Map<Integer, List<TextInfo>> imageData =
-                new LinkedHashMap<Integer, List<TextInfo>>();
+
+        Map<Integer, List<TextInfo>> imageData = new LinkedHashMap<Integer, List<TextInfo>>();
         StringBuilder data = new StringBuilder();
         List<File> tempFiles = new ArrayList<File>();
         ITesseractOcrResult result = null;
         try {
-            // image needs to be paginated only if it's tiff
-            // or preprocessing isn't required
-            int realNumOfPages = TiffImageUtil.isTiffImage(input)
-                    ? ImagePreprocessingUtil.getNumberOfPageTiff(input) : 1;
-            int numOfPages =
-                    getTesseract4OcrEngineProperties().isPreprocessingImages()
-                            ? realNumOfPages : 1;
-            int numOfFiles =
-                    getTesseract4OcrEngineProperties().isPreprocessingImages()
-                            ? 1 : realNumOfPages;
+            // image needs to be paginated only if it's tiff or preprocessing isn't required
+            int realNumOfPages = TiffImageUtil.isTiffImage(input) ? ImagePreprocessingUtil.getNumberOfPageTiff(input) : 1;
+            int numOfPages = getTesseract4OcrEngineProperties().isPreprocessingImages() ? realNumOfPages : 1;
+            int numOfFiles = getTesseract4OcrEngineProperties().isPreprocessingImages() ? 1 : realNumOfPages;
 
             for (int page = 1; page <= numOfPages; page++) {
-                String extension = outputFormat.equals(OutputFormat.HOCR)
-                        ? ".hocr" : ".txt";
+                String extension = outputFormat.equals(OutputFormat.HOCR) ? ".hocr" : ".txt";
                 for (int i = 0; i < numOfFiles; i++) {
                     tempFiles.add(createTempFile(extension));
                 }
@@ -511,11 +493,9 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                         doTesseractOcr(input, tempTxtFiles, OutputFormat.TXT, page, false, eventHelper);
                     }
                     Map<Integer, List<TextInfo>> pageData = TesseractHelper
-                            .parseHocrFile(tempFiles, tempTxtFiles,
-                                    getTesseract4OcrEngineProperties());
+                            .parseHocrFile(tempFiles, tempTxtFiles, getTesseract4OcrEngineProperties());
 
-                    if (getTesseract4OcrEngineProperties()
-                            .isPreprocessingImages()) {
+                    if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
                         imageData.put(page, pageData.get(1));
                     } else {
                         imageData = pageData;
@@ -523,9 +503,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                     result = new TextInfoTesseractOcrResult(imageData);
                 } else {
                     for (File tmpFile : tempFiles) {
-                        if (Files.exists(
-                                java.nio.file.Paths
-                                        .get(tmpFile.getAbsolutePath()))) {
+                        if (Files.exists(java.nio.file.Paths.get(tmpFile.getAbsolutePath()))) {
                             data.append(TesseractHelper.readTxtFile(tmpFile));
                         }
                     }
@@ -533,10 +511,8 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
                 }
             }
         } catch (IOException e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(MessageFormatUtil.format(
-                            Tesseract4LogMessageConstant.CANNOT_OCR_INPUT_FILE,
-                            e.getMessage()));
+            LoggerFactory.getLogger(getClass()).error(
+                    MessageFormatUtil.format(Tesseract4LogMessageConstant.CANNOT_OCR_INPUT_FILE, e.getMessage()));
         } finally {
             for (File file : tempFiles) {
                 TesseractHelper.deleteFile(file.getAbsolutePath());

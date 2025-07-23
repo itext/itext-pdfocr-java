@@ -39,10 +39,9 @@ import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -324,7 +323,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     }
 
     @Test
-    public void createTxtFileTest() throws IOException {
+    public void createTxtFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
                 FileUtil.createTempFile("test", ".txt"));
@@ -369,9 +368,11 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = new File("nopath/nofile");
-        Exception e = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+        Exception e = Assertions.assertThrows(PdfOcrException.class,
                 () -> tesseractReader.createTxtFile(images, outPdfFile));
-        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e.getMessage());
+        Assertions.assertTrue(e.getMessage().contains(PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE.substring(0, 20)));
+        Assertions.assertTrue(e.getMessage().contains("nopath"));
+        Assertions.assertTrue(e.getMessage().contains("nofile"));
 
         Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);

@@ -34,7 +34,7 @@ import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEven
  */
 class Tesseract4FileResultEventHelper extends AbstractPdfOcrEventHelper {
 
-    private AbstractPdfOcrEventHelper wrappedEventHelper;
+    private final AbstractPdfOcrEventHelper wrappedEventHelper;
 
     Tesseract4FileResultEventHelper() {
         this(null);
@@ -46,8 +46,7 @@ class Tesseract4FileResultEventHelper extends AbstractPdfOcrEventHelper {
 
     @Override
     public void onEvent(AbstractProductITextEvent event) {
-        if (!isProcessImageEvent(event)
-                && !isConfirmForProcessImageEvent(event)) {
+        if (!isProcessImageEvent(event) && !isConfirmForProcessImageEvent(event)) {
             wrappedEventHelper.onEvent(event);
         }
     }
@@ -63,15 +62,13 @@ class Tesseract4FileResultEventHelper extends AbstractPdfOcrEventHelper {
     }
 
     private static boolean isProcessImageEvent(AbstractProductITextEvent event) {
-        return event instanceof PdfOcrTesseract4ProductEvent
-                && PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(
-                ((PdfOcrTesseract4ProductEvent) event).getEventType());
+        return event instanceof PdfOcrTesseract4ProductEvent &&
+                PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(((PdfOcrTesseract4ProductEvent) event).getEventType());
     }
 
     private static boolean isConfirmForProcessImageEvent(AbstractProductITextEvent event) {
-        return event instanceof ConfirmEvent
-                && ((ConfirmEvent) event).getConfirmedEvent() instanceof PdfOcrTesseract4ProductEvent
-                && PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(
-                ((ConfirmEvent) event).getConfirmedEvent().getEventType());
+        return event instanceof ConfirmEvent &&
+                ((ConfirmEvent) event).getConfirmedEvent() instanceof PdfOcrTesseract4ProductEvent &&
+                PdfOcrTesseract4ProductEvent.PROCESS_IMAGE.equals(((ConfirmEvent) event).getConfirmedEvent().getEventType());
     }
 }
