@@ -57,6 +57,7 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
     private static final String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
     private static OnnxTrOcrEngine OCR_ENGINE;
+    private static OnnxTrOcrEngine OCR_ENGINE_GROUPING_BY_LINES;
 
     @BeforeAll
     public static void beforeClass() {
@@ -66,7 +67,10 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
+                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
+        OCR_ENGINE_GROUPING_BY_LINES = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
+                recognitionPredictor);
     }
 
     @AfterAll
@@ -78,10 +82,14 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotated90Test() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "90_degrees_rotated.jpg";
         String dest = TARGET_DIRECTORY + "rotated90Test.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotated90TestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotated90Test.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotated90TestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -94,12 +102,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotated180Test() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "180_degrees_rotated.jpg";
         String dest = TARGET_DIRECTORY + "rotated180Test.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotated180TestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotated180Test.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotated180TestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("180\ndegrees\nrotated\nimage", extractionStrategy.getResultantText());
@@ -110,12 +122,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotated270Test() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "270_degrees_rotated.jpg";
         String dest = TARGET_DIRECTORY + "rotated270Test.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotated270TestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotated270Test.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotated270TestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("270\ndegrees\nrotated\nimage", extractionStrategy.getResultantText());
@@ -126,12 +142,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotatedCapsLCTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedCapsLC.png";
         String dest = TARGET_DIRECTORY + "rotatedCapsLCTest.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotatedCapsLCTestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotatedCapsLCTest.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotatedCapsLCTestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("anD\nCapITALS\nlowerCaSE\nmix\nTEsTinG", extractionStrategy.getResultantText());
@@ -142,12 +162,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotatedColorsMixTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedColorsMix.png";
         String dest = TARGET_DIRECTORY + "rotatedColorsMixTest.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotatedColorsMixTestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotatedColorsMixTest.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotatedColorsMixTestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("TEXT\nColored\nMixed\nCOIORS\ntEXT\nReD", extractionStrategy.getResultantText());
@@ -158,12 +182,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotatedColorsMix2Test() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedColorsMix2.png";
         String dest = TARGET_DIRECTORY + "rotatedColorsMix2Test.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotatedColorsMix2TestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotatedColorsMix2Test.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotatedColorsMix2TestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("a\ndoes\nthis\nwork?\nshould\nwe\n&%!Housten\nproblem.\nhave\nnot\nydpAl,-68/9SPEZL",
@@ -175,12 +203,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotatedBy90DegreesTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedBy90Degrees.png";
         String dest = TARGET_DIRECTORY + "rotatedBy90DegreesTest.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotatedBy90DegreesTestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotatedBy90DegreesTest.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotatedBy90DegreesTestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("270\nTEXT\nTEXT O\n90\nTEXT\nTEXT 180\n-",
@@ -192,12 +224,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     public void rotatedTextBasicTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedTextBasic.png";
         String dest = TARGET_DIRECTORY + "rotatedTextBasicTest.pdf";
+        String dest2 = TARGET_DIRECTORY + "rotatedTextBasicTestByLines.pdf";
         String cmp = TEST_DIRECTORY + "cmp_rotatedTextBasicTest.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_rotatedTextBasicTestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
 
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("Diagonal\nTxT\nTEST\nThis text IS\nsideways", extractionStrategy.getResultantText());
@@ -216,6 +252,16 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         OcrPdfCreator ocrPdfCreator =
                 ocrPdfCreatorProperties != null ? new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties)
                         : new OcrPdfCreator(OCR_ENGINE);
+        try (PdfWriter writer = new PdfWriter(destPdfPath)) {
+            ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
+        }
+    }
+
+    private void doOcrAndCreatePdfByLines(String imagePath, String destPdfPath,
+                                          OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
+        OcrPdfCreator ocrPdfCreator =
+                ocrPdfCreatorProperties != null ? new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties)
+                        : new OcrPdfCreator(OCR_ENGINE_GROUPING_BY_LINES);
         try (PdfWriter writer = new PdfWriter(destPdfPath)) {
             ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
         }

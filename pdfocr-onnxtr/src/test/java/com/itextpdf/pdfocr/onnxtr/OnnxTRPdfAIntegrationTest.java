@@ -96,7 +96,7 @@ public class OnnxTRPdfAIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceRgb.BLUE, extractionStrategy.getFillColor());
-            Assertions.assertEquals("This\n1S test\na\nfor\nmessage\n-\nOCR\nScanner\nTest\nBMPTest",
+            Assertions.assertEquals("This a test\n1S\nmessage for\n-\nOCR Scanner\nTest\nBMPTest",
                     extractionStrategy.getResultantText());
         }
     }

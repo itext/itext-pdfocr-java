@@ -62,6 +62,22 @@ public class PdfOcrTextBuilderTest extends ExtendedITextTest {
     }
 
     @Test
+    public void generifyLineTest() {
+        Map<Integer, List<TextInfo>> textInfoMap = new HashMap<>();
+        List<TextInfo> textInfos = new ArrayList<>();
+        textInfos.add(new TextInfo("Third", new Rectangle(200, 0, 100, 25)));
+        textInfos.add(new TextInfo("Fourth", new Rectangle(310, 0, 100, 50)));
+        textInfos.add(new TextInfo("Second", new Rectangle(100, 0, 120, 35)));
+        textInfos.add(new TextInfo("First", new Rectangle(0, 0, 100, 30)));
+        textInfoMap.put(1, textInfos);
+        PdfOcrTextBuilder.generifyWordBBoxesByLine(textInfoMap);
+        Assertions.assertTrue(new Rectangle(0, 0, 100, 50).equalsWithEpsilon(textInfos.get(0).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(100, 0, 120, 50).equalsWithEpsilon(textInfos.get(1).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(200, 0, 100, 50).equalsWithEpsilon(textInfos.get(2).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(310, 0, 100, 50).equalsWithEpsilon(textInfos.get(3).getBboxRect()));
+    }
+
+    @Test
     public void pagesOrderTest() {
         Map<Integer, List<TextInfo>> textInfoMap = new HashMap<>();
         textInfoMap.put(3, Arrays.asList(new TextInfo("Third", new Rectangle(200, 0, 100, 100))));
@@ -88,6 +104,30 @@ public class PdfOcrTextBuilderTest extends ExtendedITextTest {
         String actualResult = PdfOcrTextBuilder.buildText(textInfoMap);
         String expectedResult = "First First 1\nSecond Second 1\nThird Third 1\nFourth Fourth 1\n";
         Assertions.assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void generifyLineOrientationsTest() {
+        Map<Integer, List<TextInfo>> textInfoMap = new HashMap<>();
+        List<TextInfo> textInfos = new ArrayList<>();
+        textInfos.add(new TextInfo("Third", new Rectangle(200, 0, 100, 50), TextOrientation.HORIZONTAL_ROTATED_180));
+        textInfos.add(new TextInfo("Fourth", new Rectangle(300, 180, 40, 120), TextOrientation.HORIZONTAL_ROTATED_270));
+        textInfos.add(new TextInfo(" Second 1", new Rectangle(100, 140, 60, 160), TextOrientation.HORIZONTAL_ROTATED_90));
+        textInfos.add(new TextInfo("Fourth 1", new Rectangle(300, 10, 40, 160), TextOrientation.HORIZONTAL_ROTATED_270));
+        textInfos.add(new TextInfo("First ", new Rectangle(0, 200, 100, 30), TextOrientation.HORIZONTAL));
+        textInfos.add(new TextInfo("First 1", new Rectangle(110, 200, 140, 30), TextOrientation.HORIZONTAL));
+        textInfos.add(new TextInfo("Third 1", new Rectangle(50, 0, 140, 50), TextOrientation.HORIZONTAL_ROTATED_180));
+        textInfos.add(new TextInfo("Second", new Rectangle(100, 10, 60, 120), TextOrientation.HORIZONTAL_ROTATED_90));
+        textInfoMap.put(1, textInfos);
+        PdfOcrTextBuilder.generifyWordBBoxesByLine(textInfoMap);
+        Assertions.assertTrue(new Rectangle(0, 200, 100, 30).equalsWithEpsilon(textInfos.get(0).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(110, 200, 140, 30).equalsWithEpsilon(textInfos.get(1).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(100, 10, 60, 120).equalsWithEpsilon(textInfos.get(2).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(100, 140, 60, 160).equalsWithEpsilon(textInfos.get(3).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(200, 0, 100, 50).equalsWithEpsilon(textInfos.get(4).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(50, 0, 140, 50).equalsWithEpsilon(textInfos.get(5).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(300, 180, 40, 120).equalsWithEpsilon(textInfos.get(6).getBboxRect()));
+        Assertions.assertTrue(new Rectangle(300, 10, 40, 160).equalsWithEpsilon(textInfos.get(7).getBboxRect()));
     }
 
     @Test

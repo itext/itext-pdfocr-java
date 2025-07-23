@@ -52,7 +52,8 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor,
+                new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
     }
 
     @AfterAll
@@ -75,7 +76,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Test\nOCR\nScanner\n-\nmessage\nfor\n1S\na\ntest\nIhis\n", textFromImage);
+        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\n-\nfor\nOCR\nScanner\nTest\n", textFromImage);
     }
 
     @Test
@@ -84,7 +85,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Test\nOCR\nScanner\n-\nmessage\nfor\n1S\na\ntest\nIhis\n", textFromImage);
+        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\n-\nfor\nOCR\nScanner\nTest\n", textFromImage);
     }
 
     @Test
@@ -93,7 +94,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Image\nTagged\nFormat\nFile\n", textFromImage);
+        Assertions.assertEquals("Tagged\nImage\nFile\nFormat\n", textFromImage);
     }
 
     @Test
@@ -102,15 +103,51 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("1\nPage\nExample\nTIFF\nMultipage\n" +
-                "-\n2\nPage\nExample\nTIFF\nMultipage\n" +
-                "Page\n3\nExample\nTIFF\nMultipage\n" +
-                "4\nPage\nExample\nTIFF\nMultipage\n" +
-                "Page5\nExample\nTIFF\nMultipage\n" +
-                "Page\n6\nExample\nTIFF\nMultipage\n" +
-                "/\nPage\nExample\nTIFF\nMultipage\n" +
-                "8\nPage\nExample\nTIFF\nMultipage\n" +
-                "Page\n9\nExample\nTIFF\nMultipage\n", textFromImage);
+        Assertions.assertEquals("Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "1\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "-\n" +
+                "2\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "3\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "4\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page5\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "6\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "/\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "8\n" +
+                "Multipage\n" +
+                "TIFF\n" +
+                "Example\n" +
+                "Page\n" +
+                "9\n", textFromImage);
     }
 
     @Test
@@ -146,6 +183,6 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("qwetyrtyqpwe-rty\nhe23llo\n", textFromImage);
+        Assertions.assertEquals("he23llo\nqwetyrtyqpwe-rty\n", textFromImage);
     }
 }

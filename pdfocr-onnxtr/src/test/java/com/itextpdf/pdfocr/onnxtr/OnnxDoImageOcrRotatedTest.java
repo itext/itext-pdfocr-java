@@ -70,7 +70,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("image\ndegrees\n270\nrotated\n", textFromImage);
+        Assertions.assertEquals("270\ndegrees\nrotated\nimage\n", textFromImage);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("90\nrotated\ndegrees\nimage\n", textFromImage);
+        Assertions.assertEquals("90\ndegrees\nrotated\nimage\n", textFromImage);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("TEST\nThis\ntext\nIS\nTxT\nsideways\nDiagonal\n", textFromImage);
+        Assertions.assertEquals("Diagonal\nTxT\nTEST\nThis\ntext\nIS\nsideways\n", textFromImage);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("TEsTinG\nmix\nanD\nlowerCaSE\nCapITALS\n", textFromImage);
+        Assertions.assertEquals("mix\nTEsTinG\nCapITALS\nanD\nlowerCaSE\n", textFromImage);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("ReD\nCOIORS\ntEXT\nMixed\nTEXT\nColored\n", textFromImage);
+        Assertions.assertEquals("Colored\nTEXT\nMixed\nCOIORS\nReD\ntEXT\n", textFromImage);
     }
 
 
@@ -125,7 +125,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("not\nhave\na\nproblem.\n&%!Housten\nwe\nshould\nydpAl,-68/9SPEZL\nwork?\nthis\ndoes\n", textFromImage);
+        Assertions.assertEquals("does\nthis\nwork?\nshould\n&%!Housten\nwe\nproblem.\nhave\nnot\nydpAl,-68/9SPEZL\na\n", textFromImage);
     }
 
     @Test
@@ -134,6 +134,6 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("TEXT\n180\n270\nTEXT\n-\n90\nTEXT\nTEXT\nO\n", textFromImage);
+        Assertions.assertEquals("TEXT\nO\nTEXT\n90\nTEXT\n180\n-\nTEXT\n270\n", textFromImage);
     }
 }

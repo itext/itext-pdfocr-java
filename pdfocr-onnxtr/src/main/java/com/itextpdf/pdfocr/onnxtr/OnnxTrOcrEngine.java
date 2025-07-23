@@ -73,6 +73,11 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
     private final IRecognitionPredictor recognitionPredictor;
 
     /**
+     * Set of properties.
+     */
+    private final OnnxTrEngineProperties properties;
+
+    /**
      * Create a new OCR engine with the provided predictors.
      *
      * @param detectionPredictor   text detector. For an input image it outputs a list of text boxes
@@ -84,9 +89,26 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
      */
     public OnnxTrOcrEngine(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
                            IRecognitionPredictor recognitionPredictor) {
+        this(detectionPredictor, orientationPredictor, recognitionPredictor, new OnnxTrEngineProperties());
+    }
+
+    /**
+     * Create a new OCR engine with the provided predictors.
+     *
+     * @param detectionPredictor   text detector. For an input image it outputs a list of text boxes
+     * @param orientationPredictor text orientation predictor. For an input image, which is a tight  crop of text,
+     *                             it outputs its orientation in 90 degrees steps. Can be null, in that case all text
+     *                             is assumed to be upright
+     * @param recognitionPredictor text recognizer. For an input image, which is a tight crop of text, it outputs the
+     *                             displayed string
+     * @param properties           set of properties
+     */
+    public OnnxTrOcrEngine(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
+                           IRecognitionPredictor recognitionPredictor, OnnxTrEngineProperties properties) {
         this.detectionPredictor = Objects.requireNonNull(detectionPredictor);
         this.orientationPredictor = orientationPredictor;
         this.recognitionPredictor = Objects.requireNonNull(recognitionPredictor);
+        this.properties = properties;
     }
 
     /**
@@ -116,10 +138,13 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
-        final List<BufferedImage> images = getImages(input);
-        OnnxTrProcessor onnxTrProcessor = new OnnxTrProcessor(detectionPredictor, orientationPredictor,
-                recognitionPredictor);
-        return onnxTrProcessor.doOcr(images, ocrProcessContext);
+        Map<Integer, List<TextInfo>> result = doOnnxTrOcr(input, ocrProcessContext);
+        if (TextPositioning.BY_WORDS.equals(properties.getTextPositioning())) {
+            PdfOcrTextBuilder.sortTextInfosByLines(result);
+        } else {
+            PdfOcrTextBuilder.generifyWordBBoxesByLine(result);
+        }
+        return result;
     }
 
     @Override
@@ -146,7 +171,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
 
             StringBuilder content = new StringBuilder();
             for (File inputImage : inputImages) {
-                Map<Integer, List<TextInfo>> outputMap = doImageOcr(inputImage, ocrProcessContext);
+                Map<Integer, List<TextInfo>> outputMap = doOnnxTrOcr(inputImage, ocrProcessContext);
                 content.append(PdfOcrTextBuilder.buildText(outputMap));
             }
             PdfOcrFileUtil.writeToTextFile(txtFile.getAbsolutePath(), content.toString());
@@ -170,6 +195,26 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
     @Override
     public ProductData getProductData() {
         return null;
+    }
+
+    /**
+     * Reads raw data from the provided input image file and returns retrieved data
+     * in the format described below.
+     *
+     * @param input input image {@link java.io.File}
+     * @param ocrProcessContext ocr processing context
+     *
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    private Map<Integer, List<TextInfo>> doOnnxTrOcr(File input, OcrProcessContext ocrProcessContext) {
+        final List<BufferedImage> images = getImages(input);
+        OnnxTrProcessor onnxTrProcessor = new OnnxTrProcessor(detectionPredictor, orientationPredictor,
+                recognitionPredictor);
+        return onnxTrProcessor.doOcr(images, ocrProcessContext);
     }
 
     private static List<BufferedImage> getImages(File input) {

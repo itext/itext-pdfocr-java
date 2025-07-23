@@ -68,8 +68,8 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("font?\nabowt\nWhat\ntiy\n123456789\n13\nbigger\na\nabout\nfont?"
-                + "\nHow\nHi\nreally\nthing\nwork?\nOCR\nthis\nDoes\n", textFromImage);
+        Assertions.assertEquals("Does\nthis\nOCR\nthing\nreally\nwork?\nHi\nHow\nabout\na\nbigger\nfont?\n" +
+                "123456789\n13\nWhat\nabowt\ntiy\nfont?\n", textFromImage);
     }
 
     @Test
@@ -96,14 +96,14 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Sharks\n$499995\n$99999\nBand-Aids\n2\n$2\n$1\nLasers\n10\n"
-                + "$30000\n$3000\nQUANTITY\nTOTAL\nPRICE\nUNIT\nDESCRIPTION\n\nV\nreceipt\non\nR\nVebsite\n#7394009320"
-                + "\n3Vi\nDue\nDelivery\nAl\nform\nES\nS/\nNUMBER\nP.O\nON\nRSC\nTERMS\nPOINT\nF.O.B\nVIA\nSHIPPED\n"
-                + "REQUISITIONER\nMUST\nITEMS\nASSEMBLED\nFULLY\nDELIVERED\nBE\nINSTRUCTIONS\nSPFCIAI\nOR\nAMENTS\nC"
-                + "\n+351\n111\n111\n911\n+351\n111\n111\n911\nLand\nLala\nLand\nLala\nWonderfulStreet\nStreet\n"
-                + "Wonderfu\nTycoor\nCorp.\nTycoon\nCorp\nLe\nemos\nLemos\nAndré\nAndré\nTO:\nTO:\nSHIP\n270\n9\n+32"
-                + "\nFax\n00\n00\n6/30/2020\nDATE:\n22\n22\n292\n9\n+32\nPhone\n#100\nINVOICE\nNowhere\nof\nMiddle\nwe"
-                + "\ndream\nYou\nit\nenable\nit\nSilliness\nEnablers\nINVOICE\n", textFromImage);
+        Assertions.assertEquals("Silliness\nEnablers\nINVOICE\nYou\ndream\nit\nwe\nenable\nit\nMiddle\nof\n" +
+                "Nowhere\nPhone\n+32\n9\n292\n22\n22\nINVOICE\n#100\nFax\n+32\n9\n270\n00\n00\nDATE:\n6/30/2020\n" +
+                "TO:\nSHIP\nTO:\nAndré\nLe\nemos\nAndré\nLemos\nTycoon\nCorp.\nTycoor\nCorp\nWonderfulStreet\n" +
+                "Wonderfu\nStreet\nLala\nLand\nLala\nLand\n+351\n911\n111\n111\n+351\n911\n111\n111\nC\nAMENTS\n" +
+                "OR\nSPFCIAI\nINSTRUCTIONS\nITEMS\nMUST\nBE\nDELIVERED\nFULLY\nASSEMBLED\nS/\nES\nRSC\nON\nP.O\n" +
+                "NUMBER\nREQUISITIONER\nSHIPPED\nVIA\nF.O.B\nPOINT\nTERMS\n3Vi\n#7394009320\nV\nVebsite\nform\n" +
+                "Al\nR\nDelivery\nDue\non\nreceipt\n\nQUANTITY\nDESCRIPTION\nUNIT\nPRICE\nTOTAL\n10\nLasers\n$3000\n" +
+                "$30000\n2\nBand-Aids\n$1\n$2\nSharks\n$99999\n$499995\n", textFromImage);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Tesseract\nOCR\nto\ntest\nimage\nNoisy\n", textFromImage);
+        Assertions.assertEquals("Noisy\nimage\nto\ntest\nTesseract\nOCR\n", textFromImage);
     }
 
     @Test
@@ -125,8 +125,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
     }
 
     @Test
-    @Disabled("This test is failing on java 8 with ImageIO exception. In newer versions it works that is why we don't" +
-            " want to use Leptonica or any other 3rd-party to read such images.")
+    @Disabled("This test is failing on java 8 with ImageIO exception. In newer versions it works that is why we don't want to use Leptonica or any other 3rd-party to read such images.")
     public void numbers2DoImageOcrTest() {
         String src = TEST_IMAGE_DIRECTORY + "numbers_02.jpg";
         File imageFile = new File(src);
@@ -150,14 +149,14 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("conjunto,\ncon\nel\narmonil\ndebe\nojos\nlos\nmaquillaje\nde\nel"
-                + "\nTambién\nrà.\nque\nlle\nvestido\ncon\narmonice\nque\nel\nasegurese\nsion,\npara\na\nla\nlabial"
-                + "\nnuevo\nlapiz\nun\nprobar\nintenta\nSi\nmano,\na\ntodo\ny\ntener\nponer\na\nva\nse\nque\nes\nsaber"
-                + "\nimportante\nmas\nrepetirlo,\nLo\ncansaremos\nde\nno\ny\ncon\ncalma\nque\nactuar\nHay\npublico."
-                + "\nen\ntarse\npres\nmanera\nde\natractiva\nmas\ny\nmejor\nla\nhallar\nlo\ntratando\ndia\nel\ntodo\n"
-                + "pasado\nque\nse\ny\nhan\niluslonadas\ny\ncara\nlastima\ncon\nde\njovenes\na\nen\nfiestas\nver\nlas"
-                + "\ndesalentador\nmas\nnada\nhay\npuede.\nse\nNo\nfiesta,\nsi\nla\npensar\nno\ny\nes\ndescansar\nmejor"
-                + "\npeor,\nlo\nTanto\nACTUAR?\nCOMO\nENSAYARA\nSI\n1Y\n\n", textFromImage);
+        Assertions.assertEquals("\n1Y\nSI\nENSAYARA\nCOMO\nACTUAR?\nTanto\npeor,\nlo\nmejor\nes\ndescansar\n" +
+                "y\nno\npensar\nla\nfiesta,\nsi\nse\npuede.\nNo\nhay\nnada\nmas\ndesalentador\nver\nen\nlas\n" +
+                "fiestas\na\njovenes\ncon\ncara\nde\nlastima\ny\niluslonadas\ny\nque\nse\nhan\npasado\ntodo\nel\n" +
+                "dia\ntratando\nhallar\nlo\nmejor\ny\nla\nmas\natractiva\nmanera\nde\npres\ntarse\nen\npublico.\n" +
+                "Hay\nque\nactuar\ncon\ncalma\ny\nno\ncansaremos\nde\nrepetirlo,\nLo\nmas\nimportante\nes\nsaber\n" +
+                "que\nse\nva\na\nponer\ny\ntener\ntodo\na\nmano,\nSi\nintenta\nprobar\nun\nnuevo\nlapiz\nlabial\n" +
+                "para\nla\na\nsion,\nasegurese\nque\narmonice\ncon\nel\nvestido\nque\nlle\nrà.\nTambién\nel\n" +
+                "maquillaje\nde\nlos\nojos\ndebe\narmonil\ncon\nel\nconjunto,\n", textFromImage);
     }
 
     @Test
@@ -166,7 +165,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("qwetyrtyqpwe-rty\nhe23llo\n", textFromImage);
+        Assertions.assertEquals("he23llo\nqwetyrtyqpwe-rty\n", textFromImage);
     }
 
     @Test
@@ -175,8 +174,8 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("a\nTest\nThis\nis\na\nTest\nThis\nis\na\nTest\nThis\nis\na\n"
-                + "Test\nThis\nis\na\nTest\nis\nThis\na\nTest\nis\nThis\n", textFromImage);
+        Assertions.assertEquals("This\nis\na\nTest\nThis\nis\na\nTest\nThis\nis\na\nTest\nThis\nis\na\n" +
+                "Test\nThis\nis\na\nTest\nThis\nis\na\nTest\n", textFromImage);
     }
 
     @Test

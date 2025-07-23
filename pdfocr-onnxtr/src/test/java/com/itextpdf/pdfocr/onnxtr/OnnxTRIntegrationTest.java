@@ -92,6 +92,32 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
+            Assertions.assertEquals("This a test\n1S\nmessage for\n-\nOCR Scanner\nTest\nBMPTest",
+                    extractionStrategy.getResultantText());
+        }
+    }
+
+    @Test
+    public void bmpByWordsTest() throws IOException, InterruptedException {
+        String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
+        String dest = TARGET_DIRECTORY + "bmpTestByWords.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_bmpTestByWords.pdf";
+
+        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
+        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new OnnxTrOcrEngine(detectionPredictor, null,
+                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS)),
+                creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        try (PdfWriter writer = new PdfWriter(dest)) {
+            ocrPdfCreator.createPdf(Collections.singletonList(new File(src)), writer).close();
+        }
+
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
+            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
             Assertions.assertEquals("This\n1S test\na\nfor\nmessage\n-\nOCR\nScanner\nTest\nBMPTest",
                     extractionStrategy.getResultantText());
         }
@@ -109,7 +135,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("Ihis\n1S test\na\nfor\nmessage\n-\nOCR\nScanner\nTest",
+            Assertions.assertEquals("Ihis a test\n1S\nmessage for\n-\nOCR Scanner\nTest",
                     extractionStrategy.getResultantText());
         }
     }
@@ -126,7 +152,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("File\nFormat\nTagged Image", extractionStrategy.getResultantText());
+            Assertions.assertEquals("Tagged Image File Format", extractionStrategy.getResultantText());
         }
     }
 
@@ -174,7 +200,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("he23llo\nqwetyrtyqpwe-rty", extractionStrategy.getResultantText());
+            Assertions.assertEquals("qwetyrtyqpwe-rty\nhe23llo", extractionStrategy.getResultantText());
         }
     }
 
@@ -190,14 +216,14 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("Multipage\nTIFF\nExample\n1\nPage", extractionStrategy.getResultantText());
+            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage\n1", extractionStrategy.getResultantText());
 
             extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 7, "Text1");
             // Model glitch
-            Assertions.assertEquals("Multipage\nTIFF\nExample\n/\nPage", extractionStrategy.getResultantText());
+            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage\n/", extractionStrategy.getResultantText());
 
             extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 9, "Text1");
-            Assertions.assertEquals("Multipage\nTIFF\nExample\n9\nPage", extractionStrategy.getResultantText());
+            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage 9", extractionStrategy.getResultantText());
         }
     }
 
@@ -213,14 +239,19 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("SI\n1Y ENSAYARA\nCOMO\nACTUAR?\nTanto\nlo\npeor,\nmejor es\ndescansar\n"
-                    + "no\ny\npensar\nla\nsi\nse\nfiesta,\npuede. No\nnada\nhay\nmas\ndesalentador\nver las\nen\n"
-                    + "fiestas\na\njovenes\ncon\ncara de\nlastima\ny\niluslonadas\nse han\ny que\npasado todo\nel dia\n"
-                    + "tratando\nhallar lo\nla\nmejor\natractiva\nmas\ny\nmanera\nde\npres\ntarse en\npublico.\nactuar"
-                    + "\nHay\nque\ncon calma\nno\ny\ncansaremos\nde\nrepetirlo, Lo\nmas\nimportante\nes saber\nque se\n"
-                    + "va a\ntener\nponer\ny todo\na\nmano,\nSi\nintenta\nprobar\nun\nnuevo\nlapiz\nlabial\nla\npara a"
-                    + "\nsion,\nasegurese\nque\narmonice\ncon\nel vestido\nlle\nque\nTambién\nrà.\nel\nmaquillaje\nde\n"
-                    + "los\ndebe\nojos\narmonil\ncon el\nconjunto,", extractionStrategy.getResultantText());
+            Assertions.assertEquals("1Y SI ENSAYARA COMO ACTUAR?\n" +
+                    "Tanto peor, lo mejor es descansar y no pensar\n" +
+                    "la fiesta, si se puede. No hay nada mas desalentador\n" +
+                    "ver en las fiestas a jovenes con cara de lastima y\n" +
+                    "iluslonadas y que se han pasado todo el dia tratando\n" +
+                    "hallar lo mejor y la mas atractiva manera de pres\n" +
+                    "tarse en publico. Hay que actuar con calma y no\n" +
+                    "cansaremos de repetirlo, Lo mas importante es saber\n" +
+                    "que se va a poner y tener todo a mano,\n" +
+                    "Si intenta probar un nuevo lapiz labial para la a\n" +
+                    "sion, asegurese que armonice con el vestido que lle\n" +
+                    "rà. También el maquillaje de los ojos debe armonil\n" +
+                    "con el conjunto,", extractionStrategy.getResultantText());
         }
     }
 
@@ -236,18 +267,16 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("INVOICE\nSilliness\nEnablers\nit\n"
-                            + "You dream we enable\nit\nNowhere\nMiddle\nof\nINVOICE #100\n9\n22 22\nPhone +32 "
-                            + "292\nDATE:\n"
-                            + "6/30/2020\n9\n00 00\nFax +32 270\nTO: SHIP TO:\nAndré Lemos\nLe\nAndré emos\nTycoor Corp"
-                            + "\nTycoon Corp.\nWonderfu Street\nWonderfulStreet\nLand\nLala Land\nLala\n111\n911\n"
-                            + "+351 911 111 111 +351 111\nAMENTS SPFCIAI INSTRUCTIONS\nC\nOR\nITEMS FULLY\nDELIVERED "
-                            + "ASSEMBLED"
-                            + "\nBE\nMUST\nPOINT TERMS\nSHIPPED VIA F.O.B\nREQUISITIONER\nS/ ES ON\nRSC P.O "
-                            + "NUMBER\nDue\nR\n"
-                            + "V Al on\n3Vi Vebsite form receipt\n#7394009320 Delivery\nUNIT PRICE "
-                            + "TOTAL\nDESCRIPTION\nQUANTITY"
-                            + "\n$3000 $30000\n10\nLasers\n$1 $2\nBand-Aids\n2\n$499995\n$99999\nSharks"
+            Assertions.assertEquals("Silliness Enablers INVOICE\nYou dream it we enable it\n" +
+                            "Middle of Nowhere\nPhone +32 9 292 22 22 INVOICE #100\n" +
+                            "Fax +32 9 270 00 00 DATE: 6/30/2020\nTO: SHIP TO:\nAndré André Lemos\n" +
+                            "Le emos\nTycoon Corp. Tycoor Corp\nWonderfulStreet Wonderfu Street\n" +
+                            "Lala Land Lala Land\n+351 911 111 111 +351 911 111 111\n" +
+                            "C AMENTS OR SPFCIAI INSTRUCTIONS\nITEMS MUST BE DELIVERED FULLY ASSEMBLED\n" +
+                            "ON P.O NUMBER REQUISITIONER SHIPPED VIA F.O.B POINT TERMS\nS/ ES RSC\n" +
+                            "3Vi #7394009320 V Vebsite form Al R Delivery Due on receipt\n" +
+                            "QUANTITY DESCRIPTION UNIT PRICE TOTAL\n10 Lasers $3000 $30000\n" +
+                            "2 Band-Aids $1 $2\nSharks $99999 $499995"
                     , extractionStrategy.getResultantText());
         }
     }

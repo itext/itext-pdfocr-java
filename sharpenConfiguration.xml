@@ -80,6 +80,15 @@
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2Test.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedTextBasicTest.pdf" />
+
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated90TestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated180TestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated270TestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedBy90DegreesTestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedCapsLCTestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2TestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedTextBasicTestByLines.pdf" />
         </fileset>
     </resource>
 </configuration>

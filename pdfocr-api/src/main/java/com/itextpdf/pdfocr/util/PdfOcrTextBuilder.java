@@ -26,6 +26,7 @@ import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,35 +55,11 @@ public final class PdfOcrTextBuilder {
      */
     public static String buildText(Map<Integer, List<TextInfo>> textInfos) {
         StringBuilder outputText = new StringBuilder();
+        PdfOcrTextBuilder.sortTextInfosByLines(textInfos);
         for (int page : textInfos.keySet().stream().sorted().collect(Collectors.toList())) {
-            List<TextInfo> textChunks = textInfos.get(page);
-            Collections.sort(textChunks, new Comparator<TextInfo>() {
-                @Override
-                public int compare(TextInfo first, TextInfo second) {
-                    // Not really needed, but just in case.
-                    if (first == second) {
-                        return 0;
-                    }
-
-                    int result = Integer.compare(getOrientation(first.getOrientation()),
-                            getOrientation(second.getOrientation()));
-                    if (result != 0) {
-                        return result;
-                    }
-
-                    if (!areIntersect(first, second)) {
-                        float middleDistPerpendicularDiff = getDistPerpendicularBottom(second) + getHeight(second) / 2
-                                - (getDistPerpendicularBottom(first) + getHeight(first) / 2);
-                        return middleDistPerpendicularDiff > 0 ? 1 : -1;
-                    }
-
-                    return Float.compare(getDistParallelStart(first), getDistParallelStart(second)) > 0 ? 1 : -1;
-                }
-            });
-
             StringBuilder sb = new StringBuilder();
             TextInfo lastChunk = null;
-            for (TextInfo chunk : textChunks) {
+            for (TextInfo chunk : textInfos.get(page)) {
                 if (lastChunk == null) {
                     sb.append(chunk.getText());
                 } else {
@@ -106,6 +83,72 @@ public final class PdfOcrTextBuilder {
     }
 
     /**
+     * Sorts the provided {@link IOcrEngine#doImageOcr} result by lines and updates line bboxes to match the largest words.
+     *
+     * @param textInfos {@link java.util.Map} where key is {@link java.lang.Integer} representing the number of the page
+     *                  and value is {@link java.util.List} of {@link TextInfo} elements where each {@link TextInfo}
+     *                  element contains a word or a line and its 4 coordinates (bbox)
+     */
+    public static void generifyWordBBoxesByLine(Map<Integer, List<TextInfo>> textInfos) {
+        PdfOcrTextBuilder.sortTextInfosByLines(textInfos);
+        for (int page : textInfos.keySet().stream().sorted().collect(Collectors.toList())) {
+            List<TextInfo> line = new ArrayList<>();
+            TextInfo lastChunk = null;
+            for (TextInfo chunk : textInfos.get(page)) {
+                if (lastChunk == null) {
+                    line.add(chunk);
+                } else {
+                    if (isInTheSameLine(chunk, lastChunk)) {
+                        line.add(chunk);
+                    } else {
+                        updateBBoxes(line);
+                        line.clear();
+                        line.add(chunk);
+                    }
+                }
+                lastChunk = chunk;
+            }
+            updateBBoxes(line);
+            line.clear();
+        }
+    }
+
+    /**
+     * Sorts the provided {@link IOcrEngine#doImageOcr} result by lines.
+     *
+     * @param textInfos {@link java.util.Map} where key is {@link java.lang.Integer} representing the number of the page
+     *                  and value is {@link java.util.List} of {@link TextInfo} elements where each {@link TextInfo}
+     *                  element contains a word or a line and its 4 coordinates (bbox)
+     */
+    public static void sortTextInfosByLines(Map<Integer, List<TextInfo>> textInfos) {
+        for (Map.Entry<Integer, List<TextInfo>> entry : textInfos.entrySet()) {
+            Collections.sort(entry.getValue(), new Comparator<TextInfo>() {
+                @Override
+                public int compare(TextInfo first, TextInfo second) {
+                    // Not really needed, but just in case.
+                    if (first == second) {
+                        return 0;
+                    }
+
+                    int result = Integer.compare(getOrientation(first.getOrientation()),
+                            getOrientation(second.getOrientation()));
+                    if (result != 0) {
+                        return result;
+                    }
+
+                    if (!areIntersect(first, second)) {
+                        float middleDistPerpendicularDiff = getDistPerpendicularBottom(second) + getHeight(second) / 2
+                                - (getDistPerpendicularBottom(first) + getHeight(first) / 2);
+                        return middleDistPerpendicularDiff > 0 ? 1 : -1;
+                    }
+
+                    return Float.compare(getDistParallelStart(first), getDistParallelStart(second)) > 0 ? 1 : -1;
+                }
+            });
+        }
+    }
+
+    /**
      * Checks whether text chunks are in the same line.
      *
      * <p>
@@ -124,6 +167,50 @@ public final class PdfOcrTextBuilder {
         }
 
         return areIntersect(currentTextInfo, previousTextInfo);
+    }
+
+    private static void updateBBoxes(List<TextInfo> line) {
+        if (line.size() == 0) {
+            return;
+        }
+        float lineTop;
+        float lineHeight;
+        float lineBottom;
+        float delta;
+        switch (line.get(0).getOrientation()) {
+            case HORIZONTAL:
+            case HORIZONTAL_ROTATED_180:
+                //Using orElseThrow instead of get for correct autoporting, orElseThrow won't be called since reduce()
+                // will always return something if there is at least one element in stream
+                lineTop = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getTop(), rhs.getBboxRect().getTop()) < 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getTop();
+                lineHeight = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getHeight(), rhs.getBboxRect().getHeight()) < 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getHeight();
+                lineBottom = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getBottom(), rhs.getBboxRect().getBottom()) > 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getBottom();
+                delta = (lineTop - lineBottom - lineHeight)/2;
+                for (TextInfo word : line) {
+                    word.getBboxRect().setY(lineBottom + delta).setHeight(lineHeight);
+                }
+                break;
+            case HORIZONTAL_ROTATED_90:
+            case HORIZONTAL_ROTATED_270:
+                //Using orElseThrow instead of get for correct autoporting, orElseThrow won't be called since reduce()
+                // will always return something if there is at least one element in stream
+                lineTop = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getRight(), rhs.getBboxRect().getRight()) < 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getRight();
+                lineHeight = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getWidth(), rhs.getBboxRect().getWidth()) < 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getWidth();
+                lineBottom = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getLeft(), rhs.getBboxRect().getLeft()) > 0 ? rhs : lhs)
+                        .orElseThrow(UnsupportedOperationException::new).getBboxRect().getLeft();
+                delta = (lineTop - lineBottom - lineHeight)/2;
+                for (TextInfo word : line) {
+                    word.getBboxRect().setX(lineBottom).setWidth(lineHeight);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     private static boolean areIntersect(TextInfo first, TextInfo second) {
