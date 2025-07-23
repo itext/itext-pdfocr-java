@@ -6,10 +6,15 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.onnxtr.actions.events.PdfOcrOnnxTrProductEvent;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
@@ -76,11 +81,17 @@ class OnnxTrProcessor {
         this.recognitionPredictor = recognitionPredictor;
     }
 
-    Map<Integer, List<TextInfo>> doOcr(List<BufferedImage> images) {
+    Map<Integer, List<TextInfo>> doOcr(List<BufferedImage> images, OcrProcessContext ocrProcessContext) {
         final Map<Integer, List<TextInfo>> result = new HashMap<>(images.size());
         int imageIndex = 0;
         final Iterator<List<Point[]>> textBoxGenerator = detectionPredictor.predict(images);
         while (textBoxGenerator.hasNext()) {
+            final AbstractPdfOcrEventHelper eventHelper = ocrProcessContext.getOcrEventHelper() == null ?
+                    new OnnxTrEventHelper() : ocrProcessContext.getOcrEventHelper();
+            // usage event
+            PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(
+                    eventHelper.getSequenceId(), null, eventHelper.getConfirmationType());
+            eventHelper.onEvent(event);
             /*
              * TODO DEVSIX-9153: Potential performance improvement (at least for GPU).
              *
@@ -113,6 +124,13 @@ class OnnxTrProcessor {
             }
             result.put(imageIndex + 1, textInfos);
             ++imageIndex;
+
+            // here can be statistics event sending
+
+            // confirm on_demand event
+            if (event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
+                eventHelper.onEvent(new ConfirmEvent(event));
+            }
         }
 
         return result;

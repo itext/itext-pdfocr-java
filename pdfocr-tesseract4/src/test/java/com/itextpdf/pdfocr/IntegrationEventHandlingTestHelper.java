@@ -130,7 +130,7 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
 
     protected static ConfirmedEventWrapper getPdfOcrEvent() {
         DefaultITextProductEventProcessor processor = new DefaultITextProductEventProcessor(
-                ProductNameConstant.PDF_HTML);
+                ProductNameConstant.PDF_OCR_TESSERACT4);
         return new ConfirmedEventWrapper(
                 PdfOcrTesseract4ProductEvent.createProcessImageEvent(new SequenceId(), null,
                         EventConfirmationType.ON_CLOSE),

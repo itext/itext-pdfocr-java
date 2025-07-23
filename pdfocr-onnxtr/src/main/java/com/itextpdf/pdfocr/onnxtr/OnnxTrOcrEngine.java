@@ -22,32 +22,32 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
-import com.itextpdf.commons.utils.FileUtil;
+import com.itextpdf.commons.actions.data.ProductData;
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.IProductAware;
 import com.itextpdf.pdfocr.OcrProcessContext;
+import com.itextpdf.pdfocr.PdfOcrMetaInfoContainer;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.exceptions.PdfOcrException;
-import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
+import com.itextpdf.pdfocr.util.PdfOcrFileUtil;
 import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.imageio.ImageIO;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link IOcrEngine} implementation, based on OnnxTR/DocTR machine learning OCR projects.
@@ -55,7 +55,7 @@ import javax.imageio.ImageIO;
  * <p>
  * NOTE: {@link OnnxTrOcrEngine} instance shall be closed after all usages to avoid native allocations leak.
  */
-public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
+public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
     /**
      * Text detector. For an input image it outputs a list of text boxes.
      */
@@ -111,28 +111,50 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
-        return doImageOcr(input, null);
+        return doImageOcr(input, new OcrProcessContext(new OnnxTrEventHelper()));
     }
 
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
         final List<BufferedImage> images = getImages(input);
-        return new OnnxTrProcessor(detectionPredictor, orientationPredictor, recognitionPredictor).doOcr(images);
+        OnnxTrProcessor onnxTrProcessor = new OnnxTrProcessor(detectionPredictor, orientationPredictor,
+                recognitionPredictor);
+        return onnxTrProcessor.doOcr(images, ocrProcessContext);
     }
 
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
-        createTxtFile(inputImages, txtFile, null);
+        createTxtFile(inputImages, txtFile, new OcrProcessContext(new OnnxTrEventHelper()));
     }
 
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
-        StringBuilder content = new StringBuilder();
-        for (File inputImage : inputImages) {
-            Map<Integer, List<TextInfo>> outputMap = doImageOcr(inputImage, ocrProcessContext);
-            content.append(PdfOcrTextBuilder.buildText(outputMap));
+        LoggerFactory.getLogger(getClass()).info(
+                MessageFormatUtil.format(PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES, inputImages.size()));
+
+        AbstractPdfOcrEventHelper storedEventHelper;
+        if (ocrProcessContext.getOcrEventHelper() == null) {
+            storedEventHelper = new OnnxTrEventHelper();
+        } else {
+            storedEventHelper = ocrProcessContext.getOcrEventHelper();
         }
-        writeToTextFile(txtFile.getAbsolutePath(), content.toString());
+
+        try {
+            // save confirm events from doImageOcr, to send them only after successful writing to the file
+            OnnxTrFileResultEventHelper fileResultEventHelper = new OnnxTrFileResultEventHelper(storedEventHelper);
+            ocrProcessContext.setOcrEventHelper(fileResultEventHelper);
+
+            StringBuilder content = new StringBuilder();
+            for (File inputImage : inputImages) {
+                Map<Integer, List<TextInfo>> outputMap = doImageOcr(inputImage, ocrProcessContext);
+                content.append(PdfOcrTextBuilder.buildText(outputMap));
+            }
+            PdfOcrFileUtil.writeToTextFile(txtFile.getAbsolutePath(), content.toString());
+
+            fileResultEventHelper.registerAllSavedEvents();
+        } finally {
+            ocrProcessContext.setOcrEventHelper(storedEventHelper);
+        }
     }
 
     @Override
@@ -140,26 +162,21 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable {
         return false;
     }
 
-    /**
-     * Writes provided {@link java.lang.String} to text file using provided path.
-     *
-     * @param path path as {@link java.lang.String} to file to be created
-     * @param data text data in required format as {@link java.lang.String}
-     */
-    private static void writeToTextFile(final String path, final String data) {
-        try (Writer writer = new OutputStreamWriter(FileUtil.getFileOutputStream(path), StandardCharsets.UTF_8)) {
-            writer.write(data);
-        } catch (IOException e) {
-            throw new PdfOcrException(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE,
-                    path, e.getMessage()), e);
-        }
+    @Override
+    public PdfOcrMetaInfoContainer getMetaInfoContainer() {
+        return new PdfOcrMetaInfoContainer(new OnnxTrMetaInfo());
+    }
+
+    @Override
+    public ProductData getProductData() {
+        return null;
     }
 
     private static List<BufferedImage> getImages(File input) {
         try {
             if (TiffImageUtil.isTiffImage(input)) {
                 List<BufferedImage> images = TiffImageUtil.getAllImages(input);
-                if (images.size() == 0) {
+                if (images.isEmpty()) {
                     throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE);
                 }
 

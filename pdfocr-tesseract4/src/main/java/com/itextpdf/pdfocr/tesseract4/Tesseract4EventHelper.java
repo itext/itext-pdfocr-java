@@ -22,7 +22,6 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.commons.actions.AbstractContextBasedITextEvent;
 import com.itextpdf.commons.actions.AbstractProductITextEvent;
 import com.itextpdf.commons.actions.EventManager;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
@@ -40,9 +39,6 @@ class Tesseract4EventHelper extends AbstractPdfOcrEventHelper {
 
     @Override
     public void onEvent(AbstractProductITextEvent event) {
-        if (event instanceof AbstractContextBasedITextEvent) {
-            ((AbstractContextBasedITextEvent) event).setMetaInfo(new Tesseract4MetaInfo());
-        }
         EventManager.getInstance().onEvent(event);
     }
 

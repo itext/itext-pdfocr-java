@@ -1,0 +1,130 @@
+/*
+    This file is part of the iText (R) project.
+    Copyright (c) 1998-2025 Apryse Group NV
+    Authors: Apryse Software.
+
+    This program is offered under a commercial and under the AGPL license.
+    For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
+
+    AGPL licensing:
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.itextpdf.pdfocr.onnxtr;
+
+import com.itextpdf.commons.actions.AbstractProductITextEvent;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.IEvent;
+import com.itextpdf.commons.actions.IEventHandler;
+import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.pdfocr.onnxtr.actions.data.PdfOcrOnnxTrProductData;
+import com.itextpdf.pdfocr.onnxtr.actions.events.PdfOcrOnnxTrProductEvent;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
+import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
+import com.itextpdf.test.ExtendedITextTest;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+@Tag("UnitTest")
+public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
+
+    @Test
+    public void processImageOnnxTrEventTest() {
+        StoreEventsHandler eventsHandler = new StoreEventsHandler();
+        EventManager.getInstance().register(eventsHandler);
+        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
+        PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(new SequenceId(), null,
+                EventConfirmationType.ON_CLOSE);
+        helper.onEvent(event);
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
+        helper.registerAllSavedEvents();
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
+        EventManager.getInstance().unregister(eventsHandler);
+    }
+
+    @Test
+    public void confirmProcessImageOnnxTrEventTest() {
+        StoreEventsHandler eventsHandler = new StoreEventsHandler();
+        EventManager.getInstance().register(eventsHandler);
+        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
+        ConfirmEvent event = new ConfirmEvent(PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(new SequenceId(),
+                null, EventConfirmationType.ON_CLOSE));
+        helper.onEvent(event);
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
+        helper.registerAllSavedEvents();
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
+        EventManager.getInstance().unregister(eventsHandler);
+    }
+
+    @Test
+    public void defaultStatisticsEventTest() {
+        StoreEventsHandler eventsHandler = new StoreEventsHandler();
+        EventManager.getInstance().register(eventsHandler);
+        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
+        PdfOcrOutputTypeStatisticsEvent event = new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF,
+                PdfOcrOnnxTrProductData.getInstance());
+        helper.onEvent(event);
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
+        helper.registerAllSavedEvents();
+        Assertions.assertEquals(1, eventsHandler.getEvents().size());
+        Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
+        EventManager.getInstance().unregister(eventsHandler);
+    }
+
+    protected static class StoreEventsHandler extends AbstractPdfOcrEventHelper implements IEventHandler {
+        private final List<IEvent> events = new ArrayList<>();
+
+        public List<IEvent> getEvents() {
+            return events;
+        }
+
+        @Override
+        public void onEvent(IEvent event) {
+            if (event instanceof PdfOcrOnnxTrProductEvent
+                    || event instanceof PdfOcrOutputTypeStatisticsEvent
+                    || event instanceof ConfirmEvent) {
+                events.add(event);
+            }
+        }
+
+        @Override
+        public void onEvent(AbstractProductITextEvent event) {
+            if (event instanceof PdfOcrOnnxTrProductEvent
+                    || event instanceof PdfOcrOutputTypeStatisticsEvent
+                    || event instanceof ConfirmEvent) {
+                events.add(event);
+            }
+        }
+
+        @Override
+        public SequenceId getSequenceId() {
+            return null;
+        }
+
+        @Override
+        public EventConfirmationType getConfirmationType() {
+            return EventConfirmationType.ON_DEMAND;
+        }
+    }
+}
