@@ -39,6 +39,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <sonar.exclusions>
+      **com/itextpdf/pdfocr/onnxtr/recognition/Vocabulary.java
+    </sonar.exclusions>
   </properties>
 
   <build>

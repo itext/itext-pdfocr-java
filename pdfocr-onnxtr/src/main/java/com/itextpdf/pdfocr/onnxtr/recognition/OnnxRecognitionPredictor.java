@@ -158,7 +158,36 @@ public class OnnxRecognitionPredictor
      * @return a new predictor object with the PARSeq model loaded
      */
     public static OnnxRecognitionPredictor parSeq(String modelPath) {
-        return new OnnxRecognitionPredictor(OnnxRecognitionPredictorProperties.parSeq(modelPath));
+        return new OnnxRecognitionPredictor(
+                OnnxRecognitionPredictorProperties.parSeq(modelPath));
+    }
+
+    /**
+     * Creates a new text recognition predictor using an existing pre-trained
+     * PARSeq model, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/parseq-00b40714.onnx">
+     *             parseq
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/parseq_dynamic_8_bit-5b04d9f7.onnx">
+     *             parseq (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model
+     * @param vocabulary vocabulary used for the model output (without special tokens)
+     * @param additionalTokens amount of additional tokens in the total vocabulary after the end-of-string token
+     *
+     * @return a new predictor object with the PARSeq model loaded
+     */
+    public static OnnxRecognitionPredictor parSeq(String modelPath, Vocabulary vocabulary, int additionalTokens) {
+        return new OnnxRecognitionPredictor(
+                OnnxRecognitionPredictorProperties.parSeq(modelPath, vocabulary, additionalTokens));
     }
 
     /**

@@ -175,10 +175,38 @@ public class OnnxRecognitionPredictorProperties {
      * @return a new text recognition properties object for a PARSeq model
      */
     public static OnnxRecognitionPredictorProperties parSeq(String modelPath) {
+        return OnnxRecognitionPredictorProperties.parSeq(modelPath, Vocabulary.LATIN_EXTENDED, 0);
+    }
+
+    /**
+     * Creates a new text recognition properties object for existing pre-trained
+     * PARSeq models, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/parseq-00b40714.onnx">
+     *             parseq
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/parseq_dynamic_8_bit-5b04d9f7.onnx">
+     *             parseq (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model
+     * @param vocabulary vocabulary used for the model output (without special tokens)
+     * @param additionalTokens amount of additional tokens in the total vocabulary after the end-of-string token
+     *
+     * @return a new text recognition properties object for a PARSeq model
+     */
+    public static OnnxRecognitionPredictorProperties parSeq(String modelPath, Vocabulary vocabulary,
+                                                            int additionalTokens) {
         return new OnnxRecognitionPredictorProperties(
                 modelPath,
                 DEFAULT_INPUT_PROPERTIES,
-                new EndOfStringPostProcessor(Vocabulary.FRENCH, 0)
+                new EndOfStringPostProcessor(vocabulary, additionalTokens)
         );
     }
 

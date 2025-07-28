@@ -140,9 +140,6 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String[] split = versionStr.split("[._-]");
         int minorVer = Integer.parseInt(split[split.length - 1]);
 
-        if (minorVer % 10 == 2) {
-            return false;
-        }
         switch (majorVer) {
             case 8:
                 isFixed = minorVer >= 351;
