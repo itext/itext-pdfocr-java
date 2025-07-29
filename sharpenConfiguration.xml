@@ -21,6 +21,10 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRPdfAIntegrationTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRRotationIntegrationTest.java" />
             </fileset>
+            <!-- TODO DEVSIX-9305: fileset should be removed and OnnxTRCmykIntegrationTest made autoportable-->
+            <fileset reason="Bad handling of JPEG CMYK in java versions without JDK-8274735 fix">
+                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRCmykIntegrationTest.java" />
+            </fileset>
             <fileset reason="Difference in Iterators in java and enumerators in .net">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/Batching.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java" />
@@ -114,6 +118,10 @@
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_rotated.pdf" />
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_textWithImages.pdf" />
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_whiteText.pdf" />
+
+            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowAdobeCmykTest.txt" />
+            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowCmykNoProfileTest.txt" />
+            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowInvertedCmykTest.txt" />
         </fileset>
     </resource>
 </configuration>
