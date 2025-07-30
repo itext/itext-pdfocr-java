@@ -6,6 +6,8 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.util.Objects;
 
 /**
@@ -64,8 +66,7 @@ public class Vocabulary {
         Objects.requireNonNull(lookUpString);
         if (lookUpString.codePointCount(0, lookUpString.length()) != lookUpString.length()) {
             throw new IllegalArgumentException(
-                    "Look-up string contains code points, which are encoded with 2 code units"
-            );
+                    PdfOcrOnnxTrExceptionMessageConstant.LOOK_UP_STRING_CONTAINS_2_CODE_UNITS_POINTS);
         }
 
         this.lookUpString = lookUpString;

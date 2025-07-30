@@ -36,6 +36,7 @@ public class OnnxTrEngineProperties {
     public OnnxTrEngineProperties() {
 
     }
+
     /**
      * Defines the way text is retrieved and grouped from onnxtr engine output.
      * It changes the way text is selected in the result pdf document.
@@ -44,8 +45,7 @@ public class OnnxTrEngineProperties {
     private TextPositioning textPositioning;
 
     /**
-     * Defines the way text is retrieved from ocr engine output using
-     * {@link TextPositioning}.
+     * Defines the way text is retrieved from ocr engine output using {@link TextPositioning}.
      *
      * @return the way text is retrieved
      */
@@ -58,6 +58,7 @@ public class OnnxTrEngineProperties {
      * using {@link TextPositioning}.
      *
      * @param textPositioning the way text is retrieved
+     *
      * @return the {@link OnnxTrEngineProperties} instance
      */
     public OnnxTrEngineProperties setTextPositioning(TextPositioning textPositioning) {

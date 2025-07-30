@@ -19,9 +19,9 @@ import java.util.Objects;
  */
 public class OnnxRecognitionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
-            new float[] {0.694F, 0.695F, 0.693F},
-            new float[] {0.299F, 0.296F, 0.301F},
-            new long[] {512, 3, 32, 128},
+            new float[]{0.694F, 0.695F, 0.693F},
+            new float[]{0.299F, 0.296F, 0.301F},
+            new long[]{512, 3, 32, 128},
             false
     );
 
@@ -280,17 +280,18 @@ public class OnnxRecognitionPredictorProperties {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
         final OnnxRecognitionPredictorProperties that = (OnnxRecognitionPredictorProperties) o;
-        return Objects.equals(modelPath, that.modelPath) && Objects.equals(inputProperties,
-                that.inputProperties) && Objects.equals(postProcessor, that.postProcessor);
+        return Objects.equals(modelPath, that.modelPath) &&
+                Objects.equals(inputProperties, that.inputProperties) &&
+                Objects.equals(postProcessor, that.postProcessor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash((Object)modelPath, inputProperties, postProcessor);
+        return Objects.hash((Object) modelPath, inputProperties, postProcessor);
     }
 
     @Override

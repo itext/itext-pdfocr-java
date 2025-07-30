@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class containing OCRing methods adapted from https://github.com/felixdittrich92/OnnxTR.
+ * Class containing OCRing methods adapted from <a href="https://github.com/felixdittrich92/OnnxTR">OnnxTR</a>.
  */
 class OnnxTrProcessor {
 
@@ -75,7 +75,7 @@ class OnnxTrProcessor {
     private final IRecognitionPredictor recognitionPredictor;
 
     OnnxTrProcessor(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
-            IRecognitionPredictor recognitionPredictor) {
+                    IRecognitionPredictor recognitionPredictor) {
         this.detectionPredictor = detectionPredictor;
         this.orientationPredictor = orientationPredictor;
         this.recognitionPredictor = recognitionPredictor;
@@ -84,11 +84,11 @@ class OnnxTrProcessor {
     Map<Integer, List<TextInfo>> doOcr(List<BufferedImage> images, OcrProcessContext ocrProcessContext) {
         final Map<Integer, List<TextInfo>> result = new HashMap<>(images.size());
         int imageIndex = 0;
-        final Iterator<List<Point[]>> textBoxGenerator = detectionPredictor.predict(images);
+        Iterator<List<Point[]>> textBoxGenerator = detectionPredictor.predict(images);
         while (textBoxGenerator.hasNext()) {
-            final AbstractPdfOcrEventHelper eventHelper = ocrProcessContext.getOcrEventHelper() == null ?
+            AbstractPdfOcrEventHelper eventHelper = ocrProcessContext.getOcrEventHelper() == null ?
                     new OnnxTrEventHelper() : ocrProcessContext.getOcrEventHelper();
-            // usage event
+            // Usage event.
             PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(
                     eventHelper.getSequenceId(), null, eventHelper.getConfirmationType());
             eventHelper.onEvent(event);
@@ -103,16 +103,16 @@ class OnnxTrProcessor {
              * Ideally, we should process all text boxes together, regardless of the origin image,
              * and then separate the results afterwards.
              */
-            final BufferedImage image = images.get(imageIndex);
-            final List<Point[]> textBoxes = textBoxGenerator.next();
-            final List<BufferedImage> textImages = BufferedImageUtil.extractBoxes(image, textBoxes);
+            BufferedImage image = images.get(imageIndex);
+            List<Point[]> textBoxes = textBoxGenerator.next();
+            List<BufferedImage> textImages = BufferedImageUtil.extractBoxes(image, textBoxes);
             List<TextOrientation> textOrientations = null;
             if (orientationPredictor != null) {
                 textOrientations = toList(orientationPredictor.predict(textImages));
                 correctOrientations(textImages, textOrientations);
             }
-            final List<String> textString = recognizeText(textImages);
-            final List<TextInfo> textInfos = new ArrayList<>(textBoxes.size());
+            List<String> textString = recognizeText(textImages);
+            List<TextInfo> textInfos = new ArrayList<>(textBoxes.size());
             for (int i = 0; i < textBoxes.size(); ++i) {
                 TextOrientation textOrientation = TextOrientation.HORIZONTAL;
                 if (textOrientations != null) {
@@ -125,9 +125,9 @@ class OnnxTrProcessor {
             result.put(imageIndex + 1, textInfos);
             ++imageIndex;
 
-            // here can be statistics event sending
+            // Here can be statistics event sending.
 
-            // confirm on_demand event
+            // Confirm on_demand event.
             if (event.getConfirmationType() == EventConfirmationType.ON_DEMAND) {
                 eventHelper.onEvent(new ConfirmEvent(event));
             }
@@ -144,12 +144,12 @@ class OnnxTrProcessor {
      * @return a list with image splits together with a map to restore them back
      */
     private static SplitResult splitTextImages(List<BufferedImage> images) {
-        final SplitResult result = new SplitResult(images.size());
+        SplitResult result = new SplitResult(images.size());
         for (int i = 0; i < images.size(); ++i) {
-            final BufferedImage image = images.get(i);
-            final int width = image.getWidth();
-            final int height = image.getHeight();
-            final float aspectRatio = (float) width / height;
+            BufferedImage image = images.get(i);
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float aspectRatio = (float) width / height;
             if (aspectRatio < SPLIT_CROPS_MAX_RATIO) {
                 result.splitImages.add(image);
                 result.restoreMap[i] = 1;
@@ -157,9 +157,9 @@ class OnnxTrProcessor {
             }
 
             // For some reason here is truncation in OnnxTR...
-            final int splitCount = (int) Math.ceil(aspectRatio / SPLIT_CROPS_TARGET_RATIO);
-            final float rawSplitWidth = (float) width / splitCount;
-            final float targetSplitHalfWidth = (SPLIT_CROPS_DILATION_FACTOR * rawSplitWidth) / 2;
+            int splitCount = (int) Math.ceil(aspectRatio / SPLIT_CROPS_TARGET_RATIO);
+            float rawSplitWidth = (float) width / splitCount;
+            float targetSplitHalfWidth = (SPLIT_CROPS_DILATION_FACTOR * rawSplitWidth) / 2;
             int nonEmptySplitCount = 0;
             for (int j = 0; j < splitCount; ++j) {
                 final float center = (j + 0.5F) * rawSplitWidth;
@@ -185,8 +185,8 @@ class OnnxTrProcessor {
      */
     private static void mergeStrings(StringBuilder collector, String nextString) {
         // Comments are also pretty much copies from OnnxTR...
-        final int commonLength = Math.min(collector.length(), nextString.length());
-        final double[] scores = new double[commonLength];
+        int commonLength = Math.min(collector.length(), nextString.length());
+        double[] scores = new double[commonLength];
         for (int i = 0; i < commonLength; ++i) {
             scores[i] = MathUtil.calculateLevenshteinDistance(
                     collector.substring(collector.length() - i - 1),
@@ -235,10 +235,10 @@ class OnnxTrProcessor {
      */
     private List<String> recognizeText(List<BufferedImage> textImages) {
         // For better recognition results we want to split text images to have better aspect ratios
-        final OnnxTrProcessor.SplitResult split = OnnxTrProcessor.splitTextImages(textImages);
-        final Iterator<String> recognitionIterator = recognitionPredictor.predict(split.splitImages);
+        OnnxTrProcessor.SplitResult split = OnnxTrProcessor.splitTextImages(textImages);
+        Iterator<String> recognitionIterator = recognitionPredictor.predict(split.splitImages);
         // And now we merge results back
-        final List<String> textStrings = new ArrayList<>(split.restoreMap.length);
+        List<String> textStrings = new ArrayList<>(split.restoreMap.length);
         for (int j = 0; j < split.restoreMap.length; ++j) {
             int stringPartsLeft = split.restoreMap[j];
             final String testString;
@@ -308,7 +308,7 @@ class OnnxTrProcessor {
     }
 
     private static <E> List<E> toList(Iterator<E> iterator) {
-        final List<E> list = new ArrayList<>();
+        List<E> list = new ArrayList<>();
         iterator.forEachRemaining(list::add);
         return list;
     }

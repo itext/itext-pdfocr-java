@@ -204,19 +204,16 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
         return batchTextBoxes;
     }
 
-    private static void convertToAbsoluteInputBoxes(
-            BufferedImage image,
-            List<Point[]> boxes,
-            OnnxInputProperties properties
-    ) {
-        final int sourceWidth = image.getWidth();
-        final int sourceHeight = image.getHeight();
-        final float targetWidth = properties.getWidth();
-        final float targetHeight = properties.getHeight();
-        final float widthRatio = targetWidth / sourceWidth;
-        final float heightRatio = targetHeight / sourceHeight;
-        final float widthScale;
-        final float heightScale;
+    private static void convertToAbsoluteInputBoxes(BufferedImage image, List<Point[]> boxes,
+                                                    OnnxInputProperties properties) {
+        int sourceWidth = image.getWidth();
+        int sourceHeight = image.getHeight();
+        float targetWidth = properties.getWidth();
+        float targetHeight = properties.getHeight();
+        float widthRatio = targetWidth / sourceWidth;
+        float heightRatio = targetHeight / sourceHeight;
+        float widthScale;
+        float heightScale;
         // We preserve ratio, when resizing input
         if (heightRatio > widthRatio) {
             heightScale = targetHeight / (float) Math.round(sourceHeight * widthRatio);
@@ -253,6 +250,6 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
         // Output retains the "image" dimension from the input
         final long height = inputProperties.getHeight();
         final long width = inputProperties.getWidth();
-        return new long[] {BATCH_SIZE, CHANNEL_COUNT, height, width};
+        return new long[]{BATCH_SIZE, CHANNEL_COUNT, height, width};
     }
 }

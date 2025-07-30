@@ -21,9 +21,9 @@ import java.util.Objects;
  */
 public class OnnxOrientationPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
-            new float[] {0.694F, 0.695F, 0.693F},
-            new float[] {0.299F, 0.296F, 0.301F},
-            new long[] {512, 3, 256, 256},
+            new float[]{0.694F, 0.695F, 0.693F},
+            new float[]{0.299F, 0.296F, 0.301F},
+            new long[]{512, 3, 256, 256},
             true
     );
     private static final DefaultOrientationMapper DEFAULT_OUTPUT_MAPPER = new DefaultOrientationMapper();

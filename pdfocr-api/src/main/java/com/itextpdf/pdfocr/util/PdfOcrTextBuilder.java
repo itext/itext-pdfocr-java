@@ -188,7 +188,7 @@ public final class PdfOcrTextBuilder {
                         .orElseThrow(UnsupportedOperationException::new).getBboxRect().getHeight();
                 lineBottom = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getBottom(), rhs.getBboxRect().getBottom()) > 0 ? rhs : lhs)
                         .orElseThrow(UnsupportedOperationException::new).getBboxRect().getBottom();
-                delta = (lineTop - lineBottom - lineHeight)/2;
+                delta = (lineTop - lineBottom - lineHeight) / 2;
                 for (TextInfo word : line) {
                     word.getBboxRect().setY(lineBottom + delta).setHeight(lineHeight);
                 }
@@ -203,9 +203,9 @@ public final class PdfOcrTextBuilder {
                         .orElseThrow(UnsupportedOperationException::new).getBboxRect().getWidth();
                 lineBottom = line.stream().reduce((lhs, rhs) -> Float.compare(lhs.getBboxRect().getLeft(), rhs.getBboxRect().getLeft()) > 0 ? rhs : lhs)
                         .orElseThrow(UnsupportedOperationException::new).getBboxRect().getLeft();
-                delta = (lineTop - lineBottom - lineHeight)/2;
+                delta = (lineTop - lineBottom - lineHeight) / 2;
                 for (TextInfo word : line) {
-                    word.getBboxRect().setX(lineBottom).setWidth(lineHeight);
+                    word.getBboxRect().setX(lineBottom + delta).setWidth(lineHeight);
                 }
                 break;
             default:

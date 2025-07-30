@@ -22,10 +22,12 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -64,14 +66,12 @@ public final class BufferedImageUtil {
     public static FloatBufferMdArray toBchwInput(Collection<BufferedImage> images, OnnxInputProperties properties) {
         // Currently properties guarantee RGB, this is just in case this changes later
         if (properties.getChannelCount() != 3) {
-            throw new IllegalArgumentException("toBchwInput only support RGB images");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.ONLY_SUPPORT_RGB_IMAGES);
         }
 
         if (images.size() > properties.getBatchSize()) {
-            throw new IllegalArgumentException(
-                    "Too many images (" + images.size() + ") "
-                            + "for the provided batch size (" + properties.getBatchSize() + ")"
-            );
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.TOO_MANY_IMAGES, images.size(), properties.getBatchSize()));
         }
         final long[] inputShape = new long[]{
                 images.size(),
@@ -223,7 +223,8 @@ public final class BufferedImageUtil {
      */
     private static BufferedImage fromRgbMat(Mat rgb) {
         if (rgb.type() != CvType.CV_8UC3) {
-            throw new IllegalArgumentException("Unexpected Mat type");
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MAT_TYPE, CvType.typeToString(rgb.type())));
         }
 
         final BufferedImage image = new BufferedImage(rgb.cols(), rgb.rows(), BufferedImage.TYPE_3BYTE_BGR);

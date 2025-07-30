@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -73,7 +75,7 @@ public class BatchProcessingGenerator<T, R> implements Iterator<R> {
             final List<T> batch = batchIterator.next();
             batchResult = batchProcessor.processBatch(batch);
             if (batchResult == null || batchResult.size() != batch.size()) {
-                throw new IllegalStateException("Batch processing failed: invalid number of outputs");
+                throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.INVALID_NUMBER_OF_OUTPUTS);
             }
             batchResultIndex = 0;
         }

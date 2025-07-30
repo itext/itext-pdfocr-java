@@ -39,15 +39,15 @@ import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.util.PdfOcrFileUtil;
 import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
+import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.imageio.ImageIO;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link IOcrEngine} implementation, based on OnnxTR/DocTR machine learning OCR projects.
@@ -197,27 +197,7 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         return null;
     }
 
-    /**
-     * Reads raw data from the provided input image file and returns retrieved data
-     * in the format described below.
-     *
-     * @param input input image {@link java.io.File}
-     * @param ocrProcessContext ocr processing context
-     *
-     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
-     * representing the number of the page and value is
-     * {@link java.util.List} of {@link TextInfo} elements where each
-     * {@link TextInfo} element contains a word or a line and its 4
-     * coordinates(bbox)
-     */
-    private Map<Integer, List<TextInfo>> doOnnxTrOcr(File input, OcrProcessContext ocrProcessContext) {
-        final List<BufferedImage> images = getImages(input);
-        OnnxTrProcessor onnxTrProcessor = new OnnxTrProcessor(detectionPredictor, orientationPredictor,
-                recognitionPredictor);
-        return onnxTrProcessor.doOcr(images, ocrProcessContext);
-    }
-
-    private static List<BufferedImage> getImages(File input) {
+    static List<BufferedImage> getImages(File input) {
         try {
             if (TiffImageUtil.isTiffImage(input)) {
                 List<BufferedImage> images = TiffImageUtil.getAllImages(input);
@@ -237,5 +217,25 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         } catch (Exception e) {
             throw new PdfOcrInputException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e);
         }
+    }
+
+    /**
+     * Reads raw data from the provided input image file and returns retrieved data
+     * in the format described below.
+     *
+     * @param input input image {@link java.io.File}
+     * @param ocrProcessContext ocr processing context
+     *
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    private Map<Integer, List<TextInfo>> doOnnxTrOcr(File input, OcrProcessContext ocrProcessContext) {
+        final List<BufferedImage> images = getImages(input);
+        OnnxTrProcessor onnxTrProcessor = new OnnxTrProcessor(detectionPredictor, orientationPredictor,
+                recognitionPredictor);
+        return onnxTrProcessor.doOcr(images, ocrProcessContext);
     }
 }

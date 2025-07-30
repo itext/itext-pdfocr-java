@@ -19,9 +19,9 @@ import java.util.Objects;
  */
 public class OnnxDetectionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
-            new float[] {0.798F, 0.785F, 0.772F},
-            new float[] {0.264F, 0.2749F, 0.287F},
-            new long[] {2, 3, 1024, 1024},
+            new float[]{0.798F, 0.785F, 0.772F},
+            new float[]{0.264F, 0.2749F, 0.287F},
+            new long[]{2, 3, 1024, 1024},
             true
     );
     private static final IDetectionPostProcessor DEFAULT_POST_PROCESSOR =
@@ -220,18 +220,18 @@ public class OnnxDetectionPredictorProperties {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
         final OnnxDetectionPredictorProperties that = (OnnxDetectionPredictorProperties) o;
-        return Objects.equals(modelPath, that.modelPath)
-                && Objects.equals(inputProperties, that.inputProperties)
-                && Objects.equals(postProcessor, that.postProcessor);
+        return Objects.equals(modelPath, that.modelPath) &&
+                Objects.equals(inputProperties, that.inputProperties) &&
+                Objects.equals(postProcessor, that.postProcessor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash((Object)modelPath, inputProperties, postProcessor);
+        return Objects.hash((Object) modelPath, inputProperties, postProcessor);
     }
 
     @Override

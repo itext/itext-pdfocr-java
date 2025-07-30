@@ -48,7 +48,7 @@ public final class PdfOcrOnnxTrProductEvent extends AbstractProductProcessITextE
      * @param eventConfirmationType is an event confirmation type
      */
     private PdfOcrOnnxTrProductEvent(SequenceId sequenceId, IMetaInfo metaInfo, String eventType,
-            EventConfirmationType eventConfirmationType) {
+                                     EventConfirmationType eventConfirmationType) {
         super(sequenceId, PdfOcrOnnxTrProductData.getInstance(), metaInfo, eventConfirmationType);
         this.eventType = eventType;
     }
@@ -62,8 +62,8 @@ public final class PdfOcrOnnxTrProductEvent extends AbstractProductProcessITextE
      *
      * @return process-image-onnxtr event
      */
-    public static PdfOcrOnnxTrProductEvent createProcessImageOnnxTrEvent(SequenceId sequenceId,
-            IMetaInfo metaInfo, EventConfirmationType eventConfirmationType) {
+    public static PdfOcrOnnxTrProductEvent createProcessImageOnnxTrEvent(SequenceId sequenceId, IMetaInfo metaInfo,
+                                                                         EventConfirmationType eventConfirmationType) {
         return new PdfOcrOnnxTrProductEvent(sequenceId, metaInfo, PROCESS_IMAGE_ONNXTR, eventConfirmationType);
     }
 

@@ -250,6 +250,6 @@ public class OnnxRecognitionPredictor
         // really care about it, as it is just a loop boundary in the algorithm
         final long TOKEN_COUNT = -1;
         final long classCount = properties.getPostProcessor().labelDimension();
-        return new long[] {BATCH_SIZE, TOKEN_COUNT, classCount};
+        return new long[]{BATCH_SIZE, TOKEN_COUNT, classCount};
     }
 }

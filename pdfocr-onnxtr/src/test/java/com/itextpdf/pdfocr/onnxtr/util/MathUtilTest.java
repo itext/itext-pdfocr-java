@@ -53,10 +53,7 @@ public class MathUtilTest extends ExtendedITextTest {
 
     @Test
     public void clampWithInvalidArgs() {
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> MathUtil.clamp(2, 3, 1)
-        );
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MathUtil.clamp(2, 3, 1));
     }
 
     @Test

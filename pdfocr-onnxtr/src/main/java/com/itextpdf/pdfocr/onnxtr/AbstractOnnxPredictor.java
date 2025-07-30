@@ -22,10 +22,6 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
-import com.itextpdf.pdfocr.exceptions.PdfOcrException;
-import com.itextpdf.pdfocr.onnxtr.util.BatchProcessingGenerator;
-import com.itextpdf.pdfocr.onnxtr.util.Batching;
-
 import ai.onnxruntime.NodeInfo;
 import ai.onnxruntime.OnnxJavaType;
 import ai.onnxruntime.OnnxTensor;
@@ -39,6 +35,12 @@ import ai.onnxruntime.OrtSession.SessionOptions.ExecutionMode;
 import ai.onnxruntime.OrtSession.SessionOptions.OptLevel;
 import ai.onnxruntime.TensorInfo;
 import ai.onnxruntime.ValueInfo;
+import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnxtr.util.BatchProcessingGenerator;
+import com.itextpdf.pdfocr.onnxtr.util.Batching;
+
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,6 +79,21 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     private final String inputName;
 
     /**
+     * Close status of the predictor.
+     */
+    private boolean closed = false;
+
+    static {
+        try {
+            // OnnxRuntime.init() is used under the hood.
+            new OrtSession.SessionOptions().close();
+        } catch (RuntimeException | UnsatisfiedLinkError e) {
+            DependencyLoadChecker.processException(e);
+            throw e;
+        }
+    }
+
+    /**
      * Creates a new abstract predictor.
      *
      * <p>
@@ -93,20 +110,21 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
         try {
             this.sessionOptions = createDefaultSessionOptions();
         } catch (OrtException e) {
-            throw new PdfOcrException("Failed to init ONNX Runtime session options", e);
+            throw new PdfOcrException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_INIT_SESSION_OPTIONS, e);
         }
 
         try {
             this.session = OrtEnvironment.getEnvironment().createSession(modelPath, sessionOptions);
         } catch (Exception e) {
             this.sessionOptions.close();
-            throw new PdfOcrException("Failed to init ONNX Runtime session", e);
+            throw new PdfOcrException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_INIT_ONNX_RUNTIME_SESSION, e);
         }
 
         try {
             this.inputName = validateModel(this.session, inputProperties, outputShape);
         } catch (Exception e) {
-            final PdfOcrException userException = new PdfOcrException("ONNX Runtime model did not pass validation", e);
+            final PdfOcrException userException = new PdfOcrException(
+                    PdfOcrOnnxTrExceptionMessageConstant.MODEL_DID_NOT_PASS_VALIDATION, e);
             try {
                 this.session.close();
             } catch (OrtException closeException) {
@@ -123,10 +141,11 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
                 Batching.wrap(inputs, inputProperties.getBatchSize()),
                 (List<T> batch) -> {
                     try (final OnnxTensor inputTensor = createTensor(toInputBuffer(batch));
-                            final Result outputTensor = session.run(Collections.singletonMap(inputName, inputTensor))) {
+                         final Result outputTensor = session.run(Collections.singletonMap(inputName, inputTensor))) {
                         return fromOutputBuffer(batch, parseModelOutput(outputTensor));
                     } catch (OrtException e) {
-                        throw new PdfOcrException("ONNX Runtime operation failed", e);
+                        throw new PdfOcrException(
+                                PdfOcrOnnxTrExceptionMessageConstant.ONNX_RUNTIME_OPERATION_FAILED, e);
                     }
                 }
         );
@@ -134,12 +153,16 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
 
     @Override
     public void close() {
+        if (closed) {
+            return;
+        }
         try {
             session.close();
             sessionOptions.close();
         } catch (OrtException e) {
-            throw new PdfOcrException("Failed to close an ONNX Runtime session", e);
+            throw new PdfOcrException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_CLOSE_ONNX_RUNTIME_SESSION, e);
         }
+        closed = true;
     }
 
     /**
@@ -205,25 +228,23 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     private static String validateModelInput(OrtSession session, OnnxInputProperties properties) throws OrtException {
         final Collection<NodeInfo> inputInfo = session.getInputInfo().values();
         if (inputInfo.size() != 1) {
-            throw new IllegalArgumentException(
-                    "Expected 1 input, but got " + inputInfo.size() + " instead"
-            );
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_INPUT_SIZE, inputInfo.size()));
         }
         final NodeInfo inputNodeInfo = inputInfo.iterator().next();
         final ValueInfo inputNodeValueInfo = inputNodeInfo.getInfo();
         if (!(inputNodeValueInfo instanceof TensorInfo)) {
-            throw new IllegalArgumentException("Unexpected input type, expected float32 tensor");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_INPUT_TYPE);
         }
         final TensorInfo inputTensorInfo = (TensorInfo) inputNodeValueInfo;
         if (inputTensorInfo.type != OnnxJavaType.FLOAT) {
-            throw new IllegalArgumentException("Unexpected input type, expected float32 tensor");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_INPUT_TYPE);
         }
         final long[] inputShape = inputTensorInfo.getShape();
         if (isShapeIncompatible(properties.getShape(), inputShape)) {
-            throw new IllegalArgumentException(
-                    "Expected " + Arrays.toString(properties.getShape()) + " input shape, "
-                            + "but got " + Arrays.toString(inputShape) + " instead"
-            );
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_INPUT_SHAPE, Arrays.toString(properties.getShape()),
+                    Arrays.toString(inputShape)));
         }
         return inputNodeInfo.getName();
     }
@@ -231,25 +252,23 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     private static void validateModelOutput(OrtSession session, long[] expectedOutputShape) throws OrtException {
         final Collection<NodeInfo> outputInfo = session.getOutputInfo().values();
         if (outputInfo.size() != 1) {
-            throw new IllegalArgumentException(
-                    "Expected 1 output, but got " + outputInfo.size() + " instead"
-            );
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_OUTPUT_SIZE, outputInfo.size()));
         }
         final NodeInfo outputNodeInfo = outputInfo.iterator().next();
         final ValueInfo outputNodeValueInfo = outputNodeInfo.getInfo();
         if (!(outputNodeValueInfo instanceof TensorInfo)) {
-            throw new IllegalArgumentException("Unexpected output type, expected float32 tensor");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_OUTPUT_TYPE);
         }
         final TensorInfo outputTensorInfo = (TensorInfo) outputNodeValueInfo;
         if (outputTensorInfo.type != OnnxJavaType.FLOAT) {
-            throw new IllegalArgumentException("Unexpected output type, expected float32 tensor");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_OUTPUT_TYPE);
         }
         final long[] actualOutputShape = outputTensorInfo.getShape();
         if (isShapeIncompatible(expectedOutputShape, actualOutputShape)) {
-            throw new IllegalArgumentException(
-                    "Expected " + Arrays.toString(expectedOutputShape) + " output shape, "
-                            + "but got " + Arrays.toString(actualOutputShape) + " instead"
-            );
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_OUTPUT_SHAPE, Arrays.toString(expectedOutputShape),
+                    Arrays.toString(actualOutputShape)));
         }
     }
 

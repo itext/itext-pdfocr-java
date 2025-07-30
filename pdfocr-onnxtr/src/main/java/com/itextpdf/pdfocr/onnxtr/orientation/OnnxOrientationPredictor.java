@@ -114,6 +114,6 @@ public class OnnxOrientationPredictor
         // Dynamic batch size
         final long BATCH_SIZE = -1;
         final long classCount = properties.getOutputMapper().size();
-        return new long[] {BATCH_SIZE, classCount};
+        return new long[]{BATCH_SIZE, classCount};
     }
 }

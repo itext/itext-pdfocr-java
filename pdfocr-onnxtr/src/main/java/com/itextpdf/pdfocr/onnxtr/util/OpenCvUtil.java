@@ -59,9 +59,9 @@ public final class OpenCvUtil {
                 || (225F <= clampedAngle && clampedAngle < 315F)) {
             final Size2f rectSize = rect.size();
             try {
-                final float tempWidth = rectSize.width();
+                final float temp = rectSize.width();
                 rectSize.width(rectSize.height());
-                rectSize.height(tempWidth);
+                rectSize.height(temp);
                 rect.size(rectSize);
             } finally {
                 rectSize.close();

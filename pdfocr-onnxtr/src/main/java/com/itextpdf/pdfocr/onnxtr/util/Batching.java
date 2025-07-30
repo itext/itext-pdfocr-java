@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +50,7 @@ public final class Batching {
     public static <E> Iterator<List<E>> wrap(Iterator<E> iterator, int batchSize) {
         Objects.requireNonNull(iterator);
         if (batchSize <= 0) {
-            throw new IllegalArgumentException("batchSize should be positive");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
         }
         return new Iterator<List<E>>() {
             @Override

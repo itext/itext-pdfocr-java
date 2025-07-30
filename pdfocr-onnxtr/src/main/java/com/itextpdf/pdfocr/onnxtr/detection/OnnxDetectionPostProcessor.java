@@ -14,6 +14,7 @@ import com.itextpdf.pdfocr.onnxtr.util.OpenCvUtil;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
@@ -93,11 +94,11 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         //       contour. Though based on profiling, it doesn't look like it is
         //       that bad, when it is only once per input image.
         try (final Mat scoreMask = new Mat(height, width, CvType.CV_8U, new Scalar(0));
-                final MatVector contours = findTextContours(output, binarizationThreshold)) {
+             final MatVector contours = findTextContours(output, binarizationThreshold)) {
             final long contourCount = contours.size();
             for (long contourIdx = 0; contourIdx < contourCount; ++contourIdx) {
                 try (final Mat contour = contours.get(contourIdx);
-                        final Rect contourBox = opencv_imgproc.boundingRect(contour)) {
+                     final Rect contourBox = opencv_imgproc.boundingRect(contour)) {
                     // Skip, if contour is too small
                     if (contourBox.width() < 2 || contourBox.height() < 2) {
                         continue;

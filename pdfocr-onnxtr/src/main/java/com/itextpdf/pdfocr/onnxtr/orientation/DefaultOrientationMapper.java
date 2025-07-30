@@ -22,8 +22,10 @@
  */
 package com.itextpdf.pdfocr.onnxtr.orientation;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 
 /**
  * Default implementation for mapping output of a crop orientation model to
@@ -65,7 +67,8 @@ public class DefaultOrientationMapper implements IOutputLabelMapper<TextOrientat
             case 3:
                 return TextOrientation.HORIZONTAL_ROTATED_270;
             default:
-                throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+                throw new IndexOutOfBoundsException(MessageFormatUtil.format(
+                        PdfOcrOnnxTrExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, index));
         }
     }
 }

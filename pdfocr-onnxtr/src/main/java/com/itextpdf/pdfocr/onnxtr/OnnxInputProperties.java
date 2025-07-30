@@ -22,6 +22,9 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -70,22 +73,26 @@ public class OnnxInputProperties {
     public OnnxInputProperties(float[] mean, float[] std, long[] shape, boolean symmetricPad) {
         Objects.requireNonNull(mean);
         if (mean.length != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException("mean should be a " + EXPECTED_CHANNEL_COUNT + "-element array");
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
         }
         Objects.requireNonNull(std);
         if (std.length != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException("std should be a " + EXPECTED_CHANNEL_COUNT + "-element array");
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
         }
         Objects.requireNonNull(shape);
         if (shape.length != EXPECTED_SHAPE_SIZE) {
-            throw new IllegalArgumentException("shape should be a " + EXPECTED_SHAPE_SIZE + "-element array (BCHW)");
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, EXPECTED_SHAPE_SIZE));
         }
         if (shape[1] != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException("Model only supports RGB images with a BCHW input format");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB);
         }
         for (final long dim : shape) {
             if (dim <= 0 || ((int) dim) != dim) {
-                throw new IllegalArgumentException("Unexpected dimension value: " + dim);
+                throw new IllegalArgumentException(MessageFormatUtil.format(
+                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, dim));
             }
         }
 

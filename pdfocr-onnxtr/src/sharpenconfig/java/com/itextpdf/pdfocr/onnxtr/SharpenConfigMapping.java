@@ -60,6 +60,9 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapMethod("java.util.Iterator.hasNext", "MoveNext");
         configurator.mapProperty("java.util.Iterator.next", "Current");
         mapOpenCv(configurator);
+
+        configurator.mapMethod("org.junit.jupiter.api.Assertions.assertDoesNotThrow",
+                "NUnit.Framework.Assert.DoesNotThrow", false);
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {

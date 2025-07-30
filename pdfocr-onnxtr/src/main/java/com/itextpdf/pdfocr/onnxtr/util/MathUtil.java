@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnxtr.util;
 
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.util.Objects;
 
 /**
@@ -44,7 +46,7 @@ public final class MathUtil {
     public static int argmax(float[] values) {
         Objects.requireNonNull(values);
         if (values.length == 0) {
-            throw new IllegalArgumentException("values should be a non-empty array");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.VALUES_SHOULD_BE_A_NON_EMPTY_ARRAY);
         }
         float resultValue = Float.NEGATIVE_INFINITY;
         int resultIndex = 0;
@@ -67,7 +69,6 @@ public final class MathUtil {
      * to convert the source string into the target string
      */
     public static int calculateLevenshteinDistance(String source, String target) {
-
         if (source == null || source.isEmpty()) {
             return target == null || target.isEmpty() ? 0 : target.length();
         }
@@ -80,15 +81,15 @@ public final class MathUtil {
 
         int[] previousRow = new int[targetChars.length + 1];
 
-        for (int i = 0; i <= targetChars.length; i++) {
+        for (int i = 0; i <= targetChars.length; ++i) {
             previousRow[i] = i;
         }
 
-        for (int i = 1; i <= sourceChars.length; i++) {
+        for (int i = 1; i <= sourceChars.length; ++i) {
             int[] currentRow = new int[targetChars.length + 1];
             currentRow[0] = i;
 
-            for (int j = 1; j <= targetChars.length; j++) {
+            for (int j = 1; j <= targetChars.length; ++j) {
                 int costDelete = previousRow[j] + 1;
                 int costInsert = currentRow[j - 1] + 1;
                 int costReplace = previousRow[j - 1] + (sourceChars[i - 1] == targetChars[j - 1] ? 0 : 1);
@@ -142,7 +143,7 @@ public final class MathUtil {
      */
     public static double clamp(double value, double min, double max) {
         if (max < min) {
-            throw new IllegalArgumentException("max should not be less than min");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.MAX_SHOULD_NOT_BE_LESS_THAN_MIN);
         }
         return Math.min(max, Math.max(value, min));
     }

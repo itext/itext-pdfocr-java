@@ -26,16 +26,20 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
             </fileset>
-            <fileset>
+            <fileset reason="Different API for image processing in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
             </fileset>
-            <fileset reason="differnt api for onnxruntime classes in java and .NET">
+            <fileset reason="Different API for onnxruntime classes in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
+            </fileset>
+            <fileset reason="Different exception messages in Java and .NET">
+                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadChecker.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadCheckerTest.java" />
             </fileset>
             <fileset reason="Lack of similar API as ByteBuffer in .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/FloatBufferMdArray.java" />
             </fileset>
-            <fileset reason="Interface extending autoclosable can't be ported">
+            <fileset reason="Interface extending autocloseable can't be ported">
                 <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
             </fileset>
             <fileset reason="Different opencv API in between .NET and java">
@@ -57,6 +61,7 @@
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_arabicTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_basicTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bengaliTest.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bmpTestByWords.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bmpTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_chineseTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_frenchTest.pdf" />

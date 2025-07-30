@@ -23,6 +23,8 @@
 package com.itextpdf.pdfocr.onnxtr;
 
 import ai.onnxruntime.OrtUtil;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import java.nio.FloatBuffer;
 import java.util.Objects;
 
@@ -47,10 +49,10 @@ public class FloatBufferMdArray {
         Objects.requireNonNull(data);
         Objects.requireNonNull(shape);
         if (!OrtUtil.validateShape(shape)) {
-            throw new IllegalArgumentException("Shape is not valid");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.SHAPE_IS_NOT_VALID);
         }
         if (data.remaining() != OrtUtil.elementCount(shape)) {
-            throw new IllegalArgumentException("Data element count does not match shape");
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.ELEM_COUNT_DOES_NOT_MATCH_SHAPE);
         }
         this.data = data.duplicate();
         this.shape = shape.clone();
