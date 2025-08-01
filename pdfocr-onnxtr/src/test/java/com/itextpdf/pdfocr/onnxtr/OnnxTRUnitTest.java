@@ -55,7 +55,7 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
         long[] shape = new long[]{2, 3, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
                 BufferedImageUtil.toBchwInput(new ArrayList<>(), new OnnxInputProperties(mean, std, shape, true)));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.SHAPE_IS_NOT_VALID, e.getMessage());
+        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE, e.getMessage());
     }
 
     @Test

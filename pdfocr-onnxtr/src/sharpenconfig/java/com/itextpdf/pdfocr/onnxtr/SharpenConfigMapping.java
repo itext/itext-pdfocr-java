@@ -72,6 +72,11 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
         configurator.mapMethod("org.junit.jupiter.api.Assertions.assertDoesNotThrow",
                 "NUnit.Framework.Assert.DoesNotThrow", false);
+
+        configurator.mapType("java.awt.Color", "IronSoftware.Drawing.Color");
+        configurator.mapField("java.awt.Color.BLACK", "IronSoftware.Drawing.Color.Black");
+        configurator.mapField("java.awt.Color.GRAY", "IronSoftware.Drawing.Color.Gray");
+        configurator.mapField("java.awt.Color.WHITE", "IronSoftware.Drawing.Color.White");
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {

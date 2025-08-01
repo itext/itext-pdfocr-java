@@ -84,4 +84,159 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         Assertions.assertEquals(MessageFormatUtil.format(
                 PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, -2), e.getMessage());
     }
+
+    @Test
+    public void initWithInvalidImageResizeOptions() {
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new OnnxInputProperties(null)
+        );
+    }
+
+    @Test
+    public void initWithInvalidMean() {
+        final ImageResizeOptions resizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB, 800, 600
+        );
+        // null
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new OnnxInputProperties(
+                        resizeOptions,
+                        null,
+                        new float[]{1F, 2F, 3F}
+                )
+        );
+        // invalid size
+        final Exception e = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new OnnxInputProperties(
+                        resizeOptions,
+                        new float[]{0.3F, 0.4F, 0.5F, 0.6F},
+                        new float[]{1F, 2F, 3F}
+                )
+        );
+        Assertions.assertEquals(
+                MessageFormatUtil.format(
+                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT,
+                        resizeOptions.getChannelConfiguration().getChannelCount()
+                ),
+                e.getMessage()
+        );
+    }
+
+    @Test
+    public void initWithInvalidStd() {
+        final ImageResizeOptions resizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB, 800, 600
+        );
+        // null
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new OnnxInputProperties(
+                        resizeOptions,
+                        new float[]{0.3F, 0.4F, 0.5F},
+                        null
+                )
+        );
+        // invalid size
+        final Exception e = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new OnnxInputProperties(
+                        resizeOptions,
+                        new float[]{0.3F, 0.4F, 0.5F},
+                        new float[]{1F, 2F}
+                )
+        );
+        Assertions.assertEquals(
+                MessageFormatUtil.format(
+                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT,
+                        resizeOptions.getChannelConfiguration().getChannelCount()
+                ),
+                e.getMessage()
+        );
+    }
+
+    @Test
+    public void initWithInvalidBatchSize() {
+        final ImageResizeOptions resizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB, 800, 600
+        );
+        final Exception e = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new OnnxInputProperties(resizeOptions, 0)
+        );
+        Assertions.assertEquals(
+                PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE,
+                e.getMessage()
+        );
+    }
+
+    @Test
+    public void valid() {
+        final ImageResizeOptions resizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.BGR, 800, 600, 1024, 768, 4, 2, PaddingStrategy.BOTTOM_RIGHT_WHITE
+        );
+        final float[] mean = new float[]{0.1F, 0.2F, 0.3F};
+        final float[] std = new float[]{1F, 2F, 3F};
+        final int batchSize = 5;
+        final OnnxInputProperties props = new OnnxInputProperties(resizeOptions, mean, std, batchSize);
+
+        Assertions.assertSame(resizeOptions, props.getImageResizeOptions());
+
+        Assertions.assertArrayEquals(mean, props.getMean());
+        Assertions.assertEquals(mean[0], props.getGrayMean());
+        Assertions.assertEquals(mean[2], props.getRedMean());
+        Assertions.assertEquals(mean[1], props.getGreenMean());
+        Assertions.assertEquals(mean[0], props.getBlueMean());
+
+        Assertions.assertArrayEquals(std, props.getStd());
+        Assertions.assertEquals(std[0], props.getGrayStd());
+        Assertions.assertEquals(std[2], props.getRedStd());
+        Assertions.assertEquals(std[1], props.getGreenStd());
+        Assertions.assertEquals(std[0], props.getBlueStd());
+
+        final long[] expectedShape = new long[]{
+                batchSize,
+                resizeOptions.getChannelConfiguration().getChannelCount(),
+                resizeOptions.getMinHeight(),
+                resizeOptions.getMinWidth()
+        };
+        Assertions.assertArrayEquals(expectedShape, props.getShape());
+        Assertions.assertThrows(
+                ArrayIndexOutOfBoundsException.class,
+                () -> props.getShape(-1)
+        );
+        for (int i = 0; i < 4; ++i) {
+            Assertions.assertEquals(expectedShape[i], props.getShape(i));
+        }
+        Assertions.assertThrows(
+                ArrayIndexOutOfBoundsException.class,
+                () -> props.getShape(4)
+        );
+        Assertions.assertEquals(batchSize, props.getBatchSize());
+        Assertions.assertEquals(resizeOptions.getChannelConfiguration().getChannelCount(), props.getChannelCount());
+        Assertions.assertEquals(resizeOptions.getMinHeight(), props.getHeight());
+        Assertions.assertEquals(resizeOptions.getMinWidth(), props.getWidth());
+
+        Assertions.assertEquals(resizeOptions.getPaddingStrategy().usesSymmetricPadding(), props.useSymmetricPad());
+        Assertions.assertEquals(resizeOptions.getPaddingStrategy(), props.getPaddingStrategy());
+
+        final OnnxInputProperties propsCopy = new OnnxInputProperties(
+                new ImageResizeOptions(
+                        ImageChannelConfiguration.BGR, 800, 600, 1024, 768, 4, 2, PaddingStrategy.BOTTOM_RIGHT_WHITE
+                ),
+                new float[]{0.1F, 0.2F, 0.3F},
+                new float[]{1F, 2F, 3F},
+                5
+        );
+        Assertions.assertEquals(propsCopy.hashCode(), props.hashCode());
+        Assertions.assertEquals(propsCopy, props);
+        Assertions.assertNotEquals(
+                new OnnxInputProperties(
+                        new ImageResizeOptions(ImageChannelConfiguration.GRAYSCALE, 800, 600)
+                ),
+                props
+        );
+    }
 }

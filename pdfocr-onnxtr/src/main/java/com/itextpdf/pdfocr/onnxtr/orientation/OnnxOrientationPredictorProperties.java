@@ -8,7 +8,10 @@ package com.itextpdf.pdfocr.onnxtr.orientation;
 
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper;
+import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
+import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
+import com.itextpdf.pdfocr.onnxtr.PaddingStrategy;
 
 import java.util.Objects;
 
@@ -20,10 +23,14 @@ import java.util.Objects;
  */
 public class OnnxOrientationPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
+            new ImageResizeOptions(
+                    ImageChannelConfiguration.RGB,
+                    256, 256,
+                    PaddingStrategy.SYMMETRIC_BLACK
+            ),
             new float[]{0.694F, 0.695F, 0.693F},
             new float[]{0.299F, 0.296F, 0.301F},
-            new long[]{512, 3, 256, 256},
-            true
+            512
     );
 
     private static final DefaultOrientationMapper DEFAULT_OUTPUT_MAPPER = new DefaultOrientationMapper();

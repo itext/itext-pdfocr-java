@@ -6,7 +6,10 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
+import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
+import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
+import com.itextpdf.pdfocr.onnxtr.PaddingStrategy;
 
 import java.util.Objects;
 
@@ -18,10 +21,14 @@ import java.util.Objects;
  */
 public class OnnxRecognitionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
+            new ImageResizeOptions(
+                    ImageChannelConfiguration.RGB,
+                    128, 32,
+                    PaddingStrategy.BOTTOM_RIGHT_BLACK
+            ),
             new float[]{0.694F, 0.695F, 0.693F},
             new float[]{0.299F, 0.296F, 0.301F},
-            new long[]{512, 3, 32, 128},
-            false
+            512
     );
 
     /**

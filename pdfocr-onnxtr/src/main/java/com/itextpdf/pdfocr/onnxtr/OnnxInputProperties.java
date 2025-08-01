@@ -29,42 +29,55 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Properties of the input of an ONNX model, which expects an RGB image.
+ * Properties of the input of an ONNX model, which expects an image.
  *
  * <p>
- * It contains the input shape, as a [batchSize, channel, height, width] array, mean and standard
- * deviation values for normalization, whether padding should be symmetrical or not.
+ * It contains the input shape (batchSize, channel, height, width), mean and standard
+ * deviation values for normalization, what type of padding should be used.
  */
 public class OnnxInputProperties {
     /**
      * Expected channel count. We expect RGB format.
+     *
+     * @deprecated Grayscale and BGR are now supported as well. Check the
+     *             documentation for more information.
      */
+    @Deprecated
     public static final int EXPECTED_CHANNEL_COUNT = 3;
 
     /**
-     * Expected shape size. We inspect the standard BCHW format (batch, channel, height, width).
+     * Expected shape size. We expect the standard BCHW format (batch, channel, height, width).
      */
     public static final int EXPECTED_SHAPE_SIZE = 4;
 
     /**
-     * Per-channel mean, used for normalization. Should be EXPECTED_CHANNEL_COUNT length.
+     * Per-channel mean, used for normalization. Expected length
+     * of the array is based on the specified channel configuration in the
+     * image resize options.
      */
     private final float[] mean;
 
     /**
-     * Per-channel standard deviation, used for normalization. Should be EXPECTED_CHANNEL_COUNT length.
+     * Per-channel standard deviation, used for normalization. Expected length
+     * of the array is based on the specified channel configuration in the
+     * image resize options.
      */
     private final float[] std;
 
     /**
-     * Target input shape. Should be EXPECTED_SHAPE_SIZE length.
+     * Options, that control the way the input images for the models will be
+     * converted, resized and padded for ML model input.
      */
-    private final long[] shape;
+    private final ImageResizeOptions imageResizeOptions;
 
     /**
-     * Whether padding should be symmetrical during input resizing.
+     * Batch size used for the ML model input.
+     *
+     * <p>
+     * Default value is 1. If a GPU is used for calculations, it is worthwhile
+     * to bump this value as high as your VRAM allows you to.
      */
-    private final boolean symmetricPad;
+    private final int batchSize;
 
     /**
      * Creates model input properties.
@@ -73,7 +86,12 @@ public class OnnxInputProperties {
      * @param std per-channel standard deviation, used for normalization. Should be EXPECTED_CHANNEL_COUNT length
      * @param shape target input shape. Should be EXPECTED_SHAPE_SIZE length
      * @param symmetricPad whether padding should be symmetrical during input resizing
+     *
+     * @deprecated This is the original constructor, which only supported RGB inputs with a static
+     *             width/height and black pixel values padding. Use constructors with an
+     *             ImageResizeOptions parameter instead.
      */
+    @Deprecated
     public OnnxInputProperties(float[] mean, float[] std, long[] shape, boolean symmetricPad) {
         Objects.requireNonNull(mean);
         if (mean.length != EXPECTED_CHANNEL_COUNT) {
@@ -104,9 +122,115 @@ public class OnnxInputProperties {
         System.arraycopy(mean, 0, this.mean, 0, mean.length);
         this.std = new float[std.length];
         System.arraycopy(std, 0, this.std, 0, std.length);
-        this.shape = new long[shape.length];
-        System.arraycopy(shape, 0, this.shape, 0, shape.length);
-        this.symmetricPad = symmetricPad;
+        this.imageResizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB,
+                (int) shape[3], (int) shape[2],
+                (symmetricPad ? PaddingStrategy.SYMMETRIC_BLACK : PaddingStrategy.BOTTOM_RIGHT_BLACK)
+        );
+        this.batchSize = (int) shape[0];
+    }
+
+    /**
+     * Creates model input properties.
+     *
+     * @param imageResizeOptions options, that control the way the input images for the models will
+     *                           be converted, resized and padded for ML model input
+     * @param mean               per-channel mean, used for normalization. Length of the array
+     *                           should match the channel count in the image resize options
+     * @param std                per-channel standard deviation, used for normalization. Length of
+     *                           the array should match the channel count in the image resize
+     *                           options
+     * @param batchSize          size of the batch used for the ML model. Should be a positive
+     *                           number
+     */
+    public OnnxInputProperties(
+            ImageResizeOptions imageResizeOptions,
+            float[] mean,
+            float[] std,
+            int batchSize
+    ) {
+        Objects.requireNonNull(imageResizeOptions);
+        this.imageResizeOptions = imageResizeOptions;
+
+        final int channelCount = imageResizeOptions.getChannelConfiguration().getChannelCount();
+
+        Objects.requireNonNull(mean);
+        if (mean.length != channelCount) {
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, channelCount));
+        }
+        this.mean = new float[mean.length];
+        System.arraycopy(mean, 0, this.mean, 0, mean.length);
+
+        Objects.requireNonNull(std);
+        if (std.length != channelCount) {
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, channelCount));
+        }
+        this.std = new float[std.length];
+        System.arraycopy(std, 0, this.std, 0, std.length);
+
+        if (batchSize < 1) {
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
+        }
+        this.batchSize = batchSize;
+    }
+
+    /**
+     * Creates model input properties.
+     *
+     * <p>
+     * With this constructor variant batching is disabled (i.e. batch size is set to 1).
+     *
+     * @param imageResizeOptions options, that control the way the input images for the models will
+     *                           be converted, resized and padded for ML model input
+     * @param mean               per-channel mean, used for normalization. Length of the array
+     *                           should match the channel count in the image resize options
+     * @param std                per-channel standard deviation, used for normalization. Length of
+     *                           the array should match the channel count in the image resize
+     *                           options
+     */
+    public OnnxInputProperties(ImageResizeOptions imageResizeOptions, float[] mean, float[] std) {
+        this(imageResizeOptions, mean, std, 1);
+    }
+
+    /**
+     * Creates model input properties.
+     *
+     * <p>
+     * With this constructor variant no input normalization is done, only mapping to [0; 1].
+     *
+     * @param imageResizeOptions options, that control the way the input images for the models will
+     *                           be converted, resized and padded for ML model input
+     * @param batchSize          size of the batch used for the ML model. Should be a positive
+     *                           number
+     */
+    public OnnxInputProperties(ImageResizeOptions imageResizeOptions, int batchSize) {
+        this(imageResizeOptions, newNoopMean(imageResizeOptions), newNoopStd(imageResizeOptions), batchSize);
+    }
+
+
+    /**
+     * Creates model input properties.
+     *
+     * <p>
+     * With this constructor variant no input normalization is done, only mapping to [0; 1], and
+     * batching is disabled (i.e. batch size is set to 1).
+     *
+     * @param imageResizeOptions options, that control the way the input images for the models will
+     *                           be converted, resized and padded for ML model input
+     */
+    public OnnxInputProperties(ImageResizeOptions imageResizeOptions) {
+        this(imageResizeOptions, 1);
+    }
+
+    /**
+     * Returns image resize options for the input.
+     *
+     * @return image resize options for the input.
+     */
+    public ImageResizeOptions getImageResizeOptions() {
+        return imageResizeOptions;
     }
 
     /**
@@ -115,7 +239,7 @@ public class OnnxInputProperties {
      * @return per-channel mean, used for normalization
      */
     public float[] getMean() {
-        float[] copy = new float[shape.length];
+        float[] copy = new float[mean.length];
         System.arraycopy(mean, 0, copy, 0, copy.length);
         return copy;
     }
@@ -132,12 +256,21 @@ public class OnnxInputProperties {
     }
 
     /**
+     * Returns gray channel mean, used for normalization.
+     *
+     * @return gray channel mean, used for normalization
+     */
+    public float getGrayMean() {
+        return getMean(0);
+    }
+
+    /**
      * Returns red channel mean, used for normalization.
      *
      * @return red channel mean, used for normalization
      */
     public float getRedMean() {
-        return getMean(0);
+        return getMean(imageResizeOptions.getChannelConfiguration().getRedChannelIndex());
     }
 
     /**
@@ -146,7 +279,7 @@ public class OnnxInputProperties {
      * @return green channel mean, used for normalization
      */
     public float getGreenMean() {
-        return getMean(1);
+        return getMean(imageResizeOptions.getChannelConfiguration().getGreenChannelIndex());
     }
 
     /**
@@ -155,7 +288,7 @@ public class OnnxInputProperties {
      * @return blue channel mean, used for normalization
      */
     public float getBlueMean() {
-        return getMean(2);
+        return getMean(imageResizeOptions.getChannelConfiguration().getBlueChannelIndex());
     }
 
     /**
@@ -164,7 +297,7 @@ public class OnnxInputProperties {
      * @return per-channel standard deviation, used for normalization
      */
     public float[] getStd() {
-        float[] copy = new float[shape.length];
+        float[] copy = new float[std.length];
         System.arraycopy(std, 0, copy, 0, copy.length);
         return copy;
     }
@@ -181,12 +314,21 @@ public class OnnxInputProperties {
     }
 
     /**
+     * Returns gray channel standard deviation, used for normalization.
+     *
+     * @return gray channel standard deviation, used for normalization
+     */
+    public float getGrayStd() {
+        return getStd(0);
+    }
+
+    /**
      * Returns red channel standard deviation, used for normalization.
      *
      * @return red channel standard deviation, used for normalization
      */
     public float getRedStd() {
-        return getStd(0);
+        return getStd(imageResizeOptions.getChannelConfiguration().getRedChannelIndex());
     }
 
     /**
@@ -195,7 +337,7 @@ public class OnnxInputProperties {
      * @return green channel standard deviation, used for normalization
      */
     public float getGreenStd() {
-        return getStd(1);
+        return getStd(imageResizeOptions.getChannelConfiguration().getGreenChannelIndex());
     }
 
     /**
@@ -204,18 +346,21 @@ public class OnnxInputProperties {
      * @return blue channel standard deviation, used for normalization
      */
     public float getBlueStd() {
-        return getStd(2);
+        return getStd(imageResizeOptions.getChannelConfiguration().getBlueChannelIndex());
     }
 
     /**
-     * Returns target input shape.
+     * Returns target input shape. Minimum height and width are used.
      *
      * @return target input shape
      */
     public long[] getShape() {
-        long[] copy = new long[shape.length];
-        System.arraycopy(shape, 0, copy, 0, copy.length);
-        return copy;
+        return new long[]{
+                getBatchSize(),
+                getChannelCount(),
+                getHeight(),
+                getWidth()
+        };
     }
 
     /**
@@ -226,7 +371,20 @@ public class OnnxInputProperties {
      * @return target input dimension value
      */
     public int getShape(int index) {
-        return (int) shape[index];
+        switch (index) {
+            case 0:
+                return getBatchSize();
+            case 1:
+                return getChannelCount();
+            case 2:
+                return getHeight();
+            case 3:
+                return getWidth();
+            default:
+                // Fallthrough
+        }
+        throw new ArrayIndexOutOfBoundsException(MessageFormatUtil.format(
+                PdfOcrOnnxTrExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, index));
     }
 
     /**
@@ -235,7 +393,7 @@ public class OnnxInputProperties {
      * @return input batch size
      */
     public int getBatchSize() {
-        return getShape(0);
+        return batchSize;
     }
 
     /**
@@ -244,25 +402,25 @@ public class OnnxInputProperties {
      * @return input channel count
      */
     public int getChannelCount() {
-        return getShape(1);
+        return imageResizeOptions.getChannelConfiguration().getChannelCount();
     }
 
     /**
-     * Returns input height.
+     * Returns input minimum height.
      *
-     * @return input height
+     * @return input minimum height
      */
     public int getHeight() {
-        return getShape(2);
+        return imageResizeOptions.getMinHeight();
     }
 
     /**
-     * Returns input width.
+     * Returns input minimum width.
      *
-     * @return input width
+     * @return input minimum width
      */
     public int getWidth() {
-        return getShape(3);
+        return imageResizeOptions.getMinWidth();
     }
 
     /**
@@ -271,7 +429,16 @@ public class OnnxInputProperties {
      * @return whether padding should be symmetrical during input resizing
      */
     public boolean useSymmetricPad() {
-        return symmetricPad;
+        return imageResizeOptions.getPaddingStrategy().usesSymmetricPadding();
+    }
+
+    /**
+     * Returns the padding strategy for image inputs.
+     *
+     * @return the padding strategy for image inputs
+     */
+    public PaddingStrategy getPaddingStrategy() {
+        return imageResizeOptions.getPaddingStrategy();
     }
 
     /**
@@ -279,7 +446,9 @@ public class OnnxInputProperties {
      */
     @Override
     public int hashCode() {
-        return Objects.hash((Object) Arrays.hashCode(mean), Arrays.hashCode(std), Arrays.hashCode(shape), symmetricPad);
+        return Objects.hash(
+                (Object) Arrays.hashCode(mean), Arrays.hashCode(std), imageResizeOptions, batchSize
+        );
     }
 
     /**
@@ -287,15 +456,14 @@ public class OnnxInputProperties {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         final OnnxInputProperties that = (OnnxInputProperties) o;
-        return symmetricPad == that.symmetricPad && Arrays.equals(mean, that.mean)
-                && Arrays.equals(std, that.std) && Arrays.equals(shape, that.shape);
+        return batchSize == that.batchSize
+                && Arrays.equals(mean, that.mean)
+                && Arrays.equals(std, that.std)
+                && Objects.equals(imageResizeOptions, that.imageResizeOptions);
     }
 
     /**
@@ -306,8 +474,22 @@ public class OnnxInputProperties {
         return "OnnxInputProperties{" +
                 "mean=" + Arrays.toString(mean) +
                 ", std=" + Arrays.toString(std) +
-                ", shape=" + Arrays.toString(shape) +
-                ", symmetricPad=" + symmetricPad +
+                ", imageResizeOptions=" + imageResizeOptions +
+                ", batchSize=" + batchSize +
                 '}';
+    }
+
+    private static float[] newNoopMean(ImageResizeOptions imageResizeOptions) {
+        final int channelCount = imageResizeOptions.getChannelConfiguration().getChannelCount();
+        final float[] mean = new float[channelCount];
+        Arrays.fill(mean, 0.0F);
+        return mean;
+    }
+
+    private static float[] newNoopStd(ImageResizeOptions imageResizeOptions) {
+        final int channelCount = imageResizeOptions.getChannelConfiguration().getChannelCount();
+        final float[] std = new float[channelCount];
+        Arrays.fill(std, 1.0F);
+        return std;
     }
 }

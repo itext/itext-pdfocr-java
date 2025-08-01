@@ -26,9 +26,11 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
+import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
+import com.itextpdf.pdfocr.onnxtr.PaddingStrategy;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
-
 import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -46,12 +48,18 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Additional algorithms for working with {@link BufferedImage}.
  */
 public final class BufferedImageUtil {
+    /**
+     * Band index to retrieve a gray channel sample from a Raster.
+     */
+    private static final int BAND_GRAY = 0;
     /**
      * Band index to retrieve a red channel sample from a Raster. Band order
      * does not depend on the image type, so it is the same for all RGB
@@ -75,8 +83,8 @@ public final class BufferedImageUtil {
     }
 
     /**
-     * Converts a collection of images to a batched ML model input in a BCHW format with 3 channels.
-     * This does aspect-preserving image resizing to fit the input shape.
+     * Converts a collection of images to a batched ML model input in a BCHW format with 1 or 3
+     * channels. This does aspect-preserving image resizing to fit the input shape.
      *
      * @param images collection of images to convert to model input
      * @param properties model input properties
@@ -84,42 +92,32 @@ public final class BufferedImageUtil {
      * @return batched BCHW model input MD-array
      */
     public static FloatBufferMdArray toBchwInput(Collection<BufferedImage> images, OnnxInputProperties properties) {
-        // Currently properties guarantee RGB, this is just in case this changes later
-        if (properties.getChannelCount() != 3) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.ONLY_SUPPORT_RGB_IMAGES);
+        if (images.isEmpty()) {
+            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE);
         }
-
         if (images.size() > properties.getBatchSize()) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
                     PdfOcrOnnxTrExceptionMessageConstant.TOO_MANY_IMAGES, images.size(), properties.getBatchSize()));
         }
+
+        final ImageResizeOptions resizeOptions = properties.getImageResizeOptions();
+        final Dimensions2D batchDimensions = calcOutputDimensions(images, resizeOptions);
         final long[] inputShape = new long[]{
                 images.size(),
-                properties.getChannelCount(),
-                properties.getHeight(),
-                properties.getWidth()
+                resizeOptions.getChannelConfiguration().getChannelCount(),
+                batchDimensions.getHeight(),
+                batchDimensions.getWidth()
         };
-        /*
-         * It is important to do it via ByteBuffer with allocateDirect. If the
-         * buffer is non-direct, it will allocate a direct buffer within the
-         * ONNX runtime and copy the buffer there instead. So we will waste
-         * twice the memory for no reason.
-         *
-         * For some reason there doesn't seem to be a way to allocate a direct
-         * buffer via FloatBuffer itself...
-         */
-        final FloatBuffer inputData = ByteBuffer
-                .allocateDirect(calculateBufferCapacity(inputShape))
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
+        final FloatBuffer inputData = allocFloatBuffer(inputShape);
         for (final BufferedImage image : images) {
             final BufferedImage resizedImage = resize(
                     image,
-                    properties.getWidth(),
-                    properties.getHeight(),
-                    properties.useSymmetricPad()
+                    batchDimensions.getWidth(),
+                    batchDimensions.getHeight(),
+                    resizeOptions.getPaddingStrategy(),
+                    toImageType(resizeOptions.getChannelConfiguration())
             );
-            putRgbImageWithNormalization(inputData, resizedImage, properties);
+            putImageWithNormalization(inputData, resizedImage, properties);
         }
         inputData.rewind();
         return new FloatBufferMdArray(inputData, inputShape);
@@ -192,6 +190,250 @@ public final class BufferedImageUtil {
     }
 
     /**
+     * Based on the provided ImageResizeOptions, calculates the dimensions to
+     * which a batch of images should be scaled and padded.
+     *
+     * @param images        batch of images to scale/pad
+     * @param resizeOptions resize options to take into consideration for
+     *                      scaling/padding
+     *
+     * @return the calculated dimensions
+     */
+    public static Dimensions2D calcOutputDimensions(
+            Collection<BufferedImage> images,
+            ImageResizeOptions resizeOptions
+    ) {
+        /*
+         * Calculating target dimensions for each image, We need to know them
+         * all before creating a batch buffers, as width and height should be the same
+         * for each image in the batch. So we need to know the maximum sizes
+         * before we create the buffers. And we don't really want to bloat
+         * peak memory usage by creating an array of resized images...
+         */
+        final ArrayList<Dimensions2D> targetDimensions = new ArrayList<>(images.size());
+        for (final BufferedImage image : images) {
+            targetDimensions.add(calcOutputDimensions(image, resizeOptions));
+        }
+        final int maxWidth = Collections.max(
+                targetDimensions, Comparator.comparingInt(Dimensions2D::getWidth)
+        ).getWidth();
+        final int maxHeight = Collections.max(
+                targetDimensions, Comparator.comparingInt(Dimensions2D::getHeight)
+        ).getHeight();
+        return new Dimensions2D(maxWidth, maxHeight);
+    }
+
+    /**
+     * Based on the provided ImageResizeOptions, calculates the dimensions of
+     * the output image, to where there original image should be scaled and
+     * placed with padding. The returned dimensions will always satisfy the
+     * minimum constraints. Maximum constraints will also be satisfied, if the
+     * dimension multiple is 1, but if it is greater, it may round up to be
+     * higher than maximum.
+     *
+     * @param image         image, that will be scaled/padded
+     * @param resizeOptions resize options to take into consideration for
+     *                      scaling/padding
+     *
+     * @return the calculated dimensions
+     */
+    public static Dimensions2D calcOutputDimensions(BufferedImage image, ImageResizeOptions resizeOptions) {
+        int targetWidth = image.getWidth();
+        int targetHeight = image.getHeight();
+
+        /*
+         * If the image is smaller in one of the dimensions, we will try to
+         * resize it in a way that both dimensions at least match "min". In the
+         * case, when one of the dimensions gets too big and goes over "max",
+         * then we will shrink it to fit max again in the next block
+         */
+        final double widthToMinMul = (double) resizeOptions.getMinWidth() / targetWidth;
+        final double heightToMinMul = (double) resizeOptions.getMinHeight() / targetHeight;
+        if (widthToMinMul > 1. || heightToMinMul > 1.) {
+            if (widthToMinMul >= heightToMinMul) {
+                targetWidth = resizeOptions.getMinWidth();
+                targetHeight = Math.max(resizeOptions.getMinHeight(), (int) Math.round(widthToMinMul * targetHeight));
+            } else {
+                targetWidth = Math.max(resizeOptions.getMinWidth(), (int) Math.round(heightToMinMul * targetWidth));
+                targetHeight = resizeOptions.getMinHeight();
+            }
+        }
+
+        /*
+         * If the image is bigger in one of the dimensions, we will shrink it
+         * in a way to satisfy the "max" constraints. In case one of the
+         * dimensions will fall below its "min" constraint afterward, we will
+         * pad it back.
+         */
+        final double widthToMaxMul = (double) resizeOptions.getMaxWidth() / targetWidth;
+        final double heightToMaxMul = (double) resizeOptions.getMaxHeight() / targetHeight;
+        if (widthToMaxMul < 1. || heightToMaxMul < 1.) {
+            if (widthToMaxMul <= heightToMaxMul) {
+                targetWidth = resizeOptions.getMaxWidth();
+                targetHeight = (int) MathUtil.clamp(
+                        widthToMaxMul * targetHeight, resizeOptions.getMinHeight(), resizeOptions.getMaxHeight()
+                );
+            } else {
+                targetWidth = (int) MathUtil.clamp(
+                        heightToMaxMul * targetWidth, resizeOptions.getMinWidth(), resizeOptions.getMaxWidth()
+                );
+                targetHeight = resizeOptions.getMaxHeight();
+            }
+        }
+
+        // Rounding-up to multiple here
+        final int widthMultiple = resizeOptions.getWidthMultiple();
+        final int heightMultiple = resizeOptions.getHeightMultiple();
+        return new Dimensions2D(
+                (targetWidth + (widthMultiple - 1)) / widthMultiple * widthMultiple,
+                (targetHeight + (heightMultiple - 1)) / heightMultiple * heightMultiple
+        );
+    }
+
+    /**
+     * Truncates the input image, so that neither width/height, nor
+     * height/width ratios exceed the limit.
+     *
+     * <p>
+     * If width/height ratio exceeds the limit, the image will be truncated
+     * on left and right equally.
+     *
+     * <p>
+     * If height/width ratio exceeds the limit, the image will be truncated
+     * on top and bottom equally.
+     *
+     * @param image      input image to truncate
+     * @param ratioLimit target ratio limit
+     *
+     * @return the truncated image
+     */
+    public static BufferedImage truncateToRatio(BufferedImage image, double ratioLimit) {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+
+        // If w/h ratio is too big, truncating by width
+        final double imageRatio = (double) width / height;
+        if (imageRatio > ratioLimit) {
+            final int newWidth = Math.max(1, (int) (ratioLimit * height));
+            final int newX = (width - newWidth) / 2;
+            return image.getSubimage(newX, 0, newWidth, height);
+        }
+
+        // If h/w ratio is too big, truncating by height
+        final double imageRatioInv = 1. / imageRatio;
+        if (imageRatioInv > ratioLimit) {
+            final int newHeight = Math.max(1, (int) (ratioLimit * width));
+            final int newY = (height - newHeight) / 2;
+            return image.getSubimage(0, newY, width, newHeight);
+        }
+
+        // Otherwise leaving as-is
+        return image;
+    }
+
+    /**
+     * Creates a new image with an aspect ratio preserving resize.
+     *
+     * @param image image to resize
+     * @param width target width
+     * @param height target height
+     * @param paddingStrategy padding strategy to use
+     * @param targetType type of the created image
+     *
+     * @return new resized image
+     */
+    static BufferedImage resize(BufferedImage image, int width, int height,
+                                PaddingStrategy paddingStrategy, int targetType) {
+        // It is pretty unlikely, that the image is already the correct size, so no need for an exception
+        final BufferedImage result = new BufferedImage(width, height, targetType);
+        final Graphics2D graphics = result.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        final int sourceWidth = image.getWidth();
+        final int sourceHeight = image.getHeight();
+        final double widthRatio = (double) width / sourceWidth;
+        final double heightRatio = (double) height / sourceHeight;
+        if (heightRatio > widthRatio) {
+            final int scaledHeight = Math.min(height, (int) Math.round(sourceHeight * widthRatio));
+            drawResizedImage(graphics, width, height, image, width, scaledHeight, paddingStrategy);
+        } else {
+            final int scaledWidth = Math.min(width, (int) Math.round(sourceWidth * heightRatio));
+            drawResizedImage(graphics, width, height, image, scaledWidth, height, paddingStrategy);
+        }
+        graphics.dispose();
+        return result;
+    }
+
+    private static void putImageWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            OnnxInputProperties props
+    ) {
+        switch (props.getImageResizeOptions().getChannelConfiguration()) {
+            case GRAYSCALE:
+                putGrayscaleImageWithNormalization(outputBuffer, image, props);
+                return;
+            case RGB:
+                putRgbImageWithNormalization(outputBuffer, image, props);
+                return;
+            case BGR:
+                putBgrImageWithNormalization(outputBuffer, image, props);
+                return;
+        }
+        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+    }
+
+    private static void putGrayscaleImageWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            OnnxInputProperties props
+    ) {
+        assert image.getType() == BufferedImage.TYPE_BYTE_GRAY;
+
+        putImageBandWithNormalization(outputBuffer, image, BAND_GRAY, props.getGrayMean(), props.getGrayStd());
+    }
+
+    private static void putRgbImageWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            OnnxInputProperties props
+    ) {
+        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
+
+        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
+    }
+
+    private static void putBgrImageWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            OnnxInputProperties props
+    ) {
+        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
+
+        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
+    }
+
+    private static void putImageBandWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            int band,
+            double mean,
+            double std
+    ) {
+        final Raster raster = image.getRaster();
+        for (int y = 0; y < raster.getHeight(); ++y) {
+            for (int x = 0; x < raster.getWidth(); ++x) {
+                final double v = raster.getSample(x, y, band) / 255.0;
+                outputBuffer.put((float) ((v - mean) / std));
+            }
+        }
+    }
+
+    /**
      * Converts an image to an RGB Mat for use in OpenCV.
      *
      * @param image image to convert
@@ -241,121 +483,69 @@ public final class BufferedImageUtil {
         return image;
     }
 
-    /**
-     * Creates a new image with an aspect ratio preserving resize. New blank pixel will have black color.
-     *
-     * @param image image to resize
-     * @param width target width
-     * @param height target height
-     * @param symmetricPad whether padding should be symmetric or should it be bottom-right
-     *
-     * @return new resized image
-     */
-    private static BufferedImage resize(BufferedImage image, int width, int height, boolean symmetricPad) {
-        // It is pretty unlikely, that the image is already the correct size, so no need for an exception
-        final BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        final Graphics2D graphics = result.createGraphics();
-        graphics.setColor(Color.BLACK);
-        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-        final int sourceWidth = image.getWidth();
-        final int sourceHeight = image.getHeight();
-        final double widthRatio = (double) width / sourceWidth;
-        final double heightRatio = (double) height / sourceHeight;
-        if (heightRatio > widthRatio) {
-            final int scaledHeight = (int) Math.round(sourceHeight * widthRatio);
-            final int yPos;
-            if (symmetricPad) {
-                yPos = (height - scaledHeight) / 2;
-                graphics.fillRect(0, 0, width, yPos);
-            } else {
-                yPos = 0;
-            }
-            graphics.fillRect(0, yPos + scaledHeight, width, height - scaledHeight - yPos);
-            graphics.drawImage(image, 0, yPos, width, scaledHeight, Color.WHITE, null);
+    private static void drawResizedImage(Graphics2D output, int outputWidth, int outputHeight, BufferedImage image,
+                                         int targetWidth, int targetHeight, PaddingStrategy paddingStrategy) {
+        // Figuring where to put the image
+        int xPos = 0;
+        int yPos = 0;
+        if (paddingStrategy.usesSymmetricPadding()) {
+            xPos += (outputWidth - targetWidth) / 2;
+            yPos += (outputHeight - targetHeight) / 2;
+        } else if (!paddingStrategy.usesBottomRightPadding()) {
+            throw new IllegalArgumentException(MessageFormatUtil.format(
+                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_PADDING_STRATEGY, paddingStrategy
+            ));
+        }
+        // Drawing all the paddings first
+        if (paddingStrategy.usesSolidColor()) {
+            // Might as well just fill the whole output, images are small
+            // anyway, so they might just be in cache whole
+            output.setColor(paddingStrategy.getSolidColor());
+            output.fillRect(0, 0, outputWidth, outputHeight);
         } else {
-            final int scaledWidth = (int) Math.round(sourceWidth * heightRatio);
-            final int xPos;
-            if (symmetricPad) {
-                xPos = (width - scaledWidth) / 2;
-                graphics.fillRect(0, 0, xPos, height);
-            } else {
-                xPos = 0;
+            final int sourceWidth = image.getWidth();
+            final int sourceHeight = image.getHeight();
+            // Top padding
+            if (yPos > 0) {
+                output.drawImage(
+                        image,
+                        0, 0, outputWidth, yPos,
+                        0, 0, sourceWidth, 1,
+                        Color.WHITE, null
+                );
             }
-            graphics.fillRect(xPos + scaledWidth, 0, width - scaledWidth - xPos, height);
-            graphics.drawImage(image, xPos, 0, scaledWidth, height, Color.WHITE, null);
-        }
-        graphics.dispose();
-        return result;
-    }
-
-    /**
-     * Truncates the input image, so that neither width/height, nor
-     * height/width ratios exceed the limit.
-     *
-     * <p>
-     * If width/height ratio exceeds the limit, the image will be truncated
-     * on left and right equally.
-     *
-     * <p>
-     * If height/width ratio exceeds the limit, the image will be truncated
-     * on top and bottom equally.
-     *
-     * @param image      input image to truncate
-     * @param ratioLimit target ratio limit
-     *
-     * @return the truncated image
-     */
-    public static BufferedImage truncateToRatio(BufferedImage image, double ratioLimit) {
-        final int width = image.getWidth();
-        final int height = image.getHeight();
-
-        // If w/h ratio is too big, truncating by width
-        final double imageRatio = (double) width / height;
-        if (imageRatio > ratioLimit) {
-            final int newWidth = Math.max(1, (int) (ratioLimit * height));
-            final int newX = (width - newWidth) / 2;
-            return image.getSubimage(newX, 0, newWidth, height);
-        }
-
-        // If h/w ratio is too big, truncating by height
-        final double imageRatioInv = 1. / imageRatio;
-        if (imageRatioInv > ratioLimit) {
-            final int newHeight = Math.max(1, (int) (ratioLimit * width));
-            final int newY = (height - newHeight) / 2;
-            return image.getSubimage(0, newY, width, newHeight);
-        }
-
-        // Otherwise leaving as-is
-        return image;
-    }
-
-    private static void putRgbImageWithNormalization(
-            FloatBuffer outputBuffer,
-            BufferedImage image,
-            OnnxInputProperties props
-    ) {
-        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
-
-        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
-    }
-
-    private static void putImageBandWithNormalization(
-            FloatBuffer outputBuffer,
-            BufferedImage image,
-            int band,
-            double mean,
-            double std
-    ) {
-        final Raster raster = image.getRaster();
-        for (int y = 0; y < raster.getHeight(); ++y) {
-            for (int x = 0; x < raster.getWidth(); ++x) {
-                final double v = raster.getSample(x, y, band) / 255.0;
-                outputBuffer.put((float) ((v - mean) / std));
+            // Right padding
+            final int rightPaddingX = xPos + targetWidth;
+            if (rightPaddingX < outputWidth) {
+                output.drawImage(
+                        image,
+                        rightPaddingX, 0, outputWidth, outputHeight,
+                        sourceWidth - 1, 0, sourceWidth, sourceHeight,
+                        Color.WHITE, null
+                );
+            }
+            // Bottom padding
+            final int bottomPaddingY = yPos + targetHeight;
+            if (bottomPaddingY < outputHeight) {
+                output.drawImage(
+                        image,
+                        0, bottomPaddingY, outputWidth, outputHeight,
+                        0, sourceHeight - 1, sourceWidth, sourceHeight,
+                        Color.WHITE, null
+                );
+            }
+            // Left padding
+            if (xPos > 0) {
+                output.drawImage(
+                        image,
+                        0, 0, xPos, outputHeight,
+                        0, 0, 1, sourceHeight,
+                        Color.WHITE, null
+                );
             }
         }
+        // Drawing the image itself
+        output.drawImage(image, xPos, yPos, targetWidth, targetHeight, Color.WHITE, null);
     }
 
     private static Mat calculateBoxTransformationMat(Point[] box, float boxWidth, float boxHeight) {
@@ -373,6 +563,17 @@ public final class BufferedImageUtil {
         }
     }
 
+    private static int toImageType(ImageChannelConfiguration channelConfiguration) {
+        switch (channelConfiguration) {
+            case GRAYSCALE:
+                return BufferedImage.TYPE_BYTE_GRAY;
+            case RGB:
+            case BGR:
+                return BufferedImage.TYPE_3BYTE_BGR;
+        }
+        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+    }
+
     /**
      * Returns the byte capacity required for a float32 buffer of the specified shape.
      *
@@ -386,5 +587,28 @@ public final class BufferedImageUtil {
             capacity *= (int) dim;
         }
         return capacity;
+    }
+
+    /**
+     * Allocates a direct float buffer to accommodate the provided shape.
+     *
+     * @param shape shape of the MD-array
+     *
+     * @return the allocated direct float buffer
+     */
+    private static FloatBuffer allocFloatBuffer(long[] shape) {
+        /*
+         * It is important to do it via ByteBuffer with allocateDirect. If the
+         * buffer is non-direct, it will allocate a direct buffer within the
+         * ONNX runtime and copy the buffer there instead. So we will waste
+         * twice the memory for no reason.
+         *
+         * For some reason there doesn't seem to be a way to allocate a direct
+         * buffer via FloatBuffer itself...
+         */
+        return ByteBuffer
+                .allocateDirect(calculateBufferCapacity(shape))
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
     }
 }
