@@ -188,12 +188,6 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
     @Override
     protected List<List<Point[]>> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
         final IDetectionPostProcessor postProcessor = properties.getPostProcessor();
-        // Normalizing pixel values via a sigmoid expit function
-        final float[] outputBuffer = outputBatch.getData().array();
-        int offset = outputBatch.getArrayOffset();
-        for (int i = offset; i < offset + outputBatch.getArraySize(); ++i) {
-            outputBuffer[i] = MathUtil.expit(outputBuffer[i]);
-        }
         final List<List<Point[]>> batchTextBoxes = new ArrayList<>(inputBatch.size());
         for (int i = 0; i < inputBatch.size(); ++i) {
             final BufferedImage image = inputBatch.get(i);

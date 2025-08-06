@@ -64,6 +64,15 @@ public class MathUtilTest extends ExtendedITextTest {
     }
 
     @Test
+    public void logitTest() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MathUtil.logit(-0.1F));
+        Assertions.assertEquals(Float.NEGATIVE_INFINITY, MathUtil.logit(0F));
+        Assertions.assertEquals(0F, MathUtil.logit(0.5F));
+        Assertions.assertEquals(Float.POSITIVE_INFINITY, MathUtil.logit(1F));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MathUtil.logit(1.1F));
+    }
+
+    @Test
     public void levenshteinDistanceTest(){
         Assertions.assertEquals(5, MathUtil.calculateLevenshteinDistance("kitten", "meat"));
         Assertions.assertEquals(1, MathUtil.calculateLevenshteinDistance("kitten", "kitte"));

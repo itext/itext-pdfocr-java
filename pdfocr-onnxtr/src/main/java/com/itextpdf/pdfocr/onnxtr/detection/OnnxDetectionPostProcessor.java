@@ -56,8 +56,13 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
      * Threshold value used, when binarizing a monochromatic image. If pixel
      * value is greater or equal to the threshold, it is mapped to 1, otherwise
      * it is mapped to 0.
+     *
+     * <p>
+     * This is not the original binarization threshold, provided by the user,
+     * but the value of logit on it. This is so we don't need to run expit
+     * over the model output for binarization.
      */
-    private final float binarizationThreshold;
+    private final float binarizationThresholdLogit;
     /**
      * Score threshold for a detected box. If score is lower than this value,
      * the box gets discarded.
@@ -73,7 +78,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
      *                       the box gets discarded
      */
     public OnnxDetectionPostProcessor(float binarizationThreshold, float scoreThreshold) {
-        this.binarizationThreshold = binarizationThreshold;
+        this.binarizationThresholdLogit = (float) MathUtil.logit(MathUtil.clamp(binarizationThreshold, 0., 1.));
         this.scoreThreshold = scoreThreshold;
     }
 
@@ -96,7 +101,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         // or use a smaller mask with only the contour. Though based on profiling, it doesn't look
         // like it is that bad, when it is only once per input image.
         try (final Mat scoreMask = new Mat(height, width, CvType.CV_8U, new Scalar(0));
-             final MatVector contours = findTextContours(output, binarizationThreshold)) {
+             final MatVector contours = findTextContours(output, binarizationThresholdLogit)) {
             final long contourCount = contours.size();
             for (long contourIdx = 0; contourIdx < contourCount; ++contourIdx) {
                 try (final Mat contour = contours.get(contourIdx);
@@ -159,7 +164,8 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         /*
          * Algorithm here is pretty simple. We go over all the points, painted
          * by the contour shape, and calculate the mean prediction score
-         * value over the original normalized output array.
+         * value over the original output array, values of which we normalize
+         * via expit.
          */
         final FloatBufferMdArray hwMdArray = predictions.getSubArray(0);
         final int height = hwMdArray.getDimension(0);
@@ -180,7 +186,7 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
                     if (maskIndexer.get(y, x) != 1) {
                         continue;
                     }
-                    final float prediction = predictionsRow.getScalar(x);
+                    final float prediction = MathUtil.expit(predictionsRow.getScalar(x));
                     if (prediction > 0) {
                         sum += prediction;
                         ++nonZeroCount;
