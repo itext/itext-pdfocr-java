@@ -47,12 +47,12 @@ public class OnnxInputProperties {
     public static final int EXPECTED_SHAPE_SIZE = 4;
 
     /**
-     * Per-channel mean, used for normalization. Should be EXPECTED_SHAPE_SIZE length.
+     * Per-channel mean, used for normalization. Should be EXPECTED_CHANNEL_COUNT length.
      */
     private final float[] mean;
 
     /**
-     * Per-channel standard deviation, used for normalization. Should be EXPECTED_SHAPE_SIZE length.
+     * Per-channel standard deviation, used for normalization. Should be EXPECTED_CHANNEL_COUNT length.
      */
     private final float[] std;
 
@@ -69,8 +69,8 @@ public class OnnxInputProperties {
     /**
      * Creates model input properties.
      *
-     * @param mean per-channel mean, used for normalization. Should be EXPECTED_SHAPE_SIZE length
-     * @param std per-channel standard deviation, used for normalization. Should be EXPECTED_SHAPE_SIZE length
+     * @param mean per-channel mean, used for normalization. Should be EXPECTED_CHANNEL_COUNT length
+     * @param std per-channel standard deviation, used for normalization. Should be EXPECTED_CHANNEL_COUNT length
      * @param shape target input shape. Should be EXPECTED_SHAPE_SIZE length
      * @param symmetricPad whether padding should be symmetrical during input resizing
      */
