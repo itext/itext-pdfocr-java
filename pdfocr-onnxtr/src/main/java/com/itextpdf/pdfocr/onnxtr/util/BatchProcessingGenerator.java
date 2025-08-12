@@ -40,10 +40,12 @@ import java.util.Objects;
 public class BatchProcessingGenerator<T, R> implements Iterator<R> {
     private final Iterator<List<T>> batchIterator;
     private final IBatchProcessor<T, R> batchProcessor;
+
     /**
      * Processing result cache.
      */
     private List<R> batchResult = null;
+
     /**
      * Current position in the processing result cache.
      */
@@ -60,11 +62,17 @@ public class BatchProcessingGenerator<T, R> implements Iterator<R> {
         this.batchProcessor = Objects.requireNonNull(batchProcessor);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasNext() {
         return batchResult != null || batchIterator.hasNext();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public R next() {
         if (!hasNext()) {

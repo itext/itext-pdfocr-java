@@ -89,12 +89,18 @@ public class OnnxOrientationPredictor
         return properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected FloatBufferMdArray toInputBuffer(List<BufferedImage> batch) {
         // Just your regular BCHW input
         return BufferedImageUtil.toBchwInput(batch, properties.getInputProperties());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected List<TextOrientation> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
         // Just extracting the highest scoring "orientation class" for each image via argmax

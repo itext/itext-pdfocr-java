@@ -12,20 +12,19 @@ import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 import java.util.Objects;
 
 /**
- * Implementation of a text recognition predictor post-processor, used for
- * OnnxTR non-CRNN model outputs.
+ * Implementation of a text recognition predictor post-processor, used for OnnxTR non-CRNN model outputs.
  *
  * <p>
- * This assumes there is an end-of-string token just after the vocabulary. You
- * can specify additional tokens afterwards, but they are not used in the
- * processing. No same character aggregation is done. Output is read till an
- * end-of-string token in encountered.
+ * This assumes there is an end-of-string token just after the vocabulary. You can specify additional tokens afterward,
+ * but they are not used in the processing. No same character aggregation is done. Output is read till an end-of-string
+ * token in encountered.
  */
 public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
     /**
      * Vocabulary used for the model output (without special tokens).
      */
     private final Vocabulary vocabulary;
+
     /**
      * Amount of additional tokens in the total vocabulary after the
      * end-of-string token.
@@ -59,6 +58,9 @@ public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
         this(Vocabulary.FRENCH, 0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String process(FloatBufferMdArray output) {
         final int maxWordLength = output.getDimension(0);
@@ -81,6 +83,9 @@ public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
         return wordBuilder.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int labelDimension() {
         // +1 is for "<eos>" token itself

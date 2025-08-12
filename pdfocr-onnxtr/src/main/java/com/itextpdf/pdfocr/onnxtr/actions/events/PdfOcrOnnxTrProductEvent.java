@@ -67,6 +67,9 @@ public final class PdfOcrOnnxTrProductEvent extends AbstractProductProcessITextE
         return new PdfOcrOnnxTrProductEvent(sequenceId, metaInfo, PROCESS_IMAGE_ONNXTR, eventConfirmationType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventType() {
         return eventType;

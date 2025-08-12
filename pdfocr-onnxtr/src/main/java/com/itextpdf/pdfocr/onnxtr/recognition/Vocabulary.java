@@ -1137,11 +1137,17 @@ public class Vocabulary {
         return lookUpString.charAt(index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return lookUpString.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -1154,6 +1160,9 @@ public class Vocabulary {
         return Objects.equals(lookUpString, that.lookUpString);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return lookUpString;

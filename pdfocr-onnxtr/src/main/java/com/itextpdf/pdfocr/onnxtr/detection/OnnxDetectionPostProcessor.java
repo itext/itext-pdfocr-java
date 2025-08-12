@@ -84,6 +84,9 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         this(0.1F, 0.1F);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Point[]> process(BufferedImage input, FloatBufferMdArray output) {
         final int height = output.getDimension(1);

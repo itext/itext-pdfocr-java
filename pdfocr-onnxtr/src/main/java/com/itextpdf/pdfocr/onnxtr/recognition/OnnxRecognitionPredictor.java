@@ -34,8 +34,7 @@ import java.util.List;
  * A text recognition predictor implementation, which is using ONNX Runtime and
  * its ML models to recognize text characters on an image.
  */
-public class OnnxRecognitionPredictor
-        extends AbstractOnnxPredictor<BufferedImage, String>
+public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImage, String>
         implements IRecognitionPredictor {
     /**
      * Configuration properties of the predictor.
@@ -256,12 +255,18 @@ public class OnnxRecognitionPredictor
         return properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected FloatBufferMdArray toInputBuffer(List<BufferedImage> batch) {
         // Just your regular BCHW input
         return BufferedImageUtil.toBchwInput(batch, properties.getInputProperties());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected List<String> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
         final int batchSize = outputBatch.getDimension(0);

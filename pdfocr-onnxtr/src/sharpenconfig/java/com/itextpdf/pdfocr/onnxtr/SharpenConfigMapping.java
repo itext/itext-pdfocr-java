@@ -38,16 +38,25 @@ import java.util.List;
  */
 public class SharpenConfigMapping implements MappingConfiguration {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMappingPriority() {
         return 1;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getModuleName() {
         return "pdfocr-onnxtr";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void applyMappingConfiguration(MappingConfigurator configurator) {
         configurator.addCustomUsingForMethodInvocation("java.awt.image.BufferedImage",
@@ -93,41 +102,65 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void applySharpenOptions(OptionsConfigurator configurator) {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void applyConfigModuleSettings(ModulesConfigurator configurator) {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setConfigModuleSettings(ModulesConfigurator modulesConfigurator) {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<ModuleOption> getAvailableModuleSettings() {
         return Collections.EMPTY_SET;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<String> getDependencies() {
         return Collections.EMPTY_LIST;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<String> getIgnoredSourceFiles() {
         return Collections.EMPTY_LIST;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<String> getIgnoredResources() {
         return Collections.EMPTY_LIST;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<SimpleImmutableEntry<String, String>> getOverwrittenResources() {
         return Collections.EMPTY_LIST;

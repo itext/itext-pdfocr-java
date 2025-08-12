@@ -34,21 +34,31 @@ import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 final class OnnxTrEventHelper extends AbstractPdfOcrEventHelper {
 
     OnnxTrEventHelper() {
-        // do nothing
+        // Do nothing.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onEvent(AbstractProductITextEvent event) {
         EventManager.getInstance().onEvent(event);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EventConfirmationType getConfirmationType() {
+        return EventConfirmationType.ON_DEMAND;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SequenceId getSequenceId() {
         return new SequenceId();
     }
 
-    @Override
-    public EventConfirmationType getConfirmationType() {
-        return EventConfirmationType.ON_DEMAND;
-    }
 }

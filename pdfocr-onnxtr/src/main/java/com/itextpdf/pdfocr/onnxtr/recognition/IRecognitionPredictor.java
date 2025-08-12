@@ -27,8 +27,7 @@ import com.itextpdf.pdfocr.onnxtr.IPredictor;
 import java.awt.image.BufferedImage;
 
 /**
- * Interface for predictors, which take a cropped image of text and recognize
- * text characters on it.
+ * Interface for predictors, which take a cropped image of text and recognize text characters on it.
  */
 public interface IRecognitionPredictor extends IPredictor<BufferedImage, String> {
 }

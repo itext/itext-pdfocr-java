@@ -44,6 +44,9 @@ final class OnnxTrFileResultEventHelper extends AbstractPdfOcrEventHelper {
         this.events = new ArrayList<>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onEvent(AbstractProductITextEvent event) {
         if (isConfirmForProcessImageOnnxTrEvent(event)) {
@@ -53,11 +56,17 @@ final class OnnxTrFileResultEventHelper extends AbstractPdfOcrEventHelper {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SequenceId getSequenceId() {
         return wrappedEventHelper.getSequenceId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public EventConfirmationType getConfirmationType() {
         return wrappedEventHelper.getConfirmationType();

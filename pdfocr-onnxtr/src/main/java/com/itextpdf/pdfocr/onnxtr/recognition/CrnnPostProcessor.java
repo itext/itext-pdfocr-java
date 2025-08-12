@@ -42,6 +42,9 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
         this.vocabulary = Vocabulary.FRENCH;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String process(FloatBufferMdArray output) {
         final int maxWordLength = output.getDimension(0);
@@ -62,6 +65,9 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
         return wordBuilder.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int labelDimension() {
         // +1 is "<blank>" token

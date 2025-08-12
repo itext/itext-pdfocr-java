@@ -47,6 +47,9 @@ public class DefaultOrientationMapper implements IOutputLabelMapper<TextOrientat
         // noop
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int size() {
         return 4;

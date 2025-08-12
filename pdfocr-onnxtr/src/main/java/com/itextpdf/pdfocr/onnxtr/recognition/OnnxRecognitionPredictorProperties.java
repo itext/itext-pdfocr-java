@@ -14,8 +14,7 @@ import java.util.Objects;
  * Properties for configuring text recognition ONNX models.
  *
  * <p>
- * It contains a path to the model, model input properties and a model
- * output post-processor.
+ * It contains a path to the model, model input properties and a model output post-processor.
  */
 public class OnnxRecognitionPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
@@ -29,11 +28,13 @@ public class OnnxRecognitionPredictorProperties {
      * Path to the ONNX model to load.
      */
     private final String modelPath;
+
     /**
      * Properties of the inputs of the ONNX model. Used for validation (both
      * input and output, since output mask size is the same) and pre-processing.
      */
     private final OnnxInputProperties inputProperties;
+
     /**
      * Post-processor of the outputs of the ONNX model. Converts the  output of
      * the model to a text string.
@@ -47,11 +48,8 @@ public class OnnxRecognitionPredictorProperties {
      * @param inputProperties ONNX model input properties
      * @param postProcessor ONNX model output post-processor
      */
-    public OnnxRecognitionPredictorProperties(
-            String modelPath,
-            OnnxInputProperties inputProperties,
-            IRecognitionPostProcessor postProcessor
-    ) {
+    public OnnxRecognitionPredictorProperties(String modelPath, OnnxInputProperties inputProperties,
+                                              IRecognitionPostProcessor postProcessor) {
         this.modelPath = Objects.requireNonNull(modelPath);
         this.inputProperties = Objects.requireNonNull(inputProperties);
         this.postProcessor = Objects.requireNonNull(postProcessor);
@@ -303,6 +301,9 @@ public class OnnxRecognitionPredictorProperties {
         return postProcessor;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -317,11 +318,17 @@ public class OnnxRecognitionPredictorProperties {
                 Objects.equals(postProcessor, that.postProcessor);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hash((Object) modelPath, inputProperties, postProcessor);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "OnnxRecognitionPredictorProperties{" +

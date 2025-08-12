@@ -135,6 +135,9 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterator<R> predict(Iterator<T> inputs) {
         return new BatchProcessingGenerator<>(
@@ -151,6 +154,9 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() {
         if (closed) {

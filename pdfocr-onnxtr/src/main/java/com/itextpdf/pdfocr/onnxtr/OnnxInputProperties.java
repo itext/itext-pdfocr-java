@@ -40,6 +40,7 @@ public class OnnxInputProperties {
      * Expected channel count. We expect RGB format.
      */
     public static final int EXPECTED_CHANNEL_COUNT = 3;
+
     /**
      * Expected shape size. We inspect the standard BCHW format (batch, channel, height, width).
      */
@@ -49,14 +50,17 @@ public class OnnxInputProperties {
      * Per-channel mean, used for normalization. Should be EXPECTED_SHAPE_SIZE length.
      */
     private final float[] mean;
+
     /**
      * Per-channel standard deviation, used for normalization. Should be EXPECTED_SHAPE_SIZE length.
      */
     private final float[] std;
+
     /**
      * Target input shape. Should be EXPECTED_SHAPE_SIZE length.
      */
     private final long[] shape;
+
     /**
      * Whether padding should be symmetrical during input resizing.
      */
@@ -270,11 +274,17 @@ public class OnnxInputProperties {
         return symmetricPad;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hash((Object) Arrays.hashCode(mean), Arrays.hashCode(std), Arrays.hashCode(shape), symmetricPad);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -288,6 +298,9 @@ public class OnnxInputProperties {
                 && Arrays.equals(std, that.std) && Arrays.equals(shape, that.shape);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "OnnxInputProperties{" +

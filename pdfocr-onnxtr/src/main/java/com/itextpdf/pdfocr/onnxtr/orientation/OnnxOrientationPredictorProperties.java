@@ -16,8 +16,7 @@ import java.util.Objects;
  * Properties for configuring crop orientation ONNX models.
  *
  * <p>
- * It contains a path to the model, model input properties and a model
- * output mapper.
+ * It contains a path to the model, model input properties and a model output mapper.
  */
 public class OnnxOrientationPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
@@ -26,20 +25,21 @@ public class OnnxOrientationPredictorProperties {
             new long[]{512, 3, 256, 256},
             true
     );
+
     private static final DefaultOrientationMapper DEFAULT_OUTPUT_MAPPER = new DefaultOrientationMapper();
 
     /**
      * Path to the ONNX model to load.
      */
     private final String modelPath;
+
     /**
-     * Properties of the inputs of the ONNX model. Used for validation and
-     * pre-processing.
+     * Properties of the inputs of the ONNX model. Used for validation and pre-processing.
      */
     private final OnnxInputProperties inputProperties;
+
     /**
-     * Properties of the outputs of the ONNX model. Used for validation and
-     * post-processing.
+     * Properties of the outputs of the ONNX model. Used for validation and post-processing.
      */
     private final IOutputLabelMapper<TextOrientation> outputMapper;
 
@@ -112,11 +112,17 @@ public class OnnxOrientationPredictorProperties {
         return outputMapper;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Objects.hash((Object) modelPath, inputProperties, outputMapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -130,6 +136,9 @@ public class OnnxOrientationPredictorProperties {
                 that.inputProperties) && Objects.equals(outputMapper, that.outputMapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "OnnxOrientationPredictorProperties{" +

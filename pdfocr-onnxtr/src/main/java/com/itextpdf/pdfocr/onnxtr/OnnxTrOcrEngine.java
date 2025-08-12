@@ -122,6 +122,9 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         this(detectionPredictor, null, recognitionPredictor);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws Exception {
         detectionPredictor.close();
@@ -131,11 +134,17 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         recognitionPredictor.close();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input) {
         return doImageOcr(input, new OcrProcessContext(new OnnxTrEventHelper()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
         Map<Integer, List<TextInfo>> result = doOnnxTrOcr(input, ocrProcessContext);
@@ -147,11 +156,17 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
         createTxtFile(inputImages, txtFile, new OcrProcessContext(new OnnxTrEventHelper()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
         LoggerFactory.getLogger(getClass()).info(
@@ -182,16 +197,25 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isTaggingSupported() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PdfOcrMetaInfoContainer getMetaInfoContainer() {
         return new PdfOcrMetaInfoContainer(new OnnxTrMetaInfo());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ProductData getProductData() {
         return null;

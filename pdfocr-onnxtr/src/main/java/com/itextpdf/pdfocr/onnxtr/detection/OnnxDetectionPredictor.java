@@ -173,12 +173,18 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
         return properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected FloatBufferMdArray toInputBuffer(List<BufferedImage> batch) {
         // Just your regular BCHW input
         return BufferedImageUtil.toBchwInput(batch, properties.getInputProperties());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected List<List<Point[]>> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
         final IDetectionPostProcessor postProcessor = properties.getPostProcessor();

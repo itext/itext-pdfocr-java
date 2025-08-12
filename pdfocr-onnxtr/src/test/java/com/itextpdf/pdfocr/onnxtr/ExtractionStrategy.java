@@ -49,6 +49,9 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         fillColor = color;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void eventOccurred(IEventData data, EventType type) {
         if (type.equals(EventType.RENDER_TEXT) || type.equals(EventType.RENDER_IMAGE)) {
@@ -63,6 +66,9 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean isChunkAtWordBoundary(TextChunk chunk, TextChunk previousChunk) {
         ITextChunkLocation curLoc = chunk.getLocation();
