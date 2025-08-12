@@ -105,6 +105,17 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapIndexer("org.bytedeco.opencv.opencv_core.MatVector.get");
         configurator.mapType("org.opencv.core.CvType", "OpenCvSharp.MatType");
 
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Rect.x", "X");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Rect.y", "Y");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Rect.height", "Height");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Rect.width", "Width");
+        configurator.mapField("org.bytedeco.opencv.opencv_core.AbstractScalar.WHITE", "OpenCvSharp.Scalar.White");
+        configurator.mapField("org.bytedeco.opencv.opencv_core.AbstractScalar.ZERO", "OpenCvSharp.Scalar.Black");
+        configurator.mapType("org.bytedeco.opencv.opencv_core.Scalar", "OpenCvSharp.Scalar");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Mat.rows()", "Rows");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Mat.cols()", "Cols");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Point2f.x()", "X");
+        configurator.mapProperty("org.bytedeco.opencv.opencv_core.Point2f.y()", "Y");
     }
 
     /**

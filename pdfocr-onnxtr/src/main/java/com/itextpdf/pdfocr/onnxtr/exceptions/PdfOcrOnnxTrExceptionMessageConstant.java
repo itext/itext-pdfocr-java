@@ -37,6 +37,7 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String FAILED_TO_READ_IMAGE = "Failed to read image.";
     public static final String HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE =
             "HeightMultiple should be a positive value, found {0}.";
+    public static final String HW_ARRAY_SHOULD_BE_TWO_DIMENSIONAL = "HwMdArray should be two-dimensional";
     public static final String INDEX_OUT_OF_BOUNDS = "Index out of bounds: {0}.";
     public static final String INVALID_NUMBER_OF_OUTPUTS = "Batch processing failed: invalid number of outputs.";
     public static final String LOOK_UP_STRING_CONTAINS_2_CODE_UNITS_POINTS = "Look-up string contains code points, " +
