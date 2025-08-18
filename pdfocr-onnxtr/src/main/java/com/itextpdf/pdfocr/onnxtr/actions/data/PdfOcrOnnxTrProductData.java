@@ -30,7 +30,7 @@ import com.itextpdf.commons.actions.data.ProductData;
 public final class PdfOcrOnnxTrProductData {
     private static final String PDF_OCR_ONNXTR_PRODUCT_NAME = "pdfOcr-onnxtr";
     private static final String PDF_OCR_ONNXTR_PUBLIC_PRODUCT_NAME = "pdfOCR-OnnxTR";
-    private static final String PDF_OCR_VERSION = "4.1.0-SNAPSHOT";
+    private static final String PDF_OCR_VERSION = "4.1.0";
     private static final int PDF_OCR_COPYRIGHT_SINCE = 2000;
     private static final int PDF_OCR_COPYRIGHT_TO = 2025;
 
