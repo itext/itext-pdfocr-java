@@ -28,12 +28,19 @@ package com.itextpdf.pdfocr.exceptions;
 public class PdfOcrExceptionMessageConstant {
 
     public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image";
+    public static final String CANNOT_READ_INPUT_IMAGE_PARAMS = "Cannot read input image {0}";
     public static final String CANNOT_RESOLVE_PROVIDED_FONTS =
             "Cannot resolve any of provided fonts. Please check provided FontProvider.";
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
+    public static final String CANNOT_WRITE_TO_FILE = "Cannot write to file {0}: {1}";
     public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
     public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
     public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";
+    public static final String TAGGED_PDF_IS_NOT_SUPPORTED = "Tagged PDF is not supported";
+    public static final String PDFA_IS_NOT_SUPPORTED = "PDF/A is not supported";
+    public static final String PDF_DOCUMENT_MUST_BE_OPENED_IN_STAMPING_MODE =
+            "Pdf document must be opened in stamping mode";
+    public static final String IO_EXCEPTION_OCCURRED = "IO exception occurred while reading the document";
 
     private PdfOcrExceptionMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly

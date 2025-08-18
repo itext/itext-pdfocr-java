@@ -39,6 +39,9 @@ class OcrPdfCreatorEventHelper extends AbstractPdfOcrEventHelper {
         this.metaInfo = metaInfo;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onEvent(AbstractProductITextEvent event) {
         if (event instanceof AbstractContextBasedITextEvent) {
@@ -50,11 +53,17 @@ class OcrPdfCreatorEventHelper extends AbstractPdfOcrEventHelper {
         EventManager.getInstance().onEvent(event);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SequenceId getSequenceId() {
         return sequenceId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public EventConfirmationType getConfirmationType() {
         return EventConfirmationType.ON_CLOSE;

@@ -30,12 +30,13 @@ import com.itextpdf.commons.actions.data.ProductData;
 public class PdfOcrTesseract4ProductData {
     private static final String PDF_OCR_TESSERACT4_PRODUCT_NAME = "pdfOcr-tesseract4";
     private static final String PDF_OCR_TESSERACT4_PUBLIC_PRODUCT_NAME = "pdfOCR-Tesseract4";
-    private static final String PDF_OCR_VERSION = "4.0.2";
+    private static final String PDF_OCR_VERSION = "4.1.0";
     private static final int PDF_OCR_COPYRIGHT_SINCE = 2000;
     private static final int PDF_OCR_COPYRIGHT_TO = 2025;
 
-    private static final ProductData PDF_OCR_PRODUCT_DATA = new ProductData(PDF_OCR_TESSERACT4_PUBLIC_PRODUCT_NAME,
-            PDF_OCR_TESSERACT4_PRODUCT_NAME, PDF_OCR_VERSION, PDF_OCR_COPYRIGHT_SINCE, PDF_OCR_COPYRIGHT_TO);
+    private static final ProductData PDF_OCR_TESSERACT4_PRODUCT_DATA = new ProductData(
+            PDF_OCR_TESSERACT4_PUBLIC_PRODUCT_NAME, PDF_OCR_TESSERACT4_PRODUCT_NAME, PDF_OCR_VERSION,
+            PDF_OCR_COPYRIGHT_SINCE, PDF_OCR_COPYRIGHT_TO);
 
     /**
      * Getter for an instance of {@link ProductData} related to iText pdfOcr Tesseract4 module.
@@ -43,6 +44,6 @@ public class PdfOcrTesseract4ProductData {
      * @return iText pdfOcr Tesseract4 product description
      */
     public static ProductData getInstance() {
-        return PDF_OCR_PRODUCT_DATA;
+        return PDF_OCR_TESSERACT4_PRODUCT_DATA;
     }
 }

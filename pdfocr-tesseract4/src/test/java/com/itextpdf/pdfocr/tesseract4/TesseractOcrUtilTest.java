@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -37,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import net.sourceforge.lept4j.Pix;
-import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -96,7 +96,8 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT)
     })
     @Test
     public void testReadingPageFromInvalidTiff() {
@@ -104,18 +105,6 @@ public class TesseractOcrUtilTest extends IntegrationTestHelper {
         File imgFile = new File(path);
         Pix page = TesseractOcrUtil.readPixPageFromTiff(imgFile, 0);
         Assertions.assertNull(page);
-    }
-
-    @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_RETRIEVE_PAGES_FROM_IMAGE)
-    })
-    @Test
-    public void testInitializeImagesListFromInvalidTiff() {
-        String path = TEST_IMAGES_DIRECTORY + "example_03.tiff";
-        File imgFile = new File(path);
-        TesseractOcrUtil tesseractOcrUtil = new TesseractOcrUtil();
-        tesseractOcrUtil.initializeImagesListFromTiff(imgFile);
-        Assertions.assertEquals(0, tesseractOcrUtil.getListOfPages().size());
     }
 
     @Test

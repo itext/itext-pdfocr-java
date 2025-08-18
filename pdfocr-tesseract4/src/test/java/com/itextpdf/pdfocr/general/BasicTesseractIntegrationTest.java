@@ -37,6 +37,8 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
@@ -140,6 +142,46 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @Test
+    public void rotatedTextBasicTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedTextBasic.png";
+        String expectedOutput = "A N ™~ & S 0 TEST Q sAemapls sl 1xa3 sIyL";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedTextCapsLCTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedCapsLC.png";
+        String expectedOutput = "CapITALS anD .. lowerCaSE + .\\mm\\ 2% 7 . /\\/MJ% ‘¢";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedColorsMixTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedColorsMix.png";
+        String expectedOutput = "ReD tEXT Colored TEXT";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedColorsMix2Test() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedColorsMix2.png";
+        String expectedOutput = "";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
+    public void rotatedBy90DegreesTest() {
+        String path = TEST_IMAGES_DIRECTORY + "rotatedBy90Degrees.png";
+        String expectedOutput = "";
+
+        testImageOcrText(tesseractReader, path, expectedOutput);
+    }
+
+    @Test
     public void testImageWithoutText() throws IOException {
         String testName = "testImageWithoutText";
         String filePath = TEST_IMAGES_DIRECTORY + "pantone_blue.jpg";
@@ -167,7 +209,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     })
     @Test
     public void testInputInvalidImage() {
-        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+        Exception exception = Assertions.assertThrows(PdfOcrException.class, () -> {
             File file1 = new File(TEST_IMAGES_DIRECTORY + "example.txt");
             File file2 = new File(TEST_IMAGES_DIRECTORY
                     + "example_05_corrupted.bmp");
@@ -182,7 +224,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         });
 
         Assertions.assertEquals(MessageFormatUtil
-                .format(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
+                .format(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE_PARAMS,
                         new File(TEST_IMAGES_DIRECTORY + "example.txt")
                                 .getAbsolutePath()), exception.getMessage());
     }

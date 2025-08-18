@@ -139,11 +139,9 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
         try {
             imagePath = inputImage.getAbsolutePath();
             // path to tesseract executable
-            if (getPathToExecutable() == null
-                    || getPathToExecutable().isEmpty()) {
+            if (getPathToExecutable() == null || getPathToExecutable().isEmpty()) {
                 throw new PdfOcrTesseract4Exception(
-                        PdfOcrTesseract4ExceptionMessageConstant
-                                .CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
+                        PdfOcrTesseract4ExceptionMessageConstant.CANNOT_FIND_PATH_TO_TESSERACT_EXECUTABLE);
             } else {
                 if (isWindows()) {
                     execPath = addQuotes(getPathToExecutable());
@@ -156,8 +154,7 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             addTessData(params);
 
             // validate languages before preprocessing started
-            validateLanguages(getTesseract4OcrEngineProperties()
-                    .getLanguages());
+            validateLanguages(getTesseract4OcrEngineProperties().getLanguages());
 
             // preprocess input file if needed
             imagePath = preprocessImage(inputImage, pageNumber);
@@ -166,14 +163,12 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
             // as tesseract cannot parse non ascii characters in input path
             String imageParentDir = TesseractOcrUtil.getParentDirectoryFile(imagePath);
             String replacement = isWindows() ? "" : "/";
-            workingDirectory = imageParentDir.replace("file:///", replacement)
-                    .replace("file:/", replacement);
+            workingDirectory = imageParentDir.replace("file:///", replacement).replace("file:/", replacement);
 
             // input file
             addInputFile(params, imagePath);
             // output file
-            addOutputFile(params, outputFiles.get(0), outputFormat,
-                    imagePath);
+            addOutputFile(params, outputFiles.get(0), outputFormat, imagePath);
             // page segmentation mode
             addPageSegMode(params);
             // add user words if needed
@@ -199,13 +194,11 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
                 eventHelper.onEvent(new ConfirmEvent(event));
             }
         } catch (PdfOcrTesseract4Exception e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(e.getMessage());
+            LoggerFactory.getLogger(getClass()).error(e.getMessage());
             throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             try {
-                if (imagePath != null
-                        && !inputImage.getAbsolutePath().equals(imagePath)) {
+                if (imagePath != null && !inputImage.getAbsolutePath().equals(imagePath)) {
                     TesseractHelper.deleteFile(imagePath);
                 }
             } catch (SecurityException e) {
@@ -409,38 +402,30 @@ public class Tesseract4ExecutableOcrEngine extends AbstractTesseract4OcrEngine {
      */
     private String preprocessImage(final File inputImage,
             final int pageNumber) throws PdfOcrTesseract4Exception {
-        String tmpFileName = TesseractOcrUtil
-                .getTempFilePath(UUID.randomUUID().toString(),
-                        getExtension(inputImage));
+        String tmpFileName = TesseractOcrUtil.getTempFilePath(UUID.randomUUID().toString(), getExtension(inputImage));
         String path = inputImage.getAbsolutePath();
         try {
             if (getTesseract4OcrEngineProperties().isPreprocessingImages()) {
-                Pix pix = ImagePreprocessingUtil
-                        .preprocessImage(inputImage, pageNumber,
-                                getTesseract4OcrEngineProperties().getImagePreprocessingOptions());
+                Pix pix = ImagePreprocessingUtil.preprocessImage(inputImage, pageNumber,
+                        getTesseract4OcrEngineProperties().getImagePreprocessingOptions());
                 TesseractOcrUtil.savePixToPngFile(tmpFileName, pix);
                 if (!Files.exists(Paths.get(tmpFileName))) {
                     BufferedImage img = TesseractOcrUtil.convertPixToImage(pix);
                     if (img != null) {
-                        TesseractOcrUtil.saveImageToTempPngFile(tmpFileName,
-                                img);
+                        TesseractOcrUtil.saveImageToTempPngFile(tmpFileName, img);
                     }
                 }
                 TesseractOcrUtil.destroyPix(pix);
             }
-            if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    || !Files.exists(Paths.get(tmpFileName))) {
+            if (!getTesseract4OcrEngineProperties().isPreprocessingImages() || !Files.exists(Paths.get(tmpFileName))) {
                 TesseractOcrUtil.createTempFileCopy(path, tmpFileName);
             }
             if (Files.exists(Paths.get(tmpFileName))) {
                 path = tmpFileName;
             }
         } catch (IOException e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(MessageFormatUtil.format(
-                            Tesseract4LogMessageConstant
-                                    .CANNOT_READ_INPUT_IMAGE,
-                            e.getMessage()));
+            LoggerFactory.getLogger(getClass()).error(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage()));
         }
         return path;
     }

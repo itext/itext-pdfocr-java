@@ -119,7 +119,7 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
 
     protected void validatePdfProducerLine(String filePath, String expected) throws IOException {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePath))) {
-            Assertions.assertEquals(expected, pdfDocument.getDocumentInfo().getProducer());
+            Assertions.assertTrue(pdfDocument.getDocumentInfo().getProducer().contains(expected));
         }
     }
 
@@ -130,7 +130,7 @@ public abstract class IntegrationEventHandlingTestHelper extends IntegrationTest
 
     protected static ConfirmedEventWrapper getPdfOcrEvent() {
         DefaultITextProductEventProcessor processor = new DefaultITextProductEventProcessor(
-                ProductNameConstant.PDF_HTML);
+                ProductNameConstant.PDF_OCR_TESSERACT4);
         return new ConfirmedEventWrapper(
                 PdfOcrTesseract4ProductEvent.createProcessImageEvent(new SequenceId(), null,
                         EventConfirmationType.ON_CLOSE),

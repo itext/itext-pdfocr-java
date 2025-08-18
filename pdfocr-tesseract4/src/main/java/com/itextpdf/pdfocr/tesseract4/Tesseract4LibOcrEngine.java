@@ -25,26 +25,20 @@ package com.itextpdf.pdfocr.tesseract4;
 import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.utils.MessageFormatUtil;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.tesseract4.actions.events.PdfOcrTesseract4ProductEvent;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.util.PdfOcrFileUtil;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.sourceforge.lept4j.Pix;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -79,12 +73,9 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      *
      * @param tesseract4OcrEngineProperties set of properteis
      */
-    public Tesseract4LibOcrEngine(
-            final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
+    public Tesseract4LibOcrEngine(final Tesseract4OcrEngineProperties tesseract4OcrEngineProperties) {
         super(tesseract4OcrEngineProperties);
-        tesseractInstance = TesseractOcrUtil
-                .initializeTesseractInstance(isWindows(), null,
-                        null, null);
+        tesseractInstance = TesseractOcrUtil.initializeTesseractInstance(isWindows(), null, null, null);
     }
 
     /**
@@ -176,37 +167,25 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
         try {
             // check tess data path for non ASCII characters
             validateTessDataPath(getTessData());
-            validateLanguages(getTesseract4OcrEngineProperties()
-                    .getLanguages());
+            validateLanguages(getTesseract4OcrEngineProperties().getLanguages());
             initializeTesseract(outputFormat);
 
             // if preprocessing is not needed and provided image is tiff,
             // the image will be paginated and separate pages will be OCRed
             List<String> resultList = new ArrayList<String>();
-            if (!getTesseract4OcrEngineProperties().isPreprocessingImages()
-                    && ImagePreprocessingUtil.isTiffImage(inputImage)) {
-                resultList = getOcrResultForMultiPage(inputImage,
-                        outputFormat);
+            if (!getTesseract4OcrEngineProperties().isPreprocessingImages() && TiffImageUtil.isTiffImage(inputImage)) {
+                resultList = getOcrResultForMultiPage(inputImage, outputFormat);
             } else {
-                resultList.add(getOcrResultForSinglePage(inputImage,
-                        outputFormat, pageNumber));
+                resultList.add(getOcrResultForSinglePage(inputImage, outputFormat, pageNumber));
             }
 
             // list of result strings is written to separate files
             // (one for each page)
             for (int i = 0; i < resultList.size(); i++) {
                 String result = resultList.get(i);
-                File outputFile = i >= outputFiles.size()
-                        ? null : outputFiles.get(i);
+                File outputFile = i >= outputFiles.size() ? null : outputFiles.get(i);
                 if (result != null && outputFile != null) {
-                    try (Writer writer = new OutputStreamWriter(
-                            new FileOutputStream(outputFile.getAbsolutePath()),
-                            StandardCharsets.UTF_8)) {
-                        writer.write(result);
-                    } catch (IOException e) {
-                        throw new PdfOcrInputTesseract4Exception(
-                                PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
-                    }
+                    PdfOcrFileUtil.writeToTextFile(outputFile.getAbsolutePath(), result);
                 }
             }
 
@@ -218,19 +197,16 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 eventHelper.onEvent(new ConfirmEvent(event));
             }
         } catch (PdfOcrTesseract4Exception e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(e.getMessage());
+            LoggerFactory.getLogger(getClass()).error(e.getMessage());
             throw new PdfOcrTesseract4Exception(e.getMessage(), e);
         } finally {
             if (tesseractInstance != null) {
                 TesseractOcrUtil.disposeTesseractInstance(tesseractInstance);
             }
-            if (getTesseract4OcrEngineProperties().getPathToUserWordsFile()
-                    != null
-                    && getTesseract4OcrEngineProperties().isUserWordsFileTemporary()) {
-                TesseractHelper.deleteFile(
-                        getTesseract4OcrEngineProperties()
-                                .getPathToUserWordsFile());
+            if (getTesseract4OcrEngineProperties().getPathToUserWordsFile() != null &&
+                    getTesseract4OcrEngineProperties().isUserWordsFileTemporary()) {
+
+                TesseractHelper.deleteFile(getTesseract4OcrEngineProperties().getPathToUserWordsFile());
             }
         }
     }
@@ -262,8 +238,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * @return list of result string that will be written to a temporary files
      * later
      */
-    private List<String> getOcrResultForMultiPage(final File inputImage,
-            final OutputFormat outputFormat) {
+    private List<String> getOcrResultForMultiPage(final File inputImage, final OutputFormat outputFormat) {
         List<String> resultList = new ArrayList<String>();
         try {
             initializeTesseract(outputFormat);
@@ -278,17 +253,11 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 resultList.add(result);
             }
         } catch (TesseractException e) {
-            String msg = MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant.TESSERACT_FAILED,
-                            e.getMessage());
-            LoggerFactory.getLogger(getClass())
-                    .error(msg);
-            throw new PdfOcrTesseract4Exception(
-                    PdfOcrTesseract4ExceptionMessageConstant
-                            .TESSERACT_FAILED);
+            String msg = MessageFormatUtil.format(Tesseract4LogMessageConstant.TESSERACT_FAILED, e.getMessage());
+            LoggerFactory.getLogger(getClass()).error(msg);
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED);
         } finally {
-            TesseractOcrUtil
-                    .disposeTesseractInstance(getTesseractInstance());
+            TesseractOcrUtil.disposeTesseractInstance(getTesseractInstance());
         }
         return resultList;
     }
@@ -302,9 +271,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * @param pageNumber number of page to be OCRed
      * @return result as string that will be written to a temporary file later
      */
-    private String getOcrResultForSinglePage(final File inputImage,
-            final OutputFormat outputFormat,
-            final int pageNumber) {
+    private String getOcrResultForSinglePage(final File inputImage, final OutputFormat outputFormat, final int pageNumber) {
         String result = null;
         try {
             // preprocess if required
@@ -320,13 +287,10 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 TesseractOcrUtil.destroyPix(pix);
             }
             if (result == null) {
-                BufferedImage bufferedImage = ImagePreprocessingUtil
-                        .readImage(inputImage);
+                BufferedImage bufferedImage = ImagePreprocessingUtil.readImage(inputImage);
                 if (bufferedImage != null) {
                     try {
-                        result = new TesseractOcrUtil()
-                                .getOcrResultAsString(getTesseractInstance(),
-                                        bufferedImage, outputFormat);
+                        result = new TesseractOcrUtil().getOcrResultAsString(getTesseractInstance(), bufferedImage, outputFormat);
                     } catch (Exception e) {
                         LoggerFactory.getLogger(getClass())
                                 .info(MessageFormatUtil.format(
@@ -337,20 +301,13 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
                 }
                 if (result == null) {
                     // perform ocr using original input image
-                    result = new TesseractOcrUtil()
-                            .getOcrResultAsString(getTesseractInstance(),
-                                    inputImage, outputFormat);
+                    result = new TesseractOcrUtil().getOcrResultAsString(getTesseractInstance(), inputImage, outputFormat);
                 }
             }
         } catch (Exception e) {
-            LoggerFactory.getLogger(getClass())
-                    .error(MessageFormatUtil
-                            .format(Tesseract4LogMessageConstant
-                                            .TESSERACT_FAILED,
-                                    e.getMessage()));
-            throw new PdfOcrTesseract4Exception(
-                    PdfOcrTesseract4ExceptionMessageConstant
-                            .TESSERACT_FAILED);
+            LoggerFactory.getLogger(getClass()).error(
+                    MessageFormatUtil.format(Tesseract4LogMessageConstant.TESSERACT_FAILED, e.getMessage()));
+            throw new PdfOcrTesseract4Exception(PdfOcrTesseract4ExceptionMessageConstant.TESSERACT_FAILED);
         }
 
         return result;

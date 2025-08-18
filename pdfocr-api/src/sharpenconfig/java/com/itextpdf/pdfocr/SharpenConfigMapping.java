@@ -22,16 +22,20 @@
  */
 package com.itextpdf.pdfocr;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import sharpen.config.MappingConfiguration;
 import sharpen.config.MappingConfigurator;
 import sharpen.config.ModuleOption;
 import sharpen.config.ModulesConfigurator;
 import sharpen.config.OptionsConfigurator;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Service implementation of {@link sharpen.config.MappingConfiguration} containing the module's Sharpen configuration.
+ */
 public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
@@ -52,9 +56,13 @@ public class SharpenConfigMapping implements MappingConfiguration {
         // because java.io.FileWriter only works with the characters writing, so there are no locale-dependent conversions.
         configurator.ignoreUsing("Java.IO");
         configurator.ignoreUsing("Java.Nio");
-        // images
-        configurator.addFullName("System.Drawing.Bitmap");
+
+        // Images
+        configurator.mapType("java.awt.image.BufferedImage", "IronSoftware.Drawing.AnyBitmap");
+        configurator.addFullName("IronSoftware.Drawing.AnyBitmap");
         configurator.ignoreUsing("Javax.Imageio");
+
+        configurator.mapType("java.util.Objects", "iText.Pdfocr.Util.Objects");
     }
 
     @Override
@@ -64,6 +72,11 @@ public class SharpenConfigMapping implements MappingConfiguration {
 
     @Override
     public void applyConfigModuleSettings(ModulesConfigurator configurator) {
+
+    }
+
+    @Override
+    public void setConfigModuleSettings(ModulesConfigurator modulesConfigurator) {
 
     }
 

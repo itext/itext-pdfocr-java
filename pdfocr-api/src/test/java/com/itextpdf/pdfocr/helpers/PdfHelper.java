@@ -65,6 +65,13 @@ public class PdfHelper {
     }
 
     /**
+     * Returns pdfs test directory.
+     */
+    public static String getPdfsTestDirectory() {
+        return TEST_DIRECTORY + "pdfs/";
+    }
+
+    /**
      * Returns path to default test image.
      */
     public static String getDefaultImagePath() {

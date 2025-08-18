@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>pdfocr-root</artifactId>
-    <version>4.0.2</version>
+    <version>4.1.0</version>
   </parent>
 
   <artifactId>pdfocr-api</artifactId>
@@ -76,7 +76,7 @@
               </dependency>
             </dependencies>
             <configuration>
-              <projectName>pdfocr</projectName>
+              <projectName>pdfocr-api</projectName>
               <cSharpTargetFolder>./../../../sharp/pdfocr</cSharpTargetFolder>
               <cSharpSourceCodeDestination>itext/itext.pdfocr.api</cSharpSourceCodeDestination>
               <cSharpTestCodeDestination>itext.tests/itext.pdfocr.api.tests</cSharpTestCodeDestination>

@@ -163,8 +163,10 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Sets scale mode for input images using available options
-     * from {@link ScaleMode} enumeration.
+     * Sets scale mode for input images using available options from {@link ScaleMode} enumeration.
+     *
+     * <p>
+     * This property has no effect when pdf file is being OCRed ({@link OcrPdfCreator#makePdfSearchable}).
      *
      * @param scaleMode selected {@link ScaleMode}
      * @return the {@link OcrPdfCreatorProperties} instance
@@ -177,7 +179,7 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Gets required size for output PDF document. Real size of the page will
-     * be calculated according to the selected {@link ScaleMode}
+     * be calculated according to the selected {@link ScaleMode}.
      *
      * @return required page size as {@link com.itextpdf.kernel.geom.Rectangle}
      */
@@ -187,6 +189,9 @@ public class OcrPdfCreatorProperties {
 
     /**
      * Sets required size for output PDF document.
+     *
+     * <p>
+     * This property has no effect when pdf file is being OCRed ({@link OcrPdfCreator#makePdfSearchable}).
      *
      * @param pageSize requested page
      *                size as {@link com.itextpdf.kernel.geom.Rectangle}
@@ -209,10 +214,12 @@ public class OcrPdfCreatorProperties {
     }
 
     /**
-     * Sets name for the image layer.
-     * <code>null</code> by default.
-     * If null then image is placed directly in canvas instead of layer.
+     * Sets name for the image layer, {@code null} by default.
+     *
+     * <p>
+     * If {@code null} then image is placed directly in canvas instead of layer.
      * If image layer name is equal to text layer name then text and image placed in one layer.
+     * This property has no effect when pdf file is being OCRed ({@link OcrPdfCreator#makePdfSearchable}).
      *
      * @param layerName name of the image layer
      *                       as {@link java.lang.String}

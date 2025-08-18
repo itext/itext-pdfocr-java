@@ -22,17 +22,15 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
-import com.itextpdf.io.image.ImageType;
-import com.itextpdf.io.image.ImageTypeDetector;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.TiffImageData;
-import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.io.source.RandomAccessFileOrArray;
 import com.itextpdf.io.source.RandomAccessSourceFactory;
-import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -72,39 +70,6 @@ class ImagePreprocessingUtil {
         int numOfPages = TiffImageData.getNumberOfPages(raf);
         raf.close();
         return numOfPages;
-    }
-
-    /**
-     * Checks whether image format is TIFF.
-     *
-     * @param inputImage input image {@link java.io.File}
-     * @return true if provided image has 'tiff' or 'tif' extension
-     */
-    static boolean isTiffImage(final File inputImage) {
-        return getImageType(inputImage) == ImageType.TIFF;
-    }
-
-    /**
-     * Gets the image type.
-     *
-     * @param inputImage input image {@link java.io.File}
-     * @return image type {@link com.itextpdf.io.image.ImageType}
-     */
-    static ImageType getImageType(final File inputImage) {
-        ImageType type;
-        try {
-            type = ImageTypeDetector.detectImageType(UrlUtil.toURL(inputImage.getAbsolutePath()));
-        } catch (Exception e) {
-            LoggerFactory.getLogger(ImagePreprocessingUtil.class).error(MessageFormatUtil
-                    .format(Tesseract4LogMessageConstant
-                                    .CANNOT_READ_INPUT_IMAGE,
-                            e.getMessage()));
-            throw new PdfOcrInputTesseract4Exception(
-                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE)
-                    .setMessageParams(inputImage.getAbsolutePath());
-        }
-
-        return type;
     }
 
     /**
@@ -150,18 +115,15 @@ class ImagePreprocessingUtil {
      * @param pageNumber number of page to be preprocessed
      * @param imagePreprocessingOptions {@link ImagePreprocessingOptions}
      * @return created preprocessed image as {@link net.sourceforge.lept4j.Pix}
-     * @throws PdfOcrTesseract4Exception if it was not possible to read or convert
-     * input file
+     * @throws PdfOcrTesseract4Exception if it was not possible to read or convert input file
      */
-    static Pix preprocessImage(final File inputFile,
-                               final int pageNumber,
-                               final ImagePreprocessingOptions imagePreprocessingOptions)
-            throws PdfOcrTesseract4Exception {
+    static Pix preprocessImage(final File inputFile, final int pageNumber,
+            final ImagePreprocessingOptions imagePreprocessingOptions) throws PdfOcrTesseract4Exception {
+
         Pix pix;
         // read image
-        if (isTiffImage(inputFile)) {
-            pix = TesseractOcrUtil.readPixPageFromTiff(inputFile,
-                    pageNumber - 1);
+        if (TiffImageUtil.isTiffImage(inputFile)) {
+            pix = TesseractOcrUtil.readPixPageFromTiff(inputFile, pageNumber - 1);
         } else {
             pix = TesseractOcrUtil.readPix(inputFile);
         }

@@ -29,6 +29,7 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
@@ -83,11 +84,11 @@ public class ApiTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 2)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE)
     })
     @Test
     public void testDoTesseractOcrForIncorrectImageForExecutable() {
-        Exception exception = Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> {
+        Exception exception = Assertions.assertThrows(PdfOcrInputException.class, () -> {
             String path = TEST_IMAGES_DIRECTORY + "numbers_01";
             File imgFile = new File(path);
 
@@ -98,7 +99,7 @@ public class ApiTest extends IntegrationTestHelper {
         });
 
         Assertions.assertEquals(MessageFormatUtil.format(
-                        PdfOcrTesseract4ExceptionMessageConstant.CANNOT_READ_PROVIDED_IMAGE,
+                        PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE_PARAMS,
                         new File(TEST_IMAGES_DIRECTORY + "numbers_01").getAbsolutePath()),
                 exception.getMessage());
     }

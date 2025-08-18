@@ -26,9 +26,10 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.SystemUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
@@ -38,10 +39,7 @@ import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -74,6 +72,9 @@ public class TesseractHelper {
             .compile(
                     ".*\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
     private static final Pattern WCONF_PATTERN = Pattern.compile("^.*(x_wconf *\\d+).*$");
+    private static final Pattern TEXTANGLE_PATTERN = Pattern.compile(
+            "(?:^|;)\\s*textangle\\s+(\\d+)\\s*(?:$|;)"
+    );
 
     /**
      * Size of the array containing bbox.
@@ -252,6 +253,34 @@ public class TesseractHelper {
     }
 
     /**
+     * Extracts text orientation from a line node. It is specified under a "textangle" key inside
+     * the "title" attribute string.
+     *
+     * @param line line element to get text orientation for
+     *
+     * @return {@link TextOrientation} of the line if present, otherwise HORIZONTAL
+     */
+    private static TextOrientation extractTextOrientation(Node line) {
+        final String title = line.attr(TITLE);
+        final Matcher matcher = TEXTANGLE_PATTERN.matcher(title);
+        if (!matcher.find()) {
+            return TextOrientation.HORIZONTAL;
+        }
+        final String angleString = matcher.group(1);
+        switch (angleString) {
+            case "270":
+                return TextOrientation.HORIZONTAL_ROTATED_270;
+            case "180":
+                return TextOrientation.HORIZONTAL_ROTATED_180;
+            case "90":
+                return TextOrientation.HORIZONTAL_ROTATED_90;
+            case "0":
+            default:
+                return TextOrientation.HORIZONTAL;
+        }
+    }
+
+    /**
      * Sometimes hOCR file contains broke character bboxes which are equal to page bbox.
      * This method attempts to detect and fix them.
      */
@@ -338,24 +367,6 @@ public class TesseractHelper {
                     e.getMessage()));
         }
         return content;
-    }
-
-    /**
-     * Writes provided {@link java.lang.String} to text file using
-     * provided path.
-     *
-     * @param path path as {@link java.lang.String} to file to be created
-     * @param data text data in required format as {@link java.lang.String}
-     */
-    static void writeToTextFile(final String path,
-                                final String data) {
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(path),
-                StandardCharsets.UTF_8)) {
-            writer.write(data);
-        } catch (IOException e) {
-            throw new PdfOcrInputTesseract4Exception(
-                    PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e);
-        }
     }
 
     /**
@@ -510,12 +521,13 @@ public class TesseractHelper {
                                                       Rectangle pageBbox,
                                                       Map<String, Node> unparsedBBoxes) {
         List<TextInfo> textData = new ArrayList<TextInfo>();
+        final TextOrientation textOrientation = extractTextOrientation(lineOrCaption);
         if (txtLine == null) {
             for (Element word : lineOrCaption.getElementsByClass(OCRX_WORD)) {
                 final Rectangle bboxRect = getAlignedBBox(word,
                         textPositioning, pageBbox,
                         unparsedBBoxes);
-                addToTextData(textData, word.text(), bboxRect);
+                addToTextData(textData, word.text(), bboxRect, textOrientation);
             }
         } else {
             List<TextInfo> textInfos = new ArrayList<>();
@@ -550,10 +562,11 @@ public class TesseractHelper {
         final Rectangle bboxRect = getAlignedBBox(lineOrCaption,
                 TextPositioning.BY_LINES, pageBbox,
                 unparsedBBoxes);
+        final TextOrientation textOrientation = extractTextOrientation(lineOrCaption);
         if (txtLine == null) {
-            addToTextData(textData, lineOrCaption.text(), bboxRect);
+            addToTextData(textData, lineOrCaption.text(), bboxRect, textOrientation);
         } else {
-            addToTextData(textData, txtLine, bboxRect);
+            addToTextData(textData, txtLine, bboxRect, textOrientation);
         }
         return textData;
     }
@@ -563,8 +576,9 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       String text,
-                                      Rectangle bboxRect) {
-        final TextInfo textInfo = new TextInfo(text, bboxRect);
+                                      Rectangle bboxRect,
+                                      TextOrientation orientation) {
+        final TextInfo textInfo = new TextInfo(text, bboxRect, orientation);
         textData.add(textInfo);
     }
 
@@ -573,9 +587,7 @@ public class TesseractHelper {
      */
     private static void addToTextData(List<TextInfo> textData,
                                       TextInfo textInfo) {
-        String text = textInfo.getText();
-        Rectangle bboxRect = textInfo.getBboxRect();
-        addToTextData(textData, text, bboxRect);
+        textData.add(new TextInfo(textInfo));
     }
 
     /**

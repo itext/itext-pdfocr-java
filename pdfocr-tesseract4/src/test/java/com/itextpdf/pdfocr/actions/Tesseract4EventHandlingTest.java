@@ -39,9 +39,9 @@ import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
+import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -210,7 +210,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
-        Assertions.assertThrows(PdfOcrTesseract4Exception.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
+        Assertions.assertThrows(PdfOcrInputException.class, () -> ocrPdfCreator.createPdf(images, pdfWriter));
 
         pdfWriter.close();
 
@@ -323,7 +323,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     }
 
     @Test
-    public void createTxtFileTest() throws IOException {
+    public void createTxtFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
                 FileUtil.createTempFile("test", ".txt"));
@@ -368,9 +368,11 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = new File("nopath/nofile");
-        Exception e = Assertions.assertThrows(PdfOcrTesseract4Exception.class,
+        Exception e = Assertions.assertThrows(PdfOcrException.class,
                 () -> tesseractReader.createTxtFile(images, outPdfFile));
-        Assertions.assertEquals(PdfOcrTesseract4ExceptionMessageConstant.CANNOT_WRITE_TO_FILE, e.getMessage());
+        Assertions.assertTrue(e.getMessage().contains(PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE.substring(0, 20)));
+        Assertions.assertTrue(e.getMessage().contains("nopath"));
+        Assertions.assertTrue(e.getMessage().contains("nofile"));
 
         Assertions.assertEquals(3, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
@@ -466,6 +468,137 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
         validateStatisticEvent(eventsHandler.getEvents().get(2), PdfOcrOutputType.DATA);
         validateConfirmEvent(eventsHandler.getEvents().get(3), usageEvent);
     }
+
+    // Section with multipage TIFF image related tests
+
+    @Test
+    public void ocrPdfCreatorCreatePdfFileMultipageTiffTest() throws IOException {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+
+        new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
+
+        // check ocr events
+        // 2 pages in TIFF image
+        Assertions.assertEquals(5, eventsHandler.getEvents().size());
+        for (int i = 0; i < 2; i++) {
+            IEvent usageEvent = eventsHandler.getEvents().get(i);
+            validateUsageEvent(usageEvent, EventConfirmationType.ON_CLOSE);
+            validateConfirmEvent(eventsHandler.getEvents().get(3 + i), usageEvent);
+        }
+        validateStatisticEvent(eventsHandler.getEvents().get(2), PdfOcrOutputType.PDF);
+
+        // check producer line in the output pdf
+        String expectedProdLine = createExpectedProducerLine(new ConfirmedEventWrapper[] { getPdfOcrEvent() });
+        validatePdfProducerLine(outPdfFile.getAbsolutePath(), expectedProdLine);
+    }
+
+    @Test
+    public void ocrPdfCreatorCreatePdfFileMultipageTiffNoPreprocessingTest() throws IOException {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+
+        tesseractReader.getTesseract4OcrEngineProperties().setPreprocessingImages(false);
+        new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
+
+        // check ocr events
+        // 2 pages in TIFF image
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_CLOSE);
+        validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.PDF);
+        validateConfirmEvent(eventsHandler.getEvents().get(2), usageEvent);
+
+        // check producer line in the output pdf
+        String expectedProdLine = createExpectedProducerLine(new ConfirmedEventWrapper[] { getPdfOcrEvent() });
+        validatePdfProducerLine(outPdfFile.getAbsolutePath(), expectedProdLine);
+    }
+
+    @Test
+    public void createTxtFileMultipageTiffTest() throws IOException {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        tesseractReader.createTxtFile(Arrays.asList(imgFile), FileUtil.createTempFile("test", ".txt"));
+
+        // 2 pages in TIFF image
+        Assertions.assertEquals(4, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+        validateConfirmEvent(eventsHandler.getEvents().get(3), usageEvent);
+        for (int i = 1; i < 3; i++) {
+            validateStatisticEvent(eventsHandler.getEvents().get(i), PdfOcrOutputType.DATA);
+        }
+    }
+
+    @Test
+    public void createTxtFileMultipageTiffNoPreprocessingTest() throws IOException {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        tesseractReader.getTesseract4OcrEngineProperties().setPreprocessingImages(false);
+        tesseractReader.createTxtFile(Arrays.asList(imgFile), FileUtil.createTempFile("test", ".txt"));
+
+        // 2 pages in TIFF image
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+        validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
+        validateConfirmEvent(eventsHandler.getEvents().get(2), usageEvent);
+    }
+
+    @Test
+    public void doImageOcrMultipageTiffTest() {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        tesseractReader.doImageOcr(imgFile);
+
+        // 2 pages in TIFF image
+        Assertions.assertEquals(6, eventsHandler.getEvents().size());
+        for (int i = 0; i < 2; i++) {
+            IEvent usageEvent = eventsHandler.getEvents().get(i * 3);
+            validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+            validateStatisticEvent(eventsHandler.getEvents().get(i * 3 + 1), PdfOcrOutputType.DATA);
+            validateConfirmEvent(eventsHandler.getEvents().get(i * 3 + 2), usageEvent);
+        }
+    }
+
+    @Test
+    public void doImageOcrMultipageTiffNoPreprocessingTest() {
+        File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
+        tesseractReader.getTesseract4OcrEngineProperties().setPreprocessingImages(false);
+        tesseractReader.doImageOcr(imgFile);
+
+        // 2 pages in TIFF image
+        Assertions.assertEquals(3, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+        validateStatisticEvent(eventsHandler.getEvents().get(1), PdfOcrOutputType.DATA);
+        validateConfirmEvent(eventsHandler.getEvents().get(2), usageEvent);
+    }
+
+    @Test
+    public void ocrPdfCreatorMakeSearchableTest() throws IOException {
+        File inPdfFile = new File(TEST_PDFS_DIRECTORY + "2pages.pdf");
+        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+
+        try {
+            new OcrPdfCreator(tesseractReader).makePdfSearchable(inPdfFile, outPdfFile);
+
+            // Check ocr events. No stats events.
+            // 3 images == 6 events + 1 confirm event for process_pdf event which is not caught by eventHandler
+            Assertions.assertEquals(7, eventsHandler.getEvents().size());
+            for (int i = 0; i < 3; i++) {
+                IEvent usageEvent = eventsHandler.getEvents().get(i);
+                validateUsageEvent(usageEvent, EventConfirmationType.ON_CLOSE);
+                // There is no statistic event
+                validateConfirmEvent(eventsHandler.getEvents().get(4 + i), usageEvent);
+            }
+
+            // Check producer line in the output pdf
+            String expectedProdLine = createExpectedProducerLine(
+                    new ConfirmedEventWrapper[] {getCoreEvent(), getPdfOcrEvent()});
+            validatePdfProducerLine(outPdfFile.getAbsolutePath(), expectedProdLine);
+        } finally {
+            outPdfFile.delete();
+        }
+    }
+
 
     private static class CustomEventHelper extends AbstractPdfOcrEventHelper {
         @Override

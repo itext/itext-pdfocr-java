@@ -31,6 +31,7 @@ public class PdfOcrTesseract4ExceptionMessageConstant {
     public static final String INCORRECT_LANGUAGE = "{0} does not exist in {1}";
     public static final String LANGUAGE_IS_NOT_IN_THE_LIST = "Provided list of languages doesn't contain {0} language";
     public static final String CANNOT_READ_PROVIDED_IMAGE = "Cannot read input image {0}";
+    @Deprecated
     public static final String CANNOT_WRITE_TO_FILE = "Cannot write to file {0}: {1}";
     public static final String TESSERACT_FAILED = "Tesseract failed. Please check provided parameters";
     public static final String TESSERACT_LIB_NOT_INSTALLED =

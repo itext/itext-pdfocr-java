@@ -22,12 +22,13 @@
  */
 package com.itextpdf.pdfocr.tesseract4;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
@@ -36,7 +37,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -54,7 +54,6 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
-import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
@@ -348,8 +347,7 @@ class TesseractOcrUtil {
      *                          object to check
      * @return true if tesseract instance is disposed.
      */
-    static boolean isTesseractInstanceDisposed(
-            final ITesseract tesseractInstance) {
+    static boolean isTesseractInstanceDisposed(final ITesseract tesseractInstance) {
         return false;
     }
 
@@ -359,8 +357,7 @@ class TesseractOcrUtil {
      * @param tesseractInstance {@link net.sourceforge.tess4j.ITesseract}
      *                          object to dispose
      */
-    static void disposeTesseractInstance(
-            final ITesseract tesseractInstance) {
+    static void disposeTesseractInstance(final ITesseract tesseractInstance) {
     }
 
     static Pix readPixFromFile(File inputImage) {
@@ -376,8 +373,7 @@ class TesseractOcrUtil {
      * @return result {@link java.awt.image.BufferedImage} object
      * @throws IOException if it is not possible to convert
      */
-    static BufferedImage convertPixToImage(final Pix inputPix)
-            throws IOException {
+    static BufferedImage convertPixToImage(final Pix inputPix) throws IOException {
         if (inputPix != null) {
             BufferedImage bi = null;
             PointerByReference pdata = new PointerByReference();
@@ -423,29 +419,17 @@ class TesseractOcrUtil {
      * @param page requested image page
      * @return requested image page as a {@link java.awt.image.BufferedImage}
      */
-    static BufferedImage getImagePage(File inputFile, int page)
-    {
-        BufferedImage img = null;
-        try (InputStream is =
-                new FileInputStream(inputFile.getAbsolutePath())) {
-            List<BufferedImage> pages = Imaging.getAllBufferedImages(is,
-                    inputFile.getAbsolutePath());
-            if (page >= pages.size()) {
-                LOGGER.warn(MessageFormatUtil.format(
-                        Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
-                        page,
-                        inputFile.getAbsolutePath()));
-                return null;
-            }
-            img = pages.get(page);
-        } catch (ImageReadException | IOException e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant
-                            .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
-                    inputFile.getAbsolutePath(),
-                    e.getMessage()));
+    static BufferedImage getImagePage(File inputFile, int page) {
+        List<BufferedImage> pages = TiffImageUtil.getAllImages(inputFile);
+        if (page >= pages.size()) {
+            LOGGER.warn(MessageFormatUtil.format(
+                    Tesseract4LogMessageConstant.PAGE_NUMBER_IS_INCORRECT,
+                    page,
+                    inputFile.getAbsolutePath()));
+            return null;
         }
-        return img;
+
+        return pages.get(page);
     }
 
     /**
@@ -519,20 +503,8 @@ class TesseractOcrUtil {
      *
      * @param inputFile input image {@link java.io.File}
      */
-    void initializeImagesListFromTiff(
-            final File inputFile) {
-        try (InputStream is =
-                new FileInputStream(inputFile.getAbsolutePath())) {
-            setListOfPages(Imaging
-                    .getAllBufferedImages(is,
-                            inputFile.getAbsolutePath()));
-        } catch (Exception e) {
-            LOGGER.error(MessageFormatUtil.format(
-                    Tesseract4LogMessageConstant
-                            .CANNOT_RETRIEVE_PAGES_FROM_IMAGE,
-                    inputFile.getAbsolutePath(),
-                    e.getMessage()));
-        }
+    void initializeImagesListFromTiff(final File inputFile) {
+        setListOfPages(TiffImageUtil.getAllImages(inputFile));
     }
 
     /**
