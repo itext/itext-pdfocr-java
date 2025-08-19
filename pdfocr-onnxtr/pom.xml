@@ -61,22 +61,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>qa</id>
-      <build>
-        <plugins>
-          <!-- By default, the japicmp plugin is enabled for qa profile and configured from parent pom.
-          Disabling it for the new module as it could not find previous version for pdfocr-onnxtr. -->
-          <plugin>
-            <groupId>com.github.siom79.japicmp</groupId>
-            <artifactId>japicmp-maven-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
 </project>
