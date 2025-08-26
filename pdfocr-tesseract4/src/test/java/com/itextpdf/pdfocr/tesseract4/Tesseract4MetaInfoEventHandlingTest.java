@@ -37,15 +37,18 @@ import org.junit.jupiter.api.Test;
 
 public abstract class Tesseract4MetaInfoEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
-    public Tesseract4MetaInfoEventHandlingTest(ReaderType type) {
+    protected String destinationFolder;
+
+    public Tesseract4MetaInfoEventHandlingTest(ReaderType type, String destinationFolder) {
         super(type);
+        this.destinationFolder = destinationFolder;
     }
 
     // set meta info tests
     @Test
     public void setEventCountingMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "setEventCountingMetaInfo,pdf");
 
         createPdfAndSetEventCountingMetaInfo(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
@@ -65,7 +68,7 @@ public abstract class Tesseract4MetaInfoEventHandlingTest extends IntegrationEve
     @Test
     public void createPdfFileTestMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "createPdfFileTestMetaInfo.pdf");
 
         createPdfFileAndSetMetaInfoToProps(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 

@@ -30,7 +30,6 @@ import com.itextpdf.commons.actions.confirmations.ConfirmedEventWrapper;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
@@ -56,14 +55,17 @@ import org.junit.jupiter.api.Test;
 
 public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandlingTestHelper {
 
-    public Tesseract4EventHandlingTest(ReaderType type) {
+    protected String destinationFolder;
+
+    public Tesseract4EventHandlingTest(ReaderType type, String destinationFolder) {
         super(type);
+        this.destinationFolder = destinationFolder;
     }
 
     @Test
     public void ocrPdfCreatorCreatePdfFileTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFile.pdf");
 
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
@@ -88,7 +90,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void ocrPdfCreatorCreatePdfFileNoImageTest() throws IOException {
         File imgFile = new File("unknown");
         List<File> images = Collections.singletonList(imgFile);
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFileNoImage.pdf");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
         Assertions.assertThrows(PdfOcrException.class,
                 () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
@@ -119,7 +121,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFileTwoImages.pdf");
 
         new OcrPdfCreator(tesseractReader).createPdfFile(Arrays.asList(imgFile, imgFile), outPdfFile);
 
@@ -147,7 +149,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfFileTwoRunningsTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFileTwoRunnings.pdf");
 
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
@@ -178,7 +180,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdf.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
         PdfDocument pdfDocument =
@@ -205,7 +207,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @LogMessages(messages = @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE))
     public void ocrPdfCreatorCreatePdfNoImageTest() throws IOException {
         List<File> images = Collections.singletonList(new File("no_image"));
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfNoImage.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
@@ -230,7 +232,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfAFileTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfAFile.pdf");
 
         OcrPdfCreatorProperties props = new OcrPdfCreatorProperties()
                 .setPdfLang("en-US");
@@ -256,7 +258,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfATest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfA.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
         OcrPdfCreatorProperties props = new OcrPdfCreatorProperties()
@@ -326,7 +328,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
-                FileUtil.createTempFile("test", ".txt"));
+                new File(destinationFolder + "createTxtFileTwoImages.txt"));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
         IEvent usageEvent = eventsHandler.getEvents().get(0);
@@ -340,7 +342,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileNullEventHelperTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
-                FileUtil.createTempFile("test", ".txt"),
+                new File(destinationFolder + "createTxtFileNullEventHelper.txt"),
                 new OcrProcessContext(null));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -356,7 +358,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileNoImageTest() throws IOException {
         File imgFile = new File("no_image");
         List<File> images = Arrays.asList(imgFile, imgFile);
-        File outPdfFile = FileUtil.createTempFile("test", ".txt");
+        File outPdfFile = new File(destinationFolder + "createTxtFileNoImage.pdf");
         Assertions.assertThrows(PdfOcrException.class, () -> tesseractReader.createTxtFile(images, outPdfFile));
         // only one usage event is expected and it is not confirmed (no confirm event
         Assertions.assertEquals(1, eventsHandler.getEvents().size());
@@ -397,7 +399,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void setEventCountingMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "setEventCountingMetaInfo.pdf");
 
         createPdfAndSetEventCountingMetaInfo(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
@@ -420,7 +422,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void createPdfFileTestMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "createPdfFileTestMetaInfo.pdf");
 
         createPdfFileAndSetMetaInfoToProps(tesseractReader, outPdfFile, imgFile, new TestMetaInfo());
 
@@ -458,7 +460,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileCustomEventHelperTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "numbers_01.jpg");
         tesseractReader.createTxtFile(Arrays.asList(imgFile, imgFile),
-                FileUtil.createTempFile("test", ".txt"),
+                new File(destinationFolder + "createTxtFileCustomEventHelper.txt"),
                 new OcrProcessContext(new CustomEventHelper()));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -474,7 +476,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfFileMultipageTiffTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFileMultipageTiff.pdf");
 
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
@@ -496,7 +498,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorCreatePdfFileMultipageTiffNoPreprocessingTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorCreatePdfFileMultipageTiffNoPreprocessing.pdf");
 
         tesseractReader.getTesseract4OcrEngineProperties().setPreprocessingImages(false);
         new OcrPdfCreator(tesseractReader).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
@@ -517,7 +519,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void createTxtFileMultipageTiffTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
-        tesseractReader.createTxtFile(Arrays.asList(imgFile), FileUtil.createTempFile("test", ".txt"));
+        tesseractReader.createTxtFile(Arrays.asList(imgFile),
+                new File(destinationFolder + "createTxtFileMultipageTiff.txt"));
 
         // 2 pages in TIFF image
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -533,7 +536,8 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     public void createTxtFileMultipageTiffNoPreprocessingTest() throws IOException {
         File imgFile = new File(TEST_IMAGES_DIRECTORY + "two_pages.tiff");
         tesseractReader.getTesseract4OcrEngineProperties().setPreprocessingImages(false);
-        tesseractReader.createTxtFile(Arrays.asList(imgFile), FileUtil.createTempFile("test", ".txt"));
+        tesseractReader.createTxtFile(Arrays.asList(imgFile),
+                new File(destinationFolder + "createTxtFileMultipageTiffNoPreprocessing.txt"));
 
         // 2 pages in TIFF image
         Assertions.assertEquals(3, eventsHandler.getEvents().size());
@@ -575,7 +579,7 @@ public abstract class Tesseract4EventHandlingTest extends IntegrationEventHandli
     @Test
     public void ocrPdfCreatorMakeSearchableTest() throws IOException {
         File inPdfFile = new File(TEST_PDFS_DIRECTORY + "2pages.pdf");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(destinationFolder + "ocrPdfCreatorMakeSearchable.pdf");
 
         try {
             new OcrPdfCreator(tesseractReader).makePdfSearchable(inPdfFile, outPdfFile);

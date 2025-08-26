@@ -23,11 +23,21 @@
 package com.itextpdf.pdfocr.actions;
 
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 
 @Tag("IntegrationTest")
 public class Tesseract4EventHandlingLibTest extends Tesseract4EventHandlingTest {
+
+    private static final String DESTINATION_FOLDER =
+            "./target/test/com/itextpdf/pdfocr/actions/Tesseract4EventHandlingLibTest/";
+
+    @BeforeAll
+    public static void beforeTests() {
+        createOrClearDestinationFolder(DESTINATION_FOLDER);
+    }
+
     public Tesseract4EventHandlingLibTest() {
-        super(ReaderType.LIB);
+        super(ReaderType.LIB, DESTINATION_FOLDER);
     }
 }
