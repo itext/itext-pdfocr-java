@@ -15,6 +15,12 @@
 
   <properties>
     <sonar.exclusions>src/main/java/com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java</sonar.exclusions>
+
+    <sharpen.phase>install</sharpen.phase>
+    <sharpen.projectName>pdfocr-tesseract4</sharpen.projectName>
+    <sharpen.cSharpTargetFolder>./../../../sharp/pdfocr</sharpen.cSharpTargetFolder>
+    <sharpen.cSharpSourceCodeDestination>itext/itext.pdfocr.tesseract4</sharpen.cSharpSourceCodeDestination>
+    <sharpen.cSharpTestCodeDestination>itext.tests/itext.pdfocr.tesseract4.tests</sharpen.cSharpTestCodeDestination>
   </properties>
 
   <dependencies>
@@ -78,46 +84,5 @@
     </dependency>
   </dependencies>
   <profiles>
-    <profile>
-      <id>with-sharpen</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>sharpen</groupId>
-            <artifactId>sharpen-maven-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <goals>
-                  <goal>sharpen</goal>
-                </goals>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>sharpen</groupId>
-                <artifactId>standard-framework-mapping</artifactId>
-                <version>1.0-SNAPSHOT</version>
-              </dependency>
-            </dependencies>
-            <configuration>
-              <projectName>pdfocr-tesseract4</projectName>
-              <cSharpTargetFolder>./../../../sharp/pdfocr</cSharpTargetFolder>
-              <cSharpSourceCodeDestination>itext/itext.pdfocr.tesseract4</cSharpSourceCodeDestination>
-              <cSharpTestCodeDestination>itext.tests/itext.pdfocr.tesseract4.tests</cSharpTestCodeDestination>
-              <buildDotnet>${sharpen.builddotnet}</buildDotnet>
-              <showDiff>${sharpen.showdiff}</showDiff>
-              <sourceCodeFiles>
-                <file>**/src/main/java/**/*.java</file>
-              </sourceCodeFiles>
-              <testCodeFiles>
-                <file>**/src/test/java/**/*.java</file>
-              </testCodeFiles>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 </project>
