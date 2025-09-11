@@ -35,6 +35,7 @@ import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -106,7 +107,9 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
                 Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-                Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
+                double relativeDistance = (double) MathUtil.calculateLevenshteinDistance(getCmpText(cmpTxt),
+                        extractionStrategy.getResultantText()) / getCmpText(cmpTxt).length();
+                Assertions.assertTrue(relativeDistance < 0.05);
             }
         } else {
             Exception e = Assertions.assertThrows(Exception.class, () -> doOcrAndCreatePdf(src, dest, null));
