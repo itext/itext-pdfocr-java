@@ -44,9 +44,12 @@
             <fileset reason="Interface extending autocloseable can't be ported">
                 <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
             </fileset>
-            <fileset reason="Different opencv API in between .NET and java">
+            <fileset reason="Different opencv API in between .NET and Java">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/OnnxTRTestUtil.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/detection/OnnxDetectionPostProcessor.java" />
+            </fileset>
+            <fileset reason="Different string codepoints operations in .NET and Java">
+                <file path="com/itextpdf/pdfocr/onnxtr/recognition/StringMapper.java" />
             </fileset>
         </java>
     </ignored>

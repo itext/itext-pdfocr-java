@@ -23,6 +23,12 @@ import java.util.Objects;
  * It pretty much implements {@link com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper}
  * for {@link Character} but since it would involve unnecessary boxing, it is a
  * standalone thing instead.
+ *
+ * <p>
+ * If you need to map indices to multi-char sequences (including code points
+ * outside the BMP range), use {@link StringMapper} instead. It maps indices
+ * to strings instead, which makes it more versatile, but it is less memory
+ * efficient.
  */
 public class Vocabulary {
     public static final Vocabulary ASCII_LOWERCASE = new Vocabulary(
