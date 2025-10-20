@@ -25,7 +25,6 @@ package com.itextpdf.pdfocr.onnxtr.detection;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnxtr.AbstractOnnxPredictor;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
-import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
@@ -41,6 +40,33 @@ import java.util.function.Consumer;
 public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage, List<Point[]>>
         implements IDetectionPredictor {
     /**
+     * The expected output shape (BCHW).
+     *
+     * <p>
+     * Batch size is dynamic, as usual, so -1 there.
+     *
+     * <p>
+     * For channels, ideally, there is just one "monochrome" image, but some
+     * models put multiple different metrics in one output (ex. EasyOCR
+     * returns 2), so we will assume dynamic size here as well.
+     *
+     * <p>
+     * As for height and width, while in OnnxTR the dimensions are static and
+     * are equal to the input image dimensions, this is not the case
+     * everywhere. For example, in EasyOCR output is quarter of the input
+     * resolution, but still static. On the other hand, in PaddleOCR, input
+     * and output resolutions are the same, but they are dynamic. So we cannot
+     * statically check this here without knowing the exact dimensions of the
+     * input.
+     *
+     * <p>
+     * Overall, this means, that the dimension checks for the output of the
+     * models are useless here, except for checking, that there are 4
+     * dimensions...
+     */
+    private static final long[] EXPECTED_OUTPUT_SHAPE = new long[]{-1, -1, -1, -1};
+
+    /**
      * Configuration properties of the predictor.
      */
     private final OnnxDetectionPredictorProperties properties;
@@ -51,7 +77,7 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * @param properties properties of the predictor
      */
     public OnnxDetectionPredictor(OnnxDetectionPredictorProperties properties) {
-        super(properties.getModelPath(), properties.getInputProperties(), getExpectedOutputShape(properties));
+        super(properties.getModelPath(), properties.getInputProperties(), EXPECTED_OUTPUT_SHAPE);
         this.properties = properties;
     }
 
@@ -187,6 +213,9 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      */
     @Override
     protected List<List<Point[]>> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
+        final int batchWidth = outputBatch.getDimension(3);
+        final int batchHeight = outputBatch.getDimension(2);
+        final boolean usedSymmetricPadding = properties.getInputProperties().useSymmetricPad();
         final IDetectionPostProcessor postProcessor = properties.getPostProcessor();
         final List<List<Point[]>> batchTextBoxes = new ArrayList<>(inputBatch.size());
         for (int i = 0; i < inputBatch.size(); ++i) {
@@ -198,32 +227,35 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
              * absolute coordinates in the input image. This means, that we need
              * to revert resizing/padding changes as well.
              */
-            convertToAbsoluteInputBoxes(image, textBoxes, properties.getInputProperties());
+            convertToAbsoluteInputBoxes(image, textBoxes, batchWidth, batchHeight, usedSymmetricPadding);
             batchTextBoxes.add(textBoxes);
         }
         return batchTextBoxes;
     }
 
-    private static void convertToAbsoluteInputBoxes(BufferedImage image, List<Point[]> boxes,
-                                                    OnnxInputProperties properties) {
-        int sourceWidth = image.getWidth();
-        int sourceHeight = image.getHeight();
-        float targetWidth = properties.getWidth();
-        float targetHeight = properties.getHeight();
-        float widthRatio = targetWidth / sourceWidth;
-        float heightRatio = targetHeight / sourceHeight;
-        float widthScale;
-        float heightScale;
+    private static void convertToAbsoluteInputBoxes(
+            BufferedImage image,
+            List<Point[]> boxes,
+            int batchWidth,
+            int batchHeight,
+            boolean usedSymmetricPadding
+    ) {
+        final int sourceWidth = image.getWidth();
+        final int sourceHeight = image.getHeight();
+        final double widthRatio = (double) batchWidth / sourceWidth;
+        final double heightRatio = (double) batchHeight / sourceHeight;
+        final double widthScale;
+        final double heightScale;
         // We preserve ratio, when resizing input
         if (heightRatio > widthRatio) {
-            heightScale = targetHeight / (float) Math.round(sourceHeight * widthRatio);
+            heightScale = batchHeight / (double) Math.round(sourceHeight * widthRatio);
             widthScale = 1;
         } else {
-            widthScale = targetWidth / (float) Math.round(sourceWidth * heightRatio);
+            widthScale = batchWidth / (double) Math.round(sourceWidth * heightRatio);
             heightScale = 1;
         }
         final Consumer<Point> updater;
-        if (properties.useSymmetricPad()) {
+        if (usedSymmetricPadding) {
             updater = p -> p.setLocation(
                     MathUtil.clamp(sourceWidth * (0.5 + (p.getX() - 0.5) * widthScale), 0, sourceWidth),
                     MathUtil.clamp(sourceHeight * (0.5 + (p.getY() - 0.5) * heightScale), 0, sourceHeight)
@@ -239,17 +271,5 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
                 updater.accept(p);
             }
         }
-    }
-
-    private static long[] getExpectedOutputShape(OnnxDetectionPredictorProperties properties) {
-        final OnnxInputProperties inputProperties = properties.getInputProperties();
-        // Dynamic batch size
-        final long BATCH_SIZE = -1;
-        // Output is "monochrome"
-        final long CHANNEL_COUNT = 1;
-        // Output retains the "image" dimension from the input
-        final long height = inputProperties.getHeight();
-        final long width = inputProperties.getWidth();
-        return new long[]{BATCH_SIZE, CHANNEL_COUNT, height, width};
     }
 }
