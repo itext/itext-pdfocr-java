@@ -93,7 +93,7 @@ class OnnxTrProcessor {
                     eventHelper.getSequenceId(), null, eventHelper.getConfirmationType());
             eventHelper.onEvent(event);
             /*
-             * TODO DEVSIX-9153: Potential performance improvement (at least for GPU).
+             * Potential performance improvement (at least for GPU).
              *
              * There is a potential for performance improvements here. Currently, this mirrors the
              * behavior in OnnxTR/DocTR, where inputs for orientation and recognition models are
@@ -101,7 +101,7 @@ class OnnxTrProcessor {
              *
              * But, most of the time, this will not be enough to saturate the batch size fully.
              * Ideally, we should process all text boxes together, regardless of the origin image,
-             * and then separate the results afterwards.
+             * and then separate the results afterward.
              */
             BufferedImage image = images.get(imageIndex);
             List<Point[]> textBoxes = textBoxGenerator.next();

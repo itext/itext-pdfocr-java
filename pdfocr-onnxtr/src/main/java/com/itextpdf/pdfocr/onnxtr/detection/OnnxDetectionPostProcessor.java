@@ -92,10 +92,9 @@ public class OnnxDetectionPostProcessor implements IDetectionPostProcessor {
         final int height = output.getDimension(1);
         final int width = output.getDimension(2);
         final List<Point[]> boxes = new ArrayList<>();
-        // TODO DEVSIX-9153: Ideally we would want to either cache the score mask (as model
-        //       dimensions won't change) or use a smaller mask with only the
-        //       contour. Though based on profiling, it doesn't look like it is
-        //       that bad, when it is only once per input image.
+        // Ideally we would want to either cache the score mask (as model dimensions won't change)
+        // or use a smaller mask with only the contour. Though based on profiling, it doesn't look
+        // like it is that bad, when it is only once per input image.
         try (final Mat scoreMask = new Mat(height, width, CvType.CV_8U, new Scalar(0));
              final MatVector contours = findTextContours(output, binarizationThreshold)) {
             final long contourCount = contours.size();
