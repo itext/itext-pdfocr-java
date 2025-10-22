@@ -34,6 +34,8 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @Tag("UnitTest")
 public class BufferedImageUtilTest extends ExtendedITextTest {
@@ -66,6 +68,23 @@ public class BufferedImageUtilTest extends ExtendedITextTest {
         toBchwInputBasicTest(expectedShape, expectedData, images, props);
     }
 
+    public static Iterable<Object[]> truncateToRatioTestParams() {
+        return Arrays.asList(new Object[][] {
+                {new Dimensions2D(100, 20), new Dimensions2D(100, 20), 8.},
+                {new Dimensions2D(160, 20), new Dimensions2D(1000, 20), 8.},
+                {new Dimensions2D(100, 800), new Dimensions2D(100, 2000), 8.},
+        });
+    }
+
+    @ParameterizedTest(name = "truncateToRatioTest: {1}")
+    @MethodSource("truncateToRatioTestParams")
+    public void truncateToRatioTest(Dimensions2D expectedSize, Dimensions2D inputSize, double ratioLimit) {
+        final BufferedImage img = newBlankInputImage(inputSize);
+        final BufferedImage truncated = BufferedImageUtil.truncateToRatio(img, ratioLimit);
+        Assertions.assertEquals(expectedSize.getWidth(), truncated.getWidth());
+        Assertions.assertEquals(expectedSize.getHeight(), truncated.getHeight());
+    }
+
     private static void toBchwInputBasicTest(
             long[] expectedShape,
             float[] expectedData,
@@ -77,6 +96,10 @@ public class BufferedImageUtilTest extends ExtendedITextTest {
         final float[] actualData = new float[12];
         result.getData().get(actualData);
         Assertions.assertArrayEquals(expectedData, actualData, 1E-6F);
+    }
+
+    private static BufferedImage newBlankInputImage(Dimensions2D dims) {
+        return new BufferedImage(dims.getWidth(), dims.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
     }
 
     private static BufferedImage newRgbImage(int width, int height, int[] pixels) {

@@ -40,6 +40,12 @@ public class OnnxOrientationPredictor
         extends AbstractOnnxPredictor<BufferedImage, TextOrientation>
         implements IOrientationPredictor {
     /**
+     * If an input image ratio exceeds this value, then the image will be
+     * truncated.
+     */
+    private static final double IMAGE_RATIO_LIMIT = 4;
+
+    /**
      * Configuration properties of the predictor.
      */
     private final OnnxOrientationPredictorProperties properties;
@@ -94,8 +100,29 @@ public class OnnxOrientationPredictor
      */
     @Override
     protected FloatBufferMdArray toInputBuffer(List<BufferedImage> batch) {
-        // Just your regular BCHW input
-        return BufferedImageUtil.toBchwInput(batch, properties.getInputProperties());
+        /*
+         * This orientation predictor was initially made based on the OnnxTR
+         * one. There the output of the text detection model is words, which
+         * are pretty narrow. So when they were resized to fit a square input
+         * buffer, there were no issues.
+         *
+         * But in the other tools, like EasyOCR and PaddleOCR, the text
+         * detection step outputs lines. And since they could be really wide,
+         * when they are resized for the square input buffer, there will be,
+         * like, 1 or 2 pixels in one of the dimensions, which is not enough
+         * for the orientation model to work.
+         *
+         * To counteract that we will just truncate the images. This shouldn't
+         * make the output worse, as you don't need the whole line or word to
+         * figure out the orientation. On the other hand, not having one of the
+         * dimensions getting degraded to nothing is much more useful.
+         */
+        final List<BufferedImage> truncatedBatch = new ArrayList<>(batch.size());
+        for (int i = 0; i < batch.size(); ++i) {
+            truncatedBatch.add(BufferedImageUtil.truncateToRatio(batch.get(i), IMAGE_RATIO_LIMIT));
+        }
+        // After that it is just a regular BCHW input conversion
+        return BufferedImageUtil.toBchwInput(truncatedBatch, properties.getInputProperties());
     }
 
     /**

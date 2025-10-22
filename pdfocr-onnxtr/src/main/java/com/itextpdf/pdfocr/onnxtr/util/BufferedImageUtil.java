@@ -289,6 +289,47 @@ public final class BufferedImageUtil {
         return result;
     }
 
+    /**
+     * Truncates the input image, so that neither width/height, nor
+     * height/width ratios exceed the limit.
+     *
+     * <p>
+     * If width/height ratio exceeds the limit, the image will be truncated
+     * on left and right equally.
+     *
+     * <p>
+     * If height/width ratio exceeds the limit, the image will be truncated
+     * on top and bottom equally.
+     *
+     * @param image      input image to truncate
+     * @param ratioLimit target ratio limit
+     *
+     * @return the truncated image
+     */
+    public static BufferedImage truncateToRatio(BufferedImage image, double ratioLimit) {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+
+        // If w/h ratio is too big, truncating by width
+        final double imageRatio = (double) width / height;
+        if (imageRatio > ratioLimit) {
+            final int newWidth = Math.max(1, (int) (ratioLimit * height));
+            final int newX = (width - newWidth) / 2;
+            return image.getSubimage(newX, 0, newWidth, height);
+        }
+
+        // If h/w ratio is too big, truncating by height
+        final double imageRatioInv = 1. / imageRatio;
+        if (imageRatioInv > ratioLimit) {
+            final int newHeight = Math.max(1, (int) (ratioLimit * width));
+            final int newY = (height - newHeight) / 2;
+            return image.getSubimage(0, newY, width, newHeight);
+        }
+
+        // Otherwise leaving as-is
+        return image;
+    }
+
     private static void putRgbImageWithNormalization(
             FloatBuffer outputBuffer,
             BufferedImage image,
