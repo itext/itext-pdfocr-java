@@ -140,6 +140,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         //Fixed CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 for openJDK:
         //jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
         //Amazon corretto jdk started support CMYK for JPEG from 11 version.
+        //Temurin 8 does not support CMYK for JPEG either.
         String versionStr = System.getProperty("java.version");
         String vendorStr = System.getProperty("java.vendor");
         boolean isFixed = false;
@@ -149,7 +150,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
 
         switch (majorVer) {
             case 8:
-                if ("Amazon.com Inc.".equals(vendorStr)) {
+                if ("Amazon.com Inc.".equals(vendorStr) || "Temurin".equals(vendorStr)) {
                     return false;
                 }
 
