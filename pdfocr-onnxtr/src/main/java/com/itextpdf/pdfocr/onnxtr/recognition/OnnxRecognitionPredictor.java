@@ -28,6 +28,7 @@ import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -253,6 +254,22 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      */
     public OnnxRecognitionPredictorProperties getProperties() {
         return properties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Iterator<String> predict(Iterator<BufferedImage> inputs) {
+        if (!properties.shouldSplitImages()) {
+            return super.predict(inputs);
+        }
+
+        // Additional pre- and post-processing, if we are splitting images
+        final TextBoxSplitter textBoxSplitter = new TextBoxSplitter();
+        final Iterator<BufferedImage> splitInputs = textBoxSplitter.mapInputs(inputs);
+        final Iterator<String> outputs = super.predict(splitInputs);
+        return textBoxSplitter.mapOutputs(outputs);
     }
 
     /**

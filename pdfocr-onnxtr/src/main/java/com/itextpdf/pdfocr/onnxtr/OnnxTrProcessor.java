@@ -19,11 +19,9 @@ import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
-import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,25 +36,6 @@ class OnnxTrProcessor {
      * Image pixel to PDF point ratio.
      */
     private static final float PX_TO_PT = 0.75F;
-
-    /**
-     * Aspect ratio, at which a text box is split for better text recognition.
-     */
-    private static final float SPLIT_CROPS_MAX_RATIO = 8;
-
-    /**
-     * Target aspect ratio for the text box splits.
-     */
-    private static final float SPLIT_CROPS_TARGET_RATIO = 6;
-
-    /**
-     * Multiplier, which controls the overlap between splits. Factor of 1 means, that there will be no overlap.
-     *
-     * <p>
-     * This is for cases, when a split happens in the middle of a character. With some overlap, at least one of the
-     * sub-images will contain the character in full.
-     */
-    private static final float SPLIT_CROPS_DILATION_FACTOR = 1.4F;
 
     /**
      * Text detector. For an input image it outputs a list of text boxes.
@@ -111,7 +90,7 @@ class OnnxTrProcessor {
                 textOrientations = toList(orientationPredictor.predict(textImages));
                 correctOrientations(textImages, textOrientations);
             }
-            List<String> textString = recognizeText(textImages);
+            List<String> textString = toList(recognitionPredictor.predict(textImages));
             List<TextInfo> textInfos = new ArrayList<>(textBoxes.size());
             for (int i = 0; i < textBoxes.size(); ++i) {
                 TextOrientation textOrientation = TextOrientation.HORIZONTAL;
@@ -134,127 +113,6 @@ class OnnxTrProcessor {
         }
 
         return result;
-    }
-
-    /**
-     * Splits text images to smaller images with better aspect ratios.
-     *
-     * @param images text images to split
-     *
-     * @return a list with image splits together with a map to restore them back
-     */
-    private static SplitResult splitTextImages(List<BufferedImage> images) {
-        SplitResult result = new SplitResult(images.size());
-        for (int i = 0; i < images.size(); ++i) {
-            BufferedImage image = images.get(i);
-            int width = image.getWidth();
-            int height = image.getHeight();
-            float aspectRatio = (float) width / height;
-            if (aspectRatio < SPLIT_CROPS_MAX_RATIO) {
-                result.splitImages.add(image);
-                result.restoreMap[i] = 1;
-                continue;
-            }
-
-            // For some reason here is truncation in OnnxTR...
-            int splitCount = (int) Math.ceil(aspectRatio / SPLIT_CROPS_TARGET_RATIO);
-            float rawSplitWidth = (float) width / splitCount;
-            float targetSplitHalfWidth = (SPLIT_CROPS_DILATION_FACTOR * rawSplitWidth) / 2;
-            int nonEmptySplitCount = 0;
-            for (int j = 0; j < splitCount; ++j) {
-                final float center = (j + 0.5F) * rawSplitWidth;
-                final int minX = Math.max(0, (int) Math.floor(center - targetSplitHalfWidth));
-                final int maxX = Math.min(width - 1, (int) Math.ceil(center + targetSplitHalfWidth));
-                final int currentSplitWidth = maxX - minX;
-                if (currentSplitWidth == 0) {
-                    continue;
-                }
-                ++nonEmptySplitCount;
-                result.splitImages.add(image.getSubimage(minX, 0, currentSplitWidth, height));
-            }
-            result.restoreMap[i] = nonEmptySplitCount;
-        }
-        return result;
-    }
-
-    /**
-     * Merges strings, collected from splits of text images.
-     *
-     * @param collector string builder collector, which contains the current left part of the string
-     * @param nextString next string to add to the collector
-     */
-    private static void mergeStrings(StringBuilder collector, String nextString) {
-        // Comments are also pretty much copies from OnnxTR...
-        int commonLength = Math.min(collector.length(), nextString.length());
-        double[] scores = new double[commonLength];
-        for (int i = 0; i < commonLength; ++i) {
-            scores[i] = MathUtil.calculateLevenshteinDistance(
-                    collector.substring(collector.length() - i - 1),
-                    nextString.substring(0, i + 1)
-            ) / (i + 1.0);
-        }
-
-        int index = 0;
-        // Comparing floats to 0 is fine here, as it only happens, when the
-        // integer nominator (i.e. Levenshtein distance) was 0
-        if (commonLength > 1 && scores[0] == 0 && scores[1] == 0) {
-            // Edge case (split in the middle of char repetitions): if it starts with 2 or more 0
-
-            // Compute n_overlap (number of overlapping chars, geometrically determined)
-            final int overlap = (int) Math.round(
-                    nextString.length() * (SPLIT_CROPS_DILATION_FACTOR - 1) / SPLIT_CROPS_DILATION_FACTOR);
-            // Find the number of consecutive zeros in the scores list
-            // Impossible to have a zero after a non-zero score in that case
-            final int zeros = (int) Arrays.stream(scores).filter(x -> x == 0).count();
-            index = Math.min(zeros, overlap);
-        } else {
-            // Common case: choose the min score index
-            double minScore = 1.0;
-            for (int i = 0; i < commonLength; ++i) {
-                if (scores[i] < minScore) {
-                    minScore = scores[i];
-                    index = i + 1;
-                }
-            }
-        }
-
-        if (index == 0) {
-            collector.append(nextString);
-        } else {
-            collector.setLength(Math.max(0, collector.length() - 1));
-            collector.append(nextString, index - 1, nextString.length());
-        }
-    }
-
-    /**
-     * Runs text recognition on the provided text images.
-     *
-     * @param textImages images with text to recognize
-     *
-     * @return list of strings, recognized in the images
-     */
-    private List<String> recognizeText(List<BufferedImage> textImages) {
-        // For better recognition results we want to split text images to have better aspect ratios
-        OnnxTrProcessor.SplitResult split = OnnxTrProcessor.splitTextImages(textImages);
-        Iterator<String> recognitionIterator = recognitionPredictor.predict(split.splitImages);
-        // And now we merge results back
-        List<String> textStrings = new ArrayList<>(split.restoreMap.length);
-        for (int j = 0; j < split.restoreMap.length; ++j) {
-            int stringPartsLeft = split.restoreMap[j];
-            final String testString;
-            if (stringPartsLeft == 1 && recognitionIterator.hasNext()) {
-                testString = recognitionIterator.next();
-            } else {
-                final StringBuilder sb = new StringBuilder();
-                while (stringPartsLeft > 0 && recognitionIterator.hasNext()) {
-                    OnnxTrProcessor.mergeStrings(sb, recognitionIterator.next());
-                    --stringPartsLeft;
-                }
-                testString = sb.toString();
-            }
-            textStrings.add(testString);
-        }
-        return textStrings;
     }
 
     /**
@@ -311,30 +169,5 @@ class OnnxTrProcessor {
         List<E> list = new ArrayList<>();
         iterator.forEachRemaining(list::add);
         return list;
-    }
-
-    /**
-     * Contains results of a text image split.
-     */
-    public static class SplitResult {
-        /**
-         * List of sub-images, that the original images were split into.
-         */
-        public final List<BufferedImage> splitImages;
-        /**
-         * A map of splits. Array length is equal to the original image count. Each element defines
-         * how many sub-images were generated from each original image.
-         */
-        public final int[] restoreMap;
-
-        /**
-         * Creates new {@link SplitResult} instance.
-         *
-         * @param capacity capacity of the list of sub-images
-         */
-        public SplitResult(int capacity) {
-            this.splitImages = new ArrayList<>(capacity);
-            this.restoreMap = new int[capacity];
-        }
     }
 }

@@ -49,7 +49,35 @@ public class OnnxRecognitionPredictorProperties {
     private final IRecognitionPostProcessor postProcessor;
 
     /**
+     * Defines, whether input images to the recognition model should be split
+     * into smaller ones with better aspect ratios. Usually should be false
+     * for models, which operates on lines, as merging of the text back could
+     * cause errors.
+     */
+    private final boolean splitImages;
+
+    /**
      * Creates new text recognition predictor properties.
+     *
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param postProcessor ONNX model output post-processor
+     * @param splitImages whether input images to the ML model should be split
+     *                    into smaller ones with better aspect ratios
+     */
+    public OnnxRecognitionPredictorProperties(String modelPath, OnnxInputProperties inputProperties,
+                                              IRecognitionPostProcessor postProcessor, boolean splitImages) {
+        this.modelPath = Objects.requireNonNull(modelPath);
+        this.inputProperties = Objects.requireNonNull(inputProperties);
+        this.postProcessor = Objects.requireNonNull(postProcessor);
+        this.splitImages = splitImages;
+    }
+
+    /**
+     * Creates new text recognition predictor properties.
+     *
+     * <p>
+     * Images will be split before passing them to the ML model.
      *
      * @param modelPath path to the ONNX model to load
      * @param inputProperties ONNX model input properties
@@ -57,9 +85,7 @@ public class OnnxRecognitionPredictorProperties {
      */
     public OnnxRecognitionPredictorProperties(String modelPath, OnnxInputProperties inputProperties,
                                               IRecognitionPostProcessor postProcessor) {
-        this.modelPath = Objects.requireNonNull(modelPath);
-        this.inputProperties = Objects.requireNonNull(inputProperties);
-        this.postProcessor = Objects.requireNonNull(postProcessor);
+        this(modelPath, inputProperties, postProcessor, true);
     }
 
     /**
@@ -309,6 +335,15 @@ public class OnnxRecognitionPredictorProperties {
     }
 
     /**
+     * Returns whether input images should be split.
+     *
+     * @return whether input images should be split
+     */
+    public boolean shouldSplitImages() {
+        return splitImages;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -320,7 +355,8 @@ public class OnnxRecognitionPredictorProperties {
             return false;
         }
         final OnnxRecognitionPredictorProperties that = (OnnxRecognitionPredictorProperties) o;
-        return Objects.equals(modelPath, that.modelPath) &&
+        return splitImages == that.splitImages &&
+                Objects.equals(modelPath, that.modelPath) &&
                 Objects.equals(inputProperties, that.inputProperties) &&
                 Objects.equals(postProcessor, that.postProcessor);
     }
@@ -330,7 +366,7 @@ public class OnnxRecognitionPredictorProperties {
      */
     @Override
     public int hashCode() {
-        return Objects.hash((Object) modelPath, inputProperties, postProcessor);
+        return Objects.hash((Object) modelPath, inputProperties, postProcessor, splitImages);
     }
 
     /**
@@ -342,6 +378,7 @@ public class OnnxRecognitionPredictorProperties {
                 "modelPath='" + modelPath + '\'' +
                 ", inputProperties=" + inputProperties +
                 ", postProcessor=" + postProcessor +
+                ", splitImages=" + splitImages +
                 '}';
     }
 }

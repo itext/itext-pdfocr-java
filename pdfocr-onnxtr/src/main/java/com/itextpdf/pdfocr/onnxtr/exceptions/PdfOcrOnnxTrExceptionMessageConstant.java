@@ -27,6 +27,8 @@ package com.itextpdf.pdfocr.onnxtr.exceptions;
  */
 public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String BATCH_SIZE_SHOULD_BE_POSITIVE = "Target batch size should be positive.";
+    public static final String CANNOT_START_ANOTHER_MAPPING_OPERATION =
+            "Cannot start another mapping operation till the previous one is finished.";
     public static final String ELEM_COUNT_DOES_NOT_MATCH_SHAPE = "Data buffer element count does not match the shape.";
     public static final String FAILED_TO_CLOSE_ONNX_RUNTIME_SESSION = "Failed to close an ONNX Runtime session.";
     public static final String FAILED_TO_INIT_ONNX_RUNTIME_SESSION = "Failed to init ONNX Runtime session.";
