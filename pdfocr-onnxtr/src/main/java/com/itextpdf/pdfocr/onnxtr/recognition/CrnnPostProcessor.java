@@ -6,9 +6,6 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
-import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
-import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
-
 import java.util.Objects;
 
 /**
@@ -20,7 +17,7 @@ import java.util.Objects;
  * vocabulary one, is blank, which is just skipped or used as a char separator.
  * Multiple of the same label in a row is aggregated into one.
  */
-public class CrnnPostProcessor implements IRecognitionPostProcessor {
+public class CrnnPostProcessor extends BasicLabelPostProcessor {
     /**
      * Vocabulary used for the model output (without special tokens).
      */
@@ -46,23 +43,11 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
      * {@inheritDoc}
      */
     @Override
-    public String process(FloatBufferMdArray output) {
-        final int maxWordLength = output.getDimension(0);
-        final StringBuilder wordBuilder = new StringBuilder(maxWordLength);
-        final float[] values = new float[labelDimension()];
-        final float[] outputBuffer = output.getData().array();
-        int prevLetterIndex = -1;
-        int arrayOffset = output.getArrayOffset();
-        for (int i = arrayOffset; i < arrayOffset + output.getArraySize(); i += values.length) {
-            System.arraycopy(outputBuffer, i, values, 0, values.length);
-            final int letterIndex = MathUtil.argmax(values);
-            // Last letter is <blank>
-            if (prevLetterIndex != letterIndex && letterIndex < vocabulary.size()) {
-                wordBuilder.append(vocabulary.map(letterIndex));
-            }
-            prevLetterIndex = letterIndex;
+    protected void appendLabel(StringBuilder output, int labelIndex) {
+        // Last letter is <blank>
+        if (labelIndex < vocabulary.size()) {
+            output.append(vocabulary.map(labelIndex));
         }
-        return wordBuilder.toString();
     }
 
     /**
@@ -70,7 +55,7 @@ public class CrnnPostProcessor implements IRecognitionPostProcessor {
      */
     @Override
     public int labelDimension() {
-        // +1 is "<blank>" token
+        // +1 is "<blank>" token at the end
         return vocabulary.size() + 1;
     }
 }

@@ -64,12 +64,13 @@ public class EndOfStringPostProcessor implements IRecognitionPostProcessor {
     @Override
     public String process(FloatBufferMdArray output) {
         final int maxWordLength = output.getDimension(0);
+        final int labelStride = output.getDimension(1);
         final StringBuilder wordBuilder = new StringBuilder(maxWordLength);
-        final float[] values = new float[labelDimension()];
+        final float[] values = new float[Math.min(labelDimension(), labelStride)];
 
         final float[] outputBuffer = output.getData().array();
         int arrayOffset = output.getArrayOffset();
-        for (int i = arrayOffset; i < arrayOffset + output.getArraySize(); i += values.length) {
+        for (int i = arrayOffset; i < arrayOffset + output.getArraySize(); i += labelStride) {
             System.arraycopy(outputBuffer, i, values, 0, values.length);
             final int letterIndex = MathUtil.argmax(values);
             if (letterIndex < vocabulary.size()) {

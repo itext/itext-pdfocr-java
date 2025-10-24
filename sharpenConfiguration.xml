@@ -40,6 +40,8 @@
             </fileset>
             <fileset reason="Lack of similar API as ByteBuffer in .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/FloatBufferMdArray.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/recognition/CrnnPostProcessorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/recognition/CtcLabelPostProcessorTest.java" />
             </fileset>
             <fileset reason="Interface extending autocloseable can't be ported">
                 <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
