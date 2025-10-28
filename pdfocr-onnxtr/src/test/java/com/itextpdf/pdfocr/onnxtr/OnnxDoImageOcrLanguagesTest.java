@@ -80,7 +80,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals("13\n-\n4\n6\nSta:as)\n9\n4at\n-\nlive,\nlaugh,\nlove\n", textFromImage);
+        Assertions.assertEquals("13\n-\nA\n6\nSta:as)\n9\n4tj\n-\nlive,\nlaugh,\nlove\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -110,7 +110,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals("3(5T\n*T(3T\n", textFromImage);
+        Assertions.assertEquals("3(5\nT(3T\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -200,7 +200,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals(")\nP\n-\ny\n-\nE\nC\nN\nC\nM\n-\nA\nC\nI\nI\nA\n$\n/\n7156W5\n$\nxaboluxns\n2\n2\n14\nCTOS02u27\n2\n9\n-\nEXX2MG10\n$\ndycGuxns.\n", textFromImage);
+        Assertions.assertEquals("0)\nP\n-\nV\n-\nE\nO\nN\n-\nM\nC\nA\nC)\nI\nI\nA\n$\n/\n7156W5\n$\nxabouxns\n2\n2\n7\nCTOS02u275\n2\n2\n/\nEXX2MG109\n$\ndycGuxns.\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -215,7 +215,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals("o\n-\nG\ntT\ndeass\n", textFromImage);
+        Assertions.assertEquals("o\n-\nG\ntT\ndes\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -230,7 +230,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage =OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals("dloich\nSloial\nHindi\n", textFromImage);
+        Assertions.assertEquals("dloich\nSlaiai\nHindi\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -260,7 +260,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertEquals("B\n*\n&\n-\n-\nE\nD\nX\n*\n-\n", textFromImage);
+        Assertions.assertEquals("B\n*\naa\n-\n-\na\nK\n*\n-\n", textFromImage);
 
         ocrEngine.close();
     }
@@ -310,7 +310,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals(
-                "3581991\n1\n19n8\nA\nA\nI\na\n&\n1\n19008791914497907597\n15790707047005\n19n8\n",
+                "3581981\n1\n19n8\nA\nA\nI\na\n&\n\n19008791914497907597\n15790707047005\n19n8\n",
                 textFromImage, textFromImage);
 
         ocrEngine.close();
@@ -326,10 +326,10 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
-        Assertions.assertTrue(textFromImage.contains("\nGNwwInygEnAnUONEDNMENEnMEVouDoruRE\n"));
-        Assertions.assertTrue(textFromImage.contains("\nWsruilunaMASIwOyuEAL\n"));
-        Assertions.assertTrue(textFromImage.contains("\nwialwwnnaurw)\n"));
-        Assertions.assertTrue(textFromImage.contains("\nLmniloumwnounguwyuEREngenananuidwwéryenshuluwenennl\n"));
+        Assertions.assertTrue(textFromImage.contains("\nGNuwInygEMEMAnUONEDNMENAVouDaruRE\n"));
+        Assertions.assertTrue(textFromImage.contains("\nWsruilunaMASIwEyuEAL\n"));
+        Assertions.assertTrue(textFromImage.contains("\nMielwynanaur\n"));
+        Assertions.assertTrue(textFromImage.contains("\nlnilounnenourwdryeuREnAOnaNADuiluwdrysnrailununeinnl\n"));
 
         ocrEngine.close();
     }

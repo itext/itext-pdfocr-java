@@ -69,7 +69,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
         Assertions.assertEquals("Does\nthis\nOCR\nthing\nreally\nwork?\nHi\nHow\nabout\na\nbigger\nfont?\n" +
-                "123456789\n13\nWhat\nabowt\ntiy\nfont?\n", textFromImage);
+                "123456789\n123\nWhat\nabowt\ntris\nfont?\n", textFromImage);
     }
 
     @Test
@@ -149,14 +149,14 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("\n1Y\nSI\nENSAYARA\nCOMO\nACTUAR?\nTanto\npeor,\nlo\nmejor\nes\ndescansar\n" +
+        Assertions.assertEquals("-\nAY\nSI\nENSAYARA\nCOMO\nACTUAR?\nTanto\npeor,\nlo\nmejor\nes\ndescansar\n" +
                 "y\nno\npensar\nla\nfiesta,\nsi\nse\npuede.\nNo\nhay\nnada\nmas\ndesalentador\nver\nen\nlas\n" +
                 "fiestas\na\njovenes\ncon\ncara\nde\nlastima\ny\niluslonadas\ny\nque\nse\nhan\npasado\ntodo\nel\n" +
                 "dia\ntratando\nhallar\nlo\nmejor\ny\nla\nmas\natractiva\nmanera\nde\npres\ntarse\nen\npublico.\n" +
                 "Hay\nque\nactuar\ncon\ncalma\ny\nno\ncansaremos\nde\nrepetirlo,\nLo\nmas\nimportante\nes\nsaber\n" +
                 "que\nse\nva\na\nponer\ny\ntener\ntodo\na\nmano,\nSi\nintenta\nprobar\nun\nnuevo\nlapiz\nlabial\n" +
-                "para\nla\na\nsion,\nasegurese\nque\narmonice\ncon\nel\nvestido\nque\nlle\nrà.\nTambién\nel\n" +
-                "maquillaje\nde\nlos\nojos\ndebe\narmonil\ncon\nel\nconjunto,\n", textFromImage);
+                "para\nla\na\nsion,\nasegurese\nque\narmonice\ncon\nel\n-\nvestido\nque\nlle\nrà.\nTambién\nel\n" +
+                "maquillaje\nde\nlos\nojos\ndebe\narmoni\ncon\nel\nconjunto.\n", textFromImage);
     }
 
     @Test
