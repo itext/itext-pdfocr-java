@@ -31,15 +31,31 @@ public class Dimensions2D {
     private final int width;
     private final int height;
 
+    /**
+     * Creates new {@link Dimensions2D} instance.
+     *
+     * @param width width dimension
+     * @param height height dimension
+     */
     public Dimensions2D(int width, int height) {
         this.width = width;
         this.height = height;
     }
 
+    /**
+     * Gets width of the {@link Dimensions2D} instance.
+     *
+     * @return width of the {@link Dimensions2D} instance
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * Gets height of the {@link Dimensions2D} instance.
+     *
+     * @return height of the {@link Dimensions2D} instance
+     */
     public int getHeight() {
         return height;
     }
