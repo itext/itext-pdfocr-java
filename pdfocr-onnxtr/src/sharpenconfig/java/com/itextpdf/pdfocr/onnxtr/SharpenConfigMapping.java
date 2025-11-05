@@ -29,6 +29,7 @@ import sharpen.config.ModulesConfigurator;
 import sharpen.config.OptionsConfigurator;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -66,17 +67,24 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapMethod("javax.imageio.ImageIO.read", "IronSoftware.Drawing.AnyBitmap.FromFile");
         configurator.mapMethodWithParameterConversion("javax.imageio.ImageIO.read", "1:memberCall:FullName");
 
+        configurator.mapMethod("java.util.Collection.iterator", "GetEnumerator");
         configurator.mapMethod("java.util.Iterator.hasNext", "MoveNext");
         configurator.mapProperty("java.util.Iterator.next", "Current");
         mapOpenCv(configurator);
 
         configurator.mapMethod("org.junit.jupiter.api.Assertions.assertDoesNotThrow",
                 "NUnit.Framework.Assert.DoesNotThrow", false);
+        configurator.mapMethod("org.junit.jupiter.api.Assertions.assertInstanceOf",
+                "NUnit.Framework.Assert.IsInstanceOf");
 
         configurator.mapType("java.awt.Color", "IronSoftware.Drawing.Color");
         configurator.mapField("java.awt.Color.BLACK", "IronSoftware.Drawing.Color.Black");
         configurator.mapField("java.awt.Color.GRAY", "IronSoftware.Drawing.Color.Gray");
         configurator.mapField("java.awt.Color.WHITE", "IronSoftware.Drawing.Color.White");
+
+        configurator.ignoreUsing("Org.Bytedeco.Opencv.Opencv_core");
+        configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnxtr.util.YamlUtilTest",
+                Arrays.asList("System.Linq"));
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {

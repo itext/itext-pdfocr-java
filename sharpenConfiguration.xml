@@ -27,6 +27,7 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/orientation/OnnxOrientationPredictorTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/recognition/TextBoxSplitter.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/conf/paddle/parser/PreProcessParser.java" />
             </fileset>
             <fileset reason="Different API for image processing in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
@@ -54,6 +55,9 @@
             </fileset>
             <fileset reason="Different string codepoints operations in .NET and Java">
                 <file path="com/itextpdf/pdfocr/onnxtr/recognition/StringMapper.java" />
+            </fileset>
+            <fileset reason="Different YAML parsing logic in .NET and Java">
+                <file path="com/itextpdf/pdfocr/onnxtr/util/YamlUtil.java" />
             </fileset>
         </java>
     </ignored>

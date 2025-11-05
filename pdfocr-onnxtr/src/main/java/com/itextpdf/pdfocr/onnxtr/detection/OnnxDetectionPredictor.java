@@ -29,6 +29,7 @@ import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -188,6 +189,99 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      */
     public static OnnxDetectionPredictor linkNet(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.linkNet(modelPath));
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained
+     * PaddleOCR model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method expects the directory to contain two files:
+     * <ul>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format</li>
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML</li>
+     * </ul>
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * @param modelDirPath path to the directory with the model and its
+     *                     configuration file
+     *
+     * @return a new predictor with the PaddleOCR model loaded
+     */
+    public static OnnxDetectionPredictor paddleOcr(String modelDirPath) throws IOException {
+        return new OnnxDetectionPredictor(
+                OnnxDetectionPredictorProperties.paddleOcr(modelDirPath)
+        );
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained
+     * PaddleOCR model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model in the ONNX format
+     * @param configPath path to the configuration file for the model
+     *
+     * @return a new predictor with the PaddleOCR model loaded
+     */
+    public static OnnxDetectionPredictor paddleOcr(String modelPath, String configPath) throws IOException {
+        return new OnnxDetectionPredictor(
+                OnnxDetectionPredictorProperties.paddleOcr(modelPath, configPath)
+        );
     }
 
     /**

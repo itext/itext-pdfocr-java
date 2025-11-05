@@ -1,8 +1,24 @@
 /*
-    Copyright (C) 2021-2024, Mindee | Felix Dittrich.
+    This file is part of the iText (R) project.
+    Copyright (c) 1998-2026 Apryse Group NV
+    Authors: Apryse Software.
 
-    This program is licensed under the Apache License 2.0.
-    See <https://opensource.org/licenses/Apache-2.0> for full license details.
+    This program is offered under a commercial and under the AGPL license.
+    For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
+
+    AGPL licensing:
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.itextpdf.pdfocr.onnxtr.detection;
 
@@ -10,7 +26,24 @@ import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
 import com.itextpdf.pdfocr.onnxtr.PaddingStrategy;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.BoxType;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.DbPostProcess;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.DecodeImage;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.DetResizeForTest;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.ImgMode;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.InferenceConfig;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.NormalizeImage;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.PostProcess;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.ScoreMode;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.model.TransformOp;
+import com.itextpdf.pdfocr.onnxtr.conf.paddle.parser.InferenceConfigParser;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PaddleOcrInitException;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -39,6 +72,11 @@ public class OnnxDetectionPredictorProperties {
      */
     private static final IDetectionPostProcessor DB_NET_POST_PROCESSOR =
             new OnnxDetectionPostProcessor(0.3F, 0.1F);
+
+    private static final int PADDLE_LIMIT_SIDE_LEN = 64;
+    private static final int PADDLE_MAX_SIDE_LIMIT = 4000;
+    private static final int PADDLE_SIDE_MULTIPLE = 32;
+    private static final int PADDLE_BATCH_SIZE = 1;
 
     /**
      * Path to the ONNX model to load.
@@ -196,6 +234,101 @@ public class OnnxDetectionPredictorProperties {
     }
 
     /**
+     * Creates a new text detection properties object for existing pre-trained
+     * PaddleOCR models, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method expects the directory to contain two files:
+     * <ul>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format</li>
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML</li>
+     * </ul>
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * @param modelDirPath path to the directory with the model and its
+     *                     configuration file
+     *
+     * @return a new text detection properties object for a PaddleOCR model
+     */
+    public static OnnxDetectionPredictorProperties paddleOcr(String modelDirPath) throws IOException {
+        return paddleOcr(modelDirPath + "/inference.onnx", modelDirPath + "/inference.yml");
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained
+     * PaddleOCR models, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model in the ONNX format
+     * @param configPath path to the configuration file for the model
+     *
+     * @return a new text detection properties object for a PaddleOCR model
+     */
+    public static OnnxDetectionPredictorProperties paddleOcr(String modelPath, String configPath) throws IOException {
+        final InferenceConfig config;
+        try (final InputStream is = Files.newInputStream(Paths.get(configPath))) {
+            config = InferenceConfigParser.parse(is);
+        }
+        final OnnxInputProperties inputProperties = createPaddleInputProperties(config);
+        final PaddleOcrDetectionPostProcessor postProcessor = createPaddlePostProcessor(config);
+        return new OnnxDetectionPredictorProperties(modelPath, inputProperties, postProcessor);
+    }
+
+    /**
      * Returns the path to the ONNX model.
      *
      * @return the path to the ONNX model
@@ -257,5 +390,96 @@ public class OnnxDetectionPredictorProperties {
                 ", inputProperties=" + inputProperties +
                 ", postProcessor=" + postProcessor +
                 '}';
+    }
+
+    private static OnnxInputProperties createPaddleInputProperties(InferenceConfig config) {
+        final TransformOp[] ops = config.getPreProcess().getTransformOps();
+
+        final DecodeImage decode = getPaddleOp(ops, DecodeImage.class, DecodeImage.WRAPPING_KEY);
+        if (decode.getChannelFirst()) {
+            throw PaddleOcrInitException.channelFirstIsNotSupported();
+        }
+        final ImageChannelConfiguration channelConfig = mapImgMode(decode.getImgMode());
+
+        final NormalizeImage normalize = getPaddleOp(ops, NormalizeImage.class, NormalizeImage.WRAPPING_KEY);
+        final float[] mean = normalize.getMean();
+        if (mean.length != channelConfig.getChannelCount()) {
+            throw PaddleOcrInitException.unexpectedMeanChannelCount(mean.length);
+        }
+        final float[] std = normalize.getStd();
+        if (std.length != channelConfig.getChannelCount()) {
+            throw PaddleOcrInitException.unexpectedStdChannelCount(std.length);
+        }
+
+        final DetResizeForTest resize = getPaddleOp(ops, DetResizeForTest.class, DetResizeForTest.WRAPPING_KEY);
+        if (resize.getImageShape() != null) {
+            throw PaddleOcrInitException.imageShapeIsNotSupported();
+        }
+
+        /*
+         * From looking at the logic within PaddleOCR, it seems like there are
+         * very few ways for the configuration file to, actually, affect the
+         * resizing operation. The majority of the parameters come from a
+         * global OCR config file, which is static. So the only things you are
+         * getting from the model config file here is the channel
+         * configuration. It can also be affected, if an `image_shape` key is
+         * present, but we didn't add support for that anyway.
+         */
+        final ImageResizeOptions resizeOpts = new ImageResizeOptions(
+                channelConfig,
+                PADDLE_LIMIT_SIDE_LEN, PADDLE_LIMIT_SIDE_LEN,
+                PADDLE_MAX_SIDE_LIMIT, PADDLE_MAX_SIDE_LIMIT,
+                PADDLE_SIDE_MULTIPLE, PADDLE_SIDE_MULTIPLE,
+                PaddingStrategy.BOTTOM_RIGHT_BLACK
+        );
+        return new OnnxInputProperties(resizeOpts, mean, std, PADDLE_BATCH_SIZE);
+    }
+
+    private static <T> T getPaddleOp(TransformOp[] ops, Class<T> cls, String name) {
+        for (int i = 0; i < ops.length; ++i) {
+            final TransformOp op = ops[i];
+            if (cls.isInstance(op)) {
+                return (T) op;
+            }
+        }
+        throw PaddleOcrInitException.preProcessorOperationMissing(name);
+    }
+
+    private static ImageChannelConfiguration mapImgMode(ImgMode im) {
+        switch (im) {
+            case GRAY:
+                return ImageChannelConfiguration.GRAYSCALE;
+            case RGB:
+                return ImageChannelConfiguration.RGB;
+            case BGR:
+                return ImageChannelConfiguration.BGR;
+        }
+        // Should not get here
+        throw new IllegalStateException(
+                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION
+        );
+    }
+
+    private static PaddleOcrDetectionPostProcessor createPaddlePostProcessor(InferenceConfig config) {
+        final PostProcess postProcess = config.getPostProcess();
+        if (!(postProcess instanceof DbPostProcess)) {
+            throw PaddleOcrInitException.unexpectedPostProcessorType(postProcess.getName());
+        }
+        final DbPostProcess db = (DbPostProcess) postProcess;
+        if (db.getUseDilation()) {
+            throw PaddleOcrInitException.useDilationIsNotSupported();
+        }
+        if (db.getScoreMode() != ScoreMode.FAST) {
+            throw PaddleOcrInitException.scoreModeIsNotSupported();
+        }
+        if (db.getBoxType() != BoxType.QUAD) {
+            throw PaddleOcrInitException.boxTypeIsNotSupported();
+        }
+        return new PaddleOcrDetectionPostProcessor(
+                db.getThresh(),
+                db.getBoxThresh(),
+                db.getUnclipRatio(),
+                db.getMaxCandidates()
+        );
     }
 }

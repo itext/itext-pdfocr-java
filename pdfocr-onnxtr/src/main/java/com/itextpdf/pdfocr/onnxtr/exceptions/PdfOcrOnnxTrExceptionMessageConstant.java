@@ -27,8 +27,12 @@ package com.itextpdf.pdfocr.onnxtr.exceptions;
  */
 public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String BATCH_SIZE_SHOULD_BE_POSITIVE = "Target batch size should be positive.";
+    public static final String BOX_TYPE_IS_NOT_SUPPORTED =
+            "Only `box_type: quad` is supported for DBPostProcess.";
     public static final String CANNOT_START_ANOTHER_MAPPING_OPERATION =
             "Cannot start another mapping operation till the previous one is finished.";
+    public static final String CHANNEL_FIRST_IS_NOT_SUPPORTED =
+            "Only `channel_first: false` is supported for DecodeImage.";
     public static final String ELEM_COUNT_DOES_NOT_MATCH_SHAPE = "Data buffer element count does not match the shape.";
     public static final String FAILED_TO_CLOSE_ONNX_RUNTIME_SESSION = "Failed to close an ONNX Runtime session.";
     public static final String FAILED_TO_INIT_ONNX_RUNTIME_SESSION = "Failed to init ONNX Runtime session.";
@@ -38,6 +42,8 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE =
             "HeightMultiple should be a positive value, found {0}.";
     public static final String HW_ARRAY_SHOULD_BE_TWO_DIMENSIONAL = "HwMdArray should be two-dimensional";
+    public static final String IMAGE_SHAPE_IS_NOT_SUPPORTED =
+            "`image_shape` is not supported for DetResizeForTest";
     public static final String INDEX_OUT_OF_BOUNDS = "Index out of bounds: {0}.";
     public static final String INVALID_NUMBER_OF_OUTPUTS = "Batch processing failed: invalid number of outputs.";
     public static final String LOOK_UP_STRING_CONTAINS_2_CODE_UNITS_POINTS = "Look-up string contains code points, " +
@@ -59,10 +65,15 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
     @Deprecated
     public static final String ONLY_SUPPORT_RGB_IMAGES = "Method toBchwInput only support RGB images.";
     public static final String ONNX_RUNTIME_OPERATION_FAILED = "ONNX Runtime operation failed.";
+    public static final String PRE_PROCESSOR_OPERATION_MISSING =
+            "Expected pre-processor operation is missing: {0}.";
+    public static final String SCORE_MODE_IS_NOT_SUPPORTED =
+            "Only `score_mode: fast` is supported for DBPostProcess.";
     public static final String SHAPE_IS_NOT_VALID = "The shape of the data buffer is not valid.";
     public static final String SHOULD_BE_AT_LEAST_ONE_IMAGE = "There should be at least one image.";
     public static final String TOO_MANY_IMAGES = "Too many images ({0}) for the provided batch size ({1}).";
     public static final String UNEXPECTED_CHANNEL_CONFIGURATION = "Unexpected channel configuration.";
+    public static final String UNEXPECTED_CONFIG_KEY = "Unexpected config key: {0}.";
     public static final String UNEXPECTED_DIMENSION_VALUE = "Unexpected dimension value: {0}.";
     public static final String UNEXPECTED_INPUT_SHAPE = "Expected {0} input shape, but got {1} instead.";
     public static final String UNEXPECTED_INPUT_SIZE = "Expected 1 input, but got {0} instead.";
@@ -73,8 +84,12 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String UNEXPECTED_OUTPUT_SIZE = "Expected 1 output, but got  {0} instead.";
     public static final String UNEXPECTED_OUTPUT_TYPE = "Unexpected output type. Expected float32 tensor.";
     public static final String UNEXPECTED_PADDING_STRATEGY = "Unexpected padding strategy: {0}.";
+    public static final String UNEXPECTED_POST_PROCESSOR_TYPE = "Unexpected post-processor type: {0}.";
     public static final String UNEXPECTED_SHAPE_SIZE = "Shape should be a {0}-element array (BCHW).";
     public static final String UNEXPECTED_STD_CHANNEL_COUNT = "Std should be a {0}-element array.";
+    public static final String UNEXPECTED_VALUE_FOR_CONFIG_KEY = "Unexpected value for config key `{0}`.";
+    public static final String USE_DILATION_IS_NOT_SUPPORTED =
+            "Only `use_dilation: false` is supported for DBPostProcess.";
     public static final String VALUES_SHOULD_BE_A_NON_EMPTY_ARRAY = "Values should be a non-empty array.";
     public static final String WIDTH_MULTIPLE_SHOULD_BE_POSITIVE =
             "WidthMultiple should be a positive value, found {0}.";

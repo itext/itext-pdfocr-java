@@ -24,6 +24,7 @@
 
   <properties>
     <itext.version>9.6.0-SNAPSHOT</itext.version>
+    <snakeyaml.version>2.9</snakeyaml.version>
     <java.version>1.8</java.version>
     <jdkLevel>${java.version}</jdkLevel>
     <maven.compiler.source>${java.version}</maven.compiler.source>
