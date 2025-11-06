@@ -125,7 +125,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("does\nthis\nwork?\nshould\n&%!Housten\nwe\nproblem.\nhave\nnot\nydpAl,-68/9SPEZL\na\n", textFromImage);
+        Assertions.assertEquals("does\nthis\nwork?\n123456789-FIdpt\nshould\n&%!Housten\nwe\nhave\na\nproblem.\nnot\n", textFromImage);
     }
 
     @Test

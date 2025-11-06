@@ -52,18 +52,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
+    private static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr/onnxtr/actions/OnnxTrEventHandlingTest";
+
+    @BeforeAll
+    public static void beforeTests() {
+        createOrClearDestinationFolder(DESTINATION_FOLDER);
+    }
+
     // Section with OcrPdfCreator#createPdfFile related tests
 
     @Test
     public void ocrPdfCreatorCreatePdfFileTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFile.pdf");
 
         new OcrPdfCreator(OCR_ENGINE).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
@@ -86,7 +94,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     public void ocrPdfCreatorCreatePdfFileNoImageTest() throws IOException {
         File imgFile = new File("unknown");
         List<File> images = Collections.singletonList(imgFile);
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFileNoImage.pdf");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OCR_ENGINE);
         Assertions.assertThrows(PdfOcrException.class, () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
 
@@ -120,7 +128,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFileTwoImages.pdf");
 
         new OcrPdfCreator(OCR_ENGINE).createPdfFile(Arrays.asList(imgFile, imgFile), outPdfFile);
 
@@ -143,7 +151,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfFileTwoRunningsTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFileTwoRunnings");
 
         new OcrPdfCreator(OCR_ENGINE).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
         new OcrPdfCreator(OCR_ENGINE).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
@@ -171,7 +179,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdf.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
         PdfDocument pdfDocument = new OcrPdfCreator(OCR_ENGINE).createPdf(Collections.singletonList(imgFile), pdfWriter);
@@ -194,7 +202,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     })
     public void ocrPdfCreatorCreatePdfNoImageTest() throws IOException {
         List<File> images = Collections.singletonList(new File("no_image"));
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfNoImage.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
 
@@ -221,7 +229,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfAFileTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfAFile.pdf");
 
         OcrPdfCreatorProperties props = new OcrPdfCreatorProperties().setPdfLang("en-US");
         new OcrPdfCreator(OCR_ENGINE, props).createPdfAFile(Collections.singletonList(imgFile), outPdfFile,
@@ -244,7 +252,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfATest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfA.pdf");
 
         PdfWriter pdfWriter = new PdfWriter(outPdfFile);
         OcrPdfCreatorProperties props = new OcrPdfCreatorProperties().setPdfLang("en-US");
@@ -313,7 +321,8 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void createTxtFileTwoImagesTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile), FileUtil.createTempFile("test", ".txt"));
+        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile),
+                new File(DESTINATION_FOLDER + "createTxtFileTwoImages.txt"));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
         IEvent usageEvent1 = eventsHandler.getEvents().get(0);
@@ -329,7 +338,8 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void createTxtFileNullEventHelperTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile), FileUtil.createTempFile("test", ".txt"),
+        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile),
+                new File(DESTINATION_FOLDER + "createTxtFileNullEventHelper.txt"),
                 new OcrProcessContext(null));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -350,7 +360,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     public void createTxtFileNoImageTest() throws IOException {
         File imgFile = new File("no_image");
         List<File> images = Arrays.asList(imgFile, imgFile);
-        File outPdfFile = FileUtil.createTempFile("test", ".txt");
+        File outPdfFile = new File(DESTINATION_FOLDER + " createTxtFileNoImage.pdf");
         Assertions.assertThrows(PdfOcrException.class, () -> OCR_ENGINE.createTxtFile(images, outPdfFile));
         Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
@@ -398,7 +408,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void setEventCountingMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "setEventCountingMetaInfo.pdf");
 
         createPdfAndSetEventCountingMetaInfo(OCR_ENGINE, outPdfFile, imgFile, new TestMetaInfo());
 
@@ -418,7 +428,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void setEventCountingOnnxTrMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + " setEventCountingOnnxTrMetaInfo.pdf");
 
         createPdfAndSetEventCountingMetaInfo(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxTrMetaInfo());
 
@@ -437,7 +447,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void createPdfFileTestMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "createPdfFileTestMetaInfo.pdf");
 
         createPdfFileAndSetMetaInfoToProps(OCR_ENGINE, outPdfFile, imgFile, new TestMetaInfo());
 
@@ -458,7 +468,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void createPdfFileTestOnnxTrMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "createPdfFileTestOnnxTrMetaInfo.pdf");
 
         createPdfFileAndSetMetaInfoToProps(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxTrMetaInfo());
 
@@ -493,7 +503,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     public void createTxtFileCustomEventHelperTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
         OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile),
-                FileUtil.createTempFile("test", ".txt"),
+                new File(DESTINATION_FOLDER + "createTxtFileCustomEventHelper.txt"),
                 new OcrProcessContext(new CustomEventHelper()));
 
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -512,7 +522,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorCreatePdfFileMultipageTiffTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "two_pages.tiff");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFileMultipageTiff.pdf");
 
         new OcrPdfCreator(OCR_ENGINE).createPdfFile(Collections.singletonList(imgFile), outPdfFile);
 
@@ -534,7 +544,8 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void createTxtFileMultipageTiffTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "two_pages.tiff");
-        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile), FileUtil.createTempFile("test", ".txt"));
+        OCR_ENGINE.createTxtFile(Arrays.asList(imgFile),
+                new File(DESTINATION_FOLDER + "createTxtFileMultipageTiff.txt"));
 
         // 2 pages in TIFF image
         Assertions.assertEquals(4, eventsHandler.getEvents().size());
@@ -565,7 +576,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     @Test
     public void ocrPdfCreatorMakeSearchableTest() throws IOException {
         File inPdfFile = new File(TEST_PDFS_DIRECTORY + "2pages.pdf");
-        File outPdfFile = FileUtil.createTempFile("test", ".pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorMakeSearchable.pdf");
 
         try {
             new OcrPdfCreator(OCR_ENGINE).makePdfSearchable(inPdfFile, outPdfFile);

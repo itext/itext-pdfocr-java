@@ -28,6 +28,7 @@ import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+
 import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -39,7 +40,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
+import java.awt.image.Raster;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -51,6 +52,25 @@ import java.util.List;
  * Additional algorithms for working with {@link BufferedImage}.
  */
 public final class BufferedImageUtil {
+    /**
+     * Band index to retrieve a red channel sample from a Raster. Band order
+     * does not depend on the image type, so it is the same for all RGB
+     * variants: RGB, ARGB, BGR, ABGR.
+     */
+    private static final int BAND_RED = 0;
+    /**
+     * Band index to retrieve a green channel sample from a Raster. Band order
+     * does not depend on the image type, so it is the same for all RGB
+     * variants: RGB, ARGB, BGR, ABGR.
+     */
+    private static final int BAND_GREEN = 1;
+    /**
+     * Band index to retrieve a blue channel sample from a Raster. Band order
+     * does not depend on the image type, so it is the same for all RGB
+     * variants: RGB, ARGB, BGR, ABGR.
+     */
+    private static final int BAND_BLUE = 2;
+
     private BufferedImageUtil() {
     }
 
@@ -99,27 +119,7 @@ public final class BufferedImageUtil {
                     properties.getHeight(),
                     properties.useSymmetricPad()
             );
-            assert resizedImage.getType() == BufferedImage.TYPE_3BYTE_BGR;
-            // Doing normalization at the same time as we fill the buffer
-            final WritableRaster raster = resizedImage.getRaster();
-            for (int y = 0; y < resizedImage.getHeight(); ++y) {
-                for (int x = 0; x < resizedImage.getWidth(); ++x) {
-                    final float r = raster.getSample(x, y, 2) / 255F;
-                    inputData.put((r - properties.getRedMean()) / properties.getRedStd());
-                }
-            }
-            for (int y = 0; y < resizedImage.getHeight(); ++y) {
-                for (int x = 0; x < resizedImage.getWidth(); ++x) {
-                    final float g = raster.getSample(x, y, 1) / 255F;
-                    inputData.put((g - properties.getGreenMean()) / properties.getGreenStd());
-                }
-            }
-            for (int y = 0; y < resizedImage.getHeight(); ++y) {
-                for (int x = 0; x < resizedImage.getWidth(); ++x) {
-                    final float b = raster.getSample(x, y, 0) / 255F;
-                    inputData.put((b - properties.getBlueMean()) / properties.getBlueStd());
-                }
-            }
+            putRgbImageWithNormalization(inputData, resizedImage, properties);
         }
         inputData.rewind();
         return new FloatBufferMdArray(inputData, inputShape);
@@ -287,6 +287,75 @@ public final class BufferedImageUtil {
         }
         graphics.dispose();
         return result;
+    }
+
+    /**
+     * Truncates the input image, so that neither width/height, nor
+     * height/width ratios exceed the limit.
+     *
+     * <p>
+     * If width/height ratio exceeds the limit, the image will be truncated
+     * on left and right equally.
+     *
+     * <p>
+     * If height/width ratio exceeds the limit, the image will be truncated
+     * on top and bottom equally.
+     *
+     * @param image      input image to truncate
+     * @param ratioLimit target ratio limit
+     *
+     * @return the truncated image
+     */
+    public static BufferedImage truncateToRatio(BufferedImage image, double ratioLimit) {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+
+        // If w/h ratio is too big, truncating by width
+        final double imageRatio = (double) width / height;
+        if (imageRatio > ratioLimit) {
+            final int newWidth = Math.max(1, (int) (ratioLimit * height));
+            final int newX = (width - newWidth) / 2;
+            return image.getSubimage(newX, 0, newWidth, height);
+        }
+
+        // If h/w ratio is too big, truncating by height
+        final double imageRatioInv = 1. / imageRatio;
+        if (imageRatioInv > ratioLimit) {
+            final int newHeight = Math.max(1, (int) (ratioLimit * width));
+            final int newY = (height - newHeight) / 2;
+            return image.getSubimage(0, newY, width, newHeight);
+        }
+
+        // Otherwise leaving as-is
+        return image;
+    }
+
+    private static void putRgbImageWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            OnnxInputProperties props
+    ) {
+        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
+
+        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
+        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
+    }
+
+    private static void putImageBandWithNormalization(
+            FloatBuffer outputBuffer,
+            BufferedImage image,
+            int band,
+            double mean,
+            double std
+    ) {
+        final Raster raster = image.getRaster();
+        for (int y = 0; y < raster.getHeight(); ++y) {
+            for (int x = 0; x < raster.getWidth(); ++x) {
+                final double v = raster.getSample(x, y, band) / 255.0;
+                outputBuffer.put((float) ((v - mean) / std));
+            }
+        }
     }
 
     private static Mat calculateBoxTransformationMat(Point[] box, float boxWidth, float boxHeight) {

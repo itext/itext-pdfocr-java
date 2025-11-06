@@ -29,9 +29,11 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/util/Batching.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/orientation/OnnxOrientationPredictorTest.java" />
             </fileset>
             <fileset reason="Different API for image processing in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtilTest.java" />
             </fileset>
             <fileset reason="Different API for onnxruntime classes in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
@@ -63,30 +65,19 @@
             <file path="com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/cmp_multiFiles.pdf" />
 			
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_arabicTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_basicTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bengaliTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bmpTestByWords.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bmpTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_chineseTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_frenchTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_georgianTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_germanTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_gifTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_greekTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_halftoneTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_hindiTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_japaneseTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_jfifTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_jpeTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_multipageTiffTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_nnnTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_scannedTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_spanishTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_thaiTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_tiff10MBTest.pdf" />
 			
             <file path="com/itextpdf/pdfocr/OnnxTRPdfAIntegrationTest/cmp_cmykpdfA.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRPdfAIntegrationTest/cmp_rgbpdfA.pdf" />
 			
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated90Test.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated180Test.pdf" />
@@ -95,7 +86,6 @@
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedCapsLCTest.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2Test.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedTextBasicTest.pdf" />
 
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated90TestByLines.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated180TestByLines.pdf" />
@@ -104,7 +94,6 @@
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedCapsLCTestByLines.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2TestByLines.pdf" />
             <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedTextBasicTestByLines.pdf" />
 
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2images.pdf" />
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2pages.pdf" />
@@ -117,7 +106,6 @@
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_pageRotation.pdf" />
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_rotated.pdf" />
             <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_textWithImages.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_whiteText.pdf" />
 
             <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowAdobeCmykTest.txt" />
             <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowCmykNoProfileTest.txt" />

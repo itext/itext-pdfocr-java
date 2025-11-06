@@ -57,6 +57,7 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
     public static final String UNEXPECTED_SHAPE_SIZE = "Shape should be a {0}-element array (BCHW).";
     public static final String UNEXPECTED_STD_CHANNEL_COUNT = "Std should be a {0}-element array.";
     public static final String VALUES_SHOULD_BE_A_NON_EMPTY_ARRAY = "Values should be a non-empty array.";
+    public static final String X_SHOULD_BE_IN_0_1_RANGE = "X should be in [0; 1] range.";
 
     private PdfOcrOnnxTrExceptionMessageConstant() {
         // Private constructor will prevent the instantiation of this class directly.

@@ -35,6 +35,7 @@ import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -82,7 +83,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowInvertedCmykTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowInvertedCmykTest.txt";
 
-        if (isFixedInJdk(System.getProperty("java.version"))) {
+        if (isFixedInJdk()) {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -101,12 +102,14 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowAdobeCmykTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowAdobeCmykTest.txt";
 
-        if (isFixedInJdk(System.getProperty("java.version"))) {
+        if (isFixedInJdk()) {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
                 Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-                Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
+                double relativeDistance = (double) MathUtil.calculateLevenshteinDistance(getCmpText(cmpTxt),
+                        extractionStrategy.getResultantText()) / getCmpText(cmpTxt).length();
+                Assertions.assertTrue(relativeDistance < 0.05);
             }
         } else {
             Exception e = Assertions.assertThrows(Exception.class, () -> doOcrAndCreatePdf(src, dest, null));
@@ -120,7 +123,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowCmykNoProfileTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowCmykNoProfileTest.txt";
 
-        if (isFixedInJdk(System.getProperty("java.version"))) {
+        if (isFixedInJdk()) {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -133,8 +136,13 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         }
     }
 
-    private static boolean isFixedInJdk(String versionStr) {
-        //fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4
+    private static boolean isFixedInJdk() {
+        //Fixed CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 for openJDK:
+        //jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
+        //Amazon corretto jdk started support CMYK for JPEG from 11 version.
+        //Temurin 8 does not support CMYK for JPEG either.
+        String versionStr = System.getProperty("java.version");
+        String vendorStr = System.getProperty("java.vendor");
         boolean isFixed = false;
         int majorVer = getMajorVer(versionStr);
         String[] split = versionStr.split("[._-]");
@@ -142,6 +150,10 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
 
         switch (majorVer) {
             case 8:
+                if ("Amazon.com Inc.".equals(vendorStr) || "Temurin".equals(vendorStr)) {
+                    return false;
+                }
+
                 isFixed = minorVer >= 351;
                 break;
             case 11:

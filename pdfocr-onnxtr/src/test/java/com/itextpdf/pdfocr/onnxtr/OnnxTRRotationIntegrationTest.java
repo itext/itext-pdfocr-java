@@ -194,7 +194,7 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("a\ndoes\nthis\nwork?\nshould\nwe\n&%!Housten\nproblem.\nhave\nnot\nydpAl,-68/9SPEZL",
+            Assertions.assertEquals("does\nthis\nwork?\n123456789-FIdpt\nshould\nwe\n&%!Housten\nproblem.\na\nhave\nnot",
                     extractionStrategy.getResultantText());
         }
     }

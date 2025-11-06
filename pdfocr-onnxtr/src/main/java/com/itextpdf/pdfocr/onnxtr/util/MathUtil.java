@@ -115,6 +115,39 @@ public final class MathUtil {
     }
 
     /**
+     * Computes the logit function, which is the inverse of expit, for the given input.
+     *
+     * @param x the input value
+     *
+     * @return the logit of the input value
+     */
+    public static double logit(double x) {
+        if (0 < x && x < 1) {
+            return Math.log(x / (1.0 - x));
+        }
+        if (x == 0F) {
+            return Float.NEGATIVE_INFINITY;
+        }
+        if (x == 1F) {
+            return Float.POSITIVE_INFINITY;
+        }
+        throw new IllegalArgumentException(
+                PdfOcrOnnxTrExceptionMessageConstant.X_SHOULD_BE_IN_0_1_RANGE
+        );
+    }
+
+    /**
+     * Computes the logit function, which is the inverse of expit, for the given input.
+     *
+     * @param x the input value
+     *
+     * @return the logit of the input value
+     */
+    public static float logit(float x) {
+        return (float) logit((double) x);
+    }
+
+    /**
      * Computes the Euclidean modulo (non-negative remainder) of {@code x} modulo {@code y}.
      *
      * @param x the dividend

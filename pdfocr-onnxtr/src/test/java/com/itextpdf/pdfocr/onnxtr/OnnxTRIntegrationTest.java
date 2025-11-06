@@ -220,7 +220,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
 
             extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 7, "Text1");
             // Model glitch
-            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage\n/", extractionStrategy.getResultantText());
+            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage /", extractionStrategy.getResultantText());
 
             extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 9, "Text1");
             Assertions.assertEquals("Multipage\nTIFF\nExample\nPage 9", extractionStrategy.getResultantText());
@@ -239,7 +239,8 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("1Y SI ENSAYARA COMO ACTUAR?\n" +
+            Assertions.assertEquals("-\n" +
+                    "AY SI ENSAYARA COMO ACTUAR?\n" +
                     "Tanto peor, lo mejor es descansar y no pensar\n" +
                     "la fiesta, si se puede. No hay nada mas desalentador\n" +
                     "ver en las fiestas a jovenes con cara de lastima y\n" +
@@ -250,8 +251,9 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
                     "que se va a poner y tener todo a mano,\n" +
                     "Si intenta probar un nuevo lapiz labial para la a\n" +
                     "sion, asegurese que armonice con el vestido que lle\n" +
-                    "rà. También el maquillaje de los ojos debe armonil\n" +
-                    "con el conjunto,", extractionStrategy.getResultantText());
+                    "-\n" +
+                    "rà. También el maquillaje de los ojos debe armoni\n" +
+                    "con el conjunto.", extractionStrategy.getResultantText());
         }
     }
 

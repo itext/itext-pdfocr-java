@@ -5,14 +5,13 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>pdfocr-root</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
   </parent>
 
   <artifactId>pdfocr-onnxtr</artifactId>
 
   <name>pdfOCR-OnnxTR</name>
   <description>pdfOCR-OnnxTR is an iText add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
-
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>
@@ -42,6 +41,12 @@
     <sonar.exclusions>
       **com/itextpdf/pdfocr/onnxtr/recognition/Vocabulary.java
     </sonar.exclusions>
+    <sharpen.phase>install</sharpen.phase>
+    <sharpen.projectName>pdfocr-onnxtr</sharpen.projectName>
+    <sharpen.cSharpTargetFolder>./../../../sharp/pdfocr</sharpen.cSharpTargetFolder>
+    <sharpen.cSharpSourceCodeDestination>itext/itext.pdfocr.onnxtr</sharpen.cSharpSourceCodeDestination>
+    <sharpen.cSharpTestCodeDestination>itext.tests/itext.pdfocr.onnxtr.tests</sharpen.cSharpTestCodeDestination>
+
   </properties>
 
   <build>
@@ -56,63 +61,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>qa</id>
-      <build>
-        <plugins>
-          <!-- By default, the japicmp plugin is enabled for qa profile and configured from parent pom.
-          Disabling it for the new module as it could not find previous version for pdfocr-onnxtr. -->
-          <plugin>
-            <groupId>com.github.siom79.japicmp</groupId>
-            <artifactId>japicmp-maven-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>with-sharpen</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>sharpen</groupId>
-            <artifactId>sharpen-maven-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <goals>
-                  <goal>sharpen</goal>
-                </goals>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>sharpen</groupId>
-                <artifactId>standard-framework-mapping</artifactId>
-                <version>1.0-SNAPSHOT</version>
-              </dependency>
-            </dependencies>
-            <configuration>
-              <projectName>pdfocr-onnxtr</projectName>
-              <cSharpTargetFolder>./../../../sharp/pdfocr</cSharpTargetFolder>
-              <cSharpSourceCodeDestination>itext/itext.pdfocr.onnxtr</cSharpSourceCodeDestination>
-              <cSharpTestCodeDestination>itext.tests/itext.pdfocr.onnxtr.tests</cSharpTestCodeDestination>
-              <buildDotnet>${sharpen.builddotnet}</buildDotnet>
-              <showDiff>${sharpen.showdiff}</showDiff>
-              <sourceCodeFiles>
-                <file>**/src/main/java/**/*.java</file>
-              </sourceCodeFiles>
-              <testCodeFiles>
-                <file>**/src/test/java/**/*.java</file>
-              </testCodeFiles>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
 </project>

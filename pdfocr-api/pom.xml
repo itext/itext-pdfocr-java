@@ -5,9 +5,17 @@
   <parent>
     <groupId>com.itextpdf</groupId>
     <artifactId>pdfocr-root</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
   </parent>
 
+  <properties>
+    <sharpen.phase>install</sharpen.phase>
+
+    <sharpen.projectName>pdfocr-api</sharpen.projectName>
+    <sharpen.cSharpTargetFolder>./../../../sharp/pdfocr</sharpen.cSharpTargetFolder>
+    <sharpen.cSharpSourceCodeDestination>itext/itext.pdfocr.api</sharpen.cSharpSourceCodeDestination>
+    <sharpen.cSharpTestCodeDestination>itext.tests/itext.pdfocr.api.tests</sharpen.cSharpTestCodeDestination>
+  </properties>
   <artifactId>pdfocr-api</artifactId>
 
   <name>pdfOCR API</name>
@@ -50,48 +58,4 @@
       </resource>
     </resources>
   </build>
-
-  <profiles>
-    <profile>
-      <id>with-sharpen</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>sharpen</groupId>
-            <artifactId>sharpen-maven-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <goals>
-                  <goal>sharpen</goal>
-                </goals>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>sharpen</groupId>
-                <artifactId>standard-framework-mapping</artifactId>
-                <version>1.0-SNAPSHOT</version>
-              </dependency>
-            </dependencies>
-            <configuration>
-              <projectName>pdfocr-api</projectName>
-              <cSharpTargetFolder>./../../../sharp/pdfocr</cSharpTargetFolder>
-              <cSharpSourceCodeDestination>itext/itext.pdfocr.api</cSharpSourceCodeDestination>
-              <cSharpTestCodeDestination>itext.tests/itext.pdfocr.api.tests</cSharpTestCodeDestination>
-              <buildDotnet>${sharpen.builddotnet}</buildDotnet>
-              <showDiff>${sharpen.showdiff}</showDiff>
-              <sourceCodeFiles>
-                <file>**/src/main/java/**/*.java</file>
-              </sourceCodeFiles>
-              <testCodeFiles>
-                <file>**/src/test/java/**/*.java</file>
-              </testCodeFiles>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

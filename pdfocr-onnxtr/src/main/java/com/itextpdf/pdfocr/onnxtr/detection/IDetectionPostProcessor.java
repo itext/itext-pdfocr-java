@@ -29,8 +29,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * Interface for post-processors, which convert normalized, but still raw output
- * of an ML model and returns rotated boxes with the detected objects.
+ * Interface for post-processors, which convert raw output of an ML model and
+ * returns rotated boxes with the detected objects.
  *
  * <p>
  * Output point arrays should represent a rectangle and contain 4 points. Order
@@ -48,7 +48,7 @@ public interface IDetectionPostProcessor {
      * detected objects.
      *
      * @param input input image, which was used to produce the inputs to the ML model
-     * @param output normalized output of the ML model
+     * @param output output of the ML model
      *
      * @return a list of detected objects. See interface documentation for more information
      */
