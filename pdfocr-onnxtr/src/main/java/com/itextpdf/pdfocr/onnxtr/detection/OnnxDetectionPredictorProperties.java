@@ -61,8 +61,7 @@ public class OnnxDetectionPredictorProperties {
                     PaddingStrategy.SYMMETRIC_BLACK
             ),
             new float[]{0.798F, 0.785F, 0.772F},
-            new float[]{0.264F, 0.2749F, 0.287F},
-            2
+            new float[]{0.264F, 0.2749F, 0.287F}
     );
     private static final IDetectionPostProcessor DEFAULT_POST_PROCESSOR =
             new OnnxDetectionPostProcessor();

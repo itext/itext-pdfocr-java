@@ -59,7 +59,7 @@ public class OnnxRecognitionPredictorProperties {
             ),
             new float[]{0.694F, 0.695F, 0.693F},
             new float[]{0.299F, 0.296F, 0.301F},
-            512
+            64
     );
 
     private static final int PADDLE_MAX_WIDTH = 3200;
