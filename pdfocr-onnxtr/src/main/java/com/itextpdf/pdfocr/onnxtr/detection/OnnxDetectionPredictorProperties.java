@@ -143,6 +143,9 @@ public class OnnxDetectionPredictorProperties {
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models output boxes of words.
+     *
      * @param modelPath path to the pre-trained model
      *
      * @return a new text detection properties object for a DBNet model
@@ -176,6 +179,9 @@ public class OnnxDetectionPredictorProperties {
      *             fast_tiny
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
      *
      * @param modelPath path to the pre-trained model
      *
@@ -220,6 +226,9 @@ public class OnnxDetectionPredictorProperties {
      *             linknet_resnet18 (8-bit quantized)
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
      *
      * @param modelPath path to the pre-trained model
      *
@@ -272,6 +281,10 @@ public class OnnxDetectionPredictorProperties {
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
      * @param modelDirPath path to the directory with the model and its
      *                     configuration file
      *
@@ -312,6 +325,10 @@ public class OnnxDetectionPredictorProperties {
      *             PP-OCRv4_mobile_det
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
      *
      * @param modelPath path to the pre-trained model in the ONNX format
      * @param configPath path to the configuration file for the model

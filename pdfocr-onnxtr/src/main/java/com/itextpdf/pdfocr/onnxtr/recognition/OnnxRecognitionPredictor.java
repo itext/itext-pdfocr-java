@@ -71,6 +71,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
+     *
      * @param modelPath path to the pre-trained model
      *
      * @return a new predictor object with the CRNN model loaded with a VGG-16 backbone
@@ -104,6 +108,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
+     *
      * @param modelPath path to the pre-trained model
      *
      * @return a new predictor object with the CRNN model loaded with a MobileNet V3 backbone
@@ -128,6 +136,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *             MASTER (8-bit quantized)
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
      *
      * @param modelPath path to the pre-trained model
      *
@@ -154,6 +166,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
+     *
      * @param modelPath path to the pre-trained model
      *
      * @return a new predictor object with the PARSeq model loaded
@@ -179,6 +195,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *             parseq (8-bit quantized)
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
      *
      * @param modelPath path to the pre-trained model
      * @param vocabulary vocabulary used for the model output (without special tokens)
@@ -207,6 +227,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *             sar_resnet31 (8-bit quantized)
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
      *
      * @param modelPath path to the pre-trained model
      *
@@ -239,6 +263,10 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *             vitstr_small (8-bit quantized)
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models cannot handle spaces. Make sure you choose a detection
+     * model that outputs words.
      *
      * @param modelPath path to the pre-trained model
      *
@@ -395,6 +423,9 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *         </a>
      * </ul>
      *
+     * <p>
+     * These models can handle spaces.
+     *
      * @param modelDirPath path to the directory with the model and its
      *                     configuration file
      *
@@ -545,6 +576,9 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *             devanagari_PP-OCRv3_mobile_rec
      *         </a>
      * </ul>
+     *
+     * <p>
+     * These models can handle spaces.
      *
      * @param modelPath path to the pre-trained model in the ONNX format
      * @param configPath path to the configuration file for the model
