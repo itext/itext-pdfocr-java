@@ -592,6 +592,105 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
     }
 
     /**
+     * Creates a new text recognition predictor using an existing pre-trained
+     * EasyOCR model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * EasyOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself.
+     *
+     * <p>
+     * TODO: Host models ourselves? Conversion is not exactly straight-forward...
+     *
+     * <p>
+     * This method can be used to load the following EasyOCR models:
+     * <ul>
+     *     <li>
+     *         <a href=https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip">
+     *             english_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/latin_g2.zip">
+     *             latin_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip">
+     *             zh_sim_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/japanese_g2.zip">
+     *             japanese_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip">
+     *             korean_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/telugu.zip">
+     *             telugu_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/kannada.zip">
+     *             kannada_g2
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/latin.zip">
+     *             latin_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese_sim.zip">
+     *             zh_sim_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese.zip">
+     *             zh_tra_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/japanese.zip">
+     *             japanese_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/korean.zip">
+     *             korean_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/thai.zip">
+     *             thai_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/devanagari.zip">
+     *             devanagari_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/cyrillic.zip">
+     *             cyrillic_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/arabic.zip">
+     *             arabic_g1
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.1.8/bengali.zip">
+     *             bengali_g1
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model in the ONNX format
+     * @param labelMapper label mapper to use for the model
+     *
+     * @return a new predictor object with the EasyOCR model loaded
+     */
+    public static OnnxRecognitionPredictor easyOcr(String modelPath, EasyOcrMapper labelMapper) {
+        return new OnnxRecognitionPredictor(
+                OnnxRecognitionPredictorProperties.easyOcr(modelPath, labelMapper)
+        );
+    }
+
+    /**
      * Returns the text recognition predictor properties.
      *
      * @return the text recognition predictor properties

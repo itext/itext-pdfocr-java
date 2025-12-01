@@ -36,6 +36,13 @@
             <fileset reason="Different API for onnxruntime classes in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
             </fileset>
+            <fileset reason="Non-autoportable FloatBuffer usages in Java">
+                <file path="com/itextpdf/pdfocr/onnxtr/detection/EasyOcrDetectionPostProcessor.java" />
+            </fileset>
+            <fileset reason="Non-autoportable lambdas in Java">
+                <file path="com/itextpdf/pdfocr/onnxtr/merging/EasyOcrTextBoxMerger.java" />
+                <file path="com/itextpdf/pdfocr/onnxtr/recognition/EasyOcrMapper.java" />
+            </fileset>
             <fileset reason="Different exception messages in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadChecker.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadCheckerTest.java" />
