@@ -39,7 +39,7 @@ import java.util.List;
  * on an image, not Y coordinate.
  *
  * <p>
- * Its box points are return in a different order, it will cause issues with
+ * If box points are returned in a different order, it will cause issues with
  * the following steps (like orientation prediction and text recognition).
  */
 public interface IDetectionPostProcessor {
