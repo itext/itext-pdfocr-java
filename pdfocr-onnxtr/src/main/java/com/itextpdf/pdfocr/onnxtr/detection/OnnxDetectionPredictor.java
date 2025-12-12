@@ -302,6 +302,39 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
     }
 
     /**
+     * Creates a new text detection predictor using an existing pre-trained
+     * EasyOCR CRAFT model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * EasyOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself.
+     *
+     * <p>
+     * TODO: Host models ourselves? Conversion is not exactly straight-forward...
+     *
+     * <p>
+     * This can be used to load the following models from EasyOCR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip">
+     *             CRAFT
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model
+     *
+     * @return a new predictor with the EasyOCR CRAFT model loaded
+     */
+    public static OnnxDetectionPredictor easyOcr(String modelPath) {
+        return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.easyOcr(modelPath));
+    }
+
+    /**
      * Returns the text detection predictor properties.
      *
      * @return the text detection predictor properties
