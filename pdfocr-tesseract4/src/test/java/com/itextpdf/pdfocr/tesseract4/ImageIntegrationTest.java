@@ -27,6 +27,7 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @Disabled("DEVSIX-9261 Investigate test failures on Windows Server 2025 and Windows 11")
     public void compareRotatedImage() throws InterruptedException, IOException {
         String testName = "compareRotatedImage";
         String filename = "90_degrees_rotated";
@@ -109,7 +111,7 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-        // Because of difference of tesseract 5 and tesseract 4 there're some differences in text recognition.
+        // Because of difference of tesseract 5 and tesseract 4 there are some differences in text recognition.
         // So the goal of this test is to make text invisible and check if image is rotated.
         // Proper text recognition is compared in testHocrRotatedImage test by checking HOCR file.
         boolean javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,

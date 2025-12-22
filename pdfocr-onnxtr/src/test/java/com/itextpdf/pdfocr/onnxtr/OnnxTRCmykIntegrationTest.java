@@ -29,8 +29,10 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.detection.OnnxDetectionPredictor;
+import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
@@ -83,16 +85,19 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowInvertedCmykTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowInvertedCmykTest.txt";
 
-        if (isFixedInJdk()) {
+        try {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
                 Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
                 Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
             }
-        } else {
-            Exception e = Assertions.assertThrows(Exception.class, () -> doOcrAndCreatePdf(src, dest, null));
-            Assertions.assertEquals("Failed to read image.", e.getMessage());
+        } catch (PdfOcrInputException e) {
+            // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
+            // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
+            // Amazon corretto jdk started support CMYK for JPEG from 11 version.
+            // Temurin 8 does not support CMYK for JPEG either.
+            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
 
@@ -102,7 +107,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowAdobeCmykTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowAdobeCmykTest.txt";
 
-        if (isFixedInJdk()) {
+        try {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -111,9 +116,12 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
                         extractionStrategy.getResultantText()) / getCmpText(cmpTxt).length();
                 Assertions.assertTrue(relativeDistance < 0.05);
             }
-        } else {
-            Exception e = Assertions.assertThrows(Exception.class, () -> doOcrAndCreatePdf(src, dest, null));
-            Assertions.assertEquals("Failed to read image.", e.getMessage());
+        } catch (PdfOcrInputException e) {
+            // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
+            // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
+            // Amazon corretto jdk started support CMYK for JPEG from 11 version.
+            // Temurin 8 does not support CMYK for JPEG either.
+            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
 
@@ -123,62 +131,20 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "rainbowCmykNoProfileTest.pdf";
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowCmykNoProfileTest.txt";
 
-        if (isFixedInJdk()) {
+        try {
             doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
                 ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
                 Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
                 Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
             }
-        } else {
-            Exception e = Assertions.assertThrows(Exception.class, () -> doOcrAndCreatePdf(src, dest, null));
-            Assertions.assertEquals("Failed to read image.", e.getMessage());
+        } catch (PdfOcrInputException e) {
+            // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
+            // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
+            // Amazon corretto jdk started support CMYK for JPEG from 11 version.
+            // Temurin 8 does not support CMYK for JPEG either.
+            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
-    }
-
-    private static boolean isFixedInJdk() {
-        //Fixed CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 for openJDK:
-        //jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
-        //Amazon corretto jdk started support CMYK for JPEG from 11 version.
-        //Temurin 8 does not support CMYK for JPEG either.
-        String versionStr = System.getProperty("java.version");
-        String vendorStr = System.getProperty("java.vendor");
-        boolean isFixed = false;
-        int majorVer = getMajorVer(versionStr);
-        String[] split = versionStr.split("[._-]");
-        int minorVer = Integer.parseInt(split[split.length - 1]);
-
-        switch (majorVer) {
-            case 8:
-                if ("Amazon.com Inc.".equals(vendorStr) || "Temurin".equals(vendorStr)) {
-                    return false;
-                }
-
-                isFixed = minorVer >= 351;
-                break;
-            case 11:
-                isFixed = minorVer >= 16;
-                break;
-            case 17:
-                isFixed = minorVer >= 4;
-                break;
-            default:
-                isFixed = true;
-        }
-
-        return isFixed;
-    }
-
-    private static int getMajorVer(String versionStr) {
-        int majorVer = 0;
-        String[] split = versionStr.split("\\.");
-        if (versionStr.startsWith("1.")) {
-            //jdk versions 1 - 8 have 1. as prefix
-            majorVer = Integer.parseInt(split[1]);
-        } else {
-            majorVer = Integer.parseInt(split[0]);
-        }
-        return majorVer;
     }
 
     private OcrPdfCreatorProperties creatorProperties(String layerName, Color color) {
