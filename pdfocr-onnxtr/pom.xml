@@ -66,6 +66,25 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>qa</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <configuration>
+              <parameter>
+                <excludes>
+                  <!-- Internal class with public class inside-->
+                  <exclude>com.itextpdf.pdfocr.onnxtr.OnnxTrProcessor</exclude>
+                </excludes>
+              </parameter>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>
