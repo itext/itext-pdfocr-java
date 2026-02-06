@@ -76,6 +76,7 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
     @AfterAll
     public static void afterClass() throws Exception {
         OCR_ENGINE.close();
+        OCR_ENGINE_GROUPING_BY_LINES.close();
     }
 
     @Test

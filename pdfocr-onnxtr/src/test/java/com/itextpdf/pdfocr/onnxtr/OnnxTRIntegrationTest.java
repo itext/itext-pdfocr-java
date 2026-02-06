@@ -98,7 +98,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void bmpByWordsTest() throws IOException, InterruptedException {
+    public void bmpByWordsTest() throws Exception {
         String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
         String dest = TARGET_DIRECTORY + "bmpTestByWords.pdf";
         String cmp = TEST_DIRECTORY + "cmp_bmpTestByWords.pdf";
@@ -106,11 +106,13 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new OnnxTrOcrEngine(detectionPredictor, null,
-                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS)),
-                creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        try (PdfWriter writer = new PdfWriter(dest)) {
-            ocrPdfCreator.createPdf(Collections.singletonList(new File(src)), writer).close();
+        try (OnnxTrOcrEngine onnxTrOcrEngine = new OnnxTrOcrEngine(detectionPredictor, null,
+                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS))) {
+            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(onnxTrOcrEngine,
+                    creatorProperties("Text1", DeviceCmyk.MAGENTA));
+            try (PdfWriter writer = new PdfWriter(dest)) {
+                ocrPdfCreator.createPdf(Collections.singletonList(new File(src)), writer).close();
+            }
         }
 
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
