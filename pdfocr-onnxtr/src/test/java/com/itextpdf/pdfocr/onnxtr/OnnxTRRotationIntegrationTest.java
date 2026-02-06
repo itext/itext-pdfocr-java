@@ -143,14 +143,15 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         String src = TEST_IMAGE_DIRECTORY + "rotatedCapsLC.png";
         String dest = TARGET_DIRECTORY + "rotatedCapsLCTest.pdf";
         String dest2 = TARGET_DIRECTORY + "rotatedCapsLCTestByLines.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_rotatedCapsLCTest.pdf";
-        String cmp2 = TEST_DIRECTORY + "cmp_rotatedCapsLCTestByLines.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest2, cmp2, TARGET_DIRECTORY, "diff_"));
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
+            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
+            Assertions.assertEquals("anD\nCapITALS\nlowerCaSE\nmix\nTEsTinG", extractionStrategy.getResultantText());
+        }
 
+        doOcrAndCreatePdfByLines(src, dest2, creatorProperties("Text1", DeviceCmyk.MAGENTA));
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest2))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());

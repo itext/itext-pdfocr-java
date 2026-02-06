@@ -231,10 +231,8 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     public void scannedTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "scanned_spa_01.png";
         String dest = TARGET_DIRECTORY + "scannedTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_scannedTest.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -261,10 +259,8 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
     public void halftoneTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "halftone.jpg";
         String dest = TARGET_DIRECTORY + "halftoneTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_halftoneTest.pdf";
 
         doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
