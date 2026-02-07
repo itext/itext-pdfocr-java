@@ -22,10 +22,11 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
-import ai.onnxruntime.OrtUtil;
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -48,10 +49,10 @@ public class FloatBufferMdArray {
     public FloatBufferMdArray(FloatBuffer data, long[] shape) {
         Objects.requireNonNull(data);
         Objects.requireNonNull(shape);
-        if (!OrtUtil.validateShape(shape)) {
+        if (!validateShape(shape)) {
             throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.SHAPE_IS_NOT_VALID);
         }
-        if (data.remaining() != OrtUtil.elementCount(shape)) {
+        if (data.remaining() != elementCount(shape)) {
             throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.ELEM_COUNT_DOES_NOT_MATCH_SHAPE);
         }
         this.data = data.duplicate();
@@ -142,7 +143,7 @@ public class FloatBufferMdArray {
      * @throws IllegalStateException if this array is not properly shaped as a one-dimensional array
      */
     public float getScalar(int index) {
-        if (shape.length != 0 && (OrtUtil.elementCount(shape) != shape[0])) {
+        if (shape.length != 0 && (elementCount(shape) != shape[0])) {
             throw new IllegalStateException();
         }
         return data.get(index);
@@ -164,5 +165,30 @@ public class FloatBufferMdArray {
      */
     public int getArraySize() {
         return data.limit();
+    }
+
+    private static boolean validateShape(long[] shape) {
+        boolean valid = true;
+
+        for (long l : shape) {
+            valid &= l > 0L;
+            valid &= (long) ((int) l) == l;
+        }
+
+        return valid && shape.length <= 8;
+    }
+
+    private static long elementCount(long[] shape) {
+        long count = 1L;
+
+        for (long l : shape) {
+            if (l < 0L) {
+                throw new IllegalArgumentException(MessageFormatUtil.format(
+                        PdfOcrOnnxTrExceptionMessageConstant.NEGATIVE_VALUE_IN_SHAPE, Arrays.toString(shape)));
+            }
+            count *= l;
+        }
+
+        return count;
     }
 }
