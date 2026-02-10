@@ -88,10 +88,10 @@ public class PaddleOcrDetectionPostProcessor extends BasicDetectionPostProcessor
         final int y = contourBox.y();
         final int height = contourBox.height();
         final int width = contourBox.width();
-        final Mat mask = new Mat(height, width, CvType.CV_8U, org.bytedeco.opencv.opencv_core.Scalar.ZERO);
+        final Mat mask = new Mat(height, width, CvType.CV_8U, org.bytedeco.opencv.opencv_core.AbstractScalar.ZERO);
         try {
             try (final Mat poly = OpenCvUtil.minAreaRectBoxPoly(contour)){
-                OpenCvUtil.fillPolyAtOffset(mask, poly, org.bytedeco.opencv.opencv_core.Scalar.WHITE, -x, -y);
+                OpenCvUtil.fillPolyAtOffset(mask, poly, org.bytedeco.opencv.opencv_core.AbstractScalar.WHITE, -x, -y);
             }
             return mask;
         } catch (RuntimeException e) {

@@ -25,12 +25,14 @@ package com.itextpdf.pdfocr.onnxtr.recognition;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
 
 import java.nio.FloatBuffer;
+
+import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-public class CrnnPostProcessorTest {
+public class CrnnPostProcessorTest extends ExtendedITextTest {
     @Test
     public void initWithInvalidVocabulary() {
         Assertions.assertThrows(

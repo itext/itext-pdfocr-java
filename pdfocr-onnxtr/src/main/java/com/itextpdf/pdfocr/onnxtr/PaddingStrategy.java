@@ -31,32 +31,32 @@ import java.awt.Color;
 public enum PaddingStrategy {
     /**
      * Image will be put into the top-left corner. Remaining pixels are filled
-     * with #000000.
+     * with {@code #000000}.
      */
     BOTTOM_RIGHT_BLACK,
     /**
      * Image will be put into the middle. Remaining pixels are filled with
-     * #000000.
+     * {@code #000000}.
      */
     SYMMETRIC_BLACK,
     /**
      * Image will be put into the top-left corner. Remaining pixels are filled
-     * with #808080.
+     * with {@code #808080}.
      */
     BOTTOM_RIGHT_GRAY,
     /**
      * Image will be put into the middle. Remaining pixels are filled with
-     * #808080.
+     * {@code #808080}.
      */
     SYMMETRIC_GRAY,
     /**
      * Image will be put into the top-left corner. Remaining pixels are filled
-     * with #FFFFFF.
+     * with {@code #FFFFFF}.
      */
     BOTTOM_RIGHT_WHITE,
     /**
      * Image will be put into the middle. Remaining pixels are filled with
-     * #FFFFFF.
+     * {@code #FFFFFF}.
      */
     SYMMETRIC_WHITE,
     /**

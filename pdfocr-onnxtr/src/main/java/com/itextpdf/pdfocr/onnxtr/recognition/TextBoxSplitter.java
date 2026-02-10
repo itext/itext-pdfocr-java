@@ -51,6 +51,13 @@ class TextBoxSplitter {
     private final ArrayDeque<Integer> mergeQueue = new ArrayDeque<>();
 
     /**
+     * Creates new {@link TextBoxSplitter} instance.
+     */
+    public TextBoxSplitter() {
+        // Empty constructor in order for default one to not be removed if another one is added.
+    }
+
+    /**
      * Wrap the iterator of the text recognition predictor inputs, which
      * splits the images, if they have too skewed aspect ratio.
      *

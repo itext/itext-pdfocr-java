@@ -174,10 +174,10 @@ public abstract class BasicDetectionPostProcessor implements IDetectionPostProce
      * <p>
      * Mask should adhere to the following requirements:
      * <ul>
-     *     <li>Mask should have the same dimensions as the contour box.</li>
-     *     <li>Data type should be CV_8U.</li>
+     *     <li>Mask should have the same dimensions as the contour box.
+     *     <li>Data type should be CV_8U.
      *     <li>Pixels, that should be counted towards the score, should have a
-     *     non-zero value in the mask.</li>
+     *     non-zero value in the mask.
      * </ul>
      *
      * @param contour contour to build mask for
@@ -190,9 +190,9 @@ public abstract class BasicDetectionPostProcessor implements IDetectionPostProce
         final int y = contourBox.y();
         final int height = contourBox.height();
         final int width = contourBox.width();
-        final Mat mask = new Mat(height, width, CvType.CV_8U, org.bytedeco.opencv.opencv_core.Scalar.ZERO);
+        final Mat mask = new Mat(height, width, CvType.CV_8U, org.bytedeco.opencv.opencv_core.AbstractScalar.ZERO);
         try {
-            OpenCvUtil.fillPolyAtOffset(mask, contour, org.bytedeco.opencv.opencv_core.Scalar.WHITE, -x, -y);
+            OpenCvUtil.fillPolyAtOffset(mask, contour, org.bytedeco.opencv.opencv_core.AbstractScalar.WHITE, -x, -y);
             return mask;
         } catch (RuntimeException e) {
             mask.close();

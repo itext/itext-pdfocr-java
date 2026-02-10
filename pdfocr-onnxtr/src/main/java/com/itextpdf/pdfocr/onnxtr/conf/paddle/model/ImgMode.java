@@ -38,5 +38,5 @@ public enum ImgMode {
     /**
      * Value for {@code BGR} config value.
      */
-    BGR,
+    BGR
 }

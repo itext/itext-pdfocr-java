@@ -145,9 +145,9 @@ public class YamlUtilTest extends ExtendedITextTest {
         map.put(2, new ArrayList<>());
         Map<Object, Object> newMap = YamlUtil.objToMapping(map);
         Assertions.assertEquals(2, newMap.size());
-        Assertions.assertTrue(map.keySet().contains(1));
+        Assertions.assertTrue(map.containsKey(1));
         Assertions.assertEquals(array, newMap.get(1));
-        Assertions.assertTrue(map.keySet().contains(2));
+        Assertions.assertTrue(map.containsKey(2));
         Assertions.assertEquals(new ArrayList<>(), newMap.get(2));
     }
 

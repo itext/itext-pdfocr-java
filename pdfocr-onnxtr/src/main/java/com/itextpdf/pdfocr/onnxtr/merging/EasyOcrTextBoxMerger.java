@@ -56,6 +56,13 @@ public class EasyOcrTextBoxMerger implements ITextBoxMerger {
     private static final double MARGIN_MUL = 0.1;
 
     /**
+     * Creates new {@link EasyOcrTextBoxMerger} instance.
+     */
+    public EasyOcrTextBoxMerger() {
+        // Empty constructor in order for default one to not be removed if another one is added.
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

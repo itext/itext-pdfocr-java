@@ -34,5 +34,5 @@ public enum BoxType {
     /**
      * Value for {@code poly} config value.
      */
-    POLY,
+    POLY
 }

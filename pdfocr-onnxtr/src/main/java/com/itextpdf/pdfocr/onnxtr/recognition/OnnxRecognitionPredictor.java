@@ -290,8 +290,8 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      * <p>
      * This method expects the directory to contain two files:
      * <ul>
-     *     <li>{@code inference.onnx} - the inference model in the ONNX format</li>
-     *     <li>{@code inference.yml} - the configuration file for the model in YAML</li>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML
      * </ul>
      *
      * <p>
@@ -430,6 +430,8 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      *                     configuration file
      *
      * @return a new predictor object with the PaddleOCR model loaded
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxRecognitionPredictor paddleOcr(String modelDirPath) throws IOException {
         return new OnnxRecognitionPredictor(
@@ -584,6 +586,8 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      * @param configPath path to the configuration file for the model
      *
      * @return a new predictor object with the PaddleOCR model loaded
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxRecognitionPredictor paddleOcr(String modelPath, String configPath) throws IOException {
         return new OnnxRecognitionPredictor(

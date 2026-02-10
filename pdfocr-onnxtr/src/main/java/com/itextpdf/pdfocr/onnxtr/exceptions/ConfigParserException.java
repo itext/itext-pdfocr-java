@@ -29,6 +29,12 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrException;
  * Exception class for exceptions during configuration file parsing.
  */
 public class ConfigParserException extends PdfOcrException {
+
+    /**
+     * Creates new {@link ConfigParserException} instance.
+     *
+     * @param message exception message
+     */
     protected ConfigParserException(String message) {
         super(message);
     }

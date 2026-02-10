@@ -243,6 +243,13 @@ public final class YamlUtil {
         private final ScalarResolver scalarResolver = new CustomResolver();
 
         /**
+         * Creates new {@link CustomSchema} instance.
+         */
+        public CustomSchema() {
+            // Empty constructor.
+        }
+
+        /**
          * {@inheritDoc}
          */
         @Override
@@ -255,6 +262,13 @@ public final class YamlUtil {
      * Custom implicit type resolver, which only handles {@code null}.
      */
     private static final class CustomResolver extends FailsafeScalarResolver {
+        /**
+         * Creates new {@link CustomResolver} instance.
+         */
+        public CustomResolver() {
+            // Empty constructor.
+        }
+
         /**
          * {@inheritDoc}
          */

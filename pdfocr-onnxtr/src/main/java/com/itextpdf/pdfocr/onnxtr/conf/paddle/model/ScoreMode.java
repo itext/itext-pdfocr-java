@@ -34,5 +34,5 @@ public enum ScoreMode {
     /**
      * Value for {@code slow} config value.
      */
-    SLOW,
+    SLOW
 }

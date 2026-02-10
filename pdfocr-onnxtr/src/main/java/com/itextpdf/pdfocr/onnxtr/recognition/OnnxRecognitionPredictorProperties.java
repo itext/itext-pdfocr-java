@@ -400,8 +400,8 @@ public class OnnxRecognitionPredictorProperties {
      * <p>
      * This method expects the directory to contain two files:
      * <ul>
-     *     <li>{@code inference.onnx} - the inference model in the ONNX format</li>
-     *     <li>{@code inference.yml} - the configuration file for the model in YAML</li>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML
      * </ul>
      *
      * <p>
@@ -540,6 +540,8 @@ public class OnnxRecognitionPredictorProperties {
      *                     configuration file
      *
      * @return a new text recognition properties object for a PaddleOCR model
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxRecognitionPredictorProperties paddleOcr(String modelDirPath) throws IOException {
         return paddleOcr(modelDirPath + "/inference.onnx", modelDirPath + "/inference.yml");
@@ -692,6 +694,8 @@ public class OnnxRecognitionPredictorProperties {
      * @param configPath path to the configuration file for the model
      *
      * @return a new text recognition properties object for a PaddleOCR model
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxRecognitionPredictorProperties paddleOcr(String modelPath, String configPath) throws IOException {
         final InferenceConfig config;

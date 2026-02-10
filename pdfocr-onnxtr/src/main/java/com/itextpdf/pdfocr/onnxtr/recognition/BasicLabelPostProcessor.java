@@ -13,10 +13,10 @@ import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
  * Abstract Implementation of a basic text recognition predictor post-processor. It contains logic, which is common
  * between OnnxTR, EasyOCR and PaddleOCR label mappers:
  * <ul>
- *     <li>It receives a two-dimensional array with a (maxStringLength, labelDimension) shape.</li>
- *     <li>Label with the highest value in the array is picked as the recognized one.</li>
- *     <li>There are labels, which should not be added to the string, and should just be treated as separators.</li>
- *     <li>If the same label appears multiple times in a row in a string, it is returned only once.</li>
+ *     <li>It receives a two-dimensional array with a (maxStringLength, labelDimension) shape.
+ *     <li>Label with the highest value in the array is picked as the recognized one.
+ *     <li>There are labels, which should not be added to the string, and should just be treated as separators.
+ *     <li>If the same label appears multiple times in a row in a string, it is returned only once.
  * </ul>
  */
 public abstract class BasicLabelPostProcessor implements IRecognitionPostProcessor {

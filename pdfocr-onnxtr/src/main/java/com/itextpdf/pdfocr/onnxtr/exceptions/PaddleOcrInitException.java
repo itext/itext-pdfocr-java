@@ -29,6 +29,12 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrException;
  * Exception class for exceptions during PaddleOCR initialization.
  */
 public class PaddleOcrInitException extends PdfOcrException {
+
+    /**
+     * Creates new {@link PaddleOcrInitException} instance.
+     *
+     * @param message exception message
+     */
     protected PaddleOcrInitException(String message) {
         super(message);
     }
