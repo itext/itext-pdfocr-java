@@ -133,8 +133,22 @@ public class YamlUtilTest extends ExtendedITextTest {
         Assertions.assertNull(YamlUtil.objToMapping(3));
         Assertions.assertNull(YamlUtil.objToMapping(3.14));
         final Map<Object, Object> map = new HashMap<Object, Object>();
-        Assertions.assertSame(map, YamlUtil.objToMapping(map));
+        Assertions.assertEquals(map, YamlUtil.objToMapping(map));
         Assertions.assertNull(YamlUtil.objToMapping(new ArrayList<Object>()));
+    }
+
+    @Test
+    public void mappingElementsTest() {
+        final Map<Integer, ArrayList<String>> map = new HashMap<>();
+        ArrayList<String> array = new ArrayList<>(Arrays.asList("one", "two", "three"));
+        map.put(1, array);
+        map.put(2, new ArrayList<>());
+        Map<Object, Object> newMap = YamlUtil.objToMapping(map);
+        Assertions.assertEquals(2, newMap.size());
+        Assertions.assertTrue(map.keySet().contains(1));
+        Assertions.assertEquals(array, newMap.get(1));
+        Assertions.assertTrue(map.keySet().contains(2));
+        Assertions.assertEquals(new ArrayList<>(), newMap.get(2));
     }
 
     @Test
@@ -146,13 +160,22 @@ public class YamlUtilTest extends ExtendedITextTest {
         Assertions.assertNull(YamlUtil.objToSequence(3.14));
         Assertions.assertNull(YamlUtil.objToSequence(new HashMap<Object, Object>()));
         final List<Object> seq = new ArrayList<Object>();
-        Assertions.assertSame(seq, YamlUtil.objToSequence(seq));
+        Assertions.assertEquals(seq, YamlUtil.objToSequence(seq));
+    }
+
+    @Test
+    public void sequenceElementsTest() {
+        final List<Integer> seq = new ArrayList<>(Arrays.asList(1, 2, 3));
+        Collection<Object> newSeq = YamlUtil.objToSequence(seq);
+        Assertions.assertTrue(newSeq.contains(1));
+        Assertions.assertTrue(newSeq.contains(2));
+        Assertions.assertTrue(newSeq.contains(3));
     }
 
     @Test
     public void objToStringTest() {
         final String str = "3.14";
-        Assertions.assertSame(str, YamlUtil.objToString(str));
+        Assertions.assertEquals(str, YamlUtil.objToString(str));
         Assertions.assertNull(YamlUtil.objToString(null));
         Assertions.assertNull(YamlUtil.objToString(Boolean.TRUE));
         Assertions.assertNull(YamlUtil.objToString(3));
@@ -165,7 +188,7 @@ public class YamlUtilTest extends ExtendedITextTest {
     public void objToBoolTest() {
         Assertions.assertNull(YamlUtil.objToBool("not bool"));
         Assertions.assertNull(YamlUtil.objToBool(null));
-        Assertions.assertSame(Boolean.TRUE, YamlUtil.objToBool(Boolean.TRUE));
+        Assertions.assertEquals(Boolean.TRUE, YamlUtil.objToBool(Boolean.TRUE));
         Assertions.assertNull(YamlUtil.objToBool(3));
         Assertions.assertNull(YamlUtil.objToBool(3.14));
         Assertions.assertNull(YamlUtil.objToBool(new HashMap<Object, Object>()));
@@ -182,7 +205,7 @@ public class YamlUtilTest extends ExtendedITextTest {
         Assertions.assertNull(YamlUtil.objToInt(null));
         Assertions.assertNull(YamlUtil.objToInt(Boolean.TRUE));
         final Integer i = 3;
-        Assertions.assertSame(i, YamlUtil.objToInt(i));
+        Assertions.assertEquals(i, YamlUtil.objToInt(i));
         Assertions.assertNull(YamlUtil.objToInt(3.14));
         Assertions.assertNull(YamlUtil.objToInt(new HashMap<Object, Object>()));
         Assertions.assertNull(YamlUtil.objToInt(new ArrayList<Object>()));
@@ -199,7 +222,7 @@ public class YamlUtilTest extends ExtendedITextTest {
         Assertions.assertNull(YamlUtil.objToFloat(Boolean.TRUE));
         Assertions.assertNull(YamlUtil.objToFloat(3));
         final Double f = 3.14;
-        Assertions.assertSame(f, YamlUtil.objToFloat(f));
+        Assertions.assertEquals(f, YamlUtil.objToFloat(f));
         Assertions.assertNull(YamlUtil.objToFloat(new HashMap<Object, Object>()));
         Assertions.assertNull(YamlUtil.objToFloat(new ArrayList<Object>()));
 
