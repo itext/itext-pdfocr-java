@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 public class InferenceConfigParserTest extends ExtendedITextTest {
     private static final String BASE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     private static final String TEST_YAML_CONFIG =
-            BASE_DIRECTORY + "models/PP-OCRv5_mobile_det_infer/inference.yml";
+            BASE_DIRECTORY + "models/paddleocr/PP-OCRv5_mobile_det_infer/inference.yml";
 
     @Test
     public void parseValidTest() throws IOException {
