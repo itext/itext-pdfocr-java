@@ -383,9 +383,6 @@ public class OnnxDetectionPredictorProperties {
      * do a model conversion yourself.
      *
      * <p>
-     * TODO: Host models ourselves? Conversion is not exactly straight-forward...
-     *
-     * <p>
      * This can be used to load the following models from EasyOCR:
      * <ul>
      *     <li>

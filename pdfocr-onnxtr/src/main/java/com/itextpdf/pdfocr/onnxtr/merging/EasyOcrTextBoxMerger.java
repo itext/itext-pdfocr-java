@@ -87,7 +87,12 @@ public class EasyOcrTextBoxMerger implements ITextBoxMerger {
         }
 
         // Sort by middle Y before merging
-        alignedBoxes.sort(Comparator.comparingDouble(EasyOcrTextBoxMerger::calcYAligned));
+        Collections.sort(alignedBoxes, new Comparator<Point[]>() {
+            @Override
+            public int compare(Point[] o1, Point[] o2) {
+                return Double.compare(EasyOcrTextBoxMerger.calcYAligned(o1), EasyOcrTextBoxMerger.calcYAligned(o2));
+            }
+        });
 
         final ArrayList<Point[]> finalBoxes = new ArrayList<>(slopedBoxes);
         // Grouping and merging
@@ -136,7 +141,12 @@ public class EasyOcrTextBoxMerger implements ITextBoxMerger {
             return;
         }
 
-        verticalGroup.sort(Comparator.comparingDouble(EasyOcrTextBoxMerger::calcXMinAligned));
+        Collections.sort(verticalGroup, new Comparator<Point[]>() {
+            @Override
+            public int compare(Point[] o1, Point[] o2) {
+                return Double.compare(EasyOcrTextBoxMerger.calcXMinAligned(o1), EasyOcrTextBoxMerger.calcXMinAligned(o2));
+            }
+        });
 
         final ArrayList<Point[]> groupBoxes = new ArrayList<>();
         groupBoxes.add(verticalGroup.get(0));

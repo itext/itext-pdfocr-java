@@ -15,6 +15,9 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Label mapper for EasyOCR text recognition models.
  *
@@ -51,10 +54,14 @@ public final class EasyOcrMapper extends StringMapper {
         final String thaiLookUpString = "¢£¤¥!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ abcdefghijklmnopqr"
                 + "stuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZกขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮฤเแ"
                 + "โใไะาุูิีืึั่้๊๋็์ำํฺฯๆ0123456789๑๒๓๔๕๖๗๘๙";
-        final String[] thaiLookUpTable = thaiLookUpString
-                .codePoints()
-                .mapToObj(cp -> new String(new int[] {cp}, 0, 1))
-                .toArray(String[]::new);
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < thaiLookUpString.length(); ) {
+            int codePoint = thaiLookUpString.codePointAt(i);
+            String symbol = new String(Character.toChars(codePoint));
+            list.add(symbol);
+            i += Character.charCount(codePoint);
+        }
+        String[] thaiLookUpTable = list.toArray(new String[0]);
         // Clearing-up word separators
         for (int i = 0; i < 4; ++i) {
             thaiLookUpTable[i] = "";

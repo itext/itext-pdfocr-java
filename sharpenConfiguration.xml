@@ -27,7 +27,6 @@
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/orientation/OnnxOrientationPredictorTest.java" />
                 <file path="com/itextpdf/pdfocr/onnxtr/recognition/TextBoxSplitter.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/conf/paddle/parser/PreProcessParser.java" />
             </fileset>
             <fileset reason="Different API for image processing in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
@@ -38,10 +37,6 @@
             </fileset>
             <fileset reason="Non-autoportable FloatBuffer usages in Java">
                 <file path="com/itextpdf/pdfocr/onnxtr/detection/EasyOcrDetectionPostProcessor.java" />
-            </fileset>
-            <fileset reason="Non-autoportable lambdas in Java">
-                <file path="com/itextpdf/pdfocr/onnxtr/merging/EasyOcrTextBoxMerger.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/recognition/EasyOcrMapper.java" />
             </fileset>
             <fileset reason="Different exception messages in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadChecker.java" />

@@ -605,9 +605,6 @@ public class OnnxRecognitionPredictor extends AbstractOnnxPredictor<BufferedImag
      * do a model conversion yourself.
      *
      * <p>
-     * TODO: Host models ourselves? Conversion is not exactly straight-forward...
-     *
-     * <p>
      * This method can be used to load the following EasyOCR models:
      * <ul>
      *     <li>
