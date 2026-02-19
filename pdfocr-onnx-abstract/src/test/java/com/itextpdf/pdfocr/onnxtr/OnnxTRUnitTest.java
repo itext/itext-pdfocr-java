@@ -134,4 +134,15 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
                 new CrnnPostProcessor(Vocabulary.FRENCH)), new OnnxRecognitionPredictorProperties("model",
                 inputProperties, new CrnnPostProcessor(Vocabulary.ENGLISH)));
     }
+
+    @Test
+    public void deprecatedTextPositioningTest() {
+        OnnxTrEngineProperties properties = new OnnxTrEngineProperties();
+        Assertions.assertEquals(TextPositioning.BY_LINES, properties.getTextPositioning());
+        properties.setTextPositioning(TextPositioning.BY_WORDS);
+        Assertions.assertEquals(TextPositioning.BY_WORDS, properties.getTextPositioning());
+        properties.setTextPositioning(TextPositioning.BY_LINES);
+        Assertions.assertEquals(TextPositioning.BY_LINES, properties.getTextPositioning());
+    }
+
 }

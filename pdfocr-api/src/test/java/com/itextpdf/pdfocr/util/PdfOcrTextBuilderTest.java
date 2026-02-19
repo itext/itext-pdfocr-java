@@ -228,4 +228,23 @@ public class PdfOcrTextBuilderTest extends ExtendedITextTest {
                 new TextInfo("One", new Rectangle(110, 0, 30, 100), TextOrientation.HORIZONTAL_ROTATED_90),
                 new TextInfo("Two", new Rectangle(100, 110, 25, 100), TextOrientation.HORIZONTAL_ROTATED_90)));
     }
+
+    @Test
+    public void collectWordsIntoLinesTest() {
+        Map<Integer, List<TextInfo>> textInfoMap = new HashMap<>();
+        List<TextInfo> textInfos = new ArrayList<>();
+        textInfos.add(new TextInfo("Third", new Rectangle(240, 100, 100, 25)));
+        textInfos.add(new TextInfo("Fourth", new Rectangle(350, 100, 100, 50)));
+        textInfos.add(new TextInfo("Second", new Rectangle(110, 100, 120, 35)));
+        textInfos.add(new TextInfo("First", new Rectangle(0, 100, 100, 30)));
+        textInfos.add(new TextInfo("New line", new Rectangle(0, 0, 100, 30)));
+        textInfoMap.put(1, textInfos);
+        PdfOcrTextBuilder.collectWordsIntoLines(textInfoMap);
+        List<TextInfo> mergedTextInfos = textInfoMap.get(1);
+        Assertions.assertEquals(2, mergedTextInfos.size());
+        Assertions.assertEquals("First Second Third Fourth", mergedTextInfos.get(0).getText());
+        Assertions.assertTrue(new Rectangle(0, 100, 450, 50).equalsWithEpsilon(mergedTextInfos.get(0).getBboxRect()));
+        Assertions.assertEquals("New line", mergedTextInfos.get(1).getText());
+        Assertions.assertTrue(new Rectangle(0, 0, 100, 30).equalsWithEpsilon(mergedTextInfos.get(1).getBboxRect()));
+    }
 }

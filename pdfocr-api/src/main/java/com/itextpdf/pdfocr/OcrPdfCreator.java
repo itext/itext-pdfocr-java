@@ -72,6 +72,8 @@ import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.structuretree.ArtifactItem;
 import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,8 +84,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link OcrPdfCreator} is the class that creates PDF documents containing input
@@ -970,6 +970,14 @@ public class OcrPdfCreator {
                     TextAlignment.LEFT,
                     VerticalAlignment.BOTTOM,
                     getRotationAngle(item.getOrientation()));
+
+            if (ocrPdfCreatorProperties.getTextBBoxColor() != null) {
+                pdfCanvas.saveState()
+                        .setStrokeColor(ocrPdfCreatorProperties.getTextBBoxColor())
+                        .rectangle(item.getBboxRect())
+                        .stroke()
+                        .restoreState();
+            }
 
             if (ocrPdfCreatorProperties.isTagged()) {
                 pdfCanvas.closeTag();

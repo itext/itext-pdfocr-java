@@ -30,14 +30,9 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
-import com.itextpdf.pdfocr.onnxtr.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnxtr.recognition.EasyOcrMapper;
-import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
-import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
+import com.itextpdf.pdfocr.onnxtr.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -52,7 +47,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Tag("IntegrationTest")
@@ -61,75 +55,6 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/";
 
-    private static final String PADDLE_DET = "./src/test/resources/com/itextpdf/pdfocr/models/paddleocr/PP-OCRv5_mobile_det_infer/";
-    private static final String PADDLE_REC = "./src/test/resources/com/itextpdf/pdfocr/models/paddleocr/PP-OCRv5_mobile_rec_infer/";
-    private static final String EASY_DET = "./src/test/resources/com/itextpdf/pdfocr/models/easyocr/craft_mlt_25k.onnx";
-    private static final String EASY_REC = "./src/test/resources/com/itextpdf/pdfocr/models/easyocr/latin_g2.onnx";
-    private static final String DOCTR_DET = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
-    private static final String DOCTR_REC = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
-
-    public enum OcrEngineType {
-        PADDLE("PaddleOCR", () -> createPaddleOcrEngine()),
-        EASY("EasyOCR", () -> createEasyOcrEngine()),
-        DOCTR("DocTR", () -> createDocTrEngine());
-
-        public volatile OnnxTrOcrEngine instance;
-        private final String displayName;
-        private final Supplier<OnnxTrOcrEngine> supplier;
-
-        OcrEngineType(String displayName, Supplier<OnnxTrOcrEngine> supplier) {
-            this.displayName = displayName;
-            this.supplier = supplier;
-        }
-
-        public OnnxTrOcrEngine get() {
-            if (this.instance == null) {
-                synchronized (this) {
-                    if (this.instance == null) {
-                        this.instance = this.supplier.get();
-                    }
-                }
-            }
-            return this.instance;
-        }
-
-        public String getDisplayName() {
-            return this.displayName;
-        }
-
-        public static OcrEngineType[] all() {
-            return new OcrEngineType[]{PADDLE, EASY, DOCTR};
-        }
-    }
-
-    private static OnnxTrOcrEngine createPaddleOcrEngine() {
-        try {
-            IDetectionPredictor paddleDetectionPredictor = OnnxDetectionPredictor.paddleOcr(PADDLE_DET);
-            IRecognitionPredictor paddleRecognitionPredictor = OnnxRecognitionPredictor.paddleOcr(PADDLE_REC);
-            return new OnnxTrOcrEngine(paddleDetectionPredictor, paddleRecognitionPredictor);
-        } catch (IOException e) {
-            // Shouldn't reach there.
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static OnnxTrOcrEngine createEasyOcrEngine() {
-        IDetectionPredictor easyDetectionPredictor = OnnxDetectionPredictor.easyOcr(EASY_DET);
-        IRecognitionPredictor easyRecognitionPredictor = OnnxRecognitionPredictor.easyOcr(EASY_REC, EasyOcrMapper.LATIN_G2);
-        return new OnnxTrOcrEngine(easyDetectionPredictor, easyRecognitionPredictor);
-    }
-
-    private static OnnxTrOcrEngine createDocTrEngine() {
-        IDetectionPredictor docTrDetectionPredictor = OnnxDetectionPredictor.fast(DOCTR_DET);
-        IRecognitionPredictor docTrRecognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(DOCTR_REC);
-        return new OnnxTrOcrEngine(docTrDetectionPredictor, docTrRecognitionPredictor);
-    }
-
-    /**
-     * Note, that ParameterizedTest will automatically close all autocloseable parameters.
-     *
-     * @return collection of {@link OnnxTrOcrEngine} instances and corresponding test names
-     */
     public static Iterable<Object[]> ocrEngines() {
         return Arrays.stream(OcrEngineType.all())
                 .map(type -> new Object[]{type})
@@ -139,15 +64,6 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        for (OcrEngineType engineType : OcrEngineType.all()) {
-            if (engineType.instance != null) {
-                engineType.instance.close();
-            }
-        }
     }
 
     @ParameterizedTest(name = "{0}")

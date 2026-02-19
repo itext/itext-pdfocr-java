@@ -85,6 +85,7 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.ignoreUsing("Org.Bytedeco.Opencv.Opencv_core");
         configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnxtr.util.YamlUtilTest",
                 Arrays.asList("System.Linq"));
+        configurator.addFullName("iText.Pdfocr.Onnxtr.Text.TextPositioning");
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {

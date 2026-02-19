@@ -50,6 +50,11 @@ public class OcrPdfCreatorProperties {
     private com.itextpdf.kernel.colors.Color textColor = null;
 
     /**
+     * Color of the text bounding box in the output PDF document.
+     */
+    private com.itextpdf.kernel.colors.Color textBBoxColor = null;
+
+    /**
      * Scale mode for input images.
      * {@link ScaleMode#SCALE_TO_FIT} by default. But this value will be used
      * only if {@link #pageSize} is not null;
@@ -123,6 +128,7 @@ public class OcrPdfCreatorProperties {
         this.imageLayerName = other.imageLayerName;
         this.textLayerName = other.textLayerName;
         this.textColor = other.textColor;
+        this.textBBoxColor = other.textBBoxColor;
         this.pdfLang = other.pdfLang;
         this.title = other.title;
         this.fontProvider = other.fontProvider;
@@ -149,6 +155,27 @@ public class OcrPdfCreatorProperties {
     public final OcrPdfCreatorProperties setTextColor(
             final com.itextpdf.kernel.colors.Color textColor) {
         this.textColor = textColor;
+        return this;
+    }
+
+    /**
+     * Gets text bounding box color in the output PDF document.
+     *
+     * @return text bbox {@link com.itextpdf.kernel.colors.Color}
+     */
+    public final com.itextpdf.kernel.colors.Color getTextBBoxColor() {
+        return textBBoxColor;
+    }
+
+    /**
+     * Sets text bounding box color in the output PDF document.
+     *
+     * @param textBBoxColor required text bbox {@link com.itextpdf.kernel.colors.Color}
+     *
+     * @return the {@link OcrPdfCreatorProperties} instance
+     */
+    public final OcrPdfCreatorProperties setTextBBoxColor(final com.itextpdf.kernel.colors.Color textBBoxColor) {
+        this.textBBoxColor = textBBoxColor;
         return this;
     }
 

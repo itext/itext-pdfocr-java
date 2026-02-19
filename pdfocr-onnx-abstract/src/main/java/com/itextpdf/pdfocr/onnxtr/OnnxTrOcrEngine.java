@@ -36,6 +36,7 @@ import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
+import com.itextpdf.pdfocr.onnxtr.text.TextPositioning;
 import com.itextpdf.pdfocr.util.PdfOcrFileUtil;
 import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
@@ -148,9 +149,12 @@ public class OnnxTrOcrEngine implements IOcrEngine, AutoCloseable, IProductAware
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
         Map<Integer, List<TextInfo>> result = doOnnxTrOcr(input, ocrProcessContext);
-        if (TextPositioning.BY_WORDS.equals(properties.getTextPositioning())) {
+        if (TextPositioning.BY_WORDS.equals(properties.getTextPositioningMode())) {
             PdfOcrTextBuilder.sortTextInfosByLines(result);
+        } else if (TextPositioning.BY_LINES.equals(properties.getTextPositioningMode())) {
+            PdfOcrTextBuilder.collectWordsIntoLines(result);
         } else {
+            // Use TextPositioning.BY_WORDS_AND_LINES by default.
             PdfOcrTextBuilder.generifyWordBBoxesByLine(result);
         }
         return result;

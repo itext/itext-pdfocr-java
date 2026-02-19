@@ -107,8 +107,9 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         Assertions.assertNotNull(recognitionPredictor.getProperties());
 
-        try (OnnxTrOcrEngine onnxTrOcrEngine = new OnnxTrOcrEngine(detectionPredictor, null,
-                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS))) {
+        try (OnnxTrOcrEngine onnxTrOcrEngine = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor,
+                new OnnxTrEngineProperties()
+                        .setTextPositioning(com.itextpdf.pdfocr.onnxtr.text.TextPositioning.BY_WORDS))) {
             OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(onnxTrOcrEngine,
                     creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfWriter writer = new PdfWriter(dest)) {

@@ -252,7 +252,7 @@ public class ApiTest extends ExtendedITextTest {
         IOcrEngine ocrEngine = new TestStructureDetectionOcrEngine();
 
         OcrPdfCreatorProperties creatorProperties = new OcrPdfCreatorProperties();
-        creatorProperties.setTextColor(DeviceRgb.RED);
+        creatorProperties.setTextColor(DeviceRgb.RED).setTextBBoxColor(DeviceRgb.GREEN);
         creatorProperties.setTagged(true);
         OcrPdfCreator pdfCreator = new OcrPdfCreator(ocrEngine, creatorProperties);
         TestProcessProperties processProperties = new TestProcessProperties(5, 6, 50, 15, 100, 200);

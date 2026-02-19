@@ -31,14 +31,19 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.onnxtr.OnnxTrEngineProperties;
 import com.itextpdf.pdfocr.onnxtr.OnnxTrOcrEngine;
-import com.itextpdf.pdfocr.onnxtr.TextPositioning;
 import com.itextpdf.pdfocr.onnxtr.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnxtr.text.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,11 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
@@ -136,7 +136,7 @@ public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
 
     private static String getStringFromListMap(Map<Integer, List<TextInfo>> listMap) {
         StringBuilder stringBuilder = new StringBuilder();
-        for(Entry<Integer, List<TextInfo>> entry : listMap.entrySet()) {
+        for (Entry<Integer, List<TextInfo>> entry : listMap.entrySet()) {
             for (TextInfo textInfo : entry.getValue()) {
                 if (textInfo.getText() != null) {
                     stringBuilder.append(textInfo.getText()).append('\n');

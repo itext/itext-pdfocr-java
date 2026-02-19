@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.util;
 
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
@@ -58,16 +59,16 @@ public final class PdfOcrTextBuilder {
         PdfOcrTextBuilder.sortTextInfosByLines(textInfos);
         for (int page : textInfos.keySet().stream().sorted().collect(Collectors.toList())) {
             StringBuilder sb = new StringBuilder();
-            TextInfo lastChunk = null;
+            TextInfo prevChunk = null;
             for (TextInfo chunk : textInfos.get(page)) {
-                if (lastChunk == null) {
+                if (prevChunk == null) {
                     sb.append(chunk.getText());
                 } else {
-                    if (isInTheSameLine(chunk, lastChunk)) {
+                    if (isInTheSameLine(chunk, prevChunk)) {
                         // We only insert a blank space if the trailing character of the previous string wasn't a space,
                         // and the leading character of the current string isn't a space.
-                        if (isChunkAtWordBoundary(chunk, lastChunk) &&
-                                !chunk.getText().startsWith(" ") && !lastChunk.getText().endsWith(" ")) {
+                        if (isChunkAtWordBoundary(chunk, prevChunk) &&
+                                !chunk.getText().startsWith(" ") && !prevChunk.getText().endsWith(" ")) {
                             sb.append(' ');
                         }
                         sb.append(chunk.getText());
@@ -75,7 +76,7 @@ public final class PdfOcrTextBuilder {
                         sb.append('\n').append(chunk.getText());
                     }
                 }
-                lastChunk = chunk;
+                prevChunk = chunk;
             }
             outputText.append(sb).append('\n');
         }
@@ -93,12 +94,12 @@ public final class PdfOcrTextBuilder {
         PdfOcrTextBuilder.sortTextInfosByLines(textInfos);
         for (int page : textInfos.keySet().stream().sorted().collect(Collectors.toList())) {
             List<TextInfo> line = new ArrayList<>();
-            TextInfo lastChunk = null;
+            TextInfo prevChunk = null;
             for (TextInfo chunk : textInfos.get(page)) {
-                if (lastChunk == null) {
+                if (prevChunk == null) {
                     line.add(chunk);
                 } else {
-                    if (isInTheSameLine(chunk, lastChunk)) {
+                    if (isInTheSameLine(chunk, prevChunk)) {
                         line.add(chunk);
                     } else {
                         updateBBoxes(line);
@@ -106,10 +107,54 @@ public final class PdfOcrTextBuilder {
                         line.add(chunk);
                     }
                 }
-                lastChunk = chunk;
+                prevChunk = chunk;
             }
             updateBBoxes(line);
             line.clear();
+        }
+    }
+
+    /**
+     * Merges the provided {@link IOcrEngine#doImageOcr} result into lines and
+     * updates line bounding boxes to match the largest words.
+     *
+     * @param textInfos {@link java.util.Map} where key is {@link java.lang.Integer} representing the number of the page
+     *                  and value is {@link java.util.List} of {@link TextInfo} elements where each {@link TextInfo}
+     *                  element contains a word or a line and its 4 coordinates (bbox)
+     */
+    public static void collectWordsIntoLines(Map<Integer, List<TextInfo>> textInfos) {
+        PdfOcrTextBuilder.sortTextInfosByLines(textInfos);
+        List<Integer> pages = textInfos.keySet().stream().sorted().collect(Collectors.toList());
+        for (int page : pages) {
+            List<TextInfo> pageLines = new ArrayList<>();
+            List<TextInfo> line = new ArrayList<>();
+            TextInfo prevChunk = null;
+            for (TextInfo chunk : textInfos.get(page)) {
+                if (prevChunk == null) {
+                    line.add(chunk);
+                } else {
+                    if (isInTheSameLine(chunk, prevChunk)) {
+                        line.add(chunk);
+                    } else {
+                        // Merge into one text chunk.
+                        TextInfo newLine = mergeTextChunks(line);
+                        if (newLine != null) {
+                            pageLines.add(newLine);
+                        }
+                        line.clear();
+                        line.add(chunk);
+                    }
+                }
+                prevChunk = chunk;
+            }
+            // Merge into one text chunk.
+            TextInfo newLine = mergeTextChunks(line);
+            if (newLine != null) {
+                pageLines.add(newLine);
+            }
+            line.clear();
+            // Replace text chunks by lines.
+            textInfos.put(page, pageLines);
         }
     }
 
@@ -224,10 +269,10 @@ public final class PdfOcrTextBuilder {
     }
 
     private static boolean isChunkAtWordBoundary(TextInfo currentTextInfo, TextInfo previousTextInfo) {
-        float dist = getDistParallelStart(currentTextInfo) - getDistParallelEnd(previousTextInfo);
+        float dist = getDistance(currentTextInfo, previousTextInfo);
 
         if (dist < 0) {
-            dist = getDistParallelStart(previousTextInfo) - getDistParallelEnd(currentTextInfo);
+            dist = getDistance(previousTextInfo, currentTextInfo);
 
             // The situation when the chunks intersect. We don't need to add space in this case.
             if (dist < 0) {
@@ -239,6 +284,44 @@ public final class PdfOcrTextBuilder {
         return dist > DEFAULT_GAP_THRESHOLD * Math.min(
                 getWidth(currentTextInfo) / currentTextInfo.getText().length(),
                 getWidth(previousTextInfo) / previousTextInfo.getText().length());
+    }
+
+    private static TextInfo mergeTextChunks(List<TextInfo> line) {
+        if (line.isEmpty()) {
+            return null;
+        }
+        StringBuilder text = new StringBuilder();
+        TextInfo prevChunk = null;
+        for (TextInfo chunk : line) {
+            if (prevChunk == null) {
+                text.append(chunk.getText());
+            } else {
+                float dist = getDistance(chunk, prevChunk);
+                float space = (getWidth(chunk) / chunk.getText().length() +
+                        getWidth(prevChunk) / prevChunk.getText().length()) / 2;
+                if (dist > space) {
+                    for (int i = 0; i < (int) (dist / space); ++i) {
+                        text.append(' ');
+                    }
+                } else if (dist > 0 && !chunk.getText().startsWith(" ") && !prevChunk.getText().endsWith(" ")) {
+                    // We only insert a blank space if the trailing character of the previous string wasn't a space,
+                    // and the leading character of the current string isn't a space.
+                    text.append(' ');
+                }
+                text.append(chunk.getText());
+            }
+            prevChunk = chunk;
+        }
+
+        updateBBoxes(line);
+        float lineX = line.get(0).getBboxRect().getLeft();
+        float lineY = line.get(0).getBboxRect().getBottom();
+        float lineWidth = line.get(line.size() - 1).getBboxRect().getRight() - lineX;
+        float lineHeight = line.get(line.size() - 1).getBboxRect().getTop() - lineY;
+        Rectangle lineBBox = new Rectangle(lineX, lineY, lineWidth, lineHeight);
+        TextOrientation lineOrientation = line.get(0).getOrientation();
+
+        return new TextInfo(text.toString(), lineBBox, lineOrientation);
     }
 
     private static int getOrientation(TextOrientation orientation) {
@@ -253,6 +336,10 @@ public final class PdfOcrTextBuilder {
             default:
                 return 0;
         }
+    }
+
+    private static float getDistance(TextInfo currentTextInfo, TextInfo previousTextInfo) {
+        return getDistParallelStart(currentTextInfo) - getDistParallelEnd(previousTextInfo);
     }
 
     /**

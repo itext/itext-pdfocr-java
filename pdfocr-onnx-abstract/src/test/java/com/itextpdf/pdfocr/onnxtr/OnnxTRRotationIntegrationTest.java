@@ -67,8 +67,9 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
-                recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
+        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor,
+                new OnnxTrEngineProperties()
+                        .setTextPositioning(com.itextpdf.pdfocr.onnxtr.text.TextPositioning.BY_WORDS));
         OCR_ENGINE_GROUPING_BY_LINES = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
     }

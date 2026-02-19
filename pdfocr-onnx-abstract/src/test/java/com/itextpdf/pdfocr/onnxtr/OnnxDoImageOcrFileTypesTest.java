@@ -52,8 +52,8 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor,
-                new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
+        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor, new OnnxTrEngineProperties()
+                .setTextPositioning(com.itextpdf.pdfocr.onnxtr.text.TextPositioning.BY_WORDS));
     }
 
     @AfterAll

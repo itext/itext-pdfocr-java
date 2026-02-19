@@ -20,23 +20,24 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.onnxtr;
+package com.itextpdf.pdfocr.onnxtr.text;
 
 /**
  * Enumeration of the possible types of text positioning.
- * It is used to combine the {@link OnnxTrOcrEngine} image OCR result text and group it by lines or by words.
- *
- * @deprecated in favour of {@link com.itextpdf.pdfocr.onnxtr.text.TextPositioning}
+ * It is used to combine the {@link com.itextpdf.pdfocr.onnxtr.OnnxTrOcrEngine} image OCR result text
+ * and group it by lines, by words or by words and lines.
  */
-@Deprecated
 public enum TextPositioning {
     /**
      * Text will be grouped by lines.
-     * (default value)
      */
     BY_LINES,
     /**
      * Text will be grouped by words.
      */
-    BY_WORDS
+    BY_WORDS,
+    /**
+     * Similar to BY_WORDS mode, but top and bottom of word BBox are inherited from line (default value).
+     */
+    BY_WORDS_AND_LINES
 }
