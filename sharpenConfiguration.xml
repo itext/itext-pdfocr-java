@@ -115,6 +115,9 @@
             <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowAdobeCmykTest.txt" />
             <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowCmykNoProfileTest.txt" />
             <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowInvertedCmykTest.txt" />
+
+            <file path="com/itextpdf/pdfocr/IntegrationPdfOcrOnnxTest/cmp_numbers.pdf" />
+            <file path="com/itextpdf/pdfocr/IntegrationPdfOcrOnnxTest/cmp_pageRotation.pdf" />
         </fileset>
     </resource>
 </configuration>

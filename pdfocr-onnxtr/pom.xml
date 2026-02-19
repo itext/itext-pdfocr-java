@@ -15,23 +15,13 @@
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>pdfocr-api</artifactId>
+      <artifactId>pdfocr-onnxtr-abstract</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.microsoft.onnxruntime</groupId>
       <artifactId>onnxruntime</artifactId>
-      <version>1.20.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bytedeco</groupId>
-      <artifactId>opencv-platform</artifactId>
-      <version>4.10.0-1.5.11</version>
-    </dependency>
-    <dependency>
-      <groupId>org.snakeyaml</groupId>
-      <artifactId>snakeyaml-engine</artifactId>
-      <version>${snakeyaml.version}</version>
+      <version>${onnxruntime.version}</version>
     </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
@@ -43,9 +33,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.exclusions>
-      **com/itextpdf/pdfocr/onnxtr/recognition/Vocabulary.java
-    </sonar.exclusions>
     <sharpen.phase>install</sharpen.phase>
     <sharpen.projectName>pdfocr-onnxtr</sharpen.projectName>
     <sharpen.cSharpTargetFolder>./../../../sharp/pdfocr</sharpen.cSharpTargetFolder>
@@ -54,32 +41,18 @@
 
   </properties>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>${project.basedir}</directory>
-        <includes>
-          <include>NOTICE.txt</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
-
   <profiles>
     <profile>
       <id>qa</id>
       <build>
         <plugins>
+          <!-- By default, the japicmp plugin is enabled for qa profile and configured from parent pom. -->
+          <!-- TODO DEVSIX-9648 enable japicmp after 9.6.0 release -->
           <plugin>
             <groupId>com.github.siom79.japicmp</groupId>
             <artifactId>japicmp-maven-plugin</artifactId>
             <configuration>
-              <parameter>
-                <excludes>
-                  <!-- Internal class with public class inside-->
-                  <exclude>com.itextpdf.pdfocr.onnxtr.OnnxTrProcessor</exclude>
-                </excludes>
-              </parameter>
+              <skip>true</skip>
             </configuration>
           </plugin>
         </plugins>
