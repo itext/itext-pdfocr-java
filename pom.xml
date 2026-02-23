@@ -19,8 +19,8 @@
   <modules>
     <module>pdfocr-api</module>
     <module>pdfocr-tesseract4</module>
-    <module>pdfocr-onnxtr</module>
-    <module>pdfocr-onnxtr-abstract</module>
+    <module>pdfocr-onnx-cpu</module>
+    <module>pdfocr-onnx-abstract</module>
   </modules>
 
   <properties>
