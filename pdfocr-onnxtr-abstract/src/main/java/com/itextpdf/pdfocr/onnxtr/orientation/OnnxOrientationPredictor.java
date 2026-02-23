@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr.onnxtr.orientation;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnxtr.AbstractOnnxPredictor;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnxtr.IOrtSessionOptionsCreator;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
@@ -56,7 +57,7 @@ public class OnnxOrientationPredictor
      * @param properties properties of the predictor
      */
     public OnnxOrientationPredictor(OnnxOrientationPredictorProperties properties) {
-        super(properties.getModelPath(), properties.getInputProperties(), getExpectedOutputShape(properties));
+        super(properties, getExpectedOutputShape(properties));
         this.properties = properties;
     }
 
@@ -84,6 +85,35 @@ public class OnnxOrientationPredictor
      */
     public static OnnxOrientationPredictor mobileNetV3(String modelPath) {
         return new OnnxOrientationPredictor(OnnxOrientationPredictorProperties.mobileNetV3(modelPath));
+    }
+
+    /**
+     * Creates a new crop orientation predictor using an existing pre-trained
+     * MobileNetV3 model, stored on disk. This is the only crop orientation
+     * model architecture available in OnnxTR.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/mobilenet_v3_small_crop_orientation-5620cf7e.onnx">
+     *             mobilenet_v3_small_crop_orientation
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/mobilenet_v3_small_crop_orientation_static_8_bit-4cfaa621.onnx">
+     *             mobilenet_v3_small_crop_orientation (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the MobileNetV3 model loaded
+     */
+    public static OnnxOrientationPredictor mobileNetV3(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxOrientationPredictor(
+                OnnxOrientationPredictorProperties.mobileNetV3(modelPath, ortSessionOptionsCreator));
     }
 
     /**

@@ -25,6 +25,7 @@ package com.itextpdf.pdfocr.onnxtr.detection;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnxtr.AbstractOnnxPredictor;
 import com.itextpdf.pdfocr.onnxtr.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnxtr.IOrtSessionOptionsCreator;
 import com.itextpdf.pdfocr.onnxtr.util.BufferedImageUtil;
 import com.itextpdf.pdfocr.onnxtr.util.MathUtil;
 
@@ -78,7 +79,7 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * @param properties properties of the predictor
      */
     public OnnxDetectionPredictor(OnnxDetectionPredictorProperties properties) {
-        super(properties.getModelPath(), properties.getInputProperties(), EXPECTED_OUTPUT_SHAPE);
+        super(properties, EXPECTED_OUTPUT_SHAPE);
         this.properties = properties;
     }
 
@@ -126,6 +127,51 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
     }
 
     /**
+     * Creates a new text detection predictor using an existing pre-trained DBNet model, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/db_resnet50-69ba0015.onnx">
+     *             db_resnet50
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/db_resnet50_static_8_bit-09a6104f.onnx">
+     *             db_resnet50 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/db_resnet34-b4873198.onnx">
+     *             db_resnet34
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/db_resnet34_static_8_bit-027e2c7f.onnx">
+     *             db_resnet34 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.2.0/db_mobilenet_v3_large-4987e7bd.onnx">
+     *             db_mobilenet_v3_large
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.2.0/db_mobilenet_v3_large_static_8_bit-535a6f25.onnx">
+     *             db_mobilenet_v3_large (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the DBNet model loaded
+     */
+    public static OnnxDetectionPredictor dbNet(String modelPath, IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.dbNet(modelPath, ortSessionOptionsCreator));
+    }
+
+    /**
      * Creates a new text detection predictor using an existing pre-trained FAST model, stored on disk.
      * This is the default text detection model in OnnxTR.
      *
@@ -155,6 +201,40 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      */
     public static OnnxDetectionPredictor fast(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.fast(modelPath));
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained FAST model, stored on disk.
+     * This is the default text detection model in OnnxTR.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_base-1b89ebf9.onnx">
+     *             fast_base
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_small-10428b70.onnx">
+     *             fast_small
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_tiny-28867779.onnx">
+     *             fast_tiny
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the FAST model loaded
+     */
+    public static OnnxDetectionPredictor fast(String modelPath, IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.fast(modelPath, ortSessionOptionsCreator));
     }
 
     /**
@@ -198,6 +278,51 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      */
     public static OnnxDetectionPredictor linkNet(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.linkNet(modelPath));
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained LinkNet model, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet50-15d8c4ec.onnx">
+     *             linknet_resnet50
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet50_static_8_bit-65d6b0b8.onnx">
+     *             linknet_resnet50 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet34-93e39a39.onnx">
+     *             linknet_resnet34
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet34_static_8_bit-2824329d.onnx">
+     *             linknet_resnet34 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet18-e0e0b9dc.onnx">
+     *             linknet_resnet18
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet18_static_8_bit-3b3a37dd.onnx">
+     *             linknet_resnet18 (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the LinkNet model loaded
+     */
+    public static OnnxDetectionPredictor linkNet(String modelPath, IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.linkNet(modelPath, ortSessionOptionsCreator));
     }
 
     /**
@@ -268,6 +393,64 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * for information on how to do that.
      *
      * <p>
+     * This method expects the directory to contain two files:
+     * <ul>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML
+     * </ul>
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelDirPath path to the directory with the model and its
+     *                     configuration file
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the PaddleOCR model loaded
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
+     */
+    public static OnnxDetectionPredictor paddleOcr(String modelDirPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) throws IOException {
+        return new OnnxDetectionPredictor(
+                OnnxDetectionPredictorProperties.paddleOcr(modelDirPath, ortSessionOptionsCreator)
+        );
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained
+     * PaddleOCR model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
@@ -307,6 +490,57 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
 
     /**
      * Creates a new text detection predictor using an existing pre-trained
+     * PaddleOCR model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model in the ONNX format
+     * @param configPath path to the configuration file for the model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the PaddleOCR model loaded
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
+     */
+    public static OnnxDetectionPredictor paddleOcr(String modelPath, String configPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) throws IOException {
+        return new OnnxDetectionPredictor(
+                OnnxDetectionPredictorProperties.paddleOcr(modelPath, configPath, ortSessionOptionsCreator)
+        );
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained
      * EasyOCR CRAFT model, stored on disk.
      *
      * <p>
@@ -333,6 +567,37 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      */
     public static OnnxDetectionPredictor easyOcr(String modelPath) {
         return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.easyOcr(modelPath));
+    }
+
+    /**
+     * Creates a new text detection predictor using an existing pre-trained
+     * EasyOCR CRAFT model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * EasyOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself.
+     *
+     * <p>
+     * This can be used to load the following models from EasyOCR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip">
+     *             CRAFT
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the EasyOCR CRAFT model loaded
+     */
+    public static OnnxDetectionPredictor easyOcr(String modelPath, IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxDetectionPredictor(OnnxDetectionPredictorProperties.easyOcr(modelPath, ortSessionOptionsCreator));
     }
 
     /**

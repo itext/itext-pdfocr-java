@@ -102,7 +102,7 @@ public final class BufferedImageUtil {
 
         final ImageResizeOptions resizeOptions = properties.getImageResizeOptions();
         final Dimensions2D batchDimensions = calcOutputDimensions(images, resizeOptions);
-        final long[] inputShape = new long[]{
+        final long[] inputShape = new long[] {
                 images.size(),
                 resizeOptions.getChannelConfiguration().getChannelCount(),
                 batchDimensions.getHeight(),

@@ -36,15 +36,14 @@ import com.itextpdf.pdfocr.onnxtr.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnxtr.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
 
 @Tag("IntegrationTest")
 public class OnnxTRIntegrationTest extends ExtendedITextTest {
@@ -103,8 +102,10 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "bmpTestByWords.pdf";
         String cmp = TEST_DIRECTORY + "cmp_bmpTestByWords.pdf";
 
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
+        OnnxDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
+        Assertions.assertNotNull(detectionPredictor.getProperties());
+        OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
+        Assertions.assertNotNull(recognitionPredictor.getProperties());
 
         try (OnnxTrOcrEngine onnxTrOcrEngine = new OnnxTrOcrEngine(detectionPredictor, null,
                 recognitionPredictor, new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS))) {

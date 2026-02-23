@@ -171,7 +171,7 @@ public final class OpenCvUtil {
              final Mat rectPointsInt = new Mat()) {
             // +0.5, so that values are rounded, not floored
             rectPoints.convertTo(rectPointsInt, CvType.CV_32S, 1, 0.5);
-            return rectPointsInt.reshape(2, new int[]{4, 1});
+            return rectPointsInt.reshape(2, new int[] {4, 1});
         }
     }
 

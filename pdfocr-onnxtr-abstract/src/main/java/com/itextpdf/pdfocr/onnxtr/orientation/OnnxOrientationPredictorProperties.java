@@ -7,6 +7,8 @@
 package com.itextpdf.pdfocr.onnxtr.orientation;
 
 import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.onnxtr.AbstractOnnxPredictorProperties;
+import com.itextpdf.pdfocr.onnxtr.IOrtSessionOptionsCreator;
 import com.itextpdf.pdfocr.onnxtr.IOutputLabelMapper;
 import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
@@ -21,7 +23,7 @@ import java.util.Objects;
  * <p>
  * It contains a path to the model, model input properties and a model output mapper.
  */
-public class OnnxOrientationPredictorProperties {
+public class OnnxOrientationPredictorProperties extends AbstractOnnxPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
             new ImageResizeOptions(
                     ImageChannelConfiguration.RGB,
@@ -34,16 +36,6 @@ public class OnnxOrientationPredictorProperties {
     );
 
     private static final DefaultOrientationMapper DEFAULT_OUTPUT_MAPPER = new DefaultOrientationMapper();
-
-    /**
-     * Path to the ONNX model to load.
-     */
-    private final String modelPath;
-
-    /**
-     * Properties of the inputs of the ONNX model. Used for validation and pre-processing.
-     */
-    private final OnnxInputProperties inputProperties;
 
     /**
      * Properties of the outputs of the ONNX model. Used for validation and post-processing.
@@ -61,8 +53,23 @@ public class OnnxOrientationPredictorProperties {
             String modelPath,
             OnnxInputProperties inputProperties,
             IOutputLabelMapper<TextOrientation> outputMapper) {
-        this.modelPath = Objects.requireNonNull(modelPath);
-        this.inputProperties = Objects.requireNonNull(inputProperties);
+        this(modelPath, inputProperties, outputMapper, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates new crop orientation predictor properties.
+     *
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param outputMapper ONNX model output mapper
+     * @param ortSessionOptionsCreator ONNX runtime session options creator
+     */
+    public OnnxOrientationPredictorProperties(
+            String modelPath,
+            OnnxInputProperties inputProperties,
+            IOutputLabelMapper<TextOrientation> outputMapper,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        super(modelPath, inputProperties, ortSessionOptionsCreator);
         this.outputMapper = Objects.requireNonNull(outputMapper);
     }
 
@@ -89,25 +96,36 @@ public class OnnxOrientationPredictorProperties {
      * @return a new crop orientation properties object for a MobileNetV3 model
      */
     public static OnnxOrientationPredictorProperties mobileNetV3(String modelPath) {
-        return new OnnxOrientationPredictorProperties(modelPath, DEFAULT_INPUT_PROPERTIES, DEFAULT_OUTPUT_MAPPER);
+        return mobileNetV3(modelPath, DEFAULT_ORT_SESSION_CREATOR);
     }
 
     /**
-     * Returns the path to the ONNX model.
+     * Creates a new crop orientation properties object for existing pre-trained
+     * MobileNetV3 models, stored on disk. This is the only crop orientation
+     * model architecture available in OnnxTR.
      *
-     * @return the path to the ONNX model
-     */
-    public String getModelPath() {
-        return modelPath;
-    }
-
-    /**
-     * Returns the ONNX model input properties.
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/mobilenet_v3_small_crop_orientation-5620cf7e.onnx">
+     *             mobilenet_v3_small_crop_orientation
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/mobilenet_v3_small_crop_orientation_static_8_bit-4cfaa621.onnx">
+     *             mobilenet_v3_small_crop_orientation (8-bit quantized)
+     *         </a>
+     * </ul>
      *
-     * @return the ONNX model input properties
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new crop orientation properties object for a MobileNetV3 model
      */
-    public OnnxInputProperties getInputProperties() {
-        return inputProperties;
+    public static OnnxOrientationPredictorProperties mobileNetV3(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxOrientationPredictorProperties(modelPath, DEFAULT_INPUT_PROPERTIES, DEFAULT_OUTPUT_MAPPER,
+                ortSessionOptionsCreator);
     }
 
     /**
@@ -124,7 +142,7 @@ public class OnnxOrientationPredictorProperties {
      */
     @Override
     public int hashCode() {
-        return Objects.hash((Object) modelPath, inputProperties, outputMapper);
+        return Objects.hash((Object) modelPath, inputProperties, outputMapper, ortSessionOptionsCreator);
     }
 
     /**
@@ -139,8 +157,10 @@ public class OnnxOrientationPredictorProperties {
             return false;
         }
         final OnnxOrientationPredictorProperties that = (OnnxOrientationPredictorProperties) o;
-        return Objects.equals(modelPath, that.modelPath) && Objects.equals(inputProperties,
-                that.inputProperties) && Objects.equals(outputMapper, that.outputMapper);
+        return Objects.equals(modelPath, that.modelPath) &&
+                Objects.equals(inputProperties, that.inputProperties) &&
+                Objects.equals(outputMapper, that.outputMapper) &&
+                Objects.equals(ortSessionOptionsCreator, that.ortSessionOptionsCreator);
     }
 
     /**

@@ -22,25 +22,22 @@
  */
 package com.itextpdf.pdfocr.onnxtr;
 
-import ai.onnxruntime.NodeInfo;
-import ai.onnxruntime.OnnxJavaType;
-import ai.onnxruntime.OnnxTensor;
-import ai.onnxruntime.OnnxValue;
-import ai.onnxruntime.OrtEnvironment;
-import ai.onnxruntime.OrtException;
-import ai.onnxruntime.OrtProvider;
-import ai.onnxruntime.OrtSession;
-import ai.onnxruntime.OrtSession.Result;
-import ai.onnxruntime.OrtSession.SessionOptions.ExecutionMode;
-import ai.onnxruntime.OrtSession.SessionOptions.OptLevel;
-import ai.onnxruntime.TensorInfo;
-import ai.onnxruntime.ValueInfo;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.onnxtr.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnxtr.util.BatchProcessingGenerator;
 import com.itextpdf.pdfocr.onnxtr.util.Batching;
 
+import ai.onnxruntime.NodeInfo;
+import ai.onnxruntime.OnnxJavaType;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OnnxValue;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.OrtSession.Result;
+import ai.onnxruntime.TensorInfo;
+import ai.onnxruntime.ValueInfo;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,6 +53,8 @@ import java.util.Objects;
  * @param <R> predictor output type
  */
 public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
+    private static final IOrtSessionOptionsCreator DEFAULT_ORT_SESSION_CREATOR = new DefaultOrtSessionOptionsCreator();
+
     /**
      * Model input properties.
      */
@@ -103,12 +102,36 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
      * @param inputProperties expected input properties of a model
      * @param outputShape expected shape of the output. -1 entries mean that the dimension can be
      *                    of any size (ex. batch size)
+     *
+     * @deprecated in favour of {@link AbstractOnnxPredictor#AbstractOnnxPredictor(AbstractOnnxPredictorProperties, long[])}
      */
+    @Deprecated
+    // With removing this constructor also remove AbstractOnnxPredictor(String, OnnxInputProperties, long[], IOrtSessionOptionsCreator)
     protected AbstractOnnxPredictor(String modelPath, OnnxInputProperties inputProperties, long[] outputShape) {
+        this(modelPath, inputProperties, outputShape, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new abstract predictor.
+     *
+     * <p>
+     * If the specified in properties model does not match input and output properties, it will throw an exception.
+     *
+     * @param predictorProperties the predictor properties
+     * @param outputShape expected shape of the output. -1 entries mean that the dimension can be
+     *                     of any size (ex. batch size)
+     */
+    protected AbstractOnnxPredictor(AbstractOnnxPredictorProperties predictorProperties, long[] outputShape) {
+        this(predictorProperties.getModelPath(), predictorProperties.getInputProperties(), outputShape,
+                predictorProperties.getOrtSessionOptionsCreator());
+    }
+
+    private AbstractOnnxPredictor(String modelPath, OnnxInputProperties inputProperties, long[] outputShape,
+            IOrtSessionOptionsCreator ortSessionCreator) {
         this.inputProperties = Objects.requireNonNull(inputProperties);
 
         try {
-            this.sessionOptions = createDefaultSessionOptions();
+            this.sessionOptions = ortSessionCreator.create();
         } catch (OrtException e) {
             throw new PdfOcrException(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_INIT_SESSION_OPTIONS, e);
         }
@@ -189,24 +212,6 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
      * @return a list of predictor output
      */
     protected abstract List<R> fromOutputBuffer(List<T> inputBatch, FloatBufferMdArray outputBatch);
-
-    private static OrtSession.SessionOptions createDefaultSessionOptions() throws OrtException {
-        final OrtSession.SessionOptions ortOptions = new OrtSession.SessionOptions();
-        try {
-            ortOptions.addCPU(true);
-            if (OrtEnvironment.getAvailableProviders().contains(OrtProvider.CUDA)) {
-                ortOptions.addCUDA();
-            }
-            ortOptions.setExecutionMode(ExecutionMode.SEQUENTIAL);
-            ortOptions.setOptimizationLevel(OptLevel.ALL_OPT);
-            ortOptions.setIntraOpNumThreads(-1);
-            ortOptions.setInterOpNumThreads(-1);
-            return ortOptions;
-        } catch (Exception e) {
-            ortOptions.close();
-            throw e;
-        }
-    }
 
     private static OnnxTensor createTensor(FloatBufferMdArray batch) throws OrtException {
         return OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), batch.getData(), batch.getShape());

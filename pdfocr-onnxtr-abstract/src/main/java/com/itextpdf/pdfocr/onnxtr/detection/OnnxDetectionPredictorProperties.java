@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnxtr.detection;
 
+import com.itextpdf.pdfocr.onnxtr.AbstractOnnxPredictorProperties;
+import com.itextpdf.pdfocr.onnxtr.IOrtSessionOptionsCreator;
 import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
@@ -53,7 +55,7 @@ import java.util.Objects;
  * It contains a path to the model, model input properties and a model
  * output post-processor.
  */
-public class OnnxDetectionPredictorProperties {
+public class OnnxDetectionPredictorProperties extends AbstractOnnxPredictorProperties {
     private static final OnnxInputProperties DEFAULT_INPUT_PROPERTIES = new OnnxInputProperties(
             new ImageResizeOptions(
                     ImageChannelConfiguration.RGB,
@@ -103,15 +105,6 @@ public class OnnxDetectionPredictorProperties {
             new EasyOcrDetectionPostProcessor();
 
     /**
-     * Path to the ONNX model to load.
-     */
-    private final String modelPath;
-    /**
-     * Properties of the inputs of the ONNX model. Used for validation (both
-     * input and output, since output mask size is the same) and pre-processing.
-     */
-    private final OnnxInputProperties inputProperties;
-    /**
      * Post-processor of the outputs of the ONNX model. Converts the mask-like
      * output of the model to rotated text rectangles.
      */
@@ -129,8 +122,24 @@ public class OnnxDetectionPredictorProperties {
             OnnxInputProperties inputProperties,
             IDetectionPostProcessor postProcessor
     ) {
-        this.modelPath = Objects.requireNonNull(modelPath);
-        this.inputProperties = Objects.requireNonNull(inputProperties);
+        this(modelPath, inputProperties, postProcessor, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates new text detection predictor properties.
+     *
+     * @param modelPath path to the ONNX model to load
+     * @param inputProperties ONNX model input properties
+     * @param postProcessor ONNX model output post-processor
+     * @param ortSessionOptionsCreator ONNX runtime session options creator
+     */
+    public OnnxDetectionPredictorProperties(
+            String modelPath,
+            OnnxInputProperties inputProperties,
+            IDetectionPostProcessor postProcessor,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator
+    ) {
+        super(modelPath, inputProperties, ortSessionOptionsCreator);
         this.postProcessor = Objects.requireNonNull(postProcessor);
     }
 
@@ -175,10 +184,57 @@ public class OnnxDetectionPredictorProperties {
      * @return a new text detection properties object for a DBNet model
      */
     public static OnnxDetectionPredictorProperties dbNet(String modelPath) {
+        return dbNet(modelPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained
+     * DBNet models, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/db_resnet50-69ba0015.onnx">
+     *             db_resnet50
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/db_resnet50_static_8_bit-09a6104f.onnx">
+     *             db_resnet50 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/db_resnet34-b4873198.onnx">
+     *             db_resnet34
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/db_resnet34_static_8_bit-027e2c7f.onnx">
+     *             db_resnet34 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.2.0/db_mobilenet_v3_large-4987e7bd.onnx">
+     *             db_mobilenet_v3_large
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.2.0/db_mobilenet_v3_large_static_8_bit-535a6f25.onnx">
+     *             db_mobilenet_v3_large (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for a DBNet model
+     */
+    public static OnnxDetectionPredictorProperties dbNet(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
         return new OnnxDetectionPredictorProperties(
                 modelPath,
                 DEFAULT_INPUT_PROPERTIES,
-                DB_NET_POST_PROCESSOR
+                DB_NET_POST_PROCESSOR,
+                ortSessionOptionsCreator
         );
     }
 
@@ -212,10 +268,46 @@ public class OnnxDetectionPredictorProperties {
      * @return a new text detection properties object for a FAST model
      */
     public static OnnxDetectionPredictorProperties fast(String modelPath) {
+        return fast(modelPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained
+     * FAST models, stored on disk. This is the default text detection model in
+     * OnnxTR.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_base-1b89ebf9.onnx">
+     *             fast_base
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_small-10428b70.onnx">
+     *             fast_small
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/rep_fast_tiny-28867779.onnx">
+     *             fast_tiny
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for a FAST model
+     */
+    public static OnnxDetectionPredictorProperties fast(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
         return new OnnxDetectionPredictorProperties(
                 modelPath,
                 DEFAULT_INPUT_PROPERTIES,
-                DEFAULT_POST_PROCESSOR
+                DEFAULT_POST_PROCESSOR,
+                ortSessionOptionsCreator
         );
     }
 
@@ -259,10 +351,56 @@ public class OnnxDetectionPredictorProperties {
      * @return a new text detection properties object for a LinkNet model
      */
     public static OnnxDetectionPredictorProperties linkNet(String modelPath) {
+        return linkNet(modelPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained LinkNet models, stored on disk.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet50-15d8c4ec.onnx">
+     *             linknet_resnet50
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet50_static_8_bit-65d6b0b8.onnx">
+     *             linknet_resnet50 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet34-93e39a39.onnx">
+     *             linknet_resnet34
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet34_static_8_bit-2824329d.onnx">
+     *             linknet_resnet34 (8-bit quantized)
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/linknet_resnet18-e0e0b9dc.onnx">
+     *             linknet_resnet18
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/linknet_resnet18_static_8_bit-3b3a37dd.onnx">
+     *             linknet_resnet18 (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of words.
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for a LinkNet model
+     */
+    public static OnnxDetectionPredictorProperties linkNet(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
         return new OnnxDetectionPredictorProperties(
                 modelPath,
                 DEFAULT_INPUT_PROPERTIES,
-                DEFAULT_POST_PROCESSOR
+                DEFAULT_POST_PROCESSOR,
+                ortSessionOptionsCreator
         );
     }
 
@@ -317,7 +455,63 @@ public class OnnxDetectionPredictorProperties {
      * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxDetectionPredictorProperties paddleOcr(String modelDirPath) throws IOException {
-        return paddleOcr(modelDirPath + "/inference.onnx", modelDirPath + "/inference.yml");
+        return paddleOcr(modelDirPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained
+     * PaddleOCR models, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method expects the directory to contain two files:
+     * <ul>
+     *     <li>{@code inference.onnx} - the inference model in the ONNX format
+     *     <li>{@code inference.yml} - the configuration file for the model in YAML
+     * </ul>
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelDirPath path to the directory with the model and its
+     *                     configuration file
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for a PaddleOCR model
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
+     */
+    public static OnnxDetectionPredictorProperties paddleOcr(String modelDirPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) throws IOException {
+        return paddleOcr(modelDirPath + "/inference.onnx", modelDirPath + "/inference.yml", ortSessionOptionsCreator);
     }
 
     /**
@@ -364,13 +558,62 @@ public class OnnxDetectionPredictorProperties {
      * @throws IOException if any I/O error occurs while loading configuration file
      */
     public static OnnxDetectionPredictorProperties paddleOcr(String modelPath, String configPath) throws IOException {
+        return paddleOcr(modelPath, configPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for existing pre-trained
+     * PaddleOCR models, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * PaddleOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself. Check out
+     * <a href="https://www.paddleocr.ai/latest/en/version3.x/deployment/obtaining_onnx_models.html">this page</a>
+     * for information on how to do that.
+     *
+     * <p>
+     * This method can be used to load the following PaddleOCR models:
+     * <ul>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *             PP-OCRv5_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *             PP-OCRv5_mobile_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *             PP-OCRv4_server_det
+     *         </a>
+     *     <li>
+     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *             PP-OCRv4_mobile_det
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model in the ONNX format
+     * @param configPath path to the configuration file for the model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for a PaddleOCR model
+     *
+     * @throws IOException if any I/O error occurs while loading configuration file
+     */
+    public static OnnxDetectionPredictorProperties paddleOcr(String modelPath, String configPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) throws IOException {
         final InferenceConfig config;
         try (final InputStream is = Files.newInputStream(Paths.get(configPath))) {
             config = InferenceConfigParser.parse(is);
         }
         final OnnxInputProperties inputProperties = createPaddleInputProperties(config);
         final PaddleOcrDetectionPostProcessor postProcessor = createPaddlePostProcessor(config);
-        return new OnnxDetectionPredictorProperties(modelPath, inputProperties, postProcessor);
+        return new OnnxDetectionPredictorProperties(modelPath, inputProperties, postProcessor, ortSessionOptionsCreator);
     }
 
     /**
@@ -400,29 +643,44 @@ public class OnnxDetectionPredictorProperties {
      * @return a new text detection properties object for an EasyOCR CRAFT model
      */
     public static OnnxDetectionPredictorProperties easyOcr(String modelPath) {
+        return easyOcr(modelPath, DEFAULT_ORT_SESSION_CREATOR);
+    }
+
+    /**
+     * Creates a new text detection properties object for an existing
+     * pre-trained EasyOCR CRAFT model, stored on disk.
+     *
+     * <p>
+     * Only models in the ONNX format are supported. Since, by default,
+     * EasyOCR does not provide models in the ONNX format, you might need to
+     * do a model conversion yourself.
+     *
+     * <p>
+     * This can be used to load the following models from EasyOCR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip">
+     *             CRAFT
+     *         </a>
+     * </ul>
+     *
+     * <p>
+     * These models output boxes of text lines. Make sure you choose a
+     * recognition model that can handle spaces.
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new text detection properties object for an EasyOCR CRAFT model
+     */
+    public static OnnxDetectionPredictorProperties easyOcr(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
         return new OnnxDetectionPredictorProperties(
                 modelPath,
                 EASY_OCR_INPUT_PROPERTIES,
-                EASY_OCR_POST_PROCESSOR
+                EASY_OCR_POST_PROCESSOR,
+                ortSessionOptionsCreator
         );
-    }
-
-    /**
-     * Returns the path to the ONNX model.
-     *
-     * @return the path to the ONNX model
-     */
-    public String getModelPath() {
-        return modelPath;
-    }
-
-    /**
-     * Returns the ONNX model input properties.
-     *
-     * @return the ONNX model input properties
-     */
-    public OnnxInputProperties getInputProperties() {
-        return inputProperties;
     }
 
     /**
@@ -448,7 +706,8 @@ public class OnnxDetectionPredictorProperties {
         final OnnxDetectionPredictorProperties that = (OnnxDetectionPredictorProperties) o;
         return Objects.equals(modelPath, that.modelPath) &&
                 Objects.equals(inputProperties, that.inputProperties) &&
-                Objects.equals(postProcessor, that.postProcessor);
+                Objects.equals(postProcessor, that.postProcessor) &&
+                Objects.equals(ortSessionOptionsCreator, that.ortSessionOptionsCreator);
     }
 
     /**
@@ -456,7 +715,7 @@ public class OnnxDetectionPredictorProperties {
      */
     @Override
     public int hashCode() {
-        return Objects.hash((Object) modelPath, inputProperties, postProcessor);
+        return Objects.hash((Object) modelPath, inputProperties, postProcessor, ortSessionOptionsCreator);
     }
 
     /**

@@ -73,6 +73,7 @@ public class OnnxOrientationPredictorTest extends ExtendedITextTest {
     public void predictWithLongLines(TextOrientation expectedResult, String inputFileName) throws IOException {
         final BufferedImage inputImage = ImageIO.read(new File(TEST_DIRECTORY + inputFileName));
         final TextOrientation actualResult = PREDICTOR.predict(Collections.singleton(inputImage)).next();
+        Assertions.assertNotNull(((OnnxOrientationPredictor) PREDICTOR).getProperties());
         Assertions.assertEquals(expectedResult, actualResult);
     }
 }

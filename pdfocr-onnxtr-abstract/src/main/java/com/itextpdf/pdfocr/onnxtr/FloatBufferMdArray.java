@@ -178,7 +178,7 @@ public class FloatBufferMdArray {
         return valid && shape.length <= 8;
     }
 
-    private static long elementCount(long[] shape) {
+    static long elementCount(long[] shape) {
         long count = 1L;
 
         for (long l : shape) {

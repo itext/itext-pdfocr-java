@@ -22,7 +22,12 @@
  */
 package com.itextpdf.pdfocr.onnxtr.recognition;
 
+import com.itextpdf.pdfocr.onnxtr.DefaultOrtSessionOptionsCreator;
+import com.itextpdf.pdfocr.onnxtr.ImageChannelConfiguration;
+import com.itextpdf.pdfocr.onnxtr.ImageResizeOptions;
+import com.itextpdf.pdfocr.onnxtr.OnnxInputProperties;
 import com.itextpdf.test.ExtendedITextTest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -59,5 +64,30 @@ public class OnnxRecognitionPredictorPropertiesTest extends ExtendedITextTest {
         OnnxRecognitionPredictorProperties first = OnnxRecognitionPredictorProperties.crnnVgg16(CRNNVGG16);
         OnnxRecognitionPredictorProperties second = OnnxRecognitionPredictorProperties.crnnMobileNetV3(MOBILENETV3);
         Assertions.assertNotEquals(first, second);
+    }
+
+    @Test
+    public void equalsWithConstructorsTest() {
+        ImageResizeOptions imageResizeOptions = new ImageResizeOptions(ImageChannelConfiguration.RGB, 10, 10);
+        final CrnnPostProcessor postProcessor = new CrnnPostProcessor(Vocabulary.LEGACY_FRENCH);
+        OnnxRecognitionPredictorProperties first = new OnnxRecognitionPredictorProperties(CRNNVGG16,
+                new OnnxInputProperties(imageResizeOptions), postProcessor);
+
+        OnnxRecognitionPredictorProperties second = new OnnxRecognitionPredictorProperties(CRNNVGG16,
+                new OnnxInputProperties(imageResizeOptions), postProcessor,
+                new DefaultOrtSessionOptionsCreator());
+
+        Assertions.assertNotEquals(first, second);
+        Assertions.assertNotEquals(first.hashCode(), second.hashCode());
+
+        OnnxRecognitionPredictorProperties third = new OnnxRecognitionPredictorProperties(CRNNVGG16,
+                new OnnxInputProperties(imageResizeOptions), new CrnnPostProcessor(Vocabulary.LEGACY_FRENCH));
+        Assertions.assertNotEquals(first, third);
+        Assertions.assertNotEquals(first.hashCode(), third.hashCode());
+
+        OnnxRecognitionPredictorProperties fourth = new OnnxRecognitionPredictorProperties(CRNNVGG16,
+                new OnnxInputProperties(imageResizeOptions), postProcessor);
+        Assertions.assertEquals(first, fourth);
+        Assertions.assertEquals(first.hashCode(), fourth.hashCode());
     }
 }

@@ -60,7 +60,7 @@ public class StringMapper implements IOutputLabelMapper<String> {
     public StringMapper(String[] lookUpTable) {
         Objects.requireNonNull(lookUpTable);
 
-        this.lookUpTable = (String[])lookUpTable.clone();
+        this.lookUpTable = (String[]) lookUpTable.clone();
     }
 
     /**
