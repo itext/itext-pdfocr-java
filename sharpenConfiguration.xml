@@ -13,55 +13,55 @@
                 <file path="com/itextpdf/pdfocr/util/PdfOcrFileUtil.java" />
             </fileset>
             <fileset reason="Difference in text output expected in tests">
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrLanguagesTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrRotatedTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRIntegrationTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRPdfAIntegrationTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRRotationIntegrationTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrFileTypesTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrLanguagesTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrRotatedTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxTRIntegrationTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxTRPdfAIntegrationTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxTRRotationIntegrationTest.java" />
             </fileset>
             <fileset reason="Difference in Iterators in java and enumerators in .net">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/Batching.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/orientation/OnnxOrientationPredictorTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/recognition/TextBoxSplitter.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/Batching.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/BatchProcessingGeneratorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/BatchProcessingGenerator.java" />
+                <file path="com/itextpdf/pdfocr/onnx/orientation/OnnxOrientationPredictorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/recognition/TextBoxSplitter.java" />
             </fileset>
             <fileset reason="Different API for image processing in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtilTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/BufferedImageUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/BufferedImageUtilTest.java" />
             </fileset>
             <fileset reason="Different API for onnxruntime classes in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/IOrtSessionOptionsCreator.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/DefaultOrtSessionOptionsCreator.java" />
+                <file path="com/itextpdf/pdfocr/onnx/AbstractOnnxPredictor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/IOrtSessionOptionsCreator.java" />
+                <file path="com/itextpdf/pdfocr/onnx/DefaultOrtSessionOptionsCreator.java" />
             </fileset>
             <fileset reason="Non-autoportable FloatBuffer usages in Java">
-                <file path="com/itextpdf/pdfocr/onnxtr/detection/EasyOcrDetectionPostProcessor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/detection/EasyOcrDetectionPostProcessor.java" />
             </fileset>
             <fileset reason="Different exception messages in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadChecker.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadCheckerTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/DependencyLoadChecker.java" />
+                <file path="com/itextpdf/pdfocr/onnx/DependencyLoadCheckerTest.java" />
             </fileset>
             <fileset reason="Lack of similar API as ByteBuffer in .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/FloatBufferMdArray.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/recognition/CrnnPostProcessorTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/recognition/CtcLabelPostProcessorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/FloatBufferMdArray.java" />
+                <file path="com/itextpdf/pdfocr/onnx/recognition/CrnnPostProcessorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/recognition/CtcLabelPostProcessorTest.java" />
             </fileset>
             <fileset reason="Interface extending autocloseable can't be ported">
-                <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/IPredictor.java" />
             </fileset>
             <fileset reason="Different opencv API in between .NET and Java">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/OnnxTRTestUtil.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/detection/BasicDetectionPostProcessor.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/OpenCvUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/OnnxTRTestUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnx/detection/BasicDetectionPostProcessor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/OpenCvUtil.java" />
             </fileset>
             <fileset reason="Different string codepoints operations in .NET and Java">
-                <file path="com/itextpdf/pdfocr/onnxtr/recognition/StringMapper.java" />
+                <file path="com/itextpdf/pdfocr/onnx/recognition/StringMapper.java" />
             </fileset>
             <fileset reason="Different YAML parsing logic in .NET and Java">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/YamlUtil.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/YamlUtil.java" />
             </fileset>
         </java>
     </ignored>

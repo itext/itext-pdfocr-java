@@ -45,7 +45,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sonar.exclusions>
-      **com/itextpdf/pdfocr/onnxtr/recognition/Vocabulary.java
+      **com/itextpdf/pdfocr/onnx/recognition/Vocabulary.java
     </sonar.exclusions>
     <sharpen.phase>install</sharpen.phase>
     <sharpen.projectName>pdfocr-onnx-abstract</sharpen.projectName>

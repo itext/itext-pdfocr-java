@@ -61,7 +61,7 @@ public class SharpenConfigMapping implements MappingConfiguration {
     @Override
     public void applyMappingConfiguration(MappingConfigurator configurator) {
         configurator.addCustomUsingForMethodInvocation("java.awt.image.BufferedImage",
-                Collections.singletonList("iText.Pdfocr.Onnxtr.Util"));
+                Collections.singletonList("iText.Pdfocr.Onnx.Util"));
         configurator.mapMethod("java.awt.image.BufferedImage.getWidth", "BufferedImageUtil.GetWidth");
         configurator.mapMethod("java.awt.image.BufferedImage.getHeight", "BufferedImageUtil.GetHeight");
         configurator.mapMethod("javax.imageio.ImageIO.read", "IronSoftware.Drawing.AnyBitmap.FromFile");
@@ -83,9 +83,9 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapField("java.awt.Color.WHITE", "IronSoftware.Drawing.Color.White");
 
         configurator.ignoreUsing("Org.Bytedeco.Opencv.Opencv_core");
-        configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnxtr.util.YamlUtilTest",
+        configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnx.util.YamlUtilTest",
                 Arrays.asList("System.Linq"));
-        configurator.addFullName("iText.Pdfocr.Onnxtr.Text.TextPositioning");
+        configurator.addFullName("iText.Pdfocr.Onnx.Text.TextPositioning");
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {
