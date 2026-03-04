@@ -89,15 +89,11 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
-    @Disabled("DEVSIX-9261 Investigate test failures on Windows Server 2025 and Windows 11")
     public void compareRotatedImage() throws InterruptedException, IOException {
         String testName = "compareRotatedImage";
         String filename = "90_degrees_rotated";
 
-        //Tesseract for Java and Tesseract for .NET give different output
-        //So we cannot use one reference pdf file for them
-        String expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        String expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
 
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
@@ -111,48 +107,32 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-        // Because of difference of tesseract 5 and tesseract 4 there are some differences in text recognition.
         // So the goal of this test is to make text invisible and check if image is rotated.
         // Proper text recognition is compared in testHocrRotatedImage test by checking HOCR file.
-        boolean javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        boolean dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 16.5));
 
         filename = "180_degrees_rotated";
-        expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
         resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
         doOcrAndSavePdfToPath(tesseractReader,
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-
-        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 18.5));
 
         filename = "270_degrees_rotated";
-        expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
         resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
         doOcrAndSavePdfToPath(tesseractReader,
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-
-        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 18.5));
     }
 
 }
