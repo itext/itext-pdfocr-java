@@ -26,7 +26,7 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.DecodeImage;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.ImgMode;
 import com.itextpdf.pdfocr.onnx.exceptions.ConfigParserException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class DecodeImageParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "Op"
                 ),
                 ex.getMessage()
@@ -91,7 +91,7 @@ public class DecodeImageParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "Op." + field
                 ),
                 ex.getMessage()

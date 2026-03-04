@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -96,25 +96,25 @@ public class OnnxInputProperties {
         Objects.requireNonNull(mean);
         if (mean.length != EXPECTED_CHANNEL_COUNT) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
         }
         Objects.requireNonNull(std);
         if (std.length != EXPECTED_CHANNEL_COUNT) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
         }
         Objects.requireNonNull(shape);
         if (shape.length != EXPECTED_SHAPE_SIZE) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, EXPECTED_SHAPE_SIZE));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, EXPECTED_SHAPE_SIZE));
         }
         if (shape[1] != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB);
         }
         for (final long dim : shape) {
             if (dim <= 0 || ((int) dim) != dim) {
                 throw new IllegalArgumentException(MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, dim));
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, dim));
             }
         }
 
@@ -157,7 +157,7 @@ public class OnnxInputProperties {
         Objects.requireNonNull(mean);
         if (mean.length != channelCount) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, channelCount));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, channelCount));
         }
         this.mean = new float[mean.length];
         System.arraycopy(mean, 0, this.mean, 0, mean.length);
@@ -165,13 +165,13 @@ public class OnnxInputProperties {
         Objects.requireNonNull(std);
         if (std.length != channelCount) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, channelCount));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, channelCount));
         }
         this.std = new float[std.length];
         System.arraycopy(std, 0, this.std, 0, std.length);
 
         if (batchSize < 1) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
         }
         this.batchSize = batchSize;
     }
@@ -384,7 +384,7 @@ public class OnnxInputProperties {
                 // Fallthrough
         }
         throw new ArrayIndexOutOfBoundsException(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, index));
+                PdfOcrOnnxExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, index));
     }
 
     /**

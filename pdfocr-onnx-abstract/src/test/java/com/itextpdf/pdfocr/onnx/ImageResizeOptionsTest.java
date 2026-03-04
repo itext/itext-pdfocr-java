@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -56,7 +56,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MIN_WIDTH_SHOULD_BE_POSITIVE, 0
+                        PdfOcrOnnxExceptionMessageConstant.MIN_WIDTH_SHOULD_BE_POSITIVE, 0
                 ),
                 e.getMessage()
         );
@@ -70,7 +70,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MIN_HEIGHT_SHOULD_BE_POSITIVE, 0
+                        PdfOcrOnnxExceptionMessageConstant.MIN_HEIGHT_SHOULD_BE_POSITIVE, 0
                 ),
                 e.getMessage()
         );
@@ -85,7 +85,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MAX_WIDTH_SHOULD_NOT_BE_LESS_THAN_MIN, 9
+                        PdfOcrOnnxExceptionMessageConstant.MAX_WIDTH_SHOULD_NOT_BE_LESS_THAN_MIN, 9
                 ),
                 e1.getMessage()
         );
@@ -97,7 +97,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MAX_WIDTH_SHOULD_BE_A_MULTIPLE, 10, 99
+                        PdfOcrOnnxExceptionMessageConstant.MAX_WIDTH_SHOULD_BE_A_MULTIPLE, 10, 99
                 ),
                 e2.getMessage()
         );
@@ -112,7 +112,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MAX_HEIGHT_SHOULD_NOT_BE_LESS_THAN_MIN, 9
+                        PdfOcrOnnxExceptionMessageConstant.MAX_HEIGHT_SHOULD_NOT_BE_LESS_THAN_MIN, 9
                 ),
                 e1.getMessage()
         );
@@ -124,7 +124,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.MAX_HEIGHT_SHOULD_BE_A_MULTIPLE, 10, 99
+                        PdfOcrOnnxExceptionMessageConstant.MAX_HEIGHT_SHOULD_BE_A_MULTIPLE, 10, 99
                 ),
                 e2.getMessage()
         );
@@ -139,7 +139,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.WIDTH_MULTIPLE_SHOULD_BE_POSITIVE, 0
+                        PdfOcrOnnxExceptionMessageConstant.WIDTH_MULTIPLE_SHOULD_BE_POSITIVE, 0
                 ),
                 e.getMessage()
         );
@@ -154,7 +154,7 @@ public class ImageResizeOptionsTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE, 0
+                        PdfOcrOnnxExceptionMessageConstant.HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE, 0
                 ),
                 e.getMessage()
         );

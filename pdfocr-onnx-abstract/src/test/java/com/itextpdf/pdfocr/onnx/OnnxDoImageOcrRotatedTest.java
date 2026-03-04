@@ -45,7 +45,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
     private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
     private static final String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
-    private static OnnxTrOcrEngine OCR_ENGINE;
+    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
@@ -55,7 +55,7 @@ public class OnnxDoImageOcrRotatedTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
     }
 
     @AfterAll

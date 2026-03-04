@@ -24,7 +24,7 @@ package com.itextpdf.pdfocr.onnx;
 
 /**
  * Enumeration of the possible types of text positioning.
- * It is used to combine the {@link OnnxTrOcrEngine} image OCR result text and group it by lines or by words.
+ * It is used to combine the {@link OnnxOcrEngine} image OCR result text and group it by lines or by words.
  *
  * @deprecated in favour of {@link com.itextpdf.pdfocr.onnx.text.TextPositioning}
  */

@@ -25,7 +25,7 @@ package com.itextpdf.pdfocr.onnx;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
@@ -45,7 +45,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxDoImageOcrTest";
     private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
-    private static OnnxTrOcrEngine OCR_ENGINE;
+    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
@@ -54,7 +54,7 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
     }
 
     @AfterAll
@@ -184,6 +184,6 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
         Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
     }
 }

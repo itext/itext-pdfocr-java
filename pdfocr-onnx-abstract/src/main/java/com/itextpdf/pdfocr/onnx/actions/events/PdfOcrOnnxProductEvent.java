@@ -26,16 +26,16 @@ import com.itextpdf.commons.actions.AbstractProductProcessITextEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxTrProductData;
+import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxProductData;
 
 /**
- * Class represents events registered in iText pdfOcr OnnxTr module.
+ * Class represents events registered in iText pdfOcr Onnx module.
  */
-public final class PdfOcrOnnxTrProductEvent extends AbstractProductProcessITextEvent {
+public final class PdfOcrOnnxProductEvent extends AbstractProductProcessITextEvent {
     /**
      * Process image event type.
      */
-    public static final String PROCESS_IMAGE_ONNXTR = "process-image-onnxtr";
+    public static final String PROCESS_IMAGE_ONNX = "process-image-onnxtr";
 
     private final String eventType;
 
@@ -47,24 +47,24 @@ public final class PdfOcrOnnxTrProductEvent extends AbstractProductProcessITextE
      * @param eventType             is a string description of the event
      * @param eventConfirmationType is an event confirmation type
      */
-    private PdfOcrOnnxTrProductEvent(SequenceId sequenceId, IMetaInfo metaInfo, String eventType,
+    private PdfOcrOnnxProductEvent(SequenceId sequenceId, IMetaInfo metaInfo, String eventType,
                                      EventConfirmationType eventConfirmationType) {
-        super(sequenceId, PdfOcrOnnxTrProductData.getInstance(), metaInfo, eventConfirmationType);
+        super(sequenceId, PdfOcrOnnxProductData.getInstance(), metaInfo, eventConfirmationType);
         this.eventType = eventType;
     }
 
     /**
-     * Creates process-image-onnxtr event.
+     * Creates process-image-onnx event.
      *
      * @param sequenceId            is an identifier associated with the event
      * @param metaInfo              is an additional meta info
      * @param eventConfirmationType is an event confirmation type
      *
-     * @return process-image-onnxtr event
+     * @return process-image-onnx event
      */
-    public static PdfOcrOnnxTrProductEvent createProcessImageOnnxTrEvent(SequenceId sequenceId, IMetaInfo metaInfo,
+    public static PdfOcrOnnxProductEvent createProcessImageOnnxEvent(SequenceId sequenceId, IMetaInfo metaInfo,
                                                                          EventConfirmationType eventConfirmationType) {
-        return new PdfOcrOnnxTrProductEvent(sequenceId, metaInfo, PROCESS_IMAGE_ONNXTR, eventConfirmationType);
+        return new PdfOcrOnnxProductEvent(sequenceId, metaInfo, PROCESS_IMAGE_ONNX, eventConfirmationType);
     }
 
     /**

@@ -22,8 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnx.text;
 
-import com.itextpdf.pdfocr.onnx.OnnxTrEngineProperties;
-import com.itextpdf.pdfocr.onnx.OnnxTrOcrEngine;
+import com.itextpdf.pdfocr.onnx.OnnxEngineProperties;
+import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.EasyOcrMapper;
@@ -49,16 +49,16 @@ public enum OcrEngineTypeWithTextPositioning {
     EASY_WORDS_AND_LINES("EasyOCR_BY_WORDS_AND_LINES", () -> createEasyOcrEngine(TextPositioning.BY_WORDS_AND_LINES)),
     DOCTR_WORDS_AND_LINES("DocTR_BY_WORDS_AND_LINES", () -> createDocTrEngine(TextPositioning.BY_WORDS_AND_LINES));
 
-    public volatile OnnxTrOcrEngine instance;
+    public volatile OnnxOcrEngine instance;
     private final String displayName;
-    private final Supplier<OnnxTrOcrEngine> supplier;
+    private final Supplier<OnnxOcrEngine> supplier;
 
-    OcrEngineTypeWithTextPositioning(String displayName, Supplier<OnnxTrOcrEngine> supplier) {
+    OcrEngineTypeWithTextPositioning(String displayName, Supplier<OnnxOcrEngine> supplier) {
         this.displayName = displayName;
         this.supplier = supplier;
     }
 
-    public OnnxTrOcrEngine get() {
+    public OnnxOcrEngine get() {
         if (this.instance == null) {
             synchronized (this) {
                 if (this.instance == null) {
@@ -86,7 +86,7 @@ public enum OcrEngineTypeWithTextPositioning {
     private static IDetectionPredictor docTrDetectionPredictor;
     private static IRecognitionPredictor docTrRecognitionPredictor;
 
-    private static OnnxTrOcrEngine createPaddleOcrEngine(TextPositioning textPositioning) {
+    private static OnnxOcrEngine createPaddleOcrEngine(TextPositioning textPositioning) {
         try {
             if (paddleDetectionPredictor == null) {
                 paddleDetectionPredictor = OnnxDetectionPredictor.paddleOcr(ModelPaths.getPaddleOcrDetectionModel());
@@ -97,29 +97,29 @@ public enum OcrEngineTypeWithTextPositioning {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        return new OnnxTrOcrEngine(paddleDetectionPredictor, null, paddleRecognitionPredictor,
-                new OnnxTrEngineProperties().setTextPositioning(textPositioning));
+        return new OnnxOcrEngine(paddleDetectionPredictor, null, paddleRecognitionPredictor,
+                new OnnxEngineProperties().setTextPositioning(textPositioning));
     }
 
-    private static OnnxTrOcrEngine createEasyOcrEngine(TextPositioning textPositioning) {
+    private static OnnxOcrEngine createEasyOcrEngine(TextPositioning textPositioning) {
         if (easyDetectionPredictor == null) {
             easyDetectionPredictor = OnnxDetectionPredictor.easyOcr(ModelPaths.getEasyOcrDetectionModel());
         }
         if (easyRecognitionPredictor == null) {
             easyRecognitionPredictor = OnnxRecognitionPredictor.easyOcr(ModelPaths.getEasyOcrRecognitionModel(), EasyOcrMapper.LATIN_G2);
         }
-        return new OnnxTrOcrEngine(easyDetectionPredictor, null, easyRecognitionPredictor,
-                new OnnxTrEngineProperties().setTextPositioning(textPositioning));
+        return new OnnxOcrEngine(easyDetectionPredictor, null, easyRecognitionPredictor,
+                new OnnxEngineProperties().setTextPositioning(textPositioning));
     }
 
-    private static OnnxTrOcrEngine createDocTrEngine(TextPositioning textPositioning) {
+    private static OnnxOcrEngine createDocTrEngine(TextPositioning textPositioning) {
         if (docTrDetectionPredictor == null) {
             docTrDetectionPredictor = OnnxDetectionPredictor.fast(ModelPaths.getDocTrDetectionModel());
         }
         if (docTrRecognitionPredictor == null) {
             docTrRecognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(ModelPaths.getDocTrRecognitionModel());
         }
-        return new OnnxTrOcrEngine(docTrDetectionPredictor, null, docTrRecognitionPredictor,
-                new OnnxTrEngineProperties().setTextPositioning(textPositioning));
+        return new OnnxOcrEngine(docTrDetectionPredictor, null, docTrRecognitionPredictor,
+                new OnnxEngineProperties().setTextPositioning(textPositioning));
     }
 }

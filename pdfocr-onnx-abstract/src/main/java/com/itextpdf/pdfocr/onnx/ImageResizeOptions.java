@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.Objects;
 
@@ -146,52 +146,52 @@ public class ImageResizeOptions {
 
         if (minWidth < 1) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MIN_WIDTH_SHOULD_BE_POSITIVE, minWidth
+                    PdfOcrOnnxExceptionMessageConstant.MIN_WIDTH_SHOULD_BE_POSITIVE, minWidth
             ));
         }
         this.minWidth = minWidth;
 
         if (minHeight < 1) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MIN_HEIGHT_SHOULD_BE_POSITIVE, minHeight
+                    PdfOcrOnnxExceptionMessageConstant.MIN_HEIGHT_SHOULD_BE_POSITIVE, minHeight
             ));
         }
         this.minHeight = minHeight;
 
         if (widthMultiple < 1) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.WIDTH_MULTIPLE_SHOULD_BE_POSITIVE, widthMultiple
+                    PdfOcrOnnxExceptionMessageConstant.WIDTH_MULTIPLE_SHOULD_BE_POSITIVE, widthMultiple
             ));
         }
         this.widthMultiple = widthMultiple;
 
         if (heightMultiple < 1) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE, heightMultiple
+                    PdfOcrOnnxExceptionMessageConstant.HEIGHT_MULTIPLE_SHOULD_BE_POSITIVE, heightMultiple
             ));
         }
         this.heightMultiple = heightMultiple;
 
         if (maxWidth < minWidth) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MAX_WIDTH_SHOULD_NOT_BE_LESS_THAN_MIN, maxWidth
+                    PdfOcrOnnxExceptionMessageConstant.MAX_WIDTH_SHOULD_NOT_BE_LESS_THAN_MIN, maxWidth
             ));
         }
         if (maxWidth % widthMultiple != 0) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MAX_WIDTH_SHOULD_BE_A_MULTIPLE, widthMultiple, maxWidth
+                    PdfOcrOnnxExceptionMessageConstant.MAX_WIDTH_SHOULD_BE_A_MULTIPLE, widthMultiple, maxWidth
             ));
         }
         this.maxWidth = maxWidth;
 
         if (maxHeight < minHeight) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MAX_HEIGHT_SHOULD_NOT_BE_LESS_THAN_MIN, maxHeight
+                    PdfOcrOnnxExceptionMessageConstant.MAX_HEIGHT_SHOULD_NOT_BE_LESS_THAN_MIN, maxHeight
             ));
         }
         if (maxHeight % heightMultiple != 0) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.MAX_HEIGHT_SHOULD_BE_A_MULTIPLE, heightMultiple, maxHeight
+                    PdfOcrOnnxExceptionMessageConstant.MAX_HEIGHT_SHOULD_BE_A_MULTIPLE, heightMultiple, maxHeight
             ));
         }
         this.maxHeight = maxHeight;

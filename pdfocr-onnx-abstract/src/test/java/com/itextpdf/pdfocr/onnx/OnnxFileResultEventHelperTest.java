@@ -30,8 +30,8 @@ import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.sequence.SequenceId;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
-import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxTrProductData;
-import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxTrProductEvent;
+import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxProductData;
+import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxProductEvent;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.test.ExtendedITextTest;
@@ -43,14 +43,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
+public class OnnxFileResultEventHelperTest extends ExtendedITextTest {
 
     @Test
-    public void processImageOnnxTrEventTest() {
+    public void processImageOnnxEventTest() {
         StoreEventsHandler eventsHandler = new StoreEventsHandler();
         EventManager.getInstance().register(eventsHandler);
-        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
-        PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(new SequenceId(), null,
+        OnnxFileResultEventHelper helper = new OnnxFileResultEventHelper(eventsHandler);
+        PdfOcrOnnxProductEvent event = PdfOcrOnnxProductEvent.createProcessImageOnnxEvent(new SequenceId(), null,
                 EventConfirmationType.ON_CLOSE);
         helper.onEvent(event);
         Assertions.assertEquals(1, eventsHandler.getEvents().size());
@@ -62,11 +62,11 @@ public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
     }
 
     @Test
-    public void confirmProcessImageOnnxTrEventTest() {
+    public void confirmProcessImageOnnxEventTest() {
         StoreEventsHandler eventsHandler = new StoreEventsHandler();
         EventManager.getInstance().register(eventsHandler);
-        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
-        ConfirmEvent event = new ConfirmEvent(PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(new SequenceId(),
+        OnnxFileResultEventHelper helper = new OnnxFileResultEventHelper(eventsHandler);
+        ConfirmEvent event = new ConfirmEvent(PdfOcrOnnxProductEvent.createProcessImageOnnxEvent(new SequenceId(),
                 null, EventConfirmationType.ON_CLOSE));
         helper.onEvent(event);
         Assertions.assertEquals(0, eventsHandler.getEvents().size());
@@ -80,9 +80,9 @@ public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
     public void defaultStatisticsEventTest() {
         StoreEventsHandler eventsHandler = new StoreEventsHandler();
         EventManager.getInstance().register(eventsHandler);
-        OnnxTrFileResultEventHelper helper = new OnnxTrFileResultEventHelper(eventsHandler);
+        OnnxFileResultEventHelper helper = new OnnxFileResultEventHelper(eventsHandler);
         PdfOcrOutputTypeStatisticsEvent event = new PdfOcrOutputTypeStatisticsEvent(PdfOcrOutputType.PDF,
-                PdfOcrOnnxTrProductData.getInstance());
+                PdfOcrOnnxProductData.getInstance());
         helper.onEvent(event);
         Assertions.assertEquals(1, eventsHandler.getEvents().size());
         Assertions.assertEquals(event, eventsHandler.getEvents().get(0));
@@ -101,7 +101,7 @@ public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
 
         @Override
         public void onEvent(IEvent event) {
-            if (event instanceof PdfOcrOnnxTrProductEvent
+            if (event instanceof PdfOcrOnnxProductEvent
                     || event instanceof PdfOcrOutputTypeStatisticsEvent
                     || event instanceof ConfirmEvent) {
                 events.add(event);
@@ -110,7 +110,7 @@ public class OnnxTrFileResultEventHelperTest extends ExtendedITextTest {
 
         @Override
         public void onEvent(AbstractProductITextEvent event) {
-            if (event instanceof PdfOcrOnnxTrProductEvent
+            if (event instanceof PdfOcrOnnxProductEvent
                     || event instanceof PdfOcrOutputTypeStatisticsEvent
                     || event instanceof ConfirmEvent) {
                 events.add(event);

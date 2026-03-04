@@ -29,8 +29,8 @@ import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
-import com.itextpdf.pdfocr.onnx.OnnxTrEngineProperties;
-import com.itextpdf.pdfocr.onnx.OnnxTrOcrEngine;
+import com.itextpdf.pdfocr.onnx.OnnxEngineProperties;
+import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
@@ -39,11 +39,6 @@ import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.text.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +46,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
@@ -65,9 +65,9 @@ public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
     private static final String MOBILENETV3 = TEST_DIRECTORY + "models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
 
-    private static OnnxTrOcrEngine OCR_ENGINE_MAKE_PDF_SEARCHABLE;
-    private static OnnxTrOcrEngine OCR_ENGINE_IMAGE_OCR;
-    private static OnnxTrOcrEngine OCR_ENGINE_CREATE_PDF;
+    private static OnnxOcrEngine OCR_ENGINE_MAKE_PDF_SEARCHABLE;
+    private static OnnxOcrEngine OCR_ENGINE_IMAGE_OCR;
+    private static OnnxOcrEngine OCR_ENGINE_CREATE_PDF;
 
     @BeforeAll
     public static void beforeClass() {
@@ -77,13 +77,13 @@ public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE_MAKE_PDF_SEARCHABLE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
+        OCR_ENGINE_MAKE_PDF_SEARCHABLE = new OnnxOcrEngine(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
 
-        OCR_ENGINE_IMAGE_OCR = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor,
-                new OnnxTrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
+        OCR_ENGINE_IMAGE_OCR = new OnnxOcrEngine(detectionPredictor, null, recognitionPredictor,
+                new OnnxEngineProperties().setTextPositioning(TextPositioning.BY_WORDS));
 
-        OCR_ENGINE_CREATE_PDF = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OCR_ENGINE_CREATE_PDF = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
     }
 
     @AfterAll

@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.util;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.Objects;
 
@@ -46,7 +46,7 @@ public final class MathUtil {
     public static int argmax(float[] values) {
         Objects.requireNonNull(values);
         if (values.length == 0) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.VALUES_SHOULD_BE_A_NON_EMPTY_ARRAY);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.VALUES_SHOULD_BE_A_NON_EMPTY_ARRAY);
         }
         float resultValue = Float.NEGATIVE_INFINITY;
         int resultIndex = 0;
@@ -132,7 +132,7 @@ public final class MathUtil {
             return Float.POSITIVE_INFINITY;
         }
         throw new IllegalArgumentException(
-                PdfOcrOnnxTrExceptionMessageConstant.X_SHOULD_BE_IN_0_1_RANGE
+                PdfOcrOnnxExceptionMessageConstant.X_SHOULD_BE_IN_0_1_RANGE
         );
     }
 
@@ -176,7 +176,7 @@ public final class MathUtil {
      */
     public static double clamp(double value, double min, double max) {
         if (max < min) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.MAX_SHOULD_NOT_BE_LESS_THAN_MIN);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.MAX_SHOULD_NOT_BE_LESS_THAN_MIN);
         }
         return Math.min(max, Math.max(value, min));
     }

@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,9 +40,9 @@ public class DependencyLoadCheckerTest extends ExtendedITextTest {
                 () -> DependencyLoadChecker.processException(new UnsatisfiedLinkError("Random.")));
         Exception e = Assertions.assertThrows(PdfOcrException.class, () -> DependencyLoadChecker.processException(
                 new RuntimeException("Failed to load onnx-runtime library")));
-        Assertions.assertTrue(e.getMessage().contains(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME));
+        Assertions.assertTrue(e.getMessage().contains(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME));
         e = Assertions.assertThrows(PdfOcrException.class, () -> DependencyLoadChecker.processException(new
                 UnsatisfiedLinkError("onnxruntime.dll: A dynamic link library (DLL) initialization routine failed.")));
-        Assertions.assertTrue(e.getMessage().contains(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME));
+        Assertions.assertTrue(e.getMessage().contains(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME));
     }
 }

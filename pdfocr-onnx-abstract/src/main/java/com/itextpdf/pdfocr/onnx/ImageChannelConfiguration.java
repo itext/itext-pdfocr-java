@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 /**
  * Enumeration of supported image channel configuration for buffers. These are
@@ -55,7 +55,7 @@ public enum ImageChannelConfiguration {
             return 3;
         }
         // Should not get here
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 
     /**
@@ -70,7 +70,7 @@ public enum ImageChannelConfiguration {
             return 2;
         }
         // Should not get here
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 
     /**
@@ -85,7 +85,7 @@ public enum ImageChannelConfiguration {
             return 1;
         }
         // Should not get here
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 
     /**
@@ -100,6 +100,6 @@ public enum ImageChannelConfiguration {
             return 2;
         }
         // Should not get here
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 }

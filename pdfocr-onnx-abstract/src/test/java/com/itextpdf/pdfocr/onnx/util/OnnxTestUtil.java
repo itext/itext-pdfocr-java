@@ -20,28 +20,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.onnx.actions.events;
+package com.itextpdf.pdfocr.onnx.util;
 
-import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
-import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxTrProductData;
-import com.itextpdf.test.ExtendedITextTest;
-
+import org.bytedeco.opencv.opencv_core.Point2f;
+import org.bytedeco.opencv.opencv_core.RotatedRect;
+import org.bytedeco.opencv.opencv_core.Size2f;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
-@Tag("UnitTest")
-public class PdfOcrOnnxTrProductEventTest extends ExtendedITextTest {
-    @Test
-    public void eventTypeTest() {
-        PdfOcrOnnxTrProductEvent e = PdfOcrOnnxTrProductEvent
-                .createProcessImageOnnxTrEvent(new SequenceId(), null, EventConfirmationType.ON_DEMAND);
-        Assertions.assertEquals(PdfOcrOnnxTrProductEvent.PROCESS_IMAGE_ONNXTR, e.getEventType());
-    }
-
-    @Test
-    public void productDataNameTest() {
-        Assertions.assertEquals("pdfOcr-onnxtr", PdfOcrOnnxTrProductData.getInstance().getProductName());
+class OnnxTestUtil {
+    static void testNormalizeRotatedRect(
+            float originalAngle,
+            float newWidth,
+            float newHeight,
+            float newAngle
+    ) {
+        try (final Point2f center = new Point2f(0, 0);
+             final Size2f size = new Size2f(5, 10);
+             final RotatedRect rect = new RotatedRect(center, size, originalAngle)) {
+            OpenCvUtil.normalizeRotatedRect(rect);
+            try (final Size2f newSize = rect.size()) {
+                Assertions.assertEquals(newWidth, newSize.width(), 1e-6);
+                Assertions.assertEquals(newHeight, newSize.height(), 1e-6);
+            }
+            Assertions.assertEquals(newAngle, rect.angle(), 1e-6);
+        }
     }
 }

@@ -26,19 +26,19 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Properties that are used by the {@link OnnxTrOcrEngine}.
+ * Properties that are used by the {@link OnnxOcrEngine}.
  */
-public class OnnxTrEngineProperties {
+public class OnnxEngineProperties {
 
     /**
-     * Creates a new {@link OnnxTrEngineProperties} instance.
+     * Creates a new {@link OnnxEngineProperties} instance.
      */
-    public OnnxTrEngineProperties() {
+    public OnnxEngineProperties() {
 
     }
 
     /**
-     * Defines the way text is retrieved and grouped from onnxtr engine output.
+     * Defines the way text is retrieved and grouped from onnx engine output.
      * It changes the way text is selected in the result pdf document.
      * Does not affect the result of {@link com.itextpdf.pdfocr.IOcrEngine#createTxtFile(List, File)}.
      */
@@ -76,12 +76,12 @@ public class OnnxTrEngineProperties {
      *
      * @param textPositioning the way text is retrieved
      *
-     * @return the {@link OnnxTrEngineProperties} instance
+     * @return the {@link OnnxEngineProperties} instance
      *
      * @deprecated in favour of {@link #setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning)}
      */
     @Deprecated
-    public OnnxTrEngineProperties setTextPositioning(TextPositioning textPositioning) {
+    public OnnxEngineProperties setTextPositioning(TextPositioning textPositioning) {
         if (TextPositioning.BY_LINES.equals(textPositioning)) {
             this.textPositioning = com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS_AND_LINES;
         } else {
@@ -96,9 +96,9 @@ public class OnnxTrEngineProperties {
      *
      * @param textPositioning the way text is retrieved
      *
-     * @return the {@link OnnxTrEngineProperties} instance
+     * @return the {@link OnnxEngineProperties} instance
      */
-    public OnnxTrEngineProperties setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning textPositioning) {
+    public OnnxEngineProperties setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning textPositioning) {
         this.textPositioning = textPositioning;
         return this;
     }

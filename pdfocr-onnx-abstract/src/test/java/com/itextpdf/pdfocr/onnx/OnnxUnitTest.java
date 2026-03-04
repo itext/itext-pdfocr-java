@@ -27,7 +27,7 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPostProcessor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictorProperties;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnx.orientation.DefaultOrientationMapper;
 import com.itextpdf.pdfocr.onnx.recognition.CrnnPostProcessor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-public class OnnxTRUnitTest extends ExtendedITextTest {
+public class OnnxUnitTest extends ExtendedITextTest {
     private static final String BASE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     private static final String FAST = BASE_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String TIFF = BASE_DIRECTORY + "images/two_pages.tiff";
@@ -55,7 +55,7 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
         long[] shape = new long[]{2, 3, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
                 BufferedImageUtil.toBchwInput(new ArrayList<>(), new OnnxInputProperties(mean, std, shape, true)));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE, e.getMessage());
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE, e.getMessage());
     }
 
     @Test
@@ -64,9 +64,9 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
         float[] std = new float[]{0.264F, 0.2749F, 0.287F};
         long[] shape = new long[]{1, 3, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
-                BufferedImageUtil.toBchwInput(OnnxTrOcrEngine.getImages(new File(TIFF)),
+                BufferedImageUtil.toBchwInput(OnnxOcrEngine.getImages(new File(TIFF)),
                         new OnnxInputProperties(mean, std, shape, true)));
-        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxTrExceptionMessageConstant.TOO_MANY_IMAGES, 2, 1),
+        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.TOO_MANY_IMAGES, 2, 1),
                 e.getMessage());
     }
 
@@ -74,21 +74,21 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
     public void invalidOrientationTest() {
         Exception e = Assertions.assertThrows(IndexOutOfBoundsException.class,
                 () -> new DefaultOrientationMapper().map(4));
-        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxTrExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, 4),
+        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.INDEX_OUT_OF_BOUNDS, 4),
                 e.getMessage());
     }
 
     @Test
     public void invalidModelPathTest() {
         Exception e = Assertions.assertThrows(PdfOcrException.class, () -> OnnxDetectionPredictor.fast("invalid"));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_INIT_ONNX_RUNTIME_SESSION,
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_INIT_ONNX_RUNTIME_SESSION,
                 e.getMessage());
     }
 
     @Test
     public void invalidModelTest() {
         Exception e = Assertions.assertThrows(PdfOcrException.class, () -> OnnxRecognitionPredictor.crnnVgg16(FAST));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.MODEL_DID_NOT_PASS_VALIDATION, e.getMessage());
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.MODEL_DID_NOT_PASS_VALIDATION, e.getMessage());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class OnnxTRUnitTest extends ExtendedITextTest {
 
     @Test
     public void deprecatedTextPositioningTest() {
-        OnnxTrEngineProperties properties = new OnnxTrEngineProperties();
+        OnnxEngineProperties properties = new OnnxEngineProperties();
         Assertions.assertEquals(TextPositioning.BY_LINES, properties.getTextPositioning());
         properties.setTextPositioning(TextPositioning.BY_WORDS);
         Assertions.assertEquals(TextPositioning.BY_WORDS, properties.getTextPositioning());

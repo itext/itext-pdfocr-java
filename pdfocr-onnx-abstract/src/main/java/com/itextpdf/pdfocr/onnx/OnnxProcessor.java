@@ -14,7 +14,7 @@ import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
-import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxTrProductEvent;
+import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxProductEvent;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Class containing OCRing methods adapted from <a href="https://github.com/felixdittrich92/OnnxTR">OnnxTR</a>.
  */
-class OnnxTrProcessor {
+class OnnxProcessor {
 
     /**
      * Image pixel to PDF point ratio.
@@ -53,7 +53,7 @@ class OnnxTrProcessor {
      */
     private final IRecognitionPredictor recognitionPredictor;
 
-    OnnxTrProcessor(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
+    OnnxProcessor(IDetectionPredictor detectionPredictor, IOrientationPredictor orientationPredictor,
                     IRecognitionPredictor recognitionPredictor) {
         this.detectionPredictor = detectionPredictor;
         this.orientationPredictor = orientationPredictor;
@@ -66,9 +66,9 @@ class OnnxTrProcessor {
         Iterator<List<Point[]>> textBoxGenerator = detectionPredictor.predict(images);
         while (textBoxGenerator.hasNext()) {
             AbstractPdfOcrEventHelper eventHelper = ocrProcessContext.getOcrEventHelper() == null ?
-                    new OnnxTrEventHelper() : ocrProcessContext.getOcrEventHelper();
+                    new OnnxEventHelper() : ocrProcessContext.getOcrEventHelper();
             // Usage event.
-            PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(
+            PdfOcrOnnxProductEvent event = PdfOcrOnnxProductEvent.createProcessImageOnnxEvent(
                     eventHelper.getSequenceId(), null, eventHelper.getConfirmationType());
             eventHelper.onEvent(event);
             /*

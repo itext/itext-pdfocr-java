@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.util;
 
-import com.itextpdf.pdfocr.onnx.OnnxTrOcrEngine;
+import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.EasyOcrMapper;
@@ -37,16 +37,16 @@ public enum OcrEngineType {
     EASY("EasyOCR", () -> createEasyOcrEngine()),
     DOCTR("DocTR", () -> createDocTrEngine());
 
-    public volatile OnnxTrOcrEngine instance;
+    public volatile OnnxOcrEngine instance;
     private final String displayName;
-    private final Supplier<OnnxTrOcrEngine> supplier;
+    private final Supplier<OnnxOcrEngine> supplier;
 
-    OcrEngineType(String displayName, Supplier<OnnxTrOcrEngine> supplier) {
+    OcrEngineType(String displayName, Supplier<OnnxOcrEngine> supplier) {
         this.displayName = displayName;
         this.supplier = supplier;
     }
 
-    public OnnxTrOcrEngine get() {
+    public OnnxOcrEngine get() {
         if (this.instance == null) {
             synchronized (this) {
                 if (this.instance == null) {
@@ -65,27 +65,27 @@ public enum OcrEngineType {
         return new OcrEngineType[]{PADDLE, EASY, DOCTR};
     }
 
-    private static OnnxTrOcrEngine createPaddleOcrEngine() {
+    private static OnnxOcrEngine createPaddleOcrEngine() {
         try {
             IDetectionPredictor paddleDetectionPredictor = OnnxDetectionPredictor.paddleOcr(ModelPaths.getPaddleOcrDetectionModel());
             IRecognitionPredictor paddleRecognitionPredictor = OnnxRecognitionPredictor.paddleOcr(ModelPaths.getPaddleOcrRecognitionModel());
-            return new OnnxTrOcrEngine(paddleDetectionPredictor, paddleRecognitionPredictor);
+            return new OnnxOcrEngine(paddleDetectionPredictor, paddleRecognitionPredictor);
         } catch (IOException e) {
             // Shouldn't reach there.
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    private static OnnxTrOcrEngine createEasyOcrEngine() {
+    private static OnnxOcrEngine createEasyOcrEngine() {
         IDetectionPredictor easyDetectionPredictor = OnnxDetectionPredictor.easyOcr(ModelPaths.getEasyOcrDetectionModel());
         IRecognitionPredictor easyRecognitionPredictor = OnnxRecognitionPredictor.easyOcr(ModelPaths.getEasyOcrRecognitionModel(),
                 EasyOcrMapper.LATIN_G2);
-        return new OnnxTrOcrEngine(easyDetectionPredictor, easyRecognitionPredictor);
+        return new OnnxOcrEngine(easyDetectionPredictor, easyRecognitionPredictor);
     }
 
-    private static OnnxTrOcrEngine createDocTrEngine() {
+    private static OnnxOcrEngine createDocTrEngine() {
         IDetectionPredictor docTrDetectionPredictor = OnnxDetectionPredictor.fast(ModelPaths.getDocTrDetectionModel());
         IRecognitionPredictor docTrRecognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(ModelPaths.getDocTrRecognitionModel());
-        return new OnnxTrOcrEngine(docTrDetectionPredictor, docTrRecognitionPredictor);
+        return new OnnxOcrEngine(docTrDetectionPredictor, docTrRecognitionPredictor);
     }
 }

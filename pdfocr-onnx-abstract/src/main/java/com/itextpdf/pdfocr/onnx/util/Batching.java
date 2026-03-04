@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.util;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,7 +50,7 @@ public final class Batching {
     public static <E> Iterator<List<E>> wrap(Iterator<E> iterator, int batchSize) {
         Objects.requireNonNull(iterator);
         if (batchSize <= 0) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE);
         }
         return new Iterator<List<E>>() {
             @Override

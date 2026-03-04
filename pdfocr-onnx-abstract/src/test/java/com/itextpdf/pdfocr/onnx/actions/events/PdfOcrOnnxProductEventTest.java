@@ -20,9 +20,28 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.onnx;
+package com.itextpdf.pdfocr.onnx.actions.events;
 
-import com.itextpdf.commons.actions.contexts.IMetaInfo;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxProductData;
+import com.itextpdf.test.ExtendedITextTest;
 
-final class OnnxTrMetaInfo implements IMetaInfo {
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+@Tag("UnitTest")
+public class PdfOcrOnnxProductEventTest extends ExtendedITextTest {
+    @Test
+    public void eventTypeTest() {
+        PdfOcrOnnxProductEvent e = PdfOcrOnnxProductEvent
+                .createProcessImageOnnxEvent(new SequenceId(), null, EventConfirmationType.ON_DEMAND);
+        Assertions.assertEquals(PdfOcrOnnxProductEvent.PROCESS_IMAGE_ONNX, e.getEventType());
+    }
+
+    @Test
+    public void productDataNameTest() {
+        Assertions.assertEquals("pdfOcr-onnxtr", PdfOcrOnnxProductData.getInstance().getProductName());
+    }
 }

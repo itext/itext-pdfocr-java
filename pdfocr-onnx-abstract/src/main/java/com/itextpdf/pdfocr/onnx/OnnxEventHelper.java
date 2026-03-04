@@ -20,29 +20,45 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.itextpdf.pdfocr.onnx.util;
+package com.itextpdf.pdfocr.onnx;
 
-import org.bytedeco.opencv.opencv_core.Point2f;
-import org.bytedeco.opencv.opencv_core.RotatedRect;
-import org.bytedeco.opencv.opencv_core.Size2f;
-import org.junit.jupiter.api.Assertions;
+import com.itextpdf.commons.actions.AbstractProductITextEvent;
+import com.itextpdf.commons.actions.EventManager;
+import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
+import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 
-class OnnxTRTestUtil {
-    static void testNormalizeRotatedRect(
-            float originalAngle,
-            float newWidth,
-            float newHeight,
-            float newAngle
-    ) {
-        try (final Point2f center = new Point2f(0, 0);
-             final Size2f size = new Size2f(5, 10);
-             final RotatedRect rect = new RotatedRect(center, size, originalAngle)) {
-            OpenCvUtil.normalizeRotatedRect(rect);
-            try (final Size2f newSize = rect.size()) {
-                Assertions.assertEquals(newWidth, newSize.width(), 1e-6);
-                Assertions.assertEquals(newHeight, newSize.height(), 1e-6);
-            }
-            Assertions.assertEquals(newAngle, rect.angle(), 1e-6);
-        }
+/**
+ * Helper class for working with events.
+ */
+final class OnnxEventHelper extends AbstractPdfOcrEventHelper {
+
+    OnnxEventHelper() {
+        // Do nothing.
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onEvent(AbstractProductITextEvent event) {
+        EventManager.getInstance().onEvent(event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EventConfirmationType getConfirmationType() {
+        return EventConfirmationType.ON_DEMAND;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SequenceId getSequenceId() {
+        return new SequenceId();
+    }
+
 }

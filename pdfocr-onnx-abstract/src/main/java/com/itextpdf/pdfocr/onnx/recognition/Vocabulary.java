@@ -6,7 +6,7 @@
  */
 package com.itextpdf.pdfocr.onnx.recognition;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -1092,7 +1092,7 @@ public class Vocabulary {
         Objects.requireNonNull(lookUpString);
         if (lookUpString.codePointCount(0, lookUpString.length()) != lookUpString.length()) {
             throw new IllegalArgumentException(
-                    PdfOcrOnnxTrExceptionMessageConstant.LOOK_UP_STRING_CONTAINS_2_CODE_UNITS_POINTS);
+                    PdfOcrOnnxExceptionMessageConstant.LOOK_UP_STRING_CONTAINS_2_CODE_UNITS_POINTS);
         }
 
         this.lookUpString = lookUpString;

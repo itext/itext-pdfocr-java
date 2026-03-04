@@ -27,7 +27,7 @@ import com.itextpdf.pdfocr.onnx.conf.paddle.model.BoxType;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.ImgMode;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.ScoreMode;
 import com.itextpdf.pdfocr.onnx.exceptions.ConfigParserException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj"
                 ),
                 ex.getMessage()
         );
@@ -64,7 +64,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.1"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.1"
                 ),
                 ex.getMessage()
         );
@@ -84,7 +84,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -94,7 +94,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -126,7 +126,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k.1"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k.1"
                 ),
                 ex.getMessage()
         );
@@ -136,7 +136,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -146,7 +146,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -166,7 +166,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -176,7 +176,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -208,7 +208,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k.1"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k.1"
                 ),
                 ex.getMessage()
         );
@@ -218,7 +218,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -228,7 +228,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -250,7 +250,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -260,7 +260,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -290,7 +290,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -300,7 +300,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -330,7 +330,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -340,7 +340,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -374,7 +374,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );
@@ -384,7 +384,7 @@ public class ParserUtilTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, "Obj.k"
                 ),
                 ex.getMessage()
         );

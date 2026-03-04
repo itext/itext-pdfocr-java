@@ -22,7 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.util;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.util.Iterator;
 import java.util.List;
@@ -83,7 +83,7 @@ public class BatchProcessingGenerator<T, R> implements Iterator<R> {
             final List<T> batch = batchIterator.next();
             batchResult = batchProcessor.processBatch(batch);
             if (batchResult == null || batchResult.size() != batch.size()) {
-                throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.INVALID_NUMBER_OF_OUTPUTS);
+                throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.INVALID_NUMBER_OF_OUTPUTS);
             }
             batchResultIndex = 0;
         }

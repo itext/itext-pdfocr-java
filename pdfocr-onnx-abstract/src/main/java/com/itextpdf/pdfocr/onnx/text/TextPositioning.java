@@ -22,9 +22,11 @@
  */
 package com.itextpdf.pdfocr.onnx.text;
 
+import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
+
 /**
  * Enumeration of the possible types of text positioning.
- * It is used to combine the {@link com.itextpdf.pdfocr.onnx.OnnxTrOcrEngine} image OCR result text
+ * It is used to combine the {@link OnnxOcrEngine} image OCR result text
  * and group it by lines, by words or by words and lines.
  */
 public enum TextPositioning {

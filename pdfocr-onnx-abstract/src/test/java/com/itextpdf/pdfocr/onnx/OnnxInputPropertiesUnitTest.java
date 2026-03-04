@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +40,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         Exception e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new OnnxInputProperties(mean, std, shape, true));
         Assertions.assertEquals(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, 3), e.getMessage());
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, 3), e.getMessage());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         Exception e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new OnnxInputProperties(mean, std, shape, true));
         Assertions.assertEquals(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, 3), e.getMessage());
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, 3), e.getMessage());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         Exception e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new OnnxInputProperties(mean, std, shape, true));
         Assertions.assertEquals(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, 4), e.getMessage());
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, 4), e.getMessage());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         long[] shape = new long[]{2, 4, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new OnnxInputProperties(mean, std, shape, true));
-        Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB, e.getMessage());
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB, e.getMessage());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         Exception e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new OnnxInputProperties(mean, std, shape, true));
         Assertions.assertEquals(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, -2), e.getMessage());
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, -2), e.getMessage());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT,
                         resizeOptions.getChannelConfiguration().getChannelCount()
                 ),
                 e.getMessage()
@@ -151,7 +151,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT,
                         resizeOptions.getChannelConfiguration().getChannelCount()
                 ),
                 e.getMessage()
@@ -168,7 +168,7 @@ public class OnnxInputPropertiesUnitTest extends ExtendedITextTest {
                 () -> new OnnxInputProperties(resizeOptions, 0)
         );
         Assertions.assertEquals(
-                PdfOcrOnnxTrExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE,
+                PdfOcrOnnxExceptionMessageConstant.BATCH_SIZE_SHOULD_BE_POSITIVE,
                 e.getMessage()
         );
     }

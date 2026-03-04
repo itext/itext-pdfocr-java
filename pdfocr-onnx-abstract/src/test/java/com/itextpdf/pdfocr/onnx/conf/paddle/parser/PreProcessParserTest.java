@@ -31,7 +31,7 @@ import com.itextpdf.pdfocr.onnx.conf.paddle.model.PreProcess;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.RecResizeImg;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.TransformOp;
 import com.itextpdf.pdfocr.onnx.exceptions.ConfigParserException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess"
                 ),
                 ex.getMessage()
@@ -95,7 +95,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CONFIG_KEY,
                         "PreProcess.unexpected"
                 ),
                 ex.getMessage()
@@ -112,7 +112,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess.transform_ops"
                 ),
                 ex.getMessage()
@@ -131,7 +131,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess.transform_ops.0"
                 ),
                 ex.getMessage()
@@ -152,7 +152,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess.transform_ops.0"
                 ),
                 ex.getMessage()
@@ -174,7 +174,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess.transform_ops.0"
                 ),
                 ex.getMessage()
@@ -195,7 +195,7 @@ public class PreProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PreProcess.transform_ops.0"
                 ),
                 ex.getMessage()

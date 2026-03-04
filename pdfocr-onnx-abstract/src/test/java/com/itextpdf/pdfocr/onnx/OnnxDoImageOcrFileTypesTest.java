@@ -42,7 +42,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxDoImageOcrFileTypesTest";
     private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
-    private static OnnxTrOcrEngine OCR_ENGINE;
+    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
@@ -51,7 +51,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor, new OnnxTrEngineProperties()
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, null, recognitionPredictor, new OnnxEngineProperties()
                 .setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS));
     }
 

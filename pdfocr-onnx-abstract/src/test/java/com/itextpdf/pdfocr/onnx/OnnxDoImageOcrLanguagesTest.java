@@ -61,7 +61,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         // Let's use multilang here though it doesn't support cyrillic
         IRecognitionPredictor recognitionPredictor =
                 OnnxRecognitionPredictor.parSeq(MULTILANG, Vocabulary.LATIN_EXTENDED, 0);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("Heẞpocerw\nV\nWX\nBrim9me\nha\nXM3HL\n4CJTObeka\n", textFromImage);
@@ -76,7 +76,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("13\n-\nA\n6\nSta:as)\n9\n4tj\n-\nlive,\nlaugh,\nlove\n", textFromImage);
@@ -91,7 +91,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("Aysall\n&alll\n", textFromImage);
@@ -106,7 +106,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("3(5\nT(3T\n", textFromImage);
@@ -121,7 +121,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("I\nK/i\n4\n\n-\nnI\nhao\n", textFromImage);
@@ -136,7 +136,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("This\n1S\na\ntest\nmessage\n-./:\nfor\nOCR\nScanner\nTest\nBMPTest\n", textFromImage);
@@ -151,7 +151,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("RESTEZ\nCALME\nET\nPARLEZ\nEN\nFRANÇAIS\n", textFromImage);
@@ -166,7 +166,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("03960000\nL\n", textFromImage);
@@ -181,7 +181,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("Das\nGeheimnis\ndes\nKònnens\nliegt\nim\nWollen.\n", textFromImage);
@@ -196,7 +196,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("0)\nP\n-\nV\n-\nE\nO\nN\n-\nM\nC\nA\nC)\nI\nI\nA\n$\n/\n7156W5\n$\nxabouxns\n2\n2\n7\nCTOS02u275\n2\n2\n/\nEXX2MG109\n$\ndycGuxns.\n", textFromImage);
@@ -211,7 +211,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("o\n-\nG\ntT\ndes\n", textFromImage);
@@ -226,7 +226,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage =OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("dloich\nSlaiai\nHindi\n", textFromImage);
@@ -241,7 +241,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("QUANTITY\nDESCRIPTION\nUNIT\nPRICE\nTOTAL\n10\nLasers\n$3000\n$30000\n2\nBand-Aids\n$1\n$2\n5\naufnasi?\n$99999\n$499995\n", textFromImage);
@@ -256,7 +256,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("B\n*\naa\n-\n-\na\nK\n*\n-\n", textFromImage);
@@ -271,7 +271,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("The\n(quick)\n[brown]\n{fox}\njumps!\nOver\nthe\n$43,456.78\n<lazy>\n" +
@@ -291,7 +291,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals("Aquí\nhablamos\nespañol\n", textFromImage);
@@ -306,7 +306,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertEquals(
                 "3581981\n1\n19n8\nA\nA\nI\na\n&\n\n19008791914497907597\n15790707047005\n19n8\n",
@@ -322,7 +322,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertTrue(textFromImage.contains("\nGNuwInygEMEMAnUONEDNMENAVouDaruRE\n"));
@@ -340,7 +340,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OnnxTrOcrEngine ocrEngine = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OnnxOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, ocrEngine);
         Assertions.assertTrue(textFromImage.contains("\ninneflsuauoniyadusunnaui\n"));

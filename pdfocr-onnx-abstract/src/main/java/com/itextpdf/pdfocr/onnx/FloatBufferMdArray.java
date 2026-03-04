@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
@@ -50,10 +50,10 @@ public class FloatBufferMdArray {
         Objects.requireNonNull(data);
         Objects.requireNonNull(shape);
         if (!validateShape(shape)) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.SHAPE_IS_NOT_VALID);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.SHAPE_IS_NOT_VALID);
         }
         if (data.remaining() != elementCount(shape)) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.ELEM_COUNT_DOES_NOT_MATCH_SHAPE);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.ELEM_COUNT_DOES_NOT_MATCH_SHAPE);
         }
         this.data = data.duplicate();
         this.shape = shape.clone();
@@ -184,7 +184,7 @@ public class FloatBufferMdArray {
         for (long l : shape) {
             if (l < 0L) {
                 throw new IllegalArgumentException(MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.NEGATIVE_VALUE_IN_SHAPE, Arrays.toString(shape)));
+                        PdfOcrOnnxExceptionMessageConstant.NEGATIVE_VALUE_IN_SHAPE, Arrays.toString(shape)));
             }
             count *= l;
         }

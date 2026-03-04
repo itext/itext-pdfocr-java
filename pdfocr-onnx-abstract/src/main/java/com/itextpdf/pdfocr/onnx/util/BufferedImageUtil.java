@@ -30,7 +30,7 @@ import com.itextpdf.pdfocr.onnx.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnx.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnx.OnnxInputProperties;
 import com.itextpdf.pdfocr.onnx.PaddingStrategy;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -93,11 +93,11 @@ public final class BufferedImageUtil {
      */
     public static FloatBufferMdArray toBchwInput(Collection<BufferedImage> images, OnnxInputProperties properties) {
         if (images.isEmpty()) {
-            throw new IllegalArgumentException(PdfOcrOnnxTrExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE);
+            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE);
         }
         if (images.size() > properties.getBatchSize()) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.TOO_MANY_IMAGES, images.size(), properties.getBatchSize()));
+                    PdfOcrOnnxExceptionMessageConstant.TOO_MANY_IMAGES, images.size(), properties.getBatchSize()));
         }
 
         final ImageResizeOptions resizeOptions = properties.getImageResizeOptions();
@@ -380,7 +380,7 @@ public final class BufferedImageUtil {
                 putBgrImageWithNormalization(outputBuffer, image, props);
                 return;
         }
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 
     private static void putGrayscaleImageWithNormalization(
@@ -466,7 +466,7 @@ public final class BufferedImageUtil {
     private static BufferedImage fromRgbMat(Mat rgb) {
         if (rgb.type() != CvType.CV_8UC3) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MAT_TYPE, CvType.typeToString(rgb.type())));
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MAT_TYPE, CvType.typeToString(rgb.type())));
         }
 
         final BufferedImage image = new BufferedImage(rgb.cols(), rgb.rows(), BufferedImage.TYPE_3BYTE_BGR);
@@ -493,7 +493,7 @@ public final class BufferedImageUtil {
             yPos += (outputHeight - targetHeight) / 2;
         } else if (!paddingStrategy.usesBottomRightPadding()) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_PADDING_STRATEGY, paddingStrategy
+                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_PADDING_STRATEGY, paddingStrategy
             ));
         }
         // Drawing all the paddings first
@@ -571,7 +571,7 @@ public final class BufferedImageUtil {
             case BGR:
                 return BufferedImage.TYPE_3BYTE_BGR;
         }
-        throw new IllegalStateException(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
+        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
     }
 
     /**

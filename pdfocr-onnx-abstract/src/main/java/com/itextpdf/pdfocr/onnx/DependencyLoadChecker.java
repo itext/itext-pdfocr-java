@@ -24,7 +24,7 @@ package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 /**
  * Internal helper class to construct a friendlier error in case some dependency couldn’t be loaded.
@@ -55,7 +55,7 @@ final class DependencyLoadChecker {
     }
 
     private static String getOnnxRuntimeError() {
-        String message = PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME;
+        String message = PdfOcrOnnxExceptionMessageConstant.FAILED_TO_LOAD_ONNXRUNTIME;
         if (isWindows()) {
             message += "\nPossible causes for Windows:\n" +
                     "lack of the latest version of the VC++ redistributable " +

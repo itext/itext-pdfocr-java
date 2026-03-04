@@ -34,7 +34,7 @@ import com.itextpdf.pdfocr.onnx.conf.paddle.model.PreProcess;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.ScoreMode;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.TransformOp;
 import com.itextpdf.pdfocr.onnx.exceptions.ConfigParserException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.ByteArrayInputStream;
@@ -82,7 +82,7 @@ public class InferenceConfigParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "<root>"
                 ),
                 ex.getMessage()
@@ -103,7 +103,7 @@ public class InferenceConfigParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CONFIG_KEY,
                         "PreProcess.unexpected"
                 ),
                 ex.getMessage()
@@ -125,7 +125,7 @@ public class InferenceConfigParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PostProcess.name"
                 ),
                 ex.getMessage()

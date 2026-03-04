@@ -48,15 +48,15 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
-public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
-    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/";
+public class OnnxRotationIntegrationTest extends ExtendedITextTest {
+    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxRotationIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/";
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxRotationIntegrationTest/";
     private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
     private static final String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
-    private static OnnxTrOcrEngine OCR_ENGINE;
-    private static OnnxTrOcrEngine OCR_ENGINE_GROUPING_BY_LINES;
+    private static OnnxOcrEngine OCR_ENGINE;
+    private static OnnxOcrEngine OCR_ENGINE_GROUPING_BY_LINES;
 
     @BeforeAll
     public static void beforeClass() {
@@ -66,10 +66,10 @@ public class OnnxTRRotationIntegrationTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor,
-                new OnnxTrEngineProperties()
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor,
+                new OnnxEngineProperties()
                         .setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS));
-        OCR_ENGINE_GROUPING_BY_LINES = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
+        OCR_ENGINE_GROUPING_BY_LINES = new OnnxOcrEngine(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
     }
 

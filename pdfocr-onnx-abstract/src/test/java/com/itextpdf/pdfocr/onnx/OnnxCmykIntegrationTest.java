@@ -32,7 +32,7 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
@@ -53,14 +53,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
-public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
-    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/";
+public class OnnxCmykIntegrationTest extends ExtendedITextTest {
+    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxCmykIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/";
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxCmykIntegrationTest/";
     private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
     private static final String MOBILENETV3 = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
-    private static OnnxTrOcrEngine OCR_ENGINE;
+    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
@@ -70,7 +70,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, orientationPredictor,
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
     }
 
@@ -97,7 +97,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
             // Amazon corretto jdk started support CMYK for JPEG from 11 version.
             // Temurin 8 does not support CMYK for JPEG either.
-            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+            Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
 
@@ -121,7 +121,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
             // Amazon corretto jdk started support CMYK for JPEG from 11 version.
             // Temurin 8 does not support CMYK for JPEG either.
-            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+            Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
 
@@ -143,7 +143,7 @@ public class OnnxTRCmykIntegrationTest extends ExtendedITextTest {
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
             // Amazon corretto jdk started support CMYK for JPEG from 11 version.
             // Temurin 8 does not support CMYK for JPEG either.
-            Assertions.assertEquals(PdfOcrOnnxTrExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+            Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
 

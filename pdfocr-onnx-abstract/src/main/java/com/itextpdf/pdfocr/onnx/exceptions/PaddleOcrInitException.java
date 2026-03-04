@@ -47,7 +47,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException boxTypeIsNotSupported() {
         return new PaddleOcrInitException(
-                PdfOcrOnnxTrExceptionMessageConstant.BOX_TYPE_IS_NOT_SUPPORTED
+                PdfOcrOnnxExceptionMessageConstant.BOX_TYPE_IS_NOT_SUPPORTED
         );
     }
 
@@ -59,7 +59,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException channelFirstIsNotSupported() {
         return new PaddleOcrInitException(
-                PdfOcrOnnxTrExceptionMessageConstant.CHANNEL_FIRST_IS_NOT_SUPPORTED
+                PdfOcrOnnxExceptionMessageConstant.CHANNEL_FIRST_IS_NOT_SUPPORTED
         );
     }
 
@@ -71,7 +71,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException imageShapeIsNotSupported() {
         return new PaddleOcrInitException(
-                PdfOcrOnnxTrExceptionMessageConstant.IMAGE_SHAPE_IS_NOT_SUPPORTED
+                PdfOcrOnnxExceptionMessageConstant.IMAGE_SHAPE_IS_NOT_SUPPORTED
         );
     }
 
@@ -85,7 +85,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException preProcessorOperationMissing(String name) {
         return new PaddleOcrInitException(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.PRE_PROCESSOR_OPERATION_MISSING, name
+                PdfOcrOnnxExceptionMessageConstant.PRE_PROCESSOR_OPERATION_MISSING, name
         ));
     }
 
@@ -97,7 +97,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException scoreModeIsNotSupported() {
         return new PaddleOcrInitException(
-                PdfOcrOnnxTrExceptionMessageConstant.SCORE_MODE_IS_NOT_SUPPORTED
+                PdfOcrOnnxExceptionMessageConstant.SCORE_MODE_IS_NOT_SUPPORTED
         );
     }
 
@@ -111,7 +111,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException unexpectedMeanChannelCount(int expectedCount) {
         return new PaddleOcrInitException(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, expectedCount
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, expectedCount
         ));
     }
 
@@ -126,7 +126,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException unexpectedPostProcessorType(String name) {
         return new PaddleOcrInitException(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_POST_PROCESSOR_TYPE, name
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_POST_PROCESSOR_TYPE, name
         ));
     }
 
@@ -140,7 +140,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException unexpectedStdChannelCount(int expectedCount) {
         return new PaddleOcrInitException(MessageFormatUtil.format(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, expectedCount
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, expectedCount
         ));
     }
 
@@ -152,7 +152,7 @@ public class PaddleOcrInitException extends PdfOcrException {
      */
     public static PaddleOcrInitException useDilationIsNotSupported() {
         return new PaddleOcrInitException(
-                PdfOcrOnnxTrExceptionMessageConstant.USE_DILATION_IS_NOT_SUPPORTED
+                PdfOcrOnnxExceptionMessageConstant.USE_DILATION_IS_NOT_SUPPORTED
         );
     }
 }

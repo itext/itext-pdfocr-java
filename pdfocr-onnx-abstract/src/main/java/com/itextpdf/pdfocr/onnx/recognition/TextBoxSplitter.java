@@ -6,7 +6,7 @@
  */
 package com.itextpdf.pdfocr.onnx.recognition;
 
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnx.util.MathUtil;
 
 import java.awt.image.BufferedImage;
@@ -68,7 +68,7 @@ class TextBoxSplitter {
     public Iterator<BufferedImage> mapInputs(Iterator<BufferedImage> inputs) {
         if (!mergeQueue.isEmpty()) {
             throw new IllegalStateException(
-                    PdfOcrOnnxTrExceptionMessageConstant.CANNOT_START_ANOTHER_MAPPING_OPERATION
+                    PdfOcrOnnxExceptionMessageConstant.CANNOT_START_ANOTHER_MAPPING_OPERATION
             );
         }
         return new Iterator<BufferedImage>() {

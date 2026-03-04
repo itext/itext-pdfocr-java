@@ -47,8 +47,8 @@ public class AutoClosableUnitTest extends ExtendedITextTest {
             try (IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
                  IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
                  IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
-                 OnnxTrOcrEngine ocrEngine =
-                         new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor)) {
+                 OnnxOcrEngine ocrEngine =
+                         new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor)) {
                 ocrEngine.isTaggingSupported();
             }
         });
@@ -59,8 +59,8 @@ public class AutoClosableUnitTest extends ExtendedITextTest {
         try (IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
              IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
              IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
-             OnnxTrOcrEngine ocrEngine =
-                     new OnnxTrOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor)) {
+             OnnxOcrEngine ocrEngine =
+                     new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor)) {
             Assertions.assertDoesNotThrow(() -> ocrEngine.close());
             Assertions.assertDoesNotThrow(() -> ocrEngine.close());
         }

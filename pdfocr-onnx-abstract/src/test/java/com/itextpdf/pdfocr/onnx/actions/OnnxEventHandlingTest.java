@@ -56,9 +56,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
-public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper {
+public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
-    private static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr/onnx/actions/OnnxTrEventHandlingTest";
+    private static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr/onnx/actions/OnnxEventHandlingTest";
 
     @BeforeAll
     public static void beforeTests() {
@@ -272,7 +272,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
         validatePdfProducerLine(outPdfFile.getAbsolutePath(), expectedProdLine);
     }
 
-    // Section with OnnxTrOcrEngine#doImageOcr related tests
+    // Section with OnnxOcrEngine#doImageOcr related tests
 
     @Test
     public void doImageOcrTest() {
@@ -315,7 +315,7 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
         validateConfirmEvent(eventsHandler.getEvents().get(3), usageEvent);
     }
 
-    // Section with OnnxTrOcrEngine#createTxtFile related tests
+    // Section with OnnxOcrEngine#createTxtFile related tests
 
     @Test
     public void createTxtFileTwoImagesTest() throws IOException {
@@ -425,13 +425,13 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     }
 
     @Test
-    public void setEventCountingOnnxTrMetaInfoTest() throws IOException {
+    public void setEventCountingOnnxMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = new File(DESTINATION_FOLDER + " setEventCountingOnnxTrMetaInfo.pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + " setEventCountingOnnxMetaInfo.pdf");
 
-        createPdfAndSetEventCountingMetaInfo(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxTrMetaInfo());
+        createPdfAndSetEventCountingMetaInfo(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxMetaInfo());
 
-        // TestOnnxTrMetaInfo from com.itextpdf.pdfocr.onnxtr package which
+        // TestOnnxMetaInfo from com.itextpdf.pdfocr.onnx package which
         // is registered in ContextManager, it's why core events are discarded
         Assertions.assertEquals(2, eventsHandler.getEvents().size());
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
@@ -465,13 +465,13 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
     }
 
     @Test
-    public void createPdfFileTestOnnxTrMetaInfoTest() throws IOException {
+    public void createPdfFileTestOnnxMetaInfoTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-        File outPdfFile = new File(DESTINATION_FOLDER + "createPdfFileTestOnnxTrMetaInfo.pdf");
+        File outPdfFile = new File(DESTINATION_FOLDER + "createPdfFileTestOnnxMetaInfo.pdf");
 
-        createPdfFileAndSetMetaInfoToProps(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxTrMetaInfo());
+        createPdfFileAndSetMetaInfoToProps(OCR_ENGINE, outPdfFile, imgFile, new TestOnnxMetaInfo());
 
-        // TestOnnxTrMetaInfo from com.itextpdf.pdfocr.onnxtr package which
+        // TestOnnxMetaInfo from com.itextpdf.pdfocr.onnx package which
         // is registered in ContextManager, it's why core events are discarded
         Assertions.assertEquals(2, eventsHandler.getEvents().size());
         IEvent ocrUsageEvent = eventsHandler.getEvents().get(0);
@@ -619,6 +619,6 @@ public class OnnxTrEventHandlingTest extends IntegrationEventHandlingTestHelper 
         }
     }
 
-    private static class TestOnnxTrMetaInfo implements IMetaInfo {
+    private static class TestOnnxMetaInfo implements IMetaInfo {
     }
 }

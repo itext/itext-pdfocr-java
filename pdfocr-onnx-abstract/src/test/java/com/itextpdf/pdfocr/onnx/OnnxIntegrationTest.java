@@ -46,13 +46,13 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
-public class OnnxTRIntegrationTest extends ExtendedITextTest {
+public class OnnxIntegrationTest extends ExtendedITextTest {
     private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
-    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxTRIntegrationTest/";
+    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxTRIntegrationTest/";
-    private static OnnxTrOcrEngine OCR_ENGINE;
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxIntegrationTest/";
+    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
@@ -61,7 +61,7 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
     }
 
     @AfterAll
@@ -107,10 +107,10 @@ public class OnnxTRIntegrationTest extends ExtendedITextTest {
         OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
         Assertions.assertNotNull(recognitionPredictor.getProperties());
 
-        try (OnnxTrOcrEngine onnxTrOcrEngine = new OnnxTrOcrEngine(detectionPredictor, null, recognitionPredictor,
-                new OnnxTrEngineProperties()
+        try (OnnxOcrEngine onnxOcrEngine = new OnnxOcrEngine(detectionPredictor, null, recognitionPredictor,
+                new OnnxEngineProperties()
                         .setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS))) {
-            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(onnxTrOcrEngine,
+            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(onnxOcrEngine,
                     creatorProperties("Text1", DeviceCmyk.MAGENTA));
             try (PdfWriter writer = new PdfWriter(dest)) {
                 ocrPdfCreator.createPdf(Collections.singletonList(new File(src)), writer).close();

@@ -23,7 +23,7 @@
 package com.itextpdf.pdfocr.onnx.util;
 
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_core;
@@ -55,7 +55,7 @@ public final class OpenCvUtil {
     public static Mat binarizeMdArray(FloatBufferMdArray hwMdArray, float threshold) {
         if (hwMdArray.getDimensionCount() != 2) {
             throw new IllegalArgumentException(
-                    PdfOcrOnnxTrExceptionMessageConstant.HW_ARRAY_SHOULD_BE_TWO_DIMENSIONAL
+                    PdfOcrOnnxExceptionMessageConstant.HW_ARRAY_SHOULD_BE_TWO_DIMENSIONAL
             );
         }
 

@@ -27,7 +27,7 @@ import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.sequence.SequenceId;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
-import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxTrProductEvent;
+import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxProductEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +35,12 @@ import java.util.List;
 /**
  * Helper class for working with events.
  */
-final class OnnxTrFileResultEventHelper extends AbstractPdfOcrEventHelper {
+final class OnnxFileResultEventHelper extends AbstractPdfOcrEventHelper {
     private final AbstractPdfOcrEventHelper wrappedEventHelper;
     private final List<ConfirmEvent> events;
 
-    OnnxTrFileResultEventHelper(AbstractPdfOcrEventHelper wrappedEventHelper) {
-        this.wrappedEventHelper = wrappedEventHelper == null ? new OnnxTrEventHelper() : wrappedEventHelper;
+    OnnxFileResultEventHelper(AbstractPdfOcrEventHelper wrappedEventHelper) {
+        this.wrappedEventHelper = wrappedEventHelper == null ? new OnnxEventHelper() : wrappedEventHelper;
         this.events = new ArrayList<>();
     }
 
@@ -49,7 +49,7 @@ final class OnnxTrFileResultEventHelper extends AbstractPdfOcrEventHelper {
      */
     @Override
     public void onEvent(AbstractProductITextEvent event) {
-        if (isConfirmForProcessImageOnnxTrEvent(event)) {
+        if (isConfirmForProcessImageOnnxEvent(event)) {
             events.add((ConfirmEvent) event);
         } else {
             wrappedEventHelper.onEvent(event);
@@ -81,9 +81,9 @@ final class OnnxTrFileResultEventHelper extends AbstractPdfOcrEventHelper {
         }
     }
 
-    private static boolean isConfirmForProcessImageOnnxTrEvent(AbstractProductITextEvent event) {
+    private static boolean isConfirmForProcessImageOnnxEvent(AbstractProductITextEvent event) {
         return event instanceof ConfirmEvent &&
-                ((ConfirmEvent) event).getConfirmedEvent() instanceof PdfOcrOnnxTrProductEvent &&
-                PdfOcrOnnxTrProductEvent.PROCESS_IMAGE_ONNXTR.equals(((ConfirmEvent) event).getConfirmedEvent().getEventType());
+                ((ConfirmEvent) event).getConfirmedEvent() instanceof PdfOcrOnnxProductEvent &&
+                PdfOcrOnnxProductEvent.PROCESS_IMAGE_ONNX.equals(((ConfirmEvent) event).getConfirmedEvent().getEventType());
     }
 }

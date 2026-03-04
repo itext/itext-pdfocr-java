@@ -25,7 +25,7 @@ package com.itextpdf.pdfocr.onnx.exceptions;
 /**
  * Class that bundles all the error message templates as constants.
  */
-public final class PdfOcrOnnxTrExceptionMessageConstant {
+public final class PdfOcrOnnxExceptionMessageConstant {
     public static final String BATCH_SIZE_SHOULD_BE_POSITIVE = "Target batch size should be positive.";
     public static final String BOX_TYPE_IS_NOT_SUPPORTED =
             "Only `box_type: quad` is supported for DBPostProcess.";
@@ -95,7 +95,7 @@ public final class PdfOcrOnnxTrExceptionMessageConstant {
             "WidthMultiple should be a positive value, found {0}.";
     public static final String X_SHOULD_BE_IN_0_1_RANGE = "X should be in [0; 1] range.";
 
-    private PdfOcrOnnxTrExceptionMessageConstant() {
+    private PdfOcrOnnxExceptionMessageConstant() {
         // Private constructor will prevent the instantiation of this class directly.
     }
 }

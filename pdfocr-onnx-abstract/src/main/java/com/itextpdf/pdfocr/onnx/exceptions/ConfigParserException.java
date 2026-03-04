@@ -49,7 +49,7 @@ public class ConfigParserException extends PdfOcrException {
      */
     public static ConfigParserException unexpectedValueForKey(String key) {
         return new ConfigParserException(
-                MessageFormatUtil.format(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, key)
+                MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY, key)
         );
     }
 
@@ -63,7 +63,7 @@ public class ConfigParserException extends PdfOcrException {
      */
     public static ConfigParserException unexpectedKey(String key) {
         return new ConfigParserException(
-                MessageFormatUtil.format(PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CONFIG_KEY, key)
+                MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CONFIG_KEY, key)
         );
     }
 }

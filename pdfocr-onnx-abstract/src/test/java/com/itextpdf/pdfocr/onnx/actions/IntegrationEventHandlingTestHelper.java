@@ -43,9 +43,9 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnx.OnnxTrOcrEngine;
-import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxTrProductData;
-import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxTrProductEvent;
+import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
+import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxProductData;
+import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxProductEvent;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
@@ -75,7 +75,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
     private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
 
-    protected static OnnxTrOcrEngine OCR_ENGINE;
+    protected static OnnxOcrEngine OCR_ENGINE;
     protected StoreEventsHandler eventsHandler;
 
     @BeforeAll
@@ -83,7 +83,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
         // init ocr engine
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OCR_ENGINE = new OnnxTrOcrEngine(detectionPredictor, recognitionPredictor);
+        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
     }
 
     @AfterAll
@@ -105,11 +105,11 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     }
 
     protected static void validateUsageEvent(IEvent event, EventConfirmationType expectedConfirmationType) {
-        Assertions.assertTrue(event instanceof PdfOcrOnnxTrProductEvent);
-        Assertions.assertEquals("process-image-onnxtr", ((PdfOcrOnnxTrProductEvent) event).getEventType());
-        Assertions.assertEquals(expectedConfirmationType, ((PdfOcrOnnxTrProductEvent) event).getConfirmationType());
-        Assertions.assertEquals(PdfOcrOnnxTrProductData.getInstance(),
-                ((PdfOcrOnnxTrProductEvent) event).getProductData());
+        Assertions.assertTrue(event instanceof PdfOcrOnnxProductEvent);
+        Assertions.assertEquals("process-image-onnxtr", ((PdfOcrOnnxProductEvent) event).getEventType());
+        Assertions.assertEquals(expectedConfirmationType, ((PdfOcrOnnxProductEvent) event).getConfirmationType());
+        Assertions.assertEquals(PdfOcrOnnxProductData.getInstance(),
+                ((PdfOcrOnnxProductEvent) event).getProductData());
     }
 
     protected static void validateConfirmEvent(IEvent event, IEvent expectedConfirmedEvent) {
@@ -138,7 +138,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     }
 
     protected static ConfirmedEventWrapper getPdfOcrEvent() {
-        PdfOcrOnnxTrProductEvent event = PdfOcrOnnxTrProductEvent.createProcessImageOnnxTrEvent(new SequenceId(), null,
+        PdfOcrOnnxProductEvent event = PdfOcrOnnxProductEvent.createProcessImageOnnxEvent(new SequenceId(), null,
                 EventConfirmationType.ON_CLOSE);
         DefaultITextProductEventProcessor processor = new DefaultITextProductEventProcessor(ProductNameConstant.PDF_OCR_ONNXTR);
         return new ConfirmedEventWrapper(event, processor.getUsageType(), processor.getProducer());
@@ -203,7 +203,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
 
         @Override
         public void onEvent(IEvent event) {
-            if (event instanceof PdfOcrOnnxTrProductEvent
+            if (event instanceof PdfOcrOnnxProductEvent
                     || event instanceof PdfOcrOutputTypeStatisticsEvent
                     || event instanceof ConfirmEvent) {
                 events.add(event);

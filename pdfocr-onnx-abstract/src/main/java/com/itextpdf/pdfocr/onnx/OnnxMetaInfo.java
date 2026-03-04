@@ -22,43 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
-import com.itextpdf.commons.actions.AbstractProductITextEvent;
-import com.itextpdf.commons.actions.EventManager;
-import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
-import com.itextpdf.commons.actions.sequence.SequenceId;
-import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
+import com.itextpdf.commons.actions.contexts.IMetaInfo;
 
-/**
- * Helper class for working with events.
- */
-final class OnnxTrEventHelper extends AbstractPdfOcrEventHelper {
-
-    OnnxTrEventHelper() {
-        // Do nothing.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onEvent(AbstractProductITextEvent event) {
-        EventManager.getInstance().onEvent(event);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public EventConfirmationType getConfirmationType() {
-        return EventConfirmationType.ON_DEMAND;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SequenceId getSequenceId() {
-        return new SequenceId();
-    }
-
+final class OnnxMetaInfo implements IMetaInfo {
 }

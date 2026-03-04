@@ -28,7 +28,7 @@ import com.itextpdf.pdfocr.onnx.conf.paddle.model.CtcLabelDecode;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.DbPostProcess;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.ScoreMode;
 import com.itextpdf.pdfocr.onnx.exceptions.ConfigParserException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.util.Arrays;
@@ -67,7 +67,7 @@ public class PostProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PostProcess"
                 ),
                 ex.getMessage()
@@ -84,7 +84,7 @@ public class PostProcessParserTest extends ExtendedITextTest {
         );
         Assertions.assertEquals(
                 MessageFormatUtil.format(
-                        PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
+                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_VALUE_FOR_CONFIG_KEY,
                         "PostProcess.name"
                 ),
                 ex.getMessage()

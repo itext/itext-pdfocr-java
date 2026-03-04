@@ -37,7 +37,7 @@ import com.itextpdf.pdfocr.onnx.conf.paddle.model.RecResizeImg;
 import com.itextpdf.pdfocr.onnx.conf.paddle.model.TransformOp;
 import com.itextpdf.pdfocr.onnx.conf.paddle.parser.InferenceConfigParser;
 import com.itextpdf.pdfocr.onnx.exceptions.PaddleOcrInitException;
-import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxTrExceptionMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -1588,7 +1588,7 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
         }
         // Should not get here
         throw new IllegalStateException(
-                PdfOcrOnnxTrExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION
+                PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION
         );
     }
 
