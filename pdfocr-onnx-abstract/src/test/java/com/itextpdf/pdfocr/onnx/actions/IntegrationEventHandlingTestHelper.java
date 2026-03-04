@@ -46,10 +46,7 @@ import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
 import com.itextpdf.pdfocr.onnx.actions.data.PdfOcrOnnxProductData;
 import com.itextpdf.pdfocr.onnx.actions.events.PdfOcrOnnxProductEvent;
-import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.test.ExtendedITextTest;
 
@@ -60,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -72,8 +68,6 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     protected static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/";
     protected static final String TEST_IMAGE_DIRECTORY = TEST_DIRECTORY + "images/";
     protected static final String TEST_PDFS_DIRECTORY = TEST_DIRECTORY + "pdfs/";
-    private static final String FAST = TEST_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
-    private static final String CRNNVGG16 = TEST_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
 
     protected static OnnxOcrEngine OCR_ENGINE;
     protected StoreEventsHandler eventsHandler;
@@ -81,14 +75,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     @BeforeAll
     public static void beforeClass() {
         // init ocr engine
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        OCR_ENGINE.close();
+        OCR_ENGINE = OcrEngineType.DOCTR.get();
     }
 
     @BeforeEach

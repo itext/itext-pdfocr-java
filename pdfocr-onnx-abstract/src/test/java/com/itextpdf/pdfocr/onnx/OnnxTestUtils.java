@@ -22,15 +22,27 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
+import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.onnx.util.MathUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.junit.jupiter.api.Assertions;
 
 public class OnnxTestUtils {
 
@@ -45,6 +57,35 @@ public class OnnxTestUtils {
     protected static String getTextFromImage(File imageFile, IOcrEngine ocrEngine) {
         Map<Integer, List<TextInfo>> integerListMap = ocrEngine.doImageOcr(imageFile);
         return getStringFromListMap(integerListMap);
+    }
+
+    protected static void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine) throws IOException {
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties()
+                .setTextLayerName("Text1").setTextColor(DeviceCmyk.MAGENTA);
+        doOcrAndCreatePdf(imagePath, destPdfPath, ocrEngine, ocrPdfCreatorProperties);
+    }
+
+    protected static void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine, OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(ocrEngine, ocrPdfCreatorProperties);
+        try (PdfWriter writer = new PdfWriter(destPdfPath)) {
+            ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
+        }
+    }
+
+    protected static void extractTextAndCompare(String dest, String cmpTxt, String layerName, double expRelDistance) throws IOException {
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, layerName);
+            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
+            String outText = extractionStrategy.getResultantText();
+            String cmpText = getCmpText(cmpTxt);
+            double relativeDistance = (double) MathUtil.calculateLevenshteinDistance(cmpText, outText) / cmpText.length();
+            Assertions.assertTrue(relativeDistance < expRelDistance, "Expected: \"" + cmpText + "\", but was: \"" + outText + "\"");
+        }
+    }
+
+    private static String getCmpText(String txtPath) throws IOException {
+        byte[] bytes = Files.readAllBytes(Paths.get(txtPath));
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     private static String getStringFromListMap(Map<Integer, List<TextInfo>> listMap) {

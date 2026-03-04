@@ -26,19 +26,16 @@ import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -46,26 +43,14 @@ import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class OnnxMultiFilesIntegrationTest extends ExtendedITextTest {
+    private static final String FONT_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/fonts/";
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/";
-    private static final String FAST = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
-    private static final String CRNNVGG16 = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
-    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
-
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-
-        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        OCR_ENGINE.close();
     }
 
     @Test
@@ -80,10 +65,9 @@ public class OnnxMultiFilesIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "multiFiles.pdf";
         String cmp = TEST_DIRECTORY + "cmp_multiFiles.pdf";
 
-
         OcrPdfCreatorProperties properties = creatorProperties("Text1", "Image1", DeviceCmyk.CYAN);
 
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OCR_ENGINE, properties);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OcrEngineType.PADDLE.get(), properties);
         try (PdfWriter writer = new PdfWriter(dest)) {
             ocrPdfCreator.createPdf(files, writer).close();
         }
@@ -96,6 +80,9 @@ public class OnnxMultiFilesIntegrationTest extends ExtendedITextTest {
         ocrPdfCreatorProperties.setTextLayerName(textLayerName);
         ocrPdfCreatorProperties.setTextColor(color);
         ocrPdfCreatorProperties.setImageLayerName(imageLayerName);
+        FontProvider fontProvider = new FontProvider();
+        fontProvider.addDirectory(FONT_DIRECTORY);
+        ocrPdfCreatorProperties.setFontProvider(fontProvider);
         return ocrPdfCreatorProperties;
     }
 }

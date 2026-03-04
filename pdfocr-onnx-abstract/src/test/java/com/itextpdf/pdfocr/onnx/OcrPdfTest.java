@@ -26,46 +26,27 @@ import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
-import com.itextpdf.pdfocr.onnx.orientation.OnnxOrientationPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.util.OcrEngineTypeWithOrientation;
 import com.itextpdf.test.ExtendedITextTest;
 
-import java.io.File;
-import java.io.IOException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 @Tag("IntegrationTest")
 public class OcrPdfTest extends ExtendedITextTest {
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OcrPdfTest/";
     private static final String TEST_PDFS_DIRECTORY = TEST_DIRECTORY + "../pdfs/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OcrPdfTest/";
-    private static final String FAST = TEST_DIRECTORY + "../models/rep_fast_tiny-28867779.onnx";
-    private static final String CRNNVGG16 = TEST_DIRECTORY + "../models/crnn_vgg16_bn-662979cc.onnx";
-    private static final String MOBILENETV3 = TEST_DIRECTORY + "../models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
-    private static OnnxOcrEngine OCR_ENGINE;
+
 
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
-
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-
-        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        OCR_ENGINE.close();
     }
 
     @Test
@@ -156,7 +137,7 @@ public class OcrPdfTest extends ExtendedITextTest {
         if (ocrPdfCreatorProperties == null) {
             ocrPdfCreatorProperties = new OcrPdfCreatorProperties().setTextColor(DeviceCmyk.MAGENTA);
         }
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OcrEngineTypeWithOrientation.DOCTR.get(), ocrPdfCreatorProperties);
         ocrPdfCreator.makePdfSearchable(new File(srcPath), new File(outPath));
         Assertions.assertNull(new CompareTool().compareByContent(outPath, cmpPath, TARGET_DIRECTORY, "diff_"));
     }

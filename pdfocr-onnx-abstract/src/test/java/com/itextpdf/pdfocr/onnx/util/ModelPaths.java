@@ -37,6 +37,7 @@ public class ModelPaths {
     private static String easyRecognitionModel;
     private static String docTrDetectionModel;
     private static String docTrRecognitionModel;
+    private static String orientationModel;
 
     public static String getPaddleOcrDetectionModel() {
         if (paddleDetectionModel == null) {
@@ -47,7 +48,7 @@ public class ModelPaths {
 
     public static String getPaddleOcrRecognitionModel() {
         if (paddleRecognitionModel == null) {
-            paddleRecognitionModel = "./src/test/resources/com/itextpdf/pdfocr/models/paddleocr/PP-OCRv5_mobile_rec_infer/";
+            paddleRecognitionModel = "./src/test/resources/com/itextpdf/pdfocr/models/paddleocr/recognition/PP-OCRv5_mobile_rec_infer/";
         }
         return paddleRecognitionModel;
     }
@@ -61,7 +62,7 @@ public class ModelPaths {
 
     public static String getEasyOcrRecognitionModel() {
         if (easyRecognitionModel == null) {
-            easyRecognitionModel = "./src/test/resources/com/itextpdf/pdfocr/models/easyocr/latin_g2.onnx";
+            easyRecognitionModel = "./src/test/resources/com/itextpdf/pdfocr/models/easyocr/recognition/latin_g2.onnx";
         }
         return easyRecognitionModel;
     }
@@ -78,5 +79,12 @@ public class ModelPaths {
             docTrRecognitionModel = "./src/test/resources/com/itextpdf/pdfocr/models/crnn_vgg16_bn-662979cc.onnx";
         }
         return docTrRecognitionModel;
+    }
+
+    public static String getOrientationModel() {
+        if (orientationModel == null) {
+            orientationModel = "./src/test/resources/com/itextpdf/pdfocr/models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
+        }
+        return orientationModel;
     }
 }

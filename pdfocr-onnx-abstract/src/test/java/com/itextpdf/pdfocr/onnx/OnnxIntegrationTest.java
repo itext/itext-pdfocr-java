@@ -30,21 +30,19 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.text.TextPositioning;
+import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 
 @Tag("IntegrationTest")
 public class OnnxIntegrationTest extends ExtendedITextTest {
@@ -58,16 +56,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
-
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-
-        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        OCR_ENGINE.close();
+        OCR_ENGINE = OcrEngineType.DOCTR.get();
     }
 
     @Test
@@ -78,23 +67,6 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
 
         doOcrAndCreatePdf(src, dest);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-    }
-
-    @Test
-    public void bmpTest() throws IOException, InterruptedException {
-        String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
-        String dest = TARGET_DIRECTORY + "bmpTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_bmpTest.pdf";
-
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("This a test\n1S\nmessage for\n-\nOCR Scanner\nTest\nBMPTest",
-                    extractionStrategy.getResultantText());
-        }
     }
 
     @Test
@@ -194,45 +166,6 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void gifTest() throws IOException, InterruptedException {
-        String src = TEST_IMAGE_DIRECTORY + "weirdwords.gif";
-        String dest = TARGET_DIRECTORY + "gifTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_gifTest.pdf";
-
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("qwetyrtyqpwe-rty\nhe23llo", extractionStrategy.getResultantText());
-        }
-    }
-
-    @Test
-    public void multipageTiffTest() throws IOException, InterruptedException {
-        String src = TEST_IMAGE_DIRECTORY + "multipage.tiff";
-        String dest = TARGET_DIRECTORY + "multipageTiffTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_multipageTiffTest.pdf";
-
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage\n1", extractionStrategy.getResultantText());
-
-            extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 7, "Text1");
-            // Model glitch
-            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage /", extractionStrategy.getResultantText());
-
-            extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 9, "Text1");
-            Assertions.assertEquals("Multipage\nTIFF\nExample\nPage 9", extractionStrategy.getResultantText());
-        }
-    }
-
-    @Test
     public void scannedTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "scanned_spa_01.png";
         String dest = TARGET_DIRECTORY + "scannedTest.pdf";
@@ -261,7 +194,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void halftoneTest() throws IOException, InterruptedException {
+    public void halftoneTest() throws IOException {
         String src = TEST_IMAGE_DIRECTORY + "halftone.jpg";
         String dest = TARGET_DIRECTORY + "halftoneTest.pdf";
 
@@ -345,16 +278,6 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void greekDocTest() throws IOException, InterruptedException {
-        String src = TEST_IMAGE_DIRECTORY + "greek_01.jpg";
-        String dest = TARGET_DIRECTORY + "greekTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_greekTest.pdf";
-
-        doOcrAndCreatePdf(src, dest);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-    }
-
-    @Test
     public void hindiDocTest() throws IOException, InterruptedException {
         String src = TEST_IMAGE_DIRECTORY + "hindi_01.jpg";
         String dest = TARGET_DIRECTORY + "hindiTest.pdf";
@@ -384,16 +307,6 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
-    @Test
-    public void thaiDocTest() throws IOException, InterruptedException {
-        String src = TEST_IMAGE_DIRECTORY + "thai_01.jpg";
-        String dest = TARGET_DIRECTORY + "thaiTest.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_thaiTest.pdf";
-
-        doOcrAndCreatePdf(src, dest);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-    }
-
     private OcrPdfCreatorProperties creatorProperties(String layerName, Color color) {
         OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
         ocrPdfCreatorProperties.setTextLayerName(layerName);
@@ -402,7 +315,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     }
 
     private void doOcrAndCreatePdf(String imagePath, String destPdfPath,
-            OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
+                                   OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
         OcrPdfCreator ocrPdfCreator =
                 ocrPdfCreatorProperties != null ? new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties)
                         : new OcrPdfCreator(OCR_ENGINE);

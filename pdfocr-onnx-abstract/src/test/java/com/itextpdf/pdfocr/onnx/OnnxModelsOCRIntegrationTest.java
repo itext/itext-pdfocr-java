@@ -22,26 +22,13 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
-import com.itextpdf.kernel.colors.DeviceCmyk;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
-import com.itextpdf.pdfocr.OcrPdfCreator;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
-import com.itextpdf.pdfocr.onnx.util.MathUtil;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,38 +64,48 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_bmp.pdf";
         String cmpTxt = TEST_DIRECTORY + "bmp.txt";
 
-        doOcrAndCreatePdf(src, dest, ocrEngine);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         extractTextAndCompare(dest, cmpTxt);
     }
 
-    private void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine) throws IOException {
-        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(ocrEngine, new OcrPdfCreatorProperties()
-                .setTextLayerName("Text1").setTextColor(DeviceCmyk.MAGENTA));
-        try (PdfWriter writer = new PdfWriter(destPdfPath)) {
-            ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
-        }
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ocrEngines")
+    public void invoiceThaiTest(OcrEngineType engineType)
+            throws IOException, InterruptedException {
+        IOcrEngine ocrEngine = engineType.get();
+        String name = engineType.getDisplayName();
+
+        String cmp = TEST_DIRECTORY + "cmp_" + name + "_invoice_front_thai.pdf";
+        String src = TEST_IMAGE_DIRECTORY + "invoice_front_thai.jpg";
+        String dest = TARGET_DIRECTORY + name + "_invoice_front_thai.pdf";
+        String cmpTxt = TEST_DIRECTORY + "invoice_front_thai.txt";
+
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+
+        OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.31);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ocrEngines")
+    public void weirdWordsGifTest(OcrEngineType engineType) throws IOException, InterruptedException {
+        IOcrEngine ocrEngine = engineType.get();
+        String name = engineType.getDisplayName();
+
+        String src = TEST_IMAGE_DIRECTORY + "weirdwords.gif";
+        String dest = TARGET_DIRECTORY + name + "_weirdwords.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_" + name + "_weirdwords.pdf";
+        String cmpTxt = TEST_DIRECTORY + "weirdwords.txt";
+
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+
+        OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.7);
     }
 
     private void extractTextAndCompare(String dest, String cmpTxt) throws IOException {
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            String outText = extractionStrategy.getResultantText();
-            String cmpText = getCmpText(cmpTxt);
-            double relativeDistance = (double) MathUtil.calculateLevenshteinDistance(cmpText, outText) / cmpText.length();
-            Assertions.assertTrue(relativeDistance < 0.16, "Expected: \"" + cmpText + "\", but was: \"" + outText + "\"");
-        }
-    }
-
-    private String getCmpText(String txtPath) throws IOException {
-        int bytesCount = (int) new File(txtPath).length();
-        char[] array = new char[bytesCount];
-        try (InputStreamReader stream =
-                     new InputStreamReader(Files.newInputStream(Paths.get(txtPath)), StandardCharsets.UTF_8)) {
-            stream.read(array, 0, bytesCount);
-            return new String(array);
-        }
+        OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.16);
     }
 }

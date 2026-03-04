@@ -24,12 +24,7 @@ package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.pdfocr.OcrProcessContext;
-import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
-import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
-import com.itextpdf.pdfocr.onnx.orientation.OnnxOrientationPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
-import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.util.OcrEngineTypeWithOrientation;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
@@ -37,7 +32,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -50,26 +44,11 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
     private static final String TEST_IMAGE_DIRECTORY = BASE_DIRECTORY + "images/";
     private static final String SOURCE_DIRECTORY = BASE_DIRECTORY + "OnnxCreateTxtFileTest/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxCreateTxtFileTest/";
-    private static final String FAST = BASE_DIRECTORY + "models/rep_fast_tiny-28867779.onnx";
-    private static final String CRNNVGG16 = BASE_DIRECTORY + "models/crnn_vgg16_bn-662979cc.onnx";
-    private static final String MOBILENETV3 = BASE_DIRECTORY + "models/mobilenet_v3_small_crop_orientation-5620cf7e.onnx";
 
-    private static OnnxOcrEngine OCR_ENGINE;
 
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
-
-        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
-
-        OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor);
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        OCR_ENGINE.close();
     }
 
     @Test
@@ -90,7 +69,7 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
         for (String sourceImage : sourceImages) {
             images.add(new File(sourceImage));
         }
-        OCR_ENGINE.createTxtFile(images, new File(outputPath), new OcrProcessContext(null));
+        OcrEngineTypeWithOrientation.DOCTR.get().createTxtFile(images, new File(outputPath), new OcrProcessContext(null));
         Assertions.assertNull(compareTxt(cmpPath, outputPath));
     }
 
