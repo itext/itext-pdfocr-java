@@ -22,6 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
+import com.itextpdf.pdfocr.onnx.text.TextPositioning;
+
 import java.io.File;
 import java.util.List;
 
@@ -42,31 +44,16 @@ public class OnnxEngineProperties {
      * It changes the way text is selected in the result pdf document.
      * Does not affect the result of {@link com.itextpdf.pdfocr.IOcrEngine#createTxtFile(List, File)}.
      */
-    private com.itextpdf.pdfocr.onnx.text.TextPositioning textPositioning =
-            com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS_AND_LINES;
-
-    /**
-     * Defines the way text is retrieved from ocr engine output using {@link TextPositioning}.
-     *
-     * @return the way text is retrieved
-     *
-     * @deprecated in favour of {@link #getTextPositioningMode()}
-     */
-    @Deprecated
-    public TextPositioning getTextPositioning() {
-        if (com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS.equals(textPositioning)) {
-            return TextPositioning.BY_WORDS;
-        }
-        return TextPositioning.BY_LINES;
-    }
+    private TextPositioning textPositioning =
+            TextPositioning.BY_WORDS_AND_LINES;
 
     /**
      * Gets the way text is retrieved from ocr engine output
-     * using {@link com.itextpdf.pdfocr.onnx.text.TextPositioning}.
+     * using {@link TextPositioning}.
      *
      * @return the way text is retrieved
      */
-    public com.itextpdf.pdfocr.onnx.text.TextPositioning getTextPositioningMode() {
+    public TextPositioning getTextPositioningMode() {
         return textPositioning;
     }
 
@@ -77,28 +64,8 @@ public class OnnxEngineProperties {
      * @param textPositioning the way text is retrieved
      *
      * @return the {@link OnnxEngineProperties} instance
-     *
-     * @deprecated in favour of {@link #setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning)}
      */
-    @Deprecated
     public OnnxEngineProperties setTextPositioning(TextPositioning textPositioning) {
-        if (TextPositioning.BY_LINES.equals(textPositioning)) {
-            this.textPositioning = com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS_AND_LINES;
-        } else {
-            this.textPositioning = com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS;
-        }
-        return this;
-    }
-
-    /**
-     * Defines the way text is retrieved from ocr engine output
-     * using {@link com.itextpdf.pdfocr.onnx.text.TextPositioning}.
-     *
-     * @param textPositioning the way text is retrieved
-     *
-     * @return the {@link OnnxEngineProperties} instance
-     */
-    public OnnxEngineProperties setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning textPositioning) {
         this.textPositioning = textPositioning;
         return this;
     }

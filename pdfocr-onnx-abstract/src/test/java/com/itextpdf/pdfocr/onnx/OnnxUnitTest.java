@@ -50,22 +50,30 @@ public class OnnxUnitTest extends ExtendedITextTest {
 
     @Test
     public void emptyImageInputTest() {
+        ImageResizeOptions imageResizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB,
+                1024, 1024,
+                PaddingStrategy.SYMMETRIC_BLACK
+        );
         float[] mean = new float[]{0.798F, 0.785F, 0.772F};
         float[] std = new float[]{0.264F, 0.2749F, 0.287F};
-        long[] shape = new long[]{2, 3, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
-                BufferedImageUtil.toBchwInput(new ArrayList<>(), new OnnxInputProperties(mean, std, shape, true)));
+                BufferedImageUtil.toBchwInput(new ArrayList<>(), new OnnxInputProperties(imageResizeOptions, mean, std)));
         Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.SHOULD_BE_AT_LEAST_ONE_IMAGE, e.getMessage());
     }
 
     @Test
     public void tooManyImagesTest() {
+        ImageResizeOptions imageResizeOptions = new ImageResizeOptions(
+                ImageChannelConfiguration.RGB,
+                1024, 1024,
+                PaddingStrategy.SYMMETRIC_BLACK
+        );
         float[] mean = new float[]{0.798F, 0.785F, 0.772F};
         float[] std = new float[]{0.264F, 0.2749F, 0.287F};
-        long[] shape = new long[]{1, 3, 1024, 1024};
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
                 BufferedImageUtil.toBchwInput(OnnxOcrEngine.getImages(new File(TIFF)),
-                        new OnnxInputProperties(mean, std, shape, true)));
+                        new OnnxInputProperties(imageResizeOptions, mean, std)));
         Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.TOO_MANY_IMAGES, 2, 1),
                 e.getMessage());
     }
@@ -101,12 +109,9 @@ public class OnnxUnitTest extends ExtendedITextTest {
         Assertions.assertEquals(properties, properties);
         Assertions.assertNotEquals(properties, null);
         Assertions.assertNotEquals(properties, OnnxDetectionPredictorProperties.dbNet("model2"));
+        ImageResizeOptions imageResizeOptions = new ImageResizeOptions(ImageChannelConfiguration.RGB, 32, 128);
         OnnxInputProperties inputProperties = new OnnxInputProperties(
-                new float[]{1F, 1F, 1F},
-                new float[]{1F, 1F, 1F},
-                new long[]{512, 3, 32, 128},
-                false
-        );
+                imageResizeOptions, new float[]{1F, 1F, 1F}, new float[]{1F, 1F, 1F});
         Assertions.assertNotEquals(properties, new OnnxDetectionPredictorProperties(model, inputProperties,
                 new OnnxDetectionPostProcessor()));
         Assertions.assertNotEquals(new OnnxDetectionPredictorProperties(model, inputProperties,
@@ -122,27 +127,13 @@ public class OnnxUnitTest extends ExtendedITextTest {
         Assertions.assertNotEquals(properties, OnnxRecognitionPredictorProperties.crnnMobileNetV3("model"));
         Assertions.assertEquals(properties, properties);
         Assertions.assertNotEquals(properties, null);
+        ImageResizeOptions imageResizeOptions = new ImageResizeOptions(ImageChannelConfiguration.RGB, 32, 128);
         OnnxInputProperties inputProperties = new OnnxInputProperties(
-                new float[]{1F, 1F, 1F},
-                new float[]{1F, 1F, 1F},
-                new long[]{512, 3, 32, 128},
-                false
-        );
+                imageResizeOptions, new float[]{1F, 1F, 1F}, new float[]{1F, 1F, 1F});
         Assertions.assertNotEquals(properties, new OnnxRecognitionPredictorProperties("model", inputProperties,
                 new CrnnPostProcessor(Vocabulary.LEGACY_FRENCH)));
         Assertions.assertNotEquals(new OnnxRecognitionPredictorProperties("model", inputProperties,
                 new CrnnPostProcessor(Vocabulary.FRENCH)), new OnnxRecognitionPredictorProperties("model",
                 inputProperties, new CrnnPostProcessor(Vocabulary.ENGLISH)));
     }
-
-    @Test
-    public void deprecatedTextPositioningTest() {
-        OnnxEngineProperties properties = new OnnxEngineProperties();
-        Assertions.assertEquals(TextPositioning.BY_LINES, properties.getTextPositioning());
-        properties.setTextPositioning(TextPositioning.BY_WORDS);
-        Assertions.assertEquals(TextPositioning.BY_WORDS, properties.getTextPositioning());
-        properties.setTextPositioning(TextPositioning.BY_LINES);
-        Assertions.assertEquals(TextPositioning.BY_LINES, properties.getTextPositioning());
-    }
-
 }

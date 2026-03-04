@@ -37,15 +37,6 @@ import java.util.Objects;
  */
 public class OnnxInputProperties {
     /**
-     * Expected channel count. We expect RGB format.
-     *
-     * @deprecated Grayscale and BGR are now supported as well. Check the
-     *             documentation for more information.
-     */
-    @Deprecated
-    public static final int EXPECTED_CHANNEL_COUNT = 3;
-
-    /**
      * Expected shape size. We expect the standard BCHW format (batch, channel, height, width).
      */
     public static final int EXPECTED_SHAPE_SIZE = 4;
@@ -78,57 +69,6 @@ public class OnnxInputProperties {
      * to bump this value as high as your VRAM allows you to.
      */
     private final int batchSize;
-
-    /**
-     * Creates model input properties.
-     *
-     * @param mean per-channel mean, used for normalization. Should be EXPECTED_CHANNEL_COUNT length
-     * @param std per-channel standard deviation, used for normalization. Should be EXPECTED_CHANNEL_COUNT length
-     * @param shape target input shape. Should be EXPECTED_SHAPE_SIZE length
-     * @param symmetricPad whether padding should be symmetrical during input resizing
-     *
-     * @deprecated This is the original constructor, which only supported RGB inputs with a static
-     *             width/height and black pixel values padding. Use constructors with an
-     *             ImageResizeOptions parameter instead.
-     */
-    @Deprecated
-    public OnnxInputProperties(float[] mean, float[] std, long[] shape, boolean symmetricPad) {
-        Objects.requireNonNull(mean);
-        if (mean.length != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MEAN_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
-        }
-        Objects.requireNonNull(std);
-        if (std.length != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_STD_CHANNEL_COUNT, EXPECTED_CHANNEL_COUNT));
-        }
-        Objects.requireNonNull(shape);
-        if (shape.length != EXPECTED_SHAPE_SIZE) {
-            throw new IllegalArgumentException(MessageFormatUtil.format(
-                    PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_SHAPE_SIZE, EXPECTED_SHAPE_SIZE));
-        }
-        if (shape[1] != EXPECTED_CHANNEL_COUNT) {
-            throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.MODEL_ONLY_SUPPORTS_RGB);
-        }
-        for (final long dim : shape) {
-            if (dim <= 0 || ((int) dim) != dim) {
-                throw new IllegalArgumentException(MessageFormatUtil.format(
-                        PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_DIMENSION_VALUE, dim));
-            }
-        }
-
-        this.mean = new float[mean.length];
-        System.arraycopy(mean, 0, this.mean, 0, mean.length);
-        this.std = new float[std.length];
-        System.arraycopy(std, 0, this.std, 0, std.length);
-        this.imageResizeOptions = new ImageResizeOptions(
-                ImageChannelConfiguration.RGB,
-                (int) shape[3], (int) shape[2],
-                (symmetricPad ? PaddingStrategy.SYMMETRIC_BLACK : PaddingStrategy.BOTTOM_RIGHT_BLACK)
-        );
-        this.batchSize = (int) shape[0];
-    }
 
     /**
      * Creates model input properties.

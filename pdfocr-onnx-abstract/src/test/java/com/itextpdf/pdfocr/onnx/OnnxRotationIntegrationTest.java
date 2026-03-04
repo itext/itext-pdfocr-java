@@ -36,6 +36,7 @@ import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.text.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class OnnxRotationIntegrationTest extends ExtendedITextTest {
 
         OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor,
                 new OnnxEngineProperties()
-                        .setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS));
+                        .setTextPositioning(TextPositioning.BY_WORDS));
         OCR_ENGINE_GROUPING_BY_LINES = new OnnxOcrEngine(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
     }

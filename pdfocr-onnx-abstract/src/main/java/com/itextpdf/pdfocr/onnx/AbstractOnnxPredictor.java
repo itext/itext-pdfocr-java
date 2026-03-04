@@ -96,25 +96,6 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
      * Creates a new abstract predictor.
      *
      * <p>
-     * If the specified model does not match input and output properties, it will throw an exception.
-     *
-     * @param modelPath path to the ONNX runtime model to load
-     * @param inputProperties expected input properties of a model
-     * @param outputShape expected shape of the output. -1 entries mean that the dimension can be
-     *                    of any size (ex. batch size)
-     *
-     * @deprecated in favour of {@link AbstractOnnxPredictor#AbstractOnnxPredictor(AbstractOnnxPredictorProperties, long[])}
-     */
-    @Deprecated
-    // With removing this constructor also remove AbstractOnnxPredictor(String, OnnxInputProperties, long[], IOrtSessionOptionsCreator)
-    protected AbstractOnnxPredictor(String modelPath, OnnxInputProperties inputProperties, long[] outputShape) {
-        this(modelPath, inputProperties, outputShape, DEFAULT_ORT_SESSION_CREATOR);
-    }
-
-    /**
-     * Creates a new abstract predictor.
-     *
-     * <p>
      * If the specified in properties model does not match input and output properties, it will throw an exception.
      *
      * @param predictorProperties the predictor properties
@@ -122,29 +103,24 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
      *                     of any size (ex. batch size)
      */
     protected AbstractOnnxPredictor(AbstractOnnxPredictorProperties predictorProperties, long[] outputShape) {
-        this(predictorProperties.getModelPath(), predictorProperties.getInputProperties(), outputShape,
-                predictorProperties.getOrtSessionOptionsCreator());
-    }
-
-    private AbstractOnnxPredictor(String modelPath, OnnxInputProperties inputProperties, long[] outputShape,
-            IOrtSessionOptionsCreator ortSessionCreator) {
-        this.inputProperties = Objects.requireNonNull(inputProperties);
+        this.inputProperties = Objects.requireNonNull(predictorProperties.getInputProperties());
 
         try {
-            this.sessionOptions = ortSessionCreator.create();
+            this.sessionOptions = predictorProperties.getOrtSessionOptionsCreator().create();
         } catch (OrtException e) {
             throw new PdfOcrException(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_INIT_SESSION_OPTIONS, e);
         }
 
         try {
-            this.session = OrtEnvironment.getEnvironment().createSession(modelPath, sessionOptions);
+            this.session = OrtEnvironment.getEnvironment().createSession(predictorProperties.getModelPath(),
+                    sessionOptions);
         } catch (Exception e) {
             this.sessionOptions.close();
             throw new PdfOcrException(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_INIT_ONNX_RUNTIME_SESSION, e);
         }
 
         try {
-            this.inputName = validateModel(this.session, inputProperties, outputShape);
+            this.inputName = validateModel(this.session, this.inputProperties, outputShape);
         } catch (Exception e) {
             final PdfOcrException userException = new PdfOcrException(
                     PdfOcrOnnxExceptionMessageConstant.MODEL_DID_NOT_PASS_VALIDATION, e);

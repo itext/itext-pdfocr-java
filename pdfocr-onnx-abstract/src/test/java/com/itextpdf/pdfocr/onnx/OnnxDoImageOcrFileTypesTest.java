@@ -26,6 +26,7 @@ import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.text.TextPositioning;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.io.File;
@@ -52,7 +53,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
 
         OCR_ENGINE = new OnnxOcrEngine(detectionPredictor, null, recognitionPredictor, new OnnxEngineProperties()
-                .setTextPositioning(com.itextpdf.pdfocr.onnx.text.TextPositioning.BY_WORDS));
+                .setTextPositioning(TextPositioning.BY_WORDS));
     }
 
     @AfterAll

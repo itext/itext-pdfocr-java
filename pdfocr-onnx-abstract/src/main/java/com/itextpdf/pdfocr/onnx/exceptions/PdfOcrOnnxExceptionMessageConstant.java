@@ -62,8 +62,6 @@ public final class PdfOcrOnnxExceptionMessageConstant {
     public static final String MODEL_DID_NOT_PASS_VALIDATION = "ONNX Runtime model did not pass validation.";
     public static final String MODEL_ONLY_SUPPORTS_RGB = "Model only supports RGB images with a BCHW input format.";
     public static final String NEGATIVE_VALUE_IN_SHAPE = "Received negative value in shape {0}.";
-    @Deprecated
-    public static final String ONLY_SUPPORT_RGB_IMAGES = "Method toBchwInput only support RGB images.";
     public static final String ONNX_RUNTIME_OPERATION_FAILED = "ONNX Runtime operation failed.";
     public static final String PRE_PROCESSOR_OPERATION_MISSING =
             "Expected pre-processor operation is missing: {0}.";
