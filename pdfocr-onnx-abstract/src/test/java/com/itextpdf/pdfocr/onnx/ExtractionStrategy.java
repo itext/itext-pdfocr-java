@@ -81,7 +81,7 @@ public class ExtractionStrategy extends LocationTextExtractionStrategy {
         }
 
         return curLoc.distParallelEnd() - prevLoc.distParallelStart() >
-                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth()) / 2.0f;
+                (curLoc.getCharSpaceWidth() + prevLoc.getCharSpaceWidth()) / 2.0F;
     }
 
     private String getTagName(IEventData data, EventType type) {

@@ -22,20 +22,25 @@
  */
 package com.itextpdf.pdfocr.onnx.text;
 
+import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnx.OnnxEngineProperties;
 import com.itextpdf.pdfocr.onnx.OnnxOcrEngine;
+import com.itextpdf.pdfocr.onnx.detection.EasyOcrDetectionPostProcessor;
 import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
+import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictorProperties;
 import com.itextpdf.pdfocr.onnx.recognition.EasyOcrMapper;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.util.ModelPaths;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * This enum is created for {@link TextPositioningModeTest} and should be used in it only
+ * This enum is created for {@link TextPositioningModeDocTrTest}, {@link TextPositioningModeEasyOcrTest} and
+ * {@link TextPositioningModePaddleOcrTest} tests and should be used in these test classes only
  * since all engines (and so predictors) will be closed after these tests, and it won't be possible to reuse them.
  */
 public enum OcrEngineTypeWithTextPositioning {
@@ -73,12 +78,6 @@ public enum OcrEngineTypeWithTextPositioning {
         return this.displayName;
     }
 
-    public static OcrEngineTypeWithTextPositioning[] all() {
-        return new OcrEngineTypeWithTextPositioning[]{PADDLE_LINES, EASY_LINES, DOCTR_LINES,
-                PADDLE_WORDS, EASY_WORDS, DOCTR_WORDS,
-                PADDLE_WORDS_AND_LINES, EASY_WORDS_AND_LINES, DOCTR_WORDS_AND_LINES};
-    }
-
     private static IDetectionPredictor paddleDetectionPredictor;
     private static IRecognitionPredictor paddleRecognitionPredictor;
     private static IDetectionPredictor easyDetectionPredictor;
@@ -103,10 +102,20 @@ public enum OcrEngineTypeWithTextPositioning {
 
     private static OnnxOcrEngine createEasyOcrEngine(TextPositioning textPositioning) {
         if (easyDetectionPredictor == null) {
-            easyDetectionPredictor = OnnxDetectionPredictor.easyOcr(ModelPaths.getEasyOcrDetectionModel());
+            OnnxDetectionPredictorProperties tempProperties =
+                    OnnxDetectionPredictorProperties.easyOcr(ModelPaths.getEasyOcrDetectionModel());
+            OnnxDetectionPredictorProperties properties =
+                    new OnnxDetectionPredictorProperties(
+                            tempProperties.getModelPath(),
+                            tempProperties.getInputProperties(),
+                            new TextBoxMergeAgnosticEasyOcrDetectionPostProcessor(),
+                            tempProperties.getOrtSessionOptionsCreator()
+                    );
+            easyDetectionPredictor = new OnnxDetectionPredictor(properties);
         }
         if (easyRecognitionPredictor == null) {
-            easyRecognitionPredictor = OnnxRecognitionPredictor.easyOcr(ModelPaths.getEasyOcrRecognitionModel(), EasyOcrMapper.LATIN_G2);
+            easyRecognitionPredictor = OnnxRecognitionPredictor.easyOcr(ModelPaths.getEasyOcrRecognitionModel(),
+                    EasyOcrMapper.LATIN_G2);
         }
         return new OnnxOcrEngine(easyDetectionPredictor, null, easyRecognitionPredictor,
                 new OnnxEngineProperties().setTextPositioning(textPositioning));
@@ -121,5 +130,14 @@ public enum OcrEngineTypeWithTextPositioning {
         }
         return new OnnxOcrEngine(docTrDetectionPredictor, null, docTrRecognitionPredictor,
                 new OnnxEngineProperties().setTextPositioning(textPositioning));
+    }
+
+    private static class TextBoxMergeAgnosticEasyOcrDetectionPostProcessor extends EasyOcrDetectionPostProcessor {
+        @Override
+        protected List<Point[]> applyTextBoxMerger(List<Point[]> detectedTextBoxes) {
+            // Results with rotation are messy with EasyOcrTextBoxMerger,
+            // that's why we disable it for the text positioning tests.
+            return detectedTextBoxes;
+        }
     }
 }

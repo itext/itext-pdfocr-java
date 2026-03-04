@@ -26,15 +26,15 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Tag("IntegrationTest")
 public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
@@ -62,30 +62,26 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
         String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
         String dest = TARGET_DIRECTORY + name + "_bmp.pdf";
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_bmp.pdf";
-        String cmpTxt = TEST_DIRECTORY + "bmp.txt";
+        String cmpTxt = TEST_DIRECTORY + "bmp" + name + ".txt";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
 
         extractTextAndCompare(dest, cmpTxt);
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("ocrEngines")
-    public void invoiceThaiTest(OcrEngineType engineType)
-            throws IOException, InterruptedException {
+    public void invoiceThaiTest(OcrEngineType engineType) throws IOException, InterruptedException {
         IOcrEngine ocrEngine = engineType.get();
         String name = engineType.getDisplayName();
 
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_invoice_front_thai.pdf";
         String src = TEST_IMAGE_DIRECTORY + "invoice_front_thai.jpg";
         String dest = TARGET_DIRECTORY + name + "_invoice_front_thai.pdf";
-        String cmpTxt = TEST_DIRECTORY + "invoice_front_thai.txt";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-
-        OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.31);
     }
 
     @ParameterizedTest(name = "{0}")

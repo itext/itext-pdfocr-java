@@ -26,18 +26,18 @@ import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineTypeWithOrientation;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 @Tag("IntegrationTest")
-public class OnnxRotationIntegrationDOCTRTest extends ExtendedITextTest {
-    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxRotationIntegrationTest/";
+public class RotationDocTrTest extends ExtendedITextTest {
+    private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/RotationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxRotationIntegrationDocTRTest/";
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/RotationDocTrTest/";
 
     private static final IOcrEngine OCR_ENGINE = OcrEngineTypeWithOrientation.DOCTR.get();
     private static final String OCR_NAME = "DocTR";
@@ -55,7 +55,7 @@ public class OnnxRotationIntegrationDOCTRTest extends ExtendedITextTest {
         String cmpTxt = TEST_DIRECTORY + "cmp_rotatedTextBasicTest.txt";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
         OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.22);
 
     }
@@ -65,7 +65,7 @@ public class OnnxRotationIntegrationDOCTRTest extends ExtendedITextTest {
         String src = TEST_IMAGE_DIRECTORY + "90_degrees_rotated.jpg";
         String dest = TARGET_DIRECTORY + OCR_NAME + "_rotated90Test.pdf";
         String cmp = TEST_DIRECTORY + "cmp_" + OCR_NAME + "_rotated90Test.pdf";
-        String cmpTxt = TEST_DIRECTORY + "cmp_rotated90Test.txt";
+        String cmpTxt = TEST_DIRECTORY + "cmp_" + OCR_NAME + "_rotated90Test.txt";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
@@ -120,7 +120,7 @@ public class OnnxRotationIntegrationDOCTRTest extends ExtendedITextTest {
     public void rotatedCapsLCTest() throws IOException {
         String src = TEST_IMAGE_DIRECTORY + "rotatedCapsLC.png";
         String dest = TARGET_DIRECTORY + OCR_NAME + "_rotatedCapsLCTest.pdf";
-        String cmpTxt = TEST_DIRECTORY + "cmp_rotatedCapsLCTest.txt";
+        String cmpTxt = TEST_DIRECTORY + "cmp_" + OCR_NAME + "_rotatedCapsLCTest.txt";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.46);
@@ -134,5 +134,15 @@ public class OnnxRotationIntegrationDOCTRTest extends ExtendedITextTest {
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.16);
+    }
+
+    @Test
+    public void rotatedLinesTest() throws IOException, InterruptedException {
+        String src = TEST_IMAGE_DIRECTORY + "rotatedLines.jpeg";
+        String dest = TARGET_DIRECTORY + OCR_NAME + "_rotatedLines.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_" + OCR_NAME + "_rotatedLines.pdf";
+
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 }

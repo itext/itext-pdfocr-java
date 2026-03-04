@@ -66,10 +66,6 @@ public enum OcrEngineTypeWithOrientation {
         return this.displayName;
     }
 
-    public static OcrEngineTypeWithOrientation[] all() {
-        return new OcrEngineTypeWithOrientation[]{PADDLE, EASY, DOCTR};
-    }
-
     private static OnnxOcrEngine createPaddleOcrEngine() {
         try {
             IDetectionPredictor paddleDetectionPredictor = OnnxDetectionPredictor.paddleOcr(ModelPaths.getPaddleOcrDetectionModel());

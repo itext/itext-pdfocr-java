@@ -75,12 +75,12 @@ public class OnnxPdfAIntegrationTest extends ExtendedITextTest {
                 "", "sRGB IEC61966-2.1", is);
 
         doOcrAndCreatePdf(src, dest, ocrPdfCreatorProperties, outputIntent);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceRgb.BLUE, extractionStrategy.getFillColor());
-            Assertions.assertEquals("This a test\n1S\nmessage for\n-\nOCR Scanner\nTest\nBMPTest",
+            Assertions.assertEquals("Test\nThis a test\n1S\nmessage for\n-\nOCR Scanner\nBMPTest",
                     extractionStrategy.getResultantText());
         }
     }

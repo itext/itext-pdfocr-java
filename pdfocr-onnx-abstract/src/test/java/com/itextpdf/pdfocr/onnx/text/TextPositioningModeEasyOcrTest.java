@@ -22,37 +22,35 @@
  */
 package com.itextpdf.pdfocr.onnx.text;
 
-import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.onnx.OnnxTestUtils;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+
 @Tag("IntegrationTest")
-public class TextPositioningModeDOCTRTest extends ExtendedITextTest {
+public class TextPositioningModeEasyOcrTest extends ExtendedITextTest {
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/text/TextPositioningModeTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/text/TextPositioningModeDOCTRTest/";
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/text/TextPositioningModeEasyOcrTest/";
 
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(
-                new Object[]{OcrEngineTypeWithTextPositioning.DOCTR_LINES},
-                new Object[]{OcrEngineTypeWithTextPositioning.DOCTR_WORDS},
-                new Object[]{OcrEngineTypeWithTextPositioning.DOCTR_WORDS_AND_LINES}
+                new Object[]{OcrEngineTypeWithTextPositioning.EASY_LINES},
+                new Object[]{OcrEngineTypeWithTextPositioning.EASY_WORDS},
+                new Object[]{OcrEngineTypeWithTextPositioning.EASY_WORDS_AND_LINES}
         );
     }
 
@@ -63,9 +61,9 @@ public class TextPositioningModeDOCTRTest extends ExtendedITextTest {
 
     @AfterAll
     public static void afterClass() throws Exception {
-        OcrEngineTypeWithTextPositioning.DOCTR_LINES.instance.close();
-        OcrEngineTypeWithTextPositioning.DOCTR_WORDS.instance.close();
-        OcrEngineTypeWithTextPositioning.DOCTR_WORDS_AND_LINES.instance.close();
+        OcrEngineTypeWithTextPositioning.EASY_LINES.instance.close();
+        OcrEngineTypeWithTextPositioning.EASY_WORDS.instance.close();
+        OcrEngineTypeWithTextPositioning.EASY_WORDS_AND_LINES.instance.close();
     }
 
     @ParameterizedTest(name = "{0}")
@@ -79,7 +77,7 @@ public class TextPositioningModeDOCTRTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_lines.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -93,7 +91,7 @@ public class TextPositioningModeDOCTRTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_obliqueLines.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -104,17 +102,10 @@ public class TextPositioningModeDOCTRTest extends ExtendedITextTest {
 
         String src = TEST_IMAGE_DIRECTORY + "linesWithSpaces.png";
         String dest = TARGET_DIRECTORY + name + "_linesWithSpaces.pdf";
-        String cmp1 = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces.pdf";
-        String cmp2 = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces_2.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        String diff = new CompareTool().compareByContent(dest, cmp1, TARGET_DIRECTORY, "diff_");
-        if (diff != null && FileUtil.fileExists(cmp2)) {
-            // Second cmp is required for DocTR BY_WORDS on .NET because of different results on .NET CoreApp and .NET Framework
-            Assertions.assertNull(new CompareTool().compareByContent(dest, cmp2, TARGET_DIRECTORY, "diff_"));
-        } else {
-            Assertions.assertNull(diff);
-        }
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     private void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine) throws IOException {

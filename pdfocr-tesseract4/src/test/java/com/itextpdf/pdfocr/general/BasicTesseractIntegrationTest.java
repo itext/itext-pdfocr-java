@@ -47,6 +47,9 @@ import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessag
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,9 +58,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelper {
 
@@ -191,7 +191,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader);
 
         ocrPdfCreator.createPdf(Collections.<File>singletonList(file),
-                        new PdfWriter(pdfPath)).close();
+                new PdfWriter(pdfPath)).close();
 
         PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath));
 
@@ -205,7 +205,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, count = 1)
     })
     @Test
     public void testInputInvalidImage() {
@@ -280,7 +280,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
+            @LogMessage(messageTemplate = PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE)
     })
     @Test
     public void testEmptyPathToTessData() {
@@ -364,7 +364,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         });
 
         Assertions.assertEquals(MessageFormatUtil.format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_LANGUAGE,
-                "English.traineddata", new File(SCRIPT_TESS_DATA_DIRECTORY).getAbsolutePath()),
+                        "English.traineddata", new File(SCRIPT_TESS_DATA_DIRECTORY).getAbsolutePath()),
                 exception.getMessage());
     }
 
@@ -456,7 +456,7 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         if (pageText == null || pageText.size() == 0) {
             pageText = new ArrayList<TextInfo>();
             TextInfo textInfo = new TextInfo();
-            textInfo.setBboxRect(new Rectangle(0, 0, 0,0));
+            textInfo.setTextPoints(new Rectangle(0, 0, 0, 0).toPointsArray());
             textInfo.setText("");
             pageText.add(textInfo);
         }

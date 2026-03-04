@@ -87,6 +87,8 @@ public class SharpenConfigMapping implements MappingConfiguration {
                 Arrays.asList("System.Linq"));
         configurator.addFullName("iText.Pdfocr.Onnx.Text.TextPositioning");
         configurator.mapType("com.itextpdf.pdfocr.onnx.FloatBufferWrapper", "iText.pdfOcr.Onnx.FloatBufferWrapper");
+
+        configurator.keepInternalProtected("com.itextpdf.pdfocr.onnx.text.OcrEngineTypeWithTextPositioning.TextBoxMergeAgnosticEasyOcrDetectionPostProcessor.applyTextBoxMerger");
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {

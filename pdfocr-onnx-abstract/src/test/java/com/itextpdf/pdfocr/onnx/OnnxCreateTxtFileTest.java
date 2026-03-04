@@ -26,16 +26,16 @@ import com.itextpdf.io.util.UrlUtil;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineTypeWithOrientation;
 import com.itextpdf.test.ExtendedITextTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class OnnxCreateTxtFileTest extends ExtendedITextTest {
@@ -44,7 +44,6 @@ public class OnnxCreateTxtFileTest extends ExtendedITextTest {
     private static final String TEST_IMAGE_DIRECTORY = BASE_DIRECTORY + "images/";
     private static final String SOURCE_DIRECTORY = BASE_DIRECTORY + "OnnxCreateTxtFileTest/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxCreateTxtFileTest/";
-
 
     @BeforeAll
     public static void beforeClass() {

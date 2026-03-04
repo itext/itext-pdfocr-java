@@ -24,28 +24,27 @@ package com.itextpdf.pdfocr.onnx.text;
 
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.onnx.OnnxTestUtils;
 import com.itextpdf.test.ExtendedITextTest;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+
 @Tag("IntegrationTest")
-public class TextPositioningModePADDLETest extends ExtendedITextTest {
+public class TextPositioningModePaddleOcrTest extends ExtendedITextTest {
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/text/TextPositioningModeTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
-    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/text/TextPositioningModePADDLETest/";
+    private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/text/TextPositioningModePaddleOcrTest/";
 
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(
@@ -78,7 +77,7 @@ public class TextPositioningModePADDLETest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_lines.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -92,7 +91,7 @@ public class TextPositioningModePADDLETest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_obliqueLines.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -106,7 +105,7 @@ public class TextPositioningModePADDLETest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
     }
 
     private void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine) throws IOException {

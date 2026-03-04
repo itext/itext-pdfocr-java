@@ -22,16 +22,8 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.DeviceCmyk;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.pdfocr.OcrPdfCreator;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
-import com.itextpdf.pdfocr.onnx.util.MathUtil;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
@@ -39,12 +31,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
 
 @Tag("IntegrationTest")
 public class OnnxCmykIntegrationTest extends ExtendedITextTest {
@@ -66,12 +53,8 @@ public class OnnxCmykIntegrationTest extends ExtendedITextTest {
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowInvertedCmykTest.txt";
 
         try {
-            doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-            try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-                ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-                Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-                Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
-            }
+            OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
+            OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.05);
         } catch (PdfOcrInputException e) {
             // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
@@ -88,14 +71,8 @@ public class OnnxCmykIntegrationTest extends ExtendedITextTest {
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowAdobeCmykTest.txt";
 
         try {
-            doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-            try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-                ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-                Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-                double relativeDistance = (double) MathUtil.calculateLevenshteinDistance(getCmpText(cmpTxt),
-                        extractionStrategy.getResultantText()) / getCmpText(cmpTxt).length();
-                Assertions.assertTrue(relativeDistance < 0.05);
-            }
+            OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
+            OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.05);
         } catch (PdfOcrInputException e) {
             // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
@@ -112,12 +89,8 @@ public class OnnxCmykIntegrationTest extends ExtendedITextTest {
         String cmpTxt = TEST_DIRECTORY + "cmp_rainbowCmykNoProfileTest.txt";
 
         try {
-            doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
-            try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-                ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-                Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-                Assertions.assertEquals(getCmpText(cmpTxt), extractionStrategy.getResultantText());
-            }
+            OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
+            OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.05);
         } catch (PdfOcrInputException e) {
             // CMYK bug https://bugs.openjdk.org/browse/JDK-8274735 in openJDK:
             // fixed for jdk8 from 351 onwards, for jdk11 from 16 onwards and for jdk17 starting from 4.
@@ -126,31 +99,4 @@ public class OnnxCmykIntegrationTest extends ExtendedITextTest {
             Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
         }
     }
-
-    private OcrPdfCreatorProperties creatorProperties(String layerName, Color color) {
-        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
-        ocrPdfCreatorProperties.setTextLayerName(layerName);
-        ocrPdfCreatorProperties.setTextColor(color);
-        return ocrPdfCreatorProperties;
-    }
-
-    private void doOcrAndCreatePdf(String imagePath, String destPdfPath,
-                                   OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
-        OcrPdfCreator ocrPdfCreator =
-                ocrPdfCreatorProperties != null ? new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties)
-                        : new OcrPdfCreator(OCR_ENGINE);
-        try (PdfWriter writer = new PdfWriter(destPdfPath)) {
-            ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
-        }
-    }
-
-    private String getCmpText(String txtPath) throws IOException {
-        int bytesCount = (int) new File(txtPath).length();
-        char[] array = new char[bytesCount];
-        try (InputStreamReader stream = new InputStreamReader(Files.newInputStream(Paths.get(txtPath)))) {
-            stream.read(array, 0, bytesCount);
-            return new String(array);
-        }
-    }
-
 }

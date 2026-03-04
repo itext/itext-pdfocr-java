@@ -27,10 +27,7 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ImageIntegrationTest extends IntegrationTestHelper {
-
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ImageIntegrationTest.class);
 
     AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
@@ -84,8 +78,8 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         Assertions.assertEquals("degrees", pageData.get(1).get(1).getText());
         Assertions.assertEquals("rotated", pageData.get(1).get(2).getText());
         Assertions.assertEquals("image", pageData.get(1).get(3).getText());
-        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getWidth() > 100);
-        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getHeight() < 100);
+        Assertions.assertTrue(pageData.get(1).get(1).getBBoxRect().getWidth() > 100);
+        Assertions.assertTrue(pageData.get(1).get(1).getBBoxRect().getHeight() < 100);
     }
 
     @Test

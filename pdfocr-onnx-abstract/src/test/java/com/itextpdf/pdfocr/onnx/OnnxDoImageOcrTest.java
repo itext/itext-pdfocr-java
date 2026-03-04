@@ -134,14 +134,14 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("-\nAY\nSI\nENSAYARA\nCOMO\nACTUAR?\nTanto\npeor,\nlo\nmejor\nes\ndescansar\n" +
-                "y\nno\npensar\nla\nfiesta,\nsi\nse\npuede.\nNo\nhay\nnada\nmas\ndesalentador\nver\nen\nlas\n" +
-                "fiestas\na\njovenes\ncon\ncara\nde\nlastima\ny\niluslonadas\ny\nque\nse\nhan\npasado\ntodo\nel\n" +
-                "dia\ntratando\nhallar\nlo\nmejor\ny\nla\nmas\natractiva\nmanera\nde\npres\ntarse\nen\npublico.\n" +
-                "Hay\nque\nactuar\ncon\ncalma\ny\nno\ncansaremos\nde\nrepetirlo,\nLo\nmas\nimportante\nes\nsaber\n" +
-                "que\nse\nva\na\nponer\ny\ntener\ntodo\na\nmano,\nSi\nintenta\nprobar\nun\nnuevo\nlapiz\nlabial\n" +
-                "para\nla\na\nsion,\nasegurese\nque\narmonice\ncon\nel\n-\nvestido\nque\nlle\nrà.\nTambién\nel\n" +
-                "maquillaje\nde\nlos\nojos\ndebe\narmoni\ncon\nel\nconjunto.\n", textFromImage);
+        Assertions.assertEquals("-\nAY\nSI\nENSAYARA\nCOMO\nACTUAR?\nTanto\npeor,\nlo\nmejor\nes\ndescansar\ny\nno" +
+                "\nfiesta,\nsi\npensar\npuede.\nhay\nnada\nmas\ndesalentador\nse\nNo\nla\nver\nen\nlas\nfiestas\na\n" +
+                "jovenes\ncon\ncara\nde\nlastima\ny\niluslonadas\ny\nse\npasado\ntodo\nel\nque\nhan\ndia\ntratando\n" +
+                "hallar\nlo\nmejor\ny\nla\nmas\natractiva\nmanera\nde\npres\ntarse\nen\npublico.\nHay\nque\nactuar\n" +
+                "con\ncalma\ny\nno\ncansaremos\nde\nrepetirlo,\nLo\nmas\nimportante\nes\nsaber\nque\nse\nva\na\npone" +
+                "r\ny\ntener\ntodo\na\nmano,\nSi\nintenta\nprobar\nun\nnuevo\nlapiz\nlabial\npara\nla\na\nsion,\nase" +
+                "gurese\nque\narmonice\ncon\n-\nvestido\nlle\nrà.\nque\nTambién\nel\nel\nmaquillaje\nde\nlos\nojos\n" +
+                "debe\narmoni\ncon\nel\nconjunto.\n", textFromImage);
     }
 
     @Test

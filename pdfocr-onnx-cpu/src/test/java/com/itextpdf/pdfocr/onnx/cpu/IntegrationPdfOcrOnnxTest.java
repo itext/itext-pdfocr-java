@@ -109,7 +109,7 @@ public class IntegrationPdfOcrOnnxTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = getTextFromImage(imageFile, OCR_ENGINE_IMAGE_OCR);
-        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\n-\nfor\nOCR\nScanner\nTest\n", textFromImage);
+        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\nfor\n-\nOCR\nScanner\nTest\n", textFromImage);
     }
 
     @Test

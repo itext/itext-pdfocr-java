@@ -9,7 +9,6 @@ package com.itextpdf.pdfocr.onnx;
 import com.itextpdf.commons.actions.confirmations.ConfirmEvent;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.kernel.geom.Point;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
 import com.itextpdf.pdfocr.OcrProcessContext;
 import com.itextpdf.pdfocr.TextInfo;
@@ -31,11 +30,6 @@ import java.util.Map;
  * Class containing OCRing methods adapted from <a href="https://github.com/felixdittrich92/OnnxTR">OnnxTR</a>.
  */
 class OnnxProcessor {
-
-    /**
-     * Image pixel to PDF point ratio.
-     */
-    private static final float PX_TO_PT = 0.75F;
 
     /**
      * Text detector. For an input image it outputs a list of text boxes.
@@ -72,15 +66,11 @@ class OnnxProcessor {
                     eventHelper.getSequenceId(), null, eventHelper.getConfirmationType());
             eventHelper.onEvent(event);
             /*
-             * Potential performance improvement (at least for GPU).
-             *
-             * There is a potential for performance improvements here. Currently, this mirrors the
-             * behavior in OnnxTR/DocTR, where inputs for orientation and recognition models are
-             * aggregated per input image.
-             *
-             * But, most of the time, this will not be enough to saturate the batch size fully.
-             * Ideally, we should process all text boxes together, regardless of the origin image,
-             * and then separate the results afterward.
+             * Currently, inputs for orientation and recognition models are aggregated per input image.
+             * Most of the time, this is enough to saturate the batch size fully for real use cases
+             * (for example, 64 words for DocTR or 6 lines for PaddleOcr).
+             * If we process all text boxes together, regardless of the origin image, and then separate
+             * the results afterward, the performance improvement is not noticeable.
              */
             BufferedImage image = images.get(imageIndex);
             List<Point[]> textBoxes = textBoxGenerator.next();
@@ -97,9 +87,9 @@ class OnnxProcessor {
                 if (textOrientations != null) {
                     textOrientation = textOrientations.get(i);
                 }
-                textInfos.add(new TextInfo(textString.get(i),
-                        toPdfRectangle(textBoxes.get(i), image.getHeight()),
-                        textOrientation));
+                Point[] textPoints = getTextPoints(textBoxes.get(i), textOrientation);
+                textInfos.add(new TextInfo().setText(textString.get(i))
+                        .setPixelTextPoints(textPoints, image.getHeight()));
             }
             result.put(imageIndex + 1, textInfos);
             ++imageIndex;
@@ -131,38 +121,34 @@ class OnnxProcessor {
     }
 
     /**
-     * Convert a text polygon to a bounding box in PDF points.
+     * Reorders textBox points to be in lower-left based order relative to text.
      *
-     * @param polygon polygon to convert
-     * @param imageHeight height of the image (to change the y origin)
+     * @param textBox arbitrarily rotated quadrilateral representing text bounding points with the next order
+     * relative to x and y axes directions: 0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point
+     * @param textOrientation {@link TextOrientation} to determine same points order, but relative to text itself. So
+     * for example for 90 degrees rotated text initial lower-left point will be upper-left relative to text
      *
-     * @return a bounding box in PDF points
+     * @return array of 4 {@link Point}s describing text bbox (0 - lower-left, 1 - upper-left,
+     * 2 - upper-right, 3 - lower-right point relative to text)
      */
-    private static Rectangle toPdfRectangle(Point[] polygon, int imageHeight) {
-        float minX = (float) polygon[0].getX();
-        float maxX = minX;
-        float minY = (float) polygon[0].getY();
-        float maxY = minY;
-        for (int i = 1; i < polygon.length; ++i) {
-            final float x = (float) polygon[i].getX();
-            if (x < minX) {
-                minX = x;
-            } else if (x > maxX) {
-                maxX = x;
-            }
-            final float y = (float) polygon[i].getY();
-            if (y < minY) {
-                minY = y;
-            } else if (y > maxY) {
-                maxY = y;
-            }
+    private static Point[] getTextPoints(Point[] textBox, TextOrientation textOrientation) {
+        Point[] rotatedTextBox;
+        switch (textOrientation) {
+            case HORIZONTAL_ROTATED_90:
+                rotatedTextBox = new Point[]{textBox[3], textBox[0], textBox[1], textBox[2]};
+                break;
+            case HORIZONTAL_ROTATED_180:
+                rotatedTextBox = new Point[]{textBox[2], textBox[3], textBox[0], textBox[1]};
+                break;
+            case HORIZONTAL_ROTATED_270:
+                rotatedTextBox = new Point[]{textBox[1], textBox[2], textBox[3], textBox[0]};
+                break;
+            case HORIZONTAL:
+            default:
+                rotatedTextBox = textBox;
+                break;
         }
-        return new Rectangle(
-                PX_TO_PT * minX,
-                PX_TO_PT * (imageHeight - maxY),
-                PX_TO_PT * (maxX - minX),
-                PX_TO_PT * (maxY - minY)
-        );
+        return rotatedTextBox;
     }
 
     private static <E> List<E> toList(Iterator<E> iterator) {

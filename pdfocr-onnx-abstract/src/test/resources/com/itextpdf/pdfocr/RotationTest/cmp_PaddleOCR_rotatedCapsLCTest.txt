@@ -1,4 +1,4 @@
 CapITALS anD
 lowerCaSE
-mix
-TEsTinG
+:
+TEsTinG mix

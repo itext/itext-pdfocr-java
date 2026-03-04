@@ -185,10 +185,10 @@ public class OcrPdfCreator {
      * @throws PdfOcrException if it was not possible to read provided or default font
      */
     public final PdfDocument createPdfA(final List<File> inputImages,
-            final PdfWriter pdfWriter,
-            final DocumentProperties documentProperties,
-            final PdfOutputIntent pdfOutputIntent,
-            final IOcrProcessProperties ocrProcessProperties)
+                                        final PdfWriter pdfWriter,
+                                        final DocumentProperties documentProperties,
+                                        final PdfOutputIntent pdfOutputIntent,
+                                        final IOcrProcessProperties ocrProcessProperties)
             throws PdfOcrException {
         LOGGER.info(MessageFormatUtil.format(PdfOcrLogMessageConstant.START_OCR_FOR_IMAGES, inputImages.size()));
 
@@ -239,8 +239,8 @@ public class OcrPdfCreator {
      *                      default font
      */
     public final PdfDocument createPdfA(final List<File> inputImages,
-            final PdfWriter pdfWriter,
-            final PdfOutputIntent pdfOutputIntent)
+                                        final PdfWriter pdfWriter,
+                                        final PdfOutputIntent pdfOutputIntent)
             throws PdfOcrException {
         return createPdfA(inputImages, pdfWriter, new DocumentProperties(), pdfOutputIntent);
     }
@@ -271,9 +271,9 @@ public class OcrPdfCreator {
      *                      default font
      */
     public final PdfDocument createPdfA(final List<File> inputImages,
-            final PdfWriter pdfWriter,
-            final DocumentProperties documentProperties,
-            final PdfOutputIntent pdfOutputIntent)
+                                        final PdfWriter pdfWriter,
+                                        final DocumentProperties documentProperties,
+                                        final PdfOutputIntent pdfOutputIntent)
             throws PdfOcrException {
         return createPdfA(inputImages, pdfWriter, documentProperties, pdfOutputIntent, null);
     }
@@ -299,9 +299,9 @@ public class OcrPdfCreator {
      * @throws PdfOcrException if provided font is incorrect
      */
     public final PdfDocument createPdf(final List<File> inputImages,
-            final PdfWriter pdfWriter,
-            final DocumentProperties documentProperties,
-            final IOcrProcessProperties ocrProcessProperties)
+                                       final PdfWriter pdfWriter,
+                                       final DocumentProperties documentProperties,
+                                       final IOcrProcessProperties ocrProcessProperties)
             throws PdfOcrException {
         return createPdfA(inputImages, pdfWriter, documentProperties, null, ocrProcessProperties);
     }
@@ -326,8 +326,8 @@ public class OcrPdfCreator {
      * @throws PdfOcrException if provided font is incorrect
      */
     public final PdfDocument createPdf(final List<File> inputImages,
-            final PdfWriter pdfWriter,
-            final DocumentProperties documentProperties)
+                                       final PdfWriter pdfWriter,
+                                       final DocumentProperties documentProperties)
             throws PdfOcrException {
         return createPdfA(inputImages, pdfWriter, documentProperties, null, null);
     }
@@ -351,7 +351,7 @@ public class OcrPdfCreator {
      * @throws PdfOcrException if provided font is incorrect
      */
     public final PdfDocument createPdf(final List<File> inputImages,
-            final PdfWriter pdfWriter)
+                                       final PdfWriter pdfWriter)
             throws PdfOcrException {
         return createPdfA(inputImages, pdfWriter, new DocumentProperties(), null, null);
     }
@@ -368,7 +368,7 @@ public class OcrPdfCreator {
      *                      default font
      */
     public void createPdfFile(final List<File> inputImages,
-            final File outPdfFile)
+                              final File outPdfFile)
             throws PdfOcrException, IOException {
         createPdfAFile(inputImages, outPdfFile, null);
     }
@@ -388,8 +388,8 @@ public class OcrPdfCreator {
      *                      default font
      */
     public void createPdfAFile(final List<File> inputImages,
-            final File outPdfFile,
-            final PdfOutputIntent pdfOutputIntent)
+                               final File outPdfFile,
+                               final PdfOutputIntent pdfOutputIntent)
             throws PdfOcrException, IOException {
         DocumentProperties documentProperties = new DocumentProperties();
         if (ocrPdfCreatorProperties.getMetaInfo() != null) {
@@ -638,10 +638,10 @@ public class OcrPdfCreator {
      * font contains notdef glyphs
      */
     private void addToCanvas(final PdfDocument pdfDocument,
-            final Rectangle imageSizeOnPage,
-            final List<TextInfo> pageText, final ImageData imageData,
-            final boolean createPdfA3u,
-            final PdfLayer[] layers) throws PdfOcrException {
+                             final Rectangle imageSizeOnPage,
+                             final List<TextInfo> pageText, final ImageData imageData,
+                             final boolean createPdfA3u,
+                             final PdfLayer[] layers) throws PdfOcrException {
         final Rectangle rectangleSize =
                 ocrPdfCreatorProperties.getPageSize() == null
                         ? imageSizeOnPage : ocrPdfCreatorProperties.getPageSize();
@@ -668,7 +668,7 @@ public class OcrPdfCreator {
     }
 
     private void collectTextAndAddToCanvas(PdfPage pdfPage, PdfCanvas canvas, List<TextInfo> pageText,
-            Rectangle imageBbox, Rectangle imageSize) {
+                                           Rectangle imageBbox, Rectangle imageSize) {
         PdfDocument pdfDocument = pdfPage.getDocument();
 
         try {
@@ -705,7 +705,7 @@ public class OcrPdfCreator {
      * @param imagesTextData a map where the key is {@link PageImageData} and the value is an OCR result
      */
     private void addToPdfPage(PdfPage pdfPage,
-            Map<PageImageData, Map<Integer, List<TextInfo>>> imagesTextData, PdfLayer pdfLayer) {
+                              Map<PageImageData, Map<Integer, List<TextInfo>>> imagesTextData, PdfLayer pdfLayer) {
         for (Map.Entry<PageImageData, Map<Integer, List<TextInfo>>> entry : imagesTextData.entrySet()) {
             // Key in OCR result is always 1 here
             List<TextInfo> textInfos = entry.getValue().get(1);
@@ -724,8 +724,8 @@ public class OcrPdfCreator {
     }
 
     private PdfDocument createPdfDocument(final PdfWriter pdfWriter, final PdfOutputIntent pdfOutputIntent,
-            final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
-            SequenceId pdfSequenceId, DocumentProperties documentProperties) {
+                                          final Map<File, Map<Integer, List<TextInfo>>> imagesTextData,
+                                          SequenceId pdfSequenceId, DocumentProperties documentProperties) {
 
         PdfDocument pdfDocument;
         boolean createPdfA3u = pdfOutputIntent != null;
@@ -831,8 +831,8 @@ public class OcrPdfCreator {
      * @param pdfCanvas canvas to place the image
      */
     private void addImageToCanvas(final ImageData imageData,
-            final Rectangle imageSize,
-            final PdfCanvas pdfCanvas) {
+                                  final Rectangle imageSize,
+                                  final PdfCanvas pdfCanvas) {
         if (imageData != null) {
             if (ocrPdfCreatorProperties.isTagged()) {
                 pdfCanvas.openTag(new CanvasArtifact());
@@ -891,6 +891,7 @@ public class OcrPdfCreator {
      * @param widthMultiplier coefficient to adjust text width on canvas
      * @param heightMultiplier coefficient to adjust text height on canvas
      * @param page current page
+     *
      * @throws PdfOcrException if PDF/A3u document is being created and provided
      * font contains notdef glyphs
      */
@@ -969,12 +970,17 @@ public class OcrPdfCreator {
                     canvas.getPdfDocument().getPageNumber(page),
                     TextAlignment.LEFT,
                     VerticalAlignment.BOTTOM,
-                    getRotationAngle(item.getOrientation()));
+                    item.getRotationAngle());
 
             if (ocrPdfCreatorProperties.getTextBBoxColor() != null) {
+                Point[] points = item.getTextPoints();
                 pdfCanvas.saveState()
                         .setStrokeColor(ocrPdfCreatorProperties.getTextBBoxColor())
-                        .rectangle(item.getBboxRect())
+                        .moveTo(points[0].getX(), points[0].getY())
+                        .lineTo(points[1].getX(), points[1].getY())
+                        .lineTo(points[2].getX(), points[2].getY())
+                        .lineTo(points[3].getX(), points[3].getY())
+                        .closePath()
                         .stroke()
                         .restoreState();
             }
@@ -1032,27 +1038,6 @@ public class OcrPdfCreator {
     }
 
     /**
-     * Returns the text rotation angle in radian for the provided {@link TextOrientation}.
-     *
-     * @param orientation text orientation to get the angle for
-     *
-     * @return the text rotation angle in radian for the provided {@link TextOrientation}
-     */
-    private static float getRotationAngle(TextOrientation orientation) {
-        switch (orientation) {
-            case HORIZONTAL_ROTATED_90:
-                return (float) (0.5 * Math.PI);
-            case HORIZONTAL_ROTATED_180:
-                return (float) Math.PI;
-            case HORIZONTAL_ROTATED_270:
-                return (float) (1.5 * Math.PI);
-            case HORIZONTAL:
-            default:
-                return 0;
-        }
-    }
-
-    /**
      * Creates layers for image and text according rules set in {@link OcrPdfCreatorProperties}.
      *
      * @param imageLayerName name of the image layer
@@ -1067,45 +1052,17 @@ public class OcrPdfCreator {
             String textLayerName,
             PdfDocument pdfDocument) {
         if (imageLayerName == null && textLayerName == null) {
-            return new PdfLayer[] {null, null};
+            return new PdfLayer[]{null, null};
         } else if (imageLayerName == null) {
-            return new PdfLayer[] {null, new PdfLayer(textLayerName, pdfDocument)};
+            return new PdfLayer[]{null, new PdfLayer(textLayerName, pdfDocument)};
         } else if (textLayerName == null) {
-            return new PdfLayer[] {new PdfLayer(imageLayerName, pdfDocument), null};
+            return new PdfLayer[]{new PdfLayer(imageLayerName, pdfDocument), null};
         } else if (imageLayerName.equals(textLayerName)) {
             PdfLayer pdfLayer = new PdfLayer(imageLayerName, pdfDocument);
-            return new PdfLayer[] {pdfLayer, pdfLayer};
+            return new PdfLayer[]{pdfLayer, pdfLayer};
         } else {
-            return new PdfLayer[] {new PdfLayer(imageLayerName, pdfDocument), new PdfLayer(textLayerName, pdfDocument)};
+            return new PdfLayer[]{new PdfLayer(imageLayerName, pdfDocument), new PdfLayer(textLayerName, pdfDocument)};
         }
-    }
-
-    /**
-     * Get left bound of text chunk.
-     */
-    private static float getLeft(TextInfo textInfo, float multiplier) {
-        return textInfo.getBboxRect().getLeft() * multiplier;
-    }
-
-    /**
-     * Get right bound of text chunk.
-     */
-    private static float getRight(TextInfo textInfo, float multiplier) {
-        return (textInfo.getBboxRect().getRight() + 1) * multiplier - 1;
-    }
-
-    /**
-     * Get top bound of text chunk.
-     */
-    private static float getTop(TextInfo textInfo, float multiplier) {
-        return textInfo.getBboxRect().getTop() * multiplier;
-    }
-
-    /**
-     * Get bottom bound of text chunk.
-     */
-    private static float getBottom(TextInfo textInfo, float multiplier) {
-        return (textInfo.getBboxRect().getBottom() + 1) * multiplier - 1;
     }
 
     /**
@@ -1119,60 +1076,45 @@ public class OcrPdfCreator {
      * Get width of text chunk in points.
      */
     private static float getTextWidthPt(TextInfo textInfo, float multiplier) {
-        switch (textInfo.getOrientation()) {
-            case HORIZONTAL_ROTATED_90:
-            case HORIZONTAL_ROTATED_270:
-                return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
-            case HORIZONTAL:
-            case HORIZONTAL_ROTATED_180:
-            default:
-                return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
-        }
+        Point[] textPoints = textInfo.getTextPoints();
+        float width = Math.max(pointDist(textPoints[0], textPoints[3]), pointDist(textPoints[1], textPoints[2]));
+        return width * multiplier;
     }
 
     /**
      * Get height of text chunk in points.
      */
     private static float getTextHeightPt(TextInfo textInfo, float multiplier) {
-        switch (textInfo.getOrientation()) {
-            case HORIZONTAL_ROTATED_90:
-            case HORIZONTAL_ROTATED_270:
-                return getRight(textInfo, multiplier) - getLeft(textInfo, multiplier);
-            case HORIZONTAL:
-            case HORIZONTAL_ROTATED_180:
-            default:
-                return getTop(textInfo, multiplier) - getBottom(textInfo, multiplier);
-        }
+        Point[] textPoints = textInfo.getTextPoints();
+        float height = Math.max(pointDist(textPoints[0], textPoints[1]), pointDist(textPoints[2], textPoints[3]));
+        return height * multiplier;
     }
 
     /**
      * Get horizontal text offset in points.
      */
     private static float getXOffsetPt(TextInfo textInfo, float multiplier) {
-        switch (textInfo.getOrientation()) {
-            case HORIZONTAL_ROTATED_90:
-            case HORIZONTAL_ROTATED_180:
-                return getRight(textInfo, multiplier);
-            case HORIZONTAL:
-            case HORIZONTAL_ROTATED_270:
-            default:
-                return getLeft(textInfo, multiplier);
-        }
+        return (float) (textInfo.getTextPoints()[0].getX() * multiplier);
     }
 
     /**
      * Get vertical text offset in points.
      */
     private static float getYOffsetPt(TextInfo textInfo, float multiplier) {
-        switch (textInfo.getOrientation()) {
-            case HORIZONTAL_ROTATED_180:
-            case HORIZONTAL_ROTATED_270:
-                return getTop(textInfo, multiplier);
-            case HORIZONTAL:
-            case HORIZONTAL_ROTATED_90:
-            default:
-                return getBottom(textInfo, multiplier);
-        }
+        return (float) (textInfo.getTextPoints()[0].getY()) * multiplier;
+    }
+
+    /**
+     * Calculates the distance between two points.
+     *
+     * @param point1 source point
+     * @param point2 destination point
+     *
+     * @return the distance between source and destination points
+     */
+    private static float pointDist(Point point1, Point point2) {
+        return (float) Math.sqrt
+                (Math.pow(point1.getX() - point2.getX(), 2) + Math.pow(point1.getY() - point2.getY(), 2));
     }
 
     /**

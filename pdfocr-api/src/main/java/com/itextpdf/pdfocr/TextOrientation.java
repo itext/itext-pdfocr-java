@@ -24,6 +24,10 @@ package com.itextpdf.pdfocr;
 
 /**
  * Enumeration of supported text orientations.
+ *
+ * <p>
+ * {@link TextOrientation} is used to determine text bounding box rectangle orientation.
+ * Text rotation could be more precisely determined by the bounding points, see {@link TextInfo#getRotationAngle()}.
  */
 public enum TextOrientation {
     /**

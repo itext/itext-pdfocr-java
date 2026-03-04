@@ -76,7 +76,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\n-\nfor\nOCR\nScanner\nTest\n", textFromImage);
+        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\nfor\n-\nOCR\nScanner\nTest\n", textFromImage);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\n-\nfor\nOCR\nScanner\nTest\n", textFromImage);
+        Assertions.assertEquals("Ihis\n1S\na\ntest\nmessage\nfor\n-\nOCR\nScanner\nTest\n", textFromImage);
     }
 
     @Test
@@ -103,51 +103,10 @@ public class OnnxDoImageOcrFileTypesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "1\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "-\n" +
-                "2\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "3\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "4\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page5\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "6\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "/\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "8\n" +
-                "Multipage\n" +
-                "TIFF\n" +
-                "Example\n" +
-                "Page\n" +
-                "9\n", textFromImage);
+        Assertions.assertEquals("Multipage\nTIFF\nExample\nPage\n1\nMultipage\nTIFF\nExample\nPage\n2\n-\n" +
+                "Multipage\nTIFF\nExample\nPage\n3\nMultipage\nTIFF\nExample\nPage\n4\nMultipage\nTIFF\nExample" +
+                "\nPage5\nMultipage\nTIFF\nExample\nPage\n6\nMultipage\nTIFF\nExample\nPage\n/\nMultipage\nTIFF" +
+                "\nExample\nPage\n8\nMultipage\nTIFF\nExample\nPage\n9\n", textFromImage);
     }
 
     @Test

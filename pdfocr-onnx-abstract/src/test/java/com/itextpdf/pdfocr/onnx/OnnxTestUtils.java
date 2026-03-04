@@ -22,16 +22,19 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfCanvasProcessor;
+import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.onnx.util.MathUtil;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +45,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.junit.jupiter.api.Assertions;
 
 public class OnnxTestUtils {
 
@@ -52,6 +54,21 @@ public class OnnxTestUtils {
 
         processor.processPageContent(pdfDocument.getPage(pageNr));
         return strategy;
+    }
+
+    public static void comparePdfs(String dest, String cmp, String targetDirectory)
+            throws InterruptedException, IOException {
+        String diff = new CompareTool().compareByContent(dest, cmp, targetDirectory, "diff_");
+        if (diff != null) {
+            String[] splitted = cmp.split("\\.");
+            String filename = splitted[splitted.length - 2];
+            String cmp2 = cmp.replace(filename, filename + "_2");
+            if (FileUtil.fileExists(cmp2)) {
+                // Second cmp is required on .NET because of different results on .NET CoreApp and .NET Framework.
+                diff = new CompareTool().compareByContent(dest, cmp2, targetDirectory, "diff_");
+            }
+        }
+        Assertions.assertNull(diff);
     }
 
     protected static String getTextFromImage(File imageFile, IOcrEngine ocrEngine) {
@@ -90,7 +107,7 @@ public class OnnxTestUtils {
 
     private static String getStringFromListMap(Map<Integer, List<TextInfo>> listMap) {
         StringBuilder stringBuilder = new StringBuilder();
-        for(Entry<Integer, List<TextInfo>> entry : listMap.entrySet()) {
+        for (Entry<Integer, List<TextInfo>> entry : listMap.entrySet()) {
             for (TextInfo textInfo : entry.getValue()) {
                 if (textInfo.getText() != null) {
                     stringBuilder.append(textInfo.getText()).append('\n');

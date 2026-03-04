@@ -61,12 +61,22 @@ public class EasyOcrDetectionPostProcessor extends BasicDetectionPostProcessor {
      */
     @Override
     public List<Point[]> process(BufferedImage input, FloatBufferMdArray output) {
-        /*
-         * The text detection model from EasyOCR, for the most part, returns
-         * words or small groups of words. Since the EasyOCR text recognition
-         * models expect lines as input, we need to merge the boxes.
-         */
-        return new EasyOcrTextBoxMerger().process(super.process(input, output));
+        List<Point[]> result = super.process(input, output);
+        return applyTextBoxMerger(result);
+    }
+
+    /**
+     * The text detection model from EasyOCR, for the most part, returns
+     * words or small groups of words. Since the EasyOCR text recognition
+     * models expect lines as input, we need to merge the boxes.
+     *
+     * @param detectedTextBoxes list of rotated text boxes, provided by the
+     * text detection routine
+     *
+     * @return a new list with merged text boxes
+     */
+    protected List<Point[]> applyTextBoxMerger(List<Point[]> detectedTextBoxes) {
+        return new EasyOcrTextBoxMerger().process(detectedTextBoxes);
     }
 
     /**

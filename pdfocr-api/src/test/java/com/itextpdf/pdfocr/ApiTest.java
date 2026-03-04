@@ -181,7 +181,7 @@ public class ApiTest extends ExtendedITextTest {
 
         TextInfo textInfo = new TextInfo();
         textInfo.setText("text");
-        textInfo.setBboxRect(new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
+        textInfo.setTextPoints(new Rectangle(204.0f, 158.0f, 538.0f, 136.0f).toPointsArray());
         int page = 2;
         result.put(page, Collections.<TextInfo>singletonList(textInfo));
 

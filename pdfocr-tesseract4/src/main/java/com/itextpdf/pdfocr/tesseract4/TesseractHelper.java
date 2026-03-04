@@ -24,10 +24,10 @@ package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.SystemUtil;
+import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.pdfocr.TextOrientation;
-import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
@@ -36,6 +36,8 @@ import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Node;
 import com.itextpdf.styledxmlparser.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,8 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Helper class.
@@ -123,11 +123,13 @@ public class TesseractHelper {
      *                      where every character is interpreted as a single word.
      *                      For more information see https://github.com/tesseract-ocr/tesseract/issues/2702
      * @param tesseract4OcrEngineProperties {@link Tesseract4OcrEngineProperties}
+     *
      * @return {@link java.util.Map} where key is {@link java.lang.Integer}
      * representing the number of the page and value is
      * {@link java.util.List} of {@link TextInfo} elements where each
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
+     *
      * @throws IOException if error occurred during reading one the provided
      * files
      */
@@ -189,9 +191,9 @@ public class TesseractHelper {
      * Get and align (if needed) bbox of the element.
      */
     static Rectangle getAlignedBBox(Element object,
-                                      TextPositioning textPositioning,
-                                      Rectangle pageBbox,
-                                      Map<String, Node> unparsedBBoxes) {
+                                    TextPositioning textPositioning,
+                                    Rectangle pageBbox,
+                                    Map<String, Node> unparsedBBoxes) {
         final Rectangle box = parseBBox(object, pageBbox, unparsedBBoxes);
         if (TextPositioning.BY_WORDS_AND_LINES == textPositioning
                 || TextPositioning.BY_WORDS == textPositioning) {
@@ -215,6 +217,7 @@ public class TesseractHelper {
      * @param node element containing bbox
      * @param pageBBox element containing parent page bbox
      * @param unparsedBBoxes list of element ids with bboxes which could not be parsed
+     *
      * @return parsed bbox
      */
     static Rectangle parseBBox(Node node, Rectangle pageBBox, Map<String, Node> unparsedBBoxes) {
@@ -352,6 +355,7 @@ public class TesseractHelper {
      * Reads from text file to string.
      *
      * @param txtFile input {@link java.io.File} to be read
+     *
      * @return result {@link java.lang.String} from provided text file
      */
     static String readTxtFile(final File txtFile) {
@@ -374,6 +378,7 @@ public class TesseractHelper {
      *
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
+     *
      * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
@@ -387,6 +392,7 @@ public class TesseractHelper {
      * @param execPath path to the executable
      * @param paramsList {@link java.util.List} of command line arguments
      * @param workingDirPath path to the working directory
+     *
      * @throws PdfOcrTesseract4Exception if provided command failed
      */
     static void runCommand(final String execPath,
@@ -487,7 +493,7 @@ public class TesseractHelper {
             int wconfCount = 0;
             for (Node node : lineOrCaption.childNodes()) {
                 if (node instanceof Element) {
-                    String title = ((Element)node).attr(TITLE);
+                    String title = ((Element) node).attr(TITLE);
                     Matcher matcher = WCONF_PATTERN.matcher(title);
                     if (matcher.matches()) {
                         String wconf = null;
@@ -538,8 +544,12 @@ public class TesseractHelper {
                 final Rectangle bboxRect = getAlignedBBox(word,
                         textPositioning, pageBbox,
                         unparsedBBoxes);
-                textInfos.add(new TextInfo(word.text(),
-                        bboxRect));
+                textInfos.add(new TextInfo().setText(word.text()).setTextPoints(new Point[]{
+                        new Point(bboxRect.getLeft(), bboxRect.getBottom()),
+                        new Point(bboxRect.getLeft(), bboxRect.getTop()),
+                        new Point(bboxRect.getRight(), bboxRect.getTop()),
+                        new Point(bboxRect.getRight(), bboxRect.getBottom())
+                }));
                 if (lineItems[0].replaceAll(NEW_LINE_OR_SPACE_PATTERN, "")
                         .equals(getTextInfosText(textInfos).replaceAll(SPACE_PATTERN, ""))) {
                     lineItems = Arrays.copyOfRange(lineItems, 1, lineItems.length);
@@ -578,7 +588,30 @@ public class TesseractHelper {
                                       String text,
                                       Rectangle bboxRect,
                                       TextOrientation orientation) {
-        final TextInfo textInfo = new TextInfo(text, bboxRect, orientation);
+        Point[] textBox = new Point[]{
+                new Point(bboxRect.getLeft(), bboxRect.getBottom()),
+                new Point(bboxRect.getLeft(), bboxRect.getTop()),
+                new Point(bboxRect.getRight(), bboxRect.getTop()),
+                new Point(bboxRect.getRight(), bboxRect.getBottom())
+        };
+        Point[] rotatedTextBox;
+        switch (orientation) {
+            case HORIZONTAL_ROTATED_90:
+                rotatedTextBox = new Point[]{textBox[3], textBox[0], textBox[1], textBox[2]};
+                break;
+            case HORIZONTAL_ROTATED_180:
+                rotatedTextBox = new Point[]{textBox[2], textBox[3], textBox[0], textBox[1]};
+                break;
+            case HORIZONTAL_ROTATED_270:
+                rotatedTextBox = new Point[]{textBox[1], textBox[2], textBox[3], textBox[0]};
+                break;
+            case HORIZONTAL:
+            default:
+                rotatedTextBox = textBox;
+                break;
+        }
+
+        final TextInfo textInfo = new TextInfo().setText(text).setTextPoints(rotatedTextBox);
         textData.add(textInfo);
     }
 
@@ -605,20 +638,22 @@ public class TesseractHelper {
      * Merges text infos.
      *
      * @param textInfos source to merge
+     *
      * @return merged text info
      */
     private static TextInfo mergeTextInfos(List<TextInfo> textInfos) {
         TextInfo textInfo = new TextInfo(textInfos.get(0));
         for (int i = 1; i < textInfos.size(); i++) {
             textInfo.setText(textInfo.getText() + textInfos.get(i).getText());
-            Rectangle leftBBox = textInfo.getBboxRect();
-            Rectangle rightBBox = textInfos.get(i).getBboxRect();
-            textInfo.setBboxRect(new Rectangle(0, 0).setBbox(
-                    leftBBox.getLeft(),
-                    Math.min(leftBBox.getBottom(), rightBBox.getBottom()),
-                    rightBBox.getRight(),
-                    Math.max(leftBBox.getTop(), rightBBox.getTop())
-            ));
+            Rectangle leftBBox = textInfo.getBBoxRect();
+            Rectangle rightBBox = textInfos.get(i).getBBoxRect();
+            float leftX = leftBBox.getLeft();
+            float bottomY = Math.min(leftBBox.getBottom(), rightBBox.getBottom());
+            float rightX = rightBBox.getRight();
+            float topY = Math.max(leftBBox.getTop(), rightBBox.getTop());
+            textInfo.setTextPoints(new Point[]{
+                    new Point(leftX, bottomY), new Point(leftX, topY),
+                    new Point(rightX, topY), new Point(rightX, bottomY)});
         }
         return textInfo;
     }

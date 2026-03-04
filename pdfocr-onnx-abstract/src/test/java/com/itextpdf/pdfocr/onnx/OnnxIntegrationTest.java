@@ -22,18 +22,20 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
-import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
-import com.itextpdf.pdfocr.OcrPdfCreator;
-import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.OcrProcessContext;
+import com.itextpdf.pdfocr.TextInfo;
+import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
+import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
+import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.text.TextPositioning;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
+import com.itextpdf.pdfocr.util.PdfOcrTextBuilder;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,7 +44,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Tag("IntegrationTest")
 public class OnnxIntegrationTest extends ExtendedITextTest {
@@ -56,6 +59,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     @BeforeAll
     public static void beforeClass() {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
+
         OCR_ENGINE = OcrEngineType.DOCTR.get();
     }
 
@@ -65,39 +69,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "basicTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_basicTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-    }
-
-    @Test
-    public void bmpByWordsTest() throws Exception {
-        String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
-        String dest = TARGET_DIRECTORY + "bmpTestByWords.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_bmpTestByWords.pdf";
-
-        OnnxDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        Assertions.assertNotNull(detectionPredictor.getProperties());
-        OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
-        Assertions.assertNotNull(recognitionPredictor.getProperties());
-
-        try (OnnxOcrEngine onnxOcrEngine = new OnnxOcrEngine(detectionPredictor, null, recognitionPredictor,
-                new OnnxEngineProperties()
-                        .setTextPositioning(TextPositioning.BY_WORDS))) {
-            OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(onnxOcrEngine,
-                    creatorProperties("Text1", DeviceCmyk.MAGENTA));
-            try (PdfWriter writer = new PdfWriter(dest)) {
-                ocrPdfCreator.createPdf(Collections.singletonList(new File(src)), writer).close();
-            }
-        }
-
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
-
-        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
-            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
-            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("This\n1S test\na\nfor\nmessage\n-\nOCR\nScanner\nTest\nBMPTest",
-                    extractionStrategy.getResultantText());
-        }
     }
 
     @Test
@@ -106,13 +79,13 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "jfifTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_jfifTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("Ihis a test\n1S\nmessage for\n-\nOCR Scanner\nTest",
+            Assertions.assertEquals("Test\nmessage for\nOCR Scanner\nIhis a test\n1S\n-",
                     extractionStrategy.getResultantText());
         }
     }
@@ -123,7 +96,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "tiff10MBTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_tiff10MBTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
@@ -139,7 +112,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "jpeTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_jpeTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
@@ -155,7 +128,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "nnnTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_nnnTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
@@ -166,29 +139,36 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
     }
 
     @Test
-    public void scannedTest() throws IOException, InterruptedException {
+    public void scannedTest() throws IOException {
         String src = TEST_IMAGE_DIRECTORY + "scanned_spa_01.png";
         String dest = TARGET_DIRECTORY + "scannedTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("-\n" +
+            Assertions.assertEquals("la\n" +
+                    "se No\n" +
+                    "-\n" +
                     "AY SI ENSAYARA COMO ACTUAR?\n" +
-                    "Tanto peor, lo mejor es descansar y no pensar\n" +
-                    "la fiesta, si se puede. No hay nada mas desalentador\n" +
+                    "Tanto peor, lo mejor es descansar y no\n" +
+                    "fiesta, si pensar\n" +
+                    "puede. hay nada mas desalentador\n" +
                     "ver en las fiestas a jovenes con cara de lastima y\n" +
-                    "iluslonadas y que se han pasado todo el dia tratando\n" +
+                    "el\n" +
+                    "iluslonadas y se pasado todo\n" +
+                    "que han dia tratando\n" +
                     "hallar lo mejor y la mas atractiva manera de pres\n" +
                     "tarse en publico. Hay que actuar con calma y no\n" +
                     "cansaremos de repetirlo, Lo mas importante es saber\n" +
                     "que se va a poner y tener todo a mano,\n" +
                     "Si intenta probar un nuevo lapiz labial para la a\n" +
-                    "sion, asegurese que armonice con el vestido que lle\n" +
+                    "sion, asegurese que armonice con vestido lle\n" +
                     "-\n" +
-                    "rà. También el maquillaje de los ojos debe armoni\n" +
+                    "También el el\n" +
+                    "rà. que\n" +
+                    "maquillaje de los ojos debe armoni\n" +
                     "con el conjunto.", extractionStrategy.getResultantText());
         }
     }
@@ -198,7 +178,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String src = TEST_IMAGE_DIRECTORY + "halftone.jpg";
         String dest = TARGET_DIRECTORY + "halftoneTest.pdf";
 
-        doOcrAndCreatePdf(src, dest, creatorProperties("Text1", DeviceCmyk.MAGENTA));
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -223,7 +203,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "arabicTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_arabicTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -233,7 +213,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "bengaliTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_bengaliTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -243,7 +223,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "chineseTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_chineseTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -253,7 +233,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "frenchTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_frenchTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -263,7 +243,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "georgianTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_georgianTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -273,7 +253,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "germanTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_germanTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -283,7 +263,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "hindiTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_hindiTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -293,7 +273,7 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "japaneseTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_japaneseTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
@@ -303,28 +283,77 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String dest = TARGET_DIRECTORY + "spanishTest.pdf";
         String cmp = TEST_DIRECTORY + "cmp_spanishTest.pdf";
 
-        doOcrAndCreatePdf(src, dest);
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
-    private OcrPdfCreatorProperties creatorProperties(String layerName, Color color) {
-        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
-        ocrPdfCreatorProperties.setTextLayerName(layerName);
-        ocrPdfCreatorProperties.setTextColor(color);
-        return ocrPdfCreatorProperties;
-    }
+    @Test
+    public void bmpByWordsTest() throws Exception {
+        String src = TEST_IMAGE_DIRECTORY + "englishText.bmp";
+        String dest = TARGET_DIRECTORY + "bmpTestByWords.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_bmpTestByWords.pdf";
 
-    private void doOcrAndCreatePdf(String imagePath, String destPdfPath,
-                                   OcrPdfCreatorProperties ocrPdfCreatorProperties) throws IOException {
-        OcrPdfCreator ocrPdfCreator =
-                ocrPdfCreatorProperties != null ? new OcrPdfCreator(OCR_ENGINE, ocrPdfCreatorProperties)
-                        : new OcrPdfCreator(OCR_ENGINE);
-        try (PdfWriter writer = new PdfWriter(destPdfPath)) {
-            ocrPdfCreator.createPdf(Collections.singletonList(new File(imagePath)), writer).close();
+        OnnxDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
+        OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
+
+        try (OnnxOcrEngine onnxOcrEngine = new RotationAgnosticOnnxOcrEngine(detectionPredictor, null,
+                recognitionPredictor, new OnnxEngineProperties().setTextPositioning(TextPositioning.BY_WORDS))) {
+            OnnxTestUtils.doOcrAndCreatePdf(src, dest, onnxOcrEngine);
+        }
+
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+
+        try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
+            ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
+            Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
+            Assertions.assertEquals("This\n1S test\na\nfor\nmessage\n-\nOCR\nScanner\nTest\nBMPTest",
+                    extractionStrategy.getResultantText());
         }
     }
 
-    private void doOcrAndCreatePdf(String imagePath, String destPdfPath) throws IOException {
-        doOcrAndCreatePdf(imagePath, destPdfPath, null);
+    @Test
+    public void obliqueLinesTest() throws Exception {
+        String src = TEST_IMAGE_DIRECTORY + "obliqueLines.png";
+        String dest = TARGET_DIRECTORY + "obliqueLines.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_obliqueLines.pdf";
+
+        OnnxDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
+        OnnxRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
+
+        try (OnnxOcrEngine onnxOcrEngine = new RotationAgnosticOnnxOcrEngine(detectionPredictor, null,
+                recognitionPredictor, new OnnxEngineProperties().setTextPositioning(TextPositioning.BY_LINES))) {
+            OnnxTestUtils.doOcrAndCreatePdf(src, dest, onnxOcrEngine);
+        }
+
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+    }
+
+    /**
+     * Implementation of the {@link OnnxOcrEngine} supporting only 0, 90, 180 and 270 degrees text rotation.
+     */
+    public static class RotationAgnosticOnnxOcrEngine extends OnnxOcrEngine {
+
+        /**
+         * Create a new OCR engine with the provided predictors.
+         *
+         * @param detectionPredictor text detector. For an input image it outputs a list of text boxes
+         * @param orientationPredictor text orientation predictor. For an input image, which is a tight  crop of text,
+         * it outputs its orientation in 90 degrees steps. Can be null, in that case all text
+         * is assumed to be upright
+         * @param recognitionPredictor text recognizer. For an input image, which is a tight crop of text, it outputs the
+         * displayed string
+         * @param properties set of properties
+         */
+        public RotationAgnosticOnnxOcrEngine(IDetectionPredictor detectionPredictor,
+                                             IOrientationPredictor orientationPredictor,
+                                             IRecognitionPredictor recognitionPredictor,
+                                             OnnxEngineProperties properties) {
+            super(detectionPredictor, orientationPredictor, recognitionPredictor, properties);
+        }
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
+            return PdfOcrTextBuilder.correctRotationAngle(super.doImageOcr(input, ocrProcessContext));
+        }
     }
 }
