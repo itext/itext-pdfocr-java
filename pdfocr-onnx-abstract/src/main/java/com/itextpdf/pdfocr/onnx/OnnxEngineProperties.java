@@ -53,7 +53,7 @@ public class OnnxEngineProperties {
      *
      * @return the way text is retrieved
      */
-    public TextPositioning getTextPositioningMode() {
+    public TextPositioning getTextPositioning() {
         return textPositioning;
     }
 

@@ -149,9 +149,9 @@ public class OnnxOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
         Map<Integer, List<TextInfo>> result = doOnnxOcr(input, ocrProcessContext);
-        if (TextPositioning.BY_WORDS.equals(properties.getTextPositioningMode())) {
+        if (TextPositioning.BY_WORDS.equals(properties.getTextPositioning())) {
             PdfOcrTextBuilder.sortTextInfosByLines(result);
-        } else if (TextPositioning.BY_LINES.equals(properties.getTextPositioningMode())) {
+        } else if (TextPositioning.BY_LINES.equals(properties.getTextPositioning())) {
             PdfOcrTextBuilder.collectWordsIntoLines(result);
         } else {
             // Use TextPositioning.BY_WORDS_AND_LINES by default.
