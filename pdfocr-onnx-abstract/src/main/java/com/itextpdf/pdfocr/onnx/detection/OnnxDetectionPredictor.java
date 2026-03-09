@@ -347,19 +347,19 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_det_infer">
      *             PP-OCRv5_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_det_infer">
      *             PP-OCRv5_mobile_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_det_infer">
      *             PP-OCRv4_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_det_infer">
      *             PP-OCRv4_mobile_det
      *         </a>
      * </ul>
@@ -403,19 +403,19 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_det_infer">
      *             PP-OCRv5_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_det_infer">
      *             PP-OCRv5_mobile_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_det_infer">
      *             PP-OCRv4_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_det_infer">
      *             PP-OCRv4_mobile_det
      *         </a>
      * </ul>
@@ -454,19 +454,19 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_det_infer">
      *             PP-OCRv5_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_det_infer">
      *             PP-OCRv5_mobile_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_det_infer">
      *             PP-OCRv4_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_det_infer">
      *             PP-OCRv4_mobile_det
      *         </a>
      * </ul>
@@ -503,19 +503,19 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_det_infer">
      *             PP-OCRv5_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_det_infer">
      *             PP-OCRv5_mobile_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_det_infer">
      *             PP-OCRv4_server_det
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_det_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_det_infer">
      *             PP-OCRv4_mobile_det
      *         </a>
      * </ul>
@@ -552,7 +552,7 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This can be used to load the following models from EasyOCR:
      * <ul>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-craft_mlt_25k">
      *             CRAFT
      *         </a>
      * </ul>
@@ -582,7 +582,7 @@ public class OnnxDetectionPredictor extends AbstractOnnxPredictor<BufferedImage,
      * This can be used to load the following models from EasyOCR:
      * <ul>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-craft_mlt_25k">
      *             CRAFT
      *         </a>
      * </ul>

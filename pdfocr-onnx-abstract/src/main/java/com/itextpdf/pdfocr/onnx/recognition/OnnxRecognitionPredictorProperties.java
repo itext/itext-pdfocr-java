@@ -668,127 +668,127 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_rec_infer">
      *             PP-OCRv5_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_rec_infer">
      *             PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_doc_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_doc_infer">
      *             PP-OCRv4_server_rec_doc
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_rec_infer">
      *             PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_infer">
      *             PP-OCRv4_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv3_mobile_rec_infer">
      *             PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_SVTRv2_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_SVTRv2_rec_infer">
      *             ch_SVTRv2_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_RepSVTR_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_RepSVTR_rec_infer">
      *             ch_RepSVTR_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv5_mobile_rec_infer">
      *             en_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv4_mobile_rec_infer">
      *             en_PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv3_mobile_rec_infer">
      *             en_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv5_mobile_rec_infer">
      *             korean_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv5_mobile_rec_infer">
      *             latin_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/eslav_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-eslav_PP-OCRv5_mobile_rec_infer">
      *             eslav_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/th_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-th_PP-OCRv5_mobile_rec_infer">
      *             th_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/el_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-el_PP-OCRv5_mobile_rec_infer">
      *             el_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv5_mobile_rec_infer">
      *             arabic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv5_mobile_rec_infer">
      *             cyrillic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv5_mobile_rec_infer">
      *             devanagari_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv5_mobile_rec_infer">
      *             te_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv5_mobile_rec_infer">
      *             ta_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv3_mobile_rec_infer">
      *             korean_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/japan_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-japan_PP-OCRv3_mobile_rec_infer">
      *             japan_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/chinese_cht_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-chinese_cht_PP-OCRv3_mobile_rec_infer">
      *             chinese_cht_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv3_mobile_rec_infer">
      *             te_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ka_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ka_PP-OCRv3_mobile_rec_infer">
      *             ka_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv3_mobile_rec_infer">
      *             ta_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv3_mobile_rec_infer">
      *             latin_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv3_mobile_rec_infer">
      *             arabic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv3_mobile_rec_infer">
      *             cyrillic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv3_mobile_rec_infer">
      *             devanagari_PP-OCRv3_mobile_rec
      *         </a>
      * </ul>
@@ -829,127 +829,127 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_rec_infer">
      *             PP-OCRv5_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_rec_infer">
      *             PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_doc_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_doc_infer">
      *             PP-OCRv4_server_rec_doc
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_rec_infer">
      *             PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_infer">
      *             PP-OCRv4_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv3_mobile_rec_infer">
      *             PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_SVTRv2_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_SVTRv2_rec_infer">
      *             ch_SVTRv2_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_RepSVTR_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_RepSVTR_rec_infer">
      *             ch_RepSVTR_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv5_mobile_rec_infer">
      *             en_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv4_mobile_rec_infer">
      *             en_PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv3_mobile_rec_infer">
      *             en_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv5_mobile_rec_infer">
      *             korean_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv5_mobile_rec_infer">
      *             latin_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/eslav_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-eslav_PP-OCRv5_mobile_rec_infer">
      *             eslav_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/th_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-th_PP-OCRv5_mobile_rec_infer">
      *             th_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/el_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-el_PP-OCRv5_mobile_rec_infer">
      *             el_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv5_mobile_rec_infer">
      *             arabic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv5_mobile_rec_infer">
      *             cyrillic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv5_mobile_rec_infer">
      *             devanagari_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv5_mobile_rec_infer">
      *             te_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv5_mobile_rec_infer">
      *             ta_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv3_mobile_rec_infer">
      *             korean_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/japan_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-japan_PP-OCRv3_mobile_rec_infer">
      *             japan_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/chinese_cht_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-chinese_cht_PP-OCRv3_mobile_rec_infer">
      *             chinese_cht_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv3_mobile_rec_infer">
      *             te_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ka_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ka_PP-OCRv3_mobile_rec_infer">
      *             ka_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv3_mobile_rec_infer">
      *             ta_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv3_mobile_rec_infer">
      *             latin_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv3_mobile_rec_infer">
      *             arabic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv3_mobile_rec_infer">
      *             cyrillic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv3_mobile_rec_infer">
      *             devanagari_PP-OCRv3_mobile_rec
      *         </a>
      * </ul>
@@ -985,127 +985,127 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_rec_infer">
      *             PP-OCRv5_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_rec_infer">
      *             PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_doc_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_doc_infer">
      *             PP-OCRv4_server_rec_doc
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_rec_infer">
      *             PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_infer">
      *             PP-OCRv4_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv3_mobile_rec_infer">
      *             PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_SVTRv2_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_SVTRv2_rec_infer">
      *             ch_SVTRv2_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_RepSVTR_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_RepSVTR_rec_infer">
      *             ch_RepSVTR_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv5_mobile_rec_infer">
      *             en_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv4_mobile_rec_infer">
      *             en_PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv3_mobile_rec_infer">
      *             en_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv5_mobile_rec_infer">
      *             korean_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv5_mobile_rec_infer">
      *             latin_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/eslav_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-eslav_PP-OCRv5_mobile_rec_infer">
      *             eslav_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/th_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-th_PP-OCRv5_mobile_rec_infer">
      *             th_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/el_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-el_PP-OCRv5_mobile_rec_infer">
      *             el_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv5_mobile_rec_infer">
      *             arabic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv5_mobile_rec_infer">
      *             cyrillic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv5_mobile_rec_infer">
      *             devanagari_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv5_mobile_rec_infer">
      *             te_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv5_mobile_rec_infer">
      *             ta_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv3_mobile_rec_infer">
      *             korean_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/japan_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-japan_PP-OCRv3_mobile_rec_infer">
      *             japan_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/chinese_cht_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-chinese_cht_PP-OCRv3_mobile_rec_infer">
      *             chinese_cht_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv3_mobile_rec_infer">
      *             te_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ka_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ka_PP-OCRv3_mobile_rec_infer">
      *             ka_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv3_mobile_rec_infer">
      *             ta_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv3_mobile_rec_infer">
      *             latin_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv3_mobile_rec_infer">
      *             arabic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv3_mobile_rec_infer">
      *             cyrillic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv3_mobile_rec_infer">
      *             devanagari_PP-OCRv3_mobile_rec
      *         </a>
      * </ul>
@@ -1139,127 +1139,127 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following PaddleOCR models:
      * <ul>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_server_rec_infer">
      *             PP-OCRv5_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv5_mobile_rec_infer">
      *             PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_doc_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_doc_infer">
      *             PP-OCRv4_server_rec_doc
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_mobile_rec_infer">
      *             PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv4_server_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv4_server_rec_infer">
      *             PP-OCRv4_server_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-PP-OCRv3_mobile_rec_infer">
      *             PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_SVTRv2_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_SVTRv2_rec_infer">
      *             ch_SVTRv2_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_RepSVTR_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ch_RepSVTR_rec_infer">
      *             ch_RepSVTR_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv5_mobile_rec_infer">
      *             en_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv4_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv4_mobile_rec_infer">
      *             en_PP-OCRv4_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-en_PP-OCRv3_mobile_rec_infer">
      *             en_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv5_mobile_rec_infer">
      *             korean_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv5_mobile_rec_infer">
      *             latin_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/eslav_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-eslav_PP-OCRv5_mobile_rec_infer">
      *             eslav_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/th_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-th_PP-OCRv5_mobile_rec_infer">
      *             th_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/el_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-el_PP-OCRv5_mobile_rec_infer">
      *             el_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv5_mobile_rec_infer">
      *             arabic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv5_mobile_rec_infer">
      *             cyrillic_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv5_mobile_rec_infer">
      *             devanagari_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv5_mobile_rec_infer">
      *             te_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv5_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv5_mobile_rec_infer">
      *             ta_PP-OCRv5_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/korean_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-korean_PP-OCRv3_mobile_rec_infer">
      *             korean_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/japan_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-japan_PP-OCRv3_mobile_rec_infer">
      *             japan_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/chinese_cht_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-chinese_cht_PP-OCRv3_mobile_rec_infer">
      *             chinese_cht_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/te_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-te_PP-OCRv3_mobile_rec_infer">
      *             te_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ka_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ka_PP-OCRv3_mobile_rec_infer">
      *             ka_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ta_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-ta_PP-OCRv3_mobile_rec_infer">
      *             ta_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/latin_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-latin_PP-OCRv3_mobile_rec_infer">
      *             latin_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/arabic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-arabic_PP-OCRv3_mobile_rec_infer">
      *             arabic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/cyrillic_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-cyrillic_PP-OCRv3_mobile_rec_infer">
      *             cyrillic_PP-OCRv3_mobile_rec
      *         </a>
      *     <li>
-     *         <a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/devanagari_PP-OCRv3_mobile_rec_infer.tar">
+     *         <a href="https://huggingface.co/itextresearch/itext-devanagari_PP-OCRv3_mobile_rec_infer">
      *             devanagari_PP-OCRv3_mobile_rec
      *         </a>
      * </ul>
@@ -1304,71 +1304,71 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following EasyOCR models:
      * <ul>
      *     <li>
-     *         <a href=https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip">
+     *         <a href=https://huggingface.co/itextresearch/itext-EasyOCR-english_g2">
      *             english_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/latin_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-latin_g2">
      *             latin_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-zh_sim_g2">
      *             zh_sim_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/japanese_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-japanese_g2">
      *             japanese_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-korean_g2">
      *             korean_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/telugu.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-telugu">
      *             telugu_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/kannada.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-kannada">
      *             kannada_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/latin.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-latin">
      *             latin_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese_sim.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-chinese_sim">
      *             zh_sim_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-chinese">
      *             zh_tra_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/japanese.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-japanese">
      *             japanese_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/korean.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-korean">
      *             korean_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/thai.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-thai">
      *             thai_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/devanagari.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-devanagari">
      *             devanagari_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/cyrillic.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-cyrillic">
      *             cyrillic_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/arabic.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-arabic">
      *             arabic_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.1.8/bengali.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-bengali">
      *             bengali_g1
      *         </a>
      * </ul>
@@ -1398,71 +1398,71 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      * This method can be used to load the following EasyOCR models:
      * <ul>
      *     <li>
-     *         <a href=https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip">
+     *         <a href=https://huggingface.co/itextresearch/itext-EasyOCR-english_g2">
      *             english_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/latin_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-latin_g2">
      *             latin_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-zh_sim_g2">
      *             zh_sim_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/japanese_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-japanese_g2">
      *             japanese_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-korean_g2">
      *             korean_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/telugu.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-telugu">
      *             telugu_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.2/kannada.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-kannada">
      *             kannada_g2
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/latin.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-latin">
      *             latin_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese_sim.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-chinese_sim">
      *             zh_sim_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/chinese.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-chinese">
      *             zh_tra_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/japanese.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-japanese">
      *             japanese_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/korean.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-korean">
      *             korean_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/thai.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-thai">
      *             thai_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/devanagari.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-devanagari">
      *             devanagari_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/cyrillic.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-cyrillic">
      *             cyrillic_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/arabic.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-arabic">
      *             arabic_g1
      *         </a>
      *     <li>
-     *         <a href="https://github.com/JaidedAI/EasyOCR/releases/download/v1.1.8/bengali.zip">
+     *         <a href="https://huggingface.co/itextresearch/itext-EasyOCR-bengali">
      *             bengali_g1
      *         </a>
      * </ul>
