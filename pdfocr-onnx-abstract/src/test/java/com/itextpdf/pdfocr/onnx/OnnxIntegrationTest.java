@@ -355,5 +355,10 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
             return PdfOcrTextBuilder.correctRotationAngle(super.doImageOcr(input, ocrProcessContext));
         }
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+            return PdfOcrTextBuilder.correctRotationAngle(super.doImageOcr(inputs, ocrProcessContext));
+        }
     }
 }

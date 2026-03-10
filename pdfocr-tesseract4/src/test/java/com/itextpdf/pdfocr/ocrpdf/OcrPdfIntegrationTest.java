@@ -23,14 +23,21 @@
 package com.itextpdf.pdfocr.ocrpdf;
 
 import com.itextpdf.commons.utils.StringNormalizer;
+import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
+import com.itextpdf.pdfocr.OcrPdfCreator;
+import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -128,6 +135,28 @@ public abstract class OcrPdfIntegrationTest extends IntegrationTestHelper {
         makeSearchable("skewedRotated45");
     }
 
+
+    @Test
+    public void multiFilesTest() throws IOException, InterruptedException {
+        List<File> files = Arrays.<File>asList(
+                new File(TEST_IMAGES_DIRECTORY + "german_01.jpg"),
+                new File(TEST_IMAGES_DIRECTORY + "noisy_01.png"),
+                new File(TEST_IMAGES_DIRECTORY + "nümbérs.jpg")
+        );
+
+        String resultPdfPath = TARGET_DIRECTORY + "multiFiles_" + testType + ".pdf";
+        String expectedPdfPath = CMP_DIRECTORY + "cmp_multiFiles.pdf";
+
+        OcrPdfCreatorProperties properties = creatorProperties("Text1", "Image1", DeviceCmyk.CYAN);
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(tesseractReader, properties);
+        try (PdfWriter writer = new PdfWriter(resultPdfPath)) {
+            ocrPdfCreator.createPdf(files, writer).close();
+        }
+
+        Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), "diff_"));
+    }
+
     private void makeSearchable(String fileName) throws InterruptedException, IOException {
         String path = TEST_PDFS_DIRECTORY + fileName + ".pdf";
         String expectedPdfPath = CMP_DIRECTORY + fileName + ".pdf";
@@ -138,5 +167,13 @@ public abstract class OcrPdfIntegrationTest extends IntegrationTestHelper {
 
         Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));
+    }
+
+    private OcrPdfCreatorProperties creatorProperties(String textLayerName, String imageLayerName, Color color) {
+        OcrPdfCreatorProperties ocrPdfCreatorProperties = new OcrPdfCreatorProperties();
+        ocrPdfCreatorProperties.setTextLayerName(textLayerName);
+        ocrPdfCreatorProperties.setTextColor(color);
+        ocrPdfCreatorProperties.setImageLayerName(imageLayerName);
+        return ocrPdfCreatorProperties;
     }
 }

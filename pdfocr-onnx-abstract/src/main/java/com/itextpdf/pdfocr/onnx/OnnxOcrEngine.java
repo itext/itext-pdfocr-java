@@ -43,6 +43,7 @@ import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -148,7 +149,23 @@ public class OnnxOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
      */
     @Override
     public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
-        Map<Integer, List<TextInfo>> result = doOnnxOcr(input, ocrProcessContext);
+        return doImageOcr(Collections.singletonList(input), ocrProcessContext);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return doImageOcr(inputs, new OcrProcessContext(new OnnxEventHelper()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        Map<Integer, List<TextInfo>> result = doOnnxOcr(inputs, ocrProcessContext);
         if (TextPositioning.BY_WORDS.equals(properties.getTextPositioning())) {
             PdfOcrTextBuilder.sortTextInfosByLines(result);
         } else if (TextPositioning.BY_LINES.equals(properties.getTextPositioning())) {
@@ -188,12 +205,10 @@ public class OnnxOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
             OnnxFileResultEventHelper fileResultEventHelper = new OnnxFileResultEventHelper(storedEventHelper);
             ocrProcessContext.setOcrEventHelper(fileResultEventHelper);
 
-            StringBuilder content = new StringBuilder();
-            for (File inputImage : inputImages) {
-                Map<Integer, List<TextInfo>> outputMap = doOnnxOcr(inputImage, ocrProcessContext);
-                content.append(PdfOcrTextBuilder.buildText(outputMap));
-            }
-            PdfOcrFileUtil.writeToTextFile(txtFile.getAbsolutePath(), content.toString());
+            Map<Integer, List<TextInfo>> outputMap =
+                    doOnnxOcr(inputImages, ocrProcessContext);
+            String content = PdfOcrTextBuilder.buildText(outputMap);
+            PdfOcrFileUtil.writeToTextFile(txtFile.getAbsolutePath(), content);
 
             fileResultEventHelper.registerAllSavedEvents();
         } finally {
@@ -248,10 +263,10 @@ public class OnnxOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
     }
 
     /**
-     * Reads raw data from the provided input image file and returns retrieved data
+     * Reads raw data from the provided input image files and returns retrieved data
      * in the format described below.
      *
-     * @param input input image {@link java.io.File}
+     * @param input {@link java.util.List} of input image files
      * @param ocrProcessContext ocr processing context
      *
      * @return {@link java.util.Map} where key is {@link java.lang.Integer}
@@ -260,8 +275,11 @@ public class OnnxOcrEngine implements IOcrEngine, AutoCloseable, IProductAware {
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
      */
-    private Map<Integer, List<TextInfo>> doOnnxOcr(File input, OcrProcessContext ocrProcessContext) {
-        final List<BufferedImage> images = getImages(input);
+    private Map<Integer, List<TextInfo>> doOnnxOcr(List<File> input, OcrProcessContext ocrProcessContext) {
+        final List<BufferedImage> images = new ArrayList<>();
+        for (File file : input) {
+            images.addAll(getImages(file));
+        }
         OnnxProcessor onnxProcessor = new OnnxProcessor(detectionPredictor, orientationPredictor,
                 recognitionPredictor);
         return onnxProcessor.doOcr(images, ocrProcessContext);

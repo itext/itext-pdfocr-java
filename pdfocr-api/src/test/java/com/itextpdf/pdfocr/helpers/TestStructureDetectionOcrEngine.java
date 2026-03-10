@@ -93,6 +93,30 @@ public class TestStructureDetectionOcrEngine implements IOcrEngine {
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        Map<Integer, List<TextInfo>> result = new HashMap<>();
+        for (File file : inputs) {
+            Map<Integer, List<TextInfo>> imageOcr = doImageOcr(file, ocrProcessContext);
+            int pageShift = result.size();
+            for (Map.Entry<Integer, List<TextInfo>> entry : imageOcr.entrySet()) {
+                result.put(entry.getKey() + pageShift, entry.getValue());
+            }
+        }
+        return result;
+    }
+
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
     }

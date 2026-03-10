@@ -286,7 +286,7 @@ class PdfCreatorUtil {
      * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
      * string
      */
-    private static int getNumberOfPageTiff(final File inputImage)
+    static int getNumberOfPageTiff(final File inputImage)
             throws IOException {
         RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
                 new RandomAccessSourceFactory()

@@ -62,6 +62,30 @@ public class CustomOcrEngine implements IOcrEngine {
         return doImageOcr(input);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        Map<Integer, List<TextInfo>> result = new HashMap<>();
+        for (File file : inputs) {
+            Map<Integer, List<TextInfo>> imageOcr = doImageOcr(file);
+            int pageShift = result.size();
+            for (Map.Entry<Integer, List<TextInfo>> entry : imageOcr.entrySet()) {
+                result.put(entry.getKey() + pageShift, entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        return doImageOcr(inputs);
+    }
+
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
     }

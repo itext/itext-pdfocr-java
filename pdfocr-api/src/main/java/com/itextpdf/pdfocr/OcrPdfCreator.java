@@ -67,11 +67,14 @@ import com.itextpdf.pdfa.PdfADocument;
 import com.itextpdf.pdfocr.ImageExtraction.PageImageData;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputType;
 import com.itextpdf.pdfocr.statistics.PdfOcrOutputTypeStatisticsEvent;
 import com.itextpdf.pdfocr.structuretree.ArtifactItem;
 import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,8 +209,27 @@ public class OcrPdfCreator {
         Map<File, Map<Integer, List<TextInfo>>> imagesTextData = new LinkedHashMap<File, Map<Integer, List<TextInfo>>>(
                 inputImages.size() * 2);
 
-        for (File inputImage : inputImages) {
-            imagesTextData.put(inputImage, ocrEngine.doImageOcr(inputImage, ocrProcessContext));
+        Map<Integer, List<TextInfo>> imagesTextDataInfos = ocrEngine.doImageOcr(inputImages, ocrProcessContext);
+        if (!imagesTextDataInfos.isEmpty()) {
+            int i = 0;
+            for (File inputImage : inputImages) {
+                try {
+                    int pageCount =
+                            TiffImageUtil.isTiffImage(inputImage) ? PdfCreatorUtil.getNumberOfPageTiff(inputImage) : 1;
+                    Map<Integer, List<TextInfo>> currentImagesTextDataInfos = new HashMap<>();
+                    for (int j = 0; j <= pageCount; j++) {
+                        currentImagesTextDataInfos.put(j, imagesTextDataInfos.get(i + j));
+                    }
+                    i += pageCount;
+                    imagesTextData.put(inputImage, currentImagesTextDataInfos);
+                }  catch (IOException | com.itextpdf.io.exceptions.IOException e) {
+                    LOGGER.error(MessageFormatUtil.format(
+                            PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE,
+                            e.getMessage()));
+                    throw new PdfOcrInputException(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e);
+                }
+
+            }
         }
 
         // create PdfDocument

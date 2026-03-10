@@ -254,6 +254,30 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return doImageOcr(inputs, new OcrProcessContext(new Tesseract4EventHelper()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        Map<Integer, List<TextInfo>> allTextInfos = new LinkedHashMap<>();
+        for (File image : inputs) {
+            Map<Integer, List<TextInfo>> imageTextInfos = doImageOcr(image, ocrProcessContext);
+            int pageShift = allTextInfos.size();
+            for (Map.Entry<Integer, List<TextInfo>> entry : imageTextInfos.entrySet()) {
+                allTextInfos.put(entry.getKey() + pageShift, entry.getValue());
+            }
+        }
+        return allTextInfos;
+    }
+
+    /**
      * Reads data from the provided input image file and returns retrieved
      * data as string.
      *

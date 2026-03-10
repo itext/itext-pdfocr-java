@@ -53,6 +53,22 @@ public class CustomProductAwareOcrEngine implements IOcrEngine, IProductAware {
         return doImageOcr(input);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return Collections.<Integer, List<TextInfo>>emptyMap();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        return doImageOcr(inputs);
+    }
+
     @Override
     public void createTxtFile(List<File> inputImages, File txtFile) {
     }
