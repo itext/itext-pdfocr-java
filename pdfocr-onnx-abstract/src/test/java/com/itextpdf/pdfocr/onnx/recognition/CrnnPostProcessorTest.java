@@ -24,8 +24,7 @@ package com.itextpdf.pdfocr.onnx.recognition;
 
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
 
-import java.nio.FloatBuffer;
-
+import com.itextpdf.pdfocr.onnx.FloatBufferWrapper;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -45,7 +44,7 @@ public class CrnnPostProcessorTest extends ExtendedITextTest {
     public void process() {
         final Vocabulary vocab = new Vocabulary("ABCD ");
         final CrnnPostProcessor processor = new CrnnPostProcessor(vocab);
-        final FloatBuffer probs = FloatBuffer.wrap(new float[]{
+        final FloatBufferWrapper probs = FloatBufferWrapper.wrap(new float[]{
                 0.11F, 0.15F, 0.13F, 0.12F, 0.11F, 0.97F,   // [blank]
                 0.75F, 0.22F, 0.14F, 0.56F, 0.67F, 0.01F,   // "A"
                 0.24F, 0.14F, 0.10F, 0.42F, 0.13F, 0.96F,   // [blank]

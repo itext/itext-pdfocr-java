@@ -38,7 +38,6 @@ import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OrtSession.Result;
 import ai.onnxruntime.TensorInfo;
 import ai.onnxruntime.ValueInfo;
-import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -190,7 +189,7 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
     protected abstract List<R> fromOutputBuffer(List<T> inputBatch, FloatBufferMdArray outputBatch);
 
     private static OnnxTensor createTensor(FloatBufferMdArray batch) throws OrtException {
-        return OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), batch.getData(), batch.getShape());
+        return OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), batch.getData().getFloatBuffer(), batch.getShape());
     }
 
     /**
@@ -270,7 +269,7 @@ public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
         final OnnxValue output = result.get(0);
         final TensorInfo outputInfo = (TensorInfo) output.getInfo();
         final long[] outputShape = outputInfo.getShape();
-        final FloatBuffer outputBuffer = ((OnnxTensor) output).getFloatBuffer();
+        final FloatBufferWrapper outputBuffer = new FloatBufferWrapper(((OnnxTensor) output).getFloatBuffer());
         return new FloatBufferMdArray(outputBuffer, outputShape);
     }
 

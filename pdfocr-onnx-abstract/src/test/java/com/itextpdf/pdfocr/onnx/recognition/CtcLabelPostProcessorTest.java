@@ -23,9 +23,9 @@
 package com.itextpdf.pdfocr.onnx.recognition;
 
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnx.FloatBufferWrapper;
 import com.itextpdf.test.ExtendedITextTest;
 
-import java.nio.FloatBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class CtcLabelPostProcessorTest extends ExtendedITextTest {
     public void process() {
         final StringMapper mapper = new StringMapper(new String[]{"AB", "CD", "EF", "GH", " "});
         final CtcLabelPostProcessor processor = new CtcLabelPostProcessor(mapper);
-        final FloatBuffer probs = FloatBuffer.wrap(new float[]{
+        final FloatBufferWrapper probs = FloatBufferWrapper.wrap(new float[]{
                 0.97F, 0.11F, 0.15F, 0.13F, 0.12F, 0.11F,    // [blank]
                 0.01F, 0.75F, 0.22F, 0.14F, 0.56F, 0.67F,    // "AB"
                 0.96F, 0.24F, 0.14F, 0.10F, 0.42F, 0.13F,    // [blank]

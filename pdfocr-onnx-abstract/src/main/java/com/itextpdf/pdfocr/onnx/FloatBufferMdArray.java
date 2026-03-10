@@ -25,28 +25,27 @@ package com.itextpdf.pdfocr.onnx;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 
-import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Multidimensional array with a {@link FloatBuffer} backing storage.
+ * Multidimensional array with a {@link FloatBufferWrapper} backing storage.
  */
 public class FloatBufferMdArray {
-    private final FloatBuffer data;
+    private final FloatBufferWrapper data;
     private final long[] shape;
 
     /**
      * Constructs a new {@code FloatBufferMdArray} with the specified data buffer and shape.
      *
-     * @param data  the {@link FloatBuffer} containing the data for this array
+     * @param data  the {@link FloatBufferWrapper} containing the data for this array
      * @param shape the shape of the multidimensional array, where each entry specifies the size of a dimension
      *
      * @throws NullPointerException     if {@code data} or {@code shape} is {@code null}
      * @throws IllegalArgumentException if {@code shape} is invalid or the number of elements in {@code data}
      *                                   does not match the element count derived from {@code shape}
      */
-    public FloatBufferMdArray(FloatBuffer data, long[] shape) {
+    public FloatBufferMdArray(FloatBufferWrapper data, long[] shape) {
         Objects.requireNonNull(data);
         Objects.requireNonNull(shape);
         if (!validateShape(shape)) {
@@ -56,15 +55,15 @@ public class FloatBufferMdArray {
             throw new IllegalArgumentException(PdfOcrOnnxExceptionMessageConstant.ELEM_COUNT_DOES_NOT_MATCH_SHAPE);
         }
         this.data = data.duplicate();
-        this.shape = shape.clone();
+        this.shape = (long[]) shape.clone();
     }
 
     /**
-     * Returns a duplicate of the backing {@link FloatBuffer}.
+     * Returns a duplicate of the backing {@link FloatBufferWrapper}.
      *
-     * @return a duplicate of the backing {@link FloatBuffer}
+     * @return a duplicate of the backing {@link FloatBufferWrapper}
      */
-    public FloatBuffer getData() {
+    public FloatBufferWrapper getData() {
         return data.duplicate();
     }
 
@@ -74,7 +73,7 @@ public class FloatBufferMdArray {
      * @return a copy of the shape array
      */
     public long[] getShape() {
-        return shape.clone();
+        return (long[]) shape.clone();
     }
 
     /**
@@ -123,7 +122,7 @@ public class FloatBufferMdArray {
         final long[] newShape = new long[shape.length - 1];
         System.arraycopy(shape, 1, newShape, 0, newShape.length);
         final int subArraySize = (data.remaining() / (int) shape[0]);
-        FloatBuffer newData = data.duplicate();
+        FloatBufferWrapper newData = data.duplicate();
         newData.position(index * subArraySize);
         newData = newData.slice();
         newData.limit(subArraySize);

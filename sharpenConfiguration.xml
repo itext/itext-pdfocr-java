@@ -37,17 +37,9 @@
                 <file path="com/itextpdf/pdfocr/onnx/IOrtSessionOptionsCreator.java" />
                 <file path="com/itextpdf/pdfocr/onnx/DefaultOrtSessionOptionsCreator.java" />
             </fileset>
-            <fileset reason="Non-autoportable FloatBuffer usages in Java">
-                <file path="com/itextpdf/pdfocr/onnx/detection/EasyOcrDetectionPostProcessor.java" />
-            </fileset>
             <fileset reason="Different exception messages in Java and .NET">
                 <file path="com/itextpdf/pdfocr/onnx/DependencyLoadChecker.java" />
                 <file path="com/itextpdf/pdfocr/onnx/DependencyLoadCheckerTest.java" />
-            </fileset>
-            <fileset reason="Lack of similar API as ByteBuffer in .NET">
-                <file path="com/itextpdf/pdfocr/onnx/FloatBufferMdArray.java" />
-                <file path="com/itextpdf/pdfocr/onnx/recognition/CrnnPostProcessorTest.java" />
-                <file path="com/itextpdf/pdfocr/onnx/recognition/CtcLabelPostProcessorTest.java" />
             </fileset>
             <fileset reason="Interface extending autocloseable can't be ported">
                 <file path="com/itextpdf/pdfocr/onnx/IPredictor.java" />
@@ -62,6 +54,9 @@
             </fileset>
             <fileset reason="Different YAML parsing logic in .NET and Java">
                 <file path="com/itextpdf/pdfocr/onnx/util/YamlUtil.java" />
+            </fileset>
+            <fileset reason="Lack of similar API as ByteBuffer in .NET">
+                <file path="com/itextpdf/pdfocr/onnx/FloatBufferWrapper.java" />
             </fileset>
         </java>
     </ignored>

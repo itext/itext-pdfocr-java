@@ -86,6 +86,7 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnx.util.YamlUtilTest",
                 Arrays.asList("System.Linq"));
         configurator.addFullName("iText.Pdfocr.Onnx.Text.TextPositioning");
+        configurator.mapType("com.itextpdf.pdfocr.onnx.FloatBufferWrapper", "iText.pdfOcr.Onnx.FloatBufferWrapper");
     }
 
     private void mapOpenCv(MappingConfigurator configurator) {
@@ -97,7 +98,6 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.RotatedRect.angle", "Angle");
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.Size2f.width", "Width");
         configurator.mapProperty("org.bytedeco.opencv.opencv_core.Size2f.height", "Height");
-        configurator.mapMethod("java.nio.FloatBuffer.array", "");
 
         configurator.removeMethod("org.bytedeco.javacpp.Pointer.close");
 

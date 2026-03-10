@@ -17,12 +17,12 @@ package com.itextpdf.pdfocr.onnx.detection;
 
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnx.FloatBufferWrapper;
 import com.itextpdf.pdfocr.onnx.detection.score.IScoreCalculator;
 import com.itextpdf.pdfocr.onnx.detection.score.MaxScoreCalculator;
 import com.itextpdf.pdfocr.onnx.merging.EasyOcrTextBoxMerger;
 
 import java.awt.image.BufferedImage;
-import java.nio.FloatBuffer;
 import java.util.List;
 
 /**
@@ -79,12 +79,12 @@ public class EasyOcrDetectionPostProcessor extends BasicDetectionPostProcessor {
          * link data. So we are creating a new buffer, where they are
          * combined.
          */
-        final FloatBuffer textScoreBuffer = output.getSubArray(0).getData();
-        final FloatBuffer linkScoreBuffer = output.getSubArray(1).getData();
+        final FloatBufferWrapper textScoreBuffer = output.getSubArray(0).getData();
+        final FloatBufferWrapper linkScoreBuffer = output.getSubArray(1).getData();
         final int height = output.getDimension(1);
         final int width = output.getDimension(2);
         final int size = height * width;
-        final FloatBuffer maskSourceBuffer = FloatBuffer.allocate(height * width);
+        final FloatBufferWrapper maskSourceBuffer = FloatBufferWrapper.allocate(height * width);
         for (int i = 0; i < size; ++i) {
             final float text = textScoreBuffer.get() >= TEXT_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;
             final float link = linkScoreBuffer.get() >= LINK_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;

@@ -26,6 +26,7 @@ import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnx.FloatBufferWrapper;
 import com.itextpdf.pdfocr.onnx.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnx.ImageResizeOptions;
 import com.itextpdf.pdfocr.onnx.OnnxInputProperties;
@@ -45,7 +46,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -108,7 +108,7 @@ public final class BufferedImageUtil {
                 batchDimensions.getHeight(),
                 batchDimensions.getWidth()
         };
-        final FloatBuffer inputData = allocFloatBuffer(inputShape);
+        final FloatBufferWrapper inputData = allocFloatBuffer(inputShape);
         for (final BufferedImage image : images) {
             final BufferedImage resizedImage = resize(
                     image,
@@ -365,7 +365,7 @@ public final class BufferedImageUtil {
     }
 
     private static void putImageWithNormalization(
-            FloatBuffer outputBuffer,
+            FloatBufferWrapper outputBuffer,
             BufferedImage image,
             OnnxInputProperties props
     ) {
@@ -384,7 +384,7 @@ public final class BufferedImageUtil {
     }
 
     private static void putGrayscaleImageWithNormalization(
-            FloatBuffer outputBuffer,
+            FloatBufferWrapper outputBuffer,
             BufferedImage image,
             OnnxInputProperties props
     ) {
@@ -394,7 +394,7 @@ public final class BufferedImageUtil {
     }
 
     private static void putRgbImageWithNormalization(
-            FloatBuffer outputBuffer,
+            FloatBufferWrapper outputBuffer,
             BufferedImage image,
             OnnxInputProperties props
     ) {
@@ -406,7 +406,7 @@ public final class BufferedImageUtil {
     }
 
     private static void putBgrImageWithNormalization(
-            FloatBuffer outputBuffer,
+            FloatBufferWrapper outputBuffer,
             BufferedImage image,
             OnnxInputProperties props
     ) {
@@ -418,7 +418,7 @@ public final class BufferedImageUtil {
     }
 
     private static void putImageBandWithNormalization(
-            FloatBuffer outputBuffer,
+            FloatBufferWrapper outputBuffer,
             BufferedImage image,
             int band,
             double mean,
@@ -596,7 +596,7 @@ public final class BufferedImageUtil {
      *
      * @return the allocated direct float buffer
      */
-    private static FloatBuffer allocFloatBuffer(long[] shape) {
+    private static FloatBufferWrapper allocFloatBuffer(long[] shape) {
         /*
          * It is important to do it via ByteBuffer with allocateDirect. If the
          * buffer is non-direct, it will allocate a direct buffer within the
@@ -606,9 +606,9 @@ public final class BufferedImageUtil {
          * For some reason there doesn't seem to be a way to allocate a direct
          * buffer via FloatBuffer itself...
          */
-        return ByteBuffer
+        return new FloatBufferWrapper(ByteBuffer
                 .allocateDirect(calculateBufferCapacity(shape))
                 .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
+                .asFloatBuffer());
     }
 }
