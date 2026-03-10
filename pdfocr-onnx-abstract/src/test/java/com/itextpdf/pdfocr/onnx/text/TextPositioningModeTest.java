@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.text;
 
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
@@ -29,18 +30,18 @@ import com.itextpdf.pdfocr.IOcrEngine;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
 import com.itextpdf.test.ExtendedITextTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @Tag("IntegrationTest")
 public class TextPositioningModeTest extends ExtendedITextTest {
@@ -104,10 +105,17 @@ public class TextPositioningModeTest extends ExtendedITextTest {
 
         String src = TEST_IMAGE_DIRECTORY + "linesWithSpaces.png";
         String dest = TARGET_DIRECTORY + name + "_linesWithSpaces.pdf";
-        String cmp = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces.pdf";
+        String cmp1 = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces.pdf";
+        String cmp2 = TEST_DIRECTORY + "cmp_" + name + "_linesWithSpaces_2.pdf";
 
         doOcrAndCreatePdf(src, dest, ocrEngine);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        String diff = new CompareTool().compareByContent(dest, cmp1, TARGET_DIRECTORY, "diff_");
+        if (diff != null && FileUtil.fileExists(cmp2)) {
+            // Second cmp is required for DocTR BY_WORDS on .NET because of different results on .NET CoreApp and .NET Framework
+            Assertions.assertNull(new CompareTool().compareByContent(dest, cmp2, TARGET_DIRECTORY, "diff_"));
+        } else {
+            Assertions.assertNull(diff);
+        }
     }
 
     private void doOcrAndCreatePdf(String imagePath, String destPdfPath, IOcrEngine ocrEngine) throws IOException {
