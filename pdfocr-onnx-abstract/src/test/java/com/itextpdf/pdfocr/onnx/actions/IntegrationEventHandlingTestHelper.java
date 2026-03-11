@@ -93,7 +93,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
 
     protected static void validateUsageEvent(IEvent event, EventConfirmationType expectedConfirmationType) {
         Assertions.assertTrue(event instanceof PdfOcrOnnxProductEvent);
-        Assertions.assertEquals("process-image-onnxtr", ((PdfOcrOnnxProductEvent) event).getEventType());
+        Assertions.assertEquals("process-image-onnx", ((PdfOcrOnnxProductEvent) event).getEventType());
         Assertions.assertEquals(expectedConfirmationType, ((PdfOcrOnnxProductEvent) event).getConfirmationType());
         Assertions.assertEquals(PdfOcrOnnxProductData.getInstance(),
                 ((PdfOcrOnnxProductEvent) event).getProductData());
@@ -127,7 +127,7 @@ public abstract class IntegrationEventHandlingTestHelper extends ExtendedITextTe
     protected static ConfirmedEventWrapper getPdfOcrEvent() {
         PdfOcrOnnxProductEvent event = PdfOcrOnnxProductEvent.createProcessImageOnnxEvent(new SequenceId(), null,
                 EventConfirmationType.ON_CLOSE);
-        DefaultITextProductEventProcessor processor = new DefaultITextProductEventProcessor(ProductNameConstant.PDF_OCR_ONNXTR);
+        DefaultITextProductEventProcessor processor = new DefaultITextProductEventProcessor(ProductNameConstant.PDF_OCR_ONNX);
         return new ConfirmedEventWrapper(event, processor.getUsageType(), processor.getProducer());
     }
 

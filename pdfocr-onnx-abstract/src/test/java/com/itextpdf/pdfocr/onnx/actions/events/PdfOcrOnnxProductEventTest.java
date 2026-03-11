@@ -42,6 +42,6 @@ public class PdfOcrOnnxProductEventTest extends ExtendedITextTest {
 
     @Test
     public void productDataNameTest() {
-        Assertions.assertEquals("pdfOcr-onnxtr", PdfOcrOnnxProductData.getInstance().getProductName());
+        Assertions.assertEquals("pdfOcr-onnx", PdfOcrOnnxProductData.getInstance().getProductName());
     }
 }

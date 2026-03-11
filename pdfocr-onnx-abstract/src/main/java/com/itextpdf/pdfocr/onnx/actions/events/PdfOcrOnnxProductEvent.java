@@ -35,7 +35,7 @@ public final class PdfOcrOnnxProductEvent extends AbstractProductProcessITextEve
     /**
      * Process image event type.
      */
-    public static final String PROCESS_IMAGE_ONNX = "process-image-onnxtr";
+    public static final String PROCESS_IMAGE_ONNX = "process-image-onnx";
 
     private final String eventType;
 

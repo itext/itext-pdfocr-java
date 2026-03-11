@@ -52,8 +52,6 @@ import java.util.Objects;
  * @param <R> predictor output type
  */
 public abstract class AbstractOnnxPredictor<T, R> implements IPredictor<T, R> {
-    private static final IOrtSessionOptionsCreator DEFAULT_ORT_SESSION_CREATOR = new DefaultOrtSessionOptionsCreator();
-
     /**
      * Model input properties.
      */

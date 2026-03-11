@@ -28,8 +28,8 @@ import com.itextpdf.commons.actions.data.ProductData;
  * Stores an instance of {@link ProductData} related to iText pdfOcr Onnx module.
  */
 public final class PdfOcrOnnxProductData {
-    private static final String PDF_OCR_ONNX_PRODUCT_NAME = "pdfOcr-onnxtr";
-    private static final String PDF_OCR_ONNX_PUBLIC_PRODUCT_NAME = "pdfOCR-OnnxTR";
+    private static final String PDF_OCR_ONNX_PRODUCT_NAME = "pdfOcr-onnx";
+    private static final String PDF_OCR_ONNX_PUBLIC_PRODUCT_NAME = "pdfOCR-Onnx";
     private static final String PDF_OCR_VERSION = "5.0.0-SNAPSHOT";
     private static final int PDF_OCR_COPYRIGHT_SINCE = 2000;
     private static final int PDF_OCR_COPYRIGHT_TO = 2026;
