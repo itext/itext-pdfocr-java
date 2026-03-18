@@ -86,7 +86,6 @@ public class SharpenConfigMapping implements MappingConfiguration {
         configurator.addCustomUsingDeclaration("com.itextpdf.pdfocr.onnx.util.YamlUtilTest",
                 Arrays.asList("System.Linq"));
         configurator.addFullName("iText.Pdfocr.Onnx.Text.TextPositioning");
-        configurator.mapType("com.itextpdf.pdfocr.onnx.FloatBufferWrapper", "iText.pdfOcr.Onnx.FloatBufferWrapper");
 
         configurator.keepInternalProtected("com.itextpdf.pdfocr.onnx.text.OcrEngineTypeWithTextPositioning.TextBoxMergeAgnosticEasyOcrDetectionPostProcessor.applyTextBoxMerger");
     }

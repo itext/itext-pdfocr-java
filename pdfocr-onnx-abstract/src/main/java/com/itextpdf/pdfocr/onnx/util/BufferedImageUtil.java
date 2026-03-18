@@ -33,7 +33,6 @@ import com.itextpdf.pdfocr.onnx.OnnxInputProperties;
 import com.itextpdf.pdfocr.onnx.PaddingStrategy;
 import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import org.bytedeco.javacpp.indexer.FloatIndexer;
-import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_core.Size;
@@ -43,7 +42,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
+import java.awt.image.DataBufferByte;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -102,7 +101,7 @@ public final class BufferedImageUtil {
 
         final ImageResizeOptions resizeOptions = properties.getImageResizeOptions();
         final Dimensions2D batchDimensions = calcOutputDimensions(images, resizeOptions);
-        final long[] inputShape = new long[] {
+        final long[] inputShape = new long[]{
                 images.size(),
                 resizeOptions.getChannelConfiguration().getChannelCount(),
                 batchDimensions.getHeight(),
@@ -174,7 +173,7 @@ public final class BufferedImageUtil {
      */
     public static List<BufferedImage> extractBoxes(BufferedImage image, Collection<Point[]> boxes) {
         final List<BufferedImage> boxesImages = new ArrayList<>(boxes.size());
-        try (final Mat imageMat = BufferedImageUtil.toRgbMat(image)) {
+        try (final Mat imageMat = BufferedImageUtil.toBgrMat(image)) {
             for (final Point[] box : boxes) {
                 final float boxWidth = (float) box[1].distance(box[2]);
                 final float boxHeight = (float) box[1].distance(box[0]);
@@ -182,7 +181,7 @@ public final class BufferedImageUtil {
                      final Mat boxImageMat = new Mat((int) boxHeight, (int) boxWidth, CvType.CV_8UC3);
                      final Size size = new Size((int) boxWidth, (int) boxHeight)) {
                     opencv_imgproc.warpAffine(imageMat, boxImageMat, transformationMat, size);
-                    boxesImages.add(BufferedImageUtil.fromRgbMat(boxImageMat));
+                    boxesImages.add(BufferedImageUtil.fromBgrMat(boxImageMat));
                 }
             }
         }
@@ -193,9 +192,9 @@ public final class BufferedImageUtil {
      * Based on the provided ImageResizeOptions, calculates the dimensions to
      * which a batch of images should be scaled and padded.
      *
-     * @param images        batch of images to scale/pad
+     * @param images batch of images to scale/pad
      * @param resizeOptions resize options to take into consideration for
-     *                      scaling/padding
+     * scaling/padding
      *
      * @return the calculated dimensions
      */
@@ -231,9 +230,9 @@ public final class BufferedImageUtil {
      * dimension multiple is 1, but if it is greater, it may round up to be
      * higher than maximum.
      *
-     * @param image         image, that will be scaled/padded
+     * @param image image, that will be scaled/padded
      * @param resizeOptions resize options to take into consideration for
-     *                      scaling/padding
+     * scaling/padding
      *
      * @return the calculated dimensions
      */
@@ -302,7 +301,7 @@ public final class BufferedImageUtil {
      * If height/width ratio exceeds the limit, the image will be truncated
      * on top and bottom equally.
      *
-     * @param image      input image to truncate
+     * @param image input image to truncate
      * @param ratioLimit target ratio limit
      *
      * @return the truncated image
@@ -369,117 +368,150 @@ public final class BufferedImageUtil {
             BufferedImage image,
             OnnxInputProperties props
     ) {
+        int channels;
+        int[] channelOrder;
+        float[] scales;
+        float[] offsets;
         switch (props.getImageResizeOptions().getChannelConfiguration()) {
             case GRAYSCALE:
-                putGrayscaleImageWithNormalization(outputBuffer, image, props);
-                return;
+                if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
+                    throw new IllegalArgumentException("Image is not grayscale!");
+                }
+                channels = 1;
+                channelOrder = new int[]{0};
+                scales = new float[1];
+                offsets = new float[1];
+                computeScaleOffset(props.getGrayMean(), props.getGrayStd(), scales, offsets, 0);
+                break;
             case RGB:
-                putRgbImageWithNormalization(outputBuffer, image, props);
-                return;
+                channels = 3;
+                channelOrder = new int[]{2, 1, 0};
+                scales = new float[3];
+                offsets = new float[3];
+                computeScaleOffset(props.getRedMean(), props.getRedStd(), scales, offsets, 0);
+                computeScaleOffset(props.getGreenMean(), props.getGreenStd(), scales, offsets, 1);
+                computeScaleOffset(props.getBlueMean(), props.getBlueStd(), scales, offsets, 2);
+                break;
             case BGR:
-                putBgrImageWithNormalization(outputBuffer, image, props);
-                return;
+                channels = 3;
+                channelOrder = new int[]{0, 1, 2};
+                scales = new float[3];
+                offsets = new float[3];
+                computeScaleOffset(props.getBlueMean(), props.getBlueStd(), scales, offsets, 0);
+                computeScaleOffset(props.getGreenMean(), props.getGreenStd(), scales, offsets, 1);
+                computeScaleOffset(props.getRedMean(), props.getRedStd(), scales, offsets, 2);
+                break;
+            default:
+                throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
         }
-        throw new IllegalStateException(PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_CHANNEL_CONFIGURATION);
-    }
 
-    private static void putGrayscaleImageWithNormalization(
-            FloatBufferWrapper outputBuffer,
-            BufferedImage image,
-            OnnxInputProperties props
-    ) {
-        assert image.getType() == BufferedImage.TYPE_BYTE_GRAY;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int bytesPerPixel = channels;
+        int stride = width * bytesPerPixel;
 
-        putImageBandWithNormalization(outputBuffer, image, BAND_GRAY, props.getGrayMean(), props.getGrayStd());
-    }
+        byte[] pixelBytes = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-    private static void putRgbImageWithNormalization(
-            FloatBufferWrapper outputBuffer,
-            BufferedImage image,
-            OnnxInputProperties props
-    ) {
-        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
-
-        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
-    }
-
-    private static void putBgrImageWithNormalization(
-            FloatBufferWrapper outputBuffer,
-            BufferedImage image,
-            OnnxInputProperties props
-    ) {
-        assert image.getType() == BufferedImage.TYPE_3BYTE_BGR;
-
-        putImageBandWithNormalization(outputBuffer, image, BAND_BLUE, props.getBlueMean(), props.getBlueStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_GREEN, props.getGreenMean(), props.getGreenStd());
-        putImageBandWithNormalization(outputBuffer, image, BAND_RED, props.getRedMean(), props.getRedStd());
-    }
-
-    private static void putImageBandWithNormalization(
-            FloatBufferWrapper outputBuffer,
-            BufferedImage image,
-            int band,
-            double mean,
-            double std
-    ) {
-        final Raster raster = image.getRaster();
-        for (int y = 0; y < raster.getHeight(); ++y) {
-            for (int x = 0; x < raster.getWidth(); ++x) {
-                final double v = raster.getSample(x, y, band) / 255.0;
-                outputBuffer.put((float) ((v - mean) / std));
+        for (int c = 0; c < channels; ++c) {
+            int bandIdx = channelOrder[c];
+            float scale = scales[c];
+            float offset = offsets[c];
+            float[] channelData = new float[height * width];
+            int i = 0;
+            for (int y = 0; y < height; ++y) {
+                int rowStart = y * stride;
+                for (int x = 0; x < width; ++x) {
+                    int pixelIndex = rowStart + x * bytesPerPixel + bandIdx;
+                    int b = pixelBytes[pixelIndex] & 0xFF;
+                    float normalized = b * scale + offset;
+                    channelData[i] = normalized;
+                    i++;
+                }
             }
+            outputBuffer.put(channelData, 0, channelData.length);
         }
+    }
+
+    private static void computeScaleOffset(double mean, double std, float[] scales, float[] offsets, int index) {
+        if (Math.abs(std) < 1e-6) {
+            std = 1e-6;
+        }
+        scales[index] = 1F / (255F * (float) std);
+        offsets[index] = -(float) mean / (float) std;
     }
 
     /**
-     * Converts an image to an RGB Mat for use in OpenCV.
+     * Converts an image to an BGR Mat for use in OpenCV.
      *
      * @param image image to convert
      *
-     * @return RGB 8UC3 OpenCV Mat with the image
+     * @return BGR 8UC3 OpenCV Mat with the image
      */
-    private static Mat toRgbMat(BufferedImage image) {
-        final Mat resultMat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
-        try (final UByteIndexer resultMatIndexer = resultMat.createIndexer()) {
-            for (int y = 0; y < image.getHeight(); ++y) {
-                for (int x = 0; x < image.getWidth(); ++x) {
-                    final int rgb = image.getRGB(x, y);
-                    final int r = (rgb >> 16) & 0xFF;
-                    final int g = (rgb >> 8) & 0xFF;
-                    final int b = rgb & 0xFF;
-                    resultMatIndexer.put(y, (long) x, r, g, b);
-                }
+    private static Mat toBgrMat(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        byte[] imgData;
+        if (image.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+            imgData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        } else {
+            int[] pixels = new int[width * height];
+            image.getRGB(0, 0, width, height, pixels, 0, width);
+
+            imgData = new byte[width * height * 3];
+            for (int i = 0; i < pixels.length; i++) {
+                int rgb = pixels[i];
+                final int r = (rgb >> 16) & 0xFF;
+                final int g = (rgb >> 8) & 0xFF;
+                final int b = rgb & 0xFF;
+
+                int dataIdx = i * 3;
+                imgData[dataIdx] = (byte) b;
+                imgData[dataIdx + 1] = (byte) g;
+                imgData[dataIdx + 2] = (byte) r;
+            }
+        }
+
+        final Mat resultMat = new Mat(height, width, CvType.CV_8UC3);
+        if (resultMat.isContinuous()) {
+            resultMat.data().put(imgData);
+        } else {
+            int rowSize = width * 3;
+            for (int y = 0; y < height; ++y) {
+                resultMat.ptr(y).put(imgData, y * rowSize, rowSize);
             }
         }
         return resultMat;
     }
 
     /**
-     * Converts an RGB 8UC3 OpenCV Mat to a buffered image.
+     * Converts an BGR 8UC3 OpenCV Mat to a buffered image.
      *
-     * @param rgb RGB 8UC3 OpenCV Mat to convert
+     * @param rgb BGR 8UC3 OpenCV Mat to convert
      *
      * @return buffered image based on Mat
      */
-    private static BufferedImage fromRgbMat(Mat rgb) {
+    private static BufferedImage fromBgrMat(Mat rgb) {
         if (rgb.type() != CvType.CV_8UC3) {
             throw new IllegalArgumentException(MessageFormatUtil.format(
                     PdfOcrOnnxExceptionMessageConstant.UNEXPECTED_MAT_TYPE, CvType.typeToString(rgb.type())));
         }
 
         final BufferedImage image = new BufferedImage(rgb.cols(), rgb.rows(), BufferedImage.TYPE_3BYTE_BGR);
-        final int[] rgbBuffer = new int[3];
-        try (final UByteIndexer rgbIndexer = rgb.createIndexer()) {
+
+        byte[] imgData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+
+        if (rgb.isContinuous()) {
+            rgb.data().get(imgData);
+        } else {
+            int rowSize = image.getWidth() * 3;
+            byte[] rowBuffer = new byte[rowSize];
             for (int y = 0; y < image.getHeight(); ++y) {
-                for (int x = 0; x < image.getWidth(); ++x) {
-                    rgbIndexer.get(y, x, rgbBuffer);
-                    final int rgbValue = 0xFF000000 | (rgbBuffer[0] << 16) | (rgbBuffer[1] << 8) | rgbBuffer[2];
-                    image.setRGB(x, y, rgbValue);
-                }
+                rgb.ptr(y).get(rowBuffer, 0, rowSize);
+                System.arraycopy(rowBuffer, 0, imgData, y * rowSize, rowSize);
             }
         }
+
         return image;
     }
 

@@ -57,7 +57,6 @@ public class RotationDocTrTest extends ExtendedITextTest {
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
         OnnxTestUtils.comparePdfs(dest, cmp, TARGET_DIRECTORY);
         OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.22);
-
     }
 
     @Test

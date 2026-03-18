@@ -24,8 +24,6 @@ package com.itextpdf.pdfocr.onnx.util;
 
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
-
-import org.bytedeco.javacpp.indexer.UByteIndexer;
 import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
@@ -61,14 +59,20 @@ public final class OpenCvUtil {
 
         final int height = hwMdArray.getDimension(0);
         final int width = hwMdArray.getDimension(1);
+
+        byte[] binaryData = new byte[height * width];
+        float[] binaryArray = new float[height * width];
+        hwMdArray.getData().get(binaryArray);
+        for (int i = 0; i < height * width; i++) {
+            binaryData[i] = binaryArray[i] >= threshold ? (byte) 0xFF : (byte) 0;
+        }
+
         final Mat binaryImage = new Mat(height, width, CvType.CV_8U);
-        try (final UByteIndexer binaryImageIndexer = binaryImage.createIndexer()) {
-            for (int y = 0; y < height; y++) {
-                final FloatBufferMdArray valuesRow = hwMdArray.getSubArray(y);
-                for (int x = 0; x < width; ++x) {
-                    final float value = valuesRow.getScalar(x);
-                    binaryImageIndexer.put(y, x, value >= threshold ? (byte) 0xFF : (byte) 0);
-                }
+        if (binaryImage.isContinuous()) {
+            binaryImage.data().put(binaryData);
+        } else {
+            for (int y = 0; y < height; ++y) {
+                binaryImage.ptr(y).put(binaryData, y * width, width);
             }
         }
         return binaryImage;
@@ -171,7 +175,7 @@ public final class OpenCvUtil {
              final Mat rectPointsInt = new Mat()) {
             // +0.5, so that values are rounded, not floored
             rectPoints.convertTo(rectPointsInt, CvType.CV_32S, 1, 0.5);
-            return rectPointsInt.reshape(2, new int[] {4, 1});
+            return rectPointsInt.reshape(2, new int[]{4, 1});
         }
     }
 

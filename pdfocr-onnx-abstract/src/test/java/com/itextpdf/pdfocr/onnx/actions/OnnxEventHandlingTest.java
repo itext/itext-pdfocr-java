@@ -58,7 +58,7 @@ import org.junit.jupiter.api.Test;
 @Tag("IntegrationTest")
 public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
-    private static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr/onnx/actions/OnnxEventHandlingTest";
+    private static final String DESTINATION_FOLDER = "./target/test/com/itextpdf/pdfocr/onnx/actions/OnnxEventHandlingTest/";
 
     @BeforeAll
     public static void beforeTests() {

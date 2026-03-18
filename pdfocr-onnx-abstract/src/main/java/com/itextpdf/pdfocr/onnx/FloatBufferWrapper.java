@@ -25,7 +25,6 @@ package com.itextpdf.pdfocr.onnx;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-
 /**
  * Wrapper class around {@link java.nio.FloatBuffer}.
  */
@@ -45,23 +44,24 @@ public class FloatBufferWrapper {
     /**
      * Returns {@link FloatBuffer} that backs this buffer.
      *
-     * <p> Modifications to this buffer's content will cause the returned
+     * <p>
+     * Modifications to this buffer's content will cause the returned
      * buffer's content to be modified, and vice versa.
      *
-     * @return The array that backs this buffer
+     * @return the array that backs this buffer
      */
     public FloatBuffer getFloatBuffer() {
         return floatBuffer;
     }
 
     /**
-     * Returns the float array that backs this
-     * buffer.
+     * Returns the float array that backs this buffer.
      *
-     * <p> Modifications to this buffer's content will cause the returned
+     * <p>
+     * Modifications to this buffer's content will cause the returned
      * array's content to be modified, and vice versa.
      *
-     * @return The array that backs this buffer
+     * @return the array that backs this buffer
      */
     public float[] array() {
         return floatBuffer.array();
@@ -71,10 +71,11 @@ public class FloatBufferWrapper {
      * Returns the offset within this buffer's backing array of the first
      * element of the buffer.
      *
-     * <p> If this buffer is backed by an array then buffer position
+     * <p>
+     * If this buffer is backed by an array then buffer position
      * corresponds to array index position.
      *
-     * @return The offset within this buffer's array
+     * @return the offset within this buffer's array
      * of the first element of the buffer
      */
     public int arrayOffset() {
@@ -85,7 +86,7 @@ public class FloatBufferWrapper {
      * Relative get method.  Reads the float at this buffer's
      * current position, and then increments the position.
      *
-     * @return The float at the buffer's current position
+     * @return the float at the buffer's current position
      */
     public float get() {
         return floatBuffer.get();
@@ -94,24 +95,24 @@ public class FloatBufferWrapper {
     /**
      * Absolute get method. Reads the float at the given index.
      *
-     * @param index The index from which the float will be read
+     * @param index the index from which the float will be read
      *
-     * @return The float at the given index
+     * @return the float at the given index
      */
     public float get(int index) {
         return floatBuffer.get(index);
     }
 
-
     /**
      * Relative bulk <i>get</i> method.
      *
-     * <p> This method transfers floats from this buffer into the given
+     * <p>
+     * This method transfers floats from this buffer into the given
      * destination array.
      *
-     * @param dst The destination array
+     * @param dst the destination array
      *
-     * @return This buffer
+     * @return this buffer
      */
     public FloatBufferWrapper get(float[] dst) {
         floatBuffer.get(dst);
@@ -121,11 +122,12 @@ public class FloatBufferWrapper {
     /**
      * Rewinds this buffer.  The position is set to zero.
      *
-     * <p> Invoke this method before a sequence of channel-write or get
+     * <p>
+     * Invoke this method before a sequence of channel-write or get
      * operations, assuming that the limit has already been set
      * appropriately.
      *
-     * @return This buffer
+     * @return this buffer
      */
     public FloatBufferWrapper rewind() {
         floatBuffer.rewind();
@@ -135,12 +137,13 @@ public class FloatBufferWrapper {
     /**
      * Relative put method.
      *
-     * <p> Writes the given float into this buffer at the current
+     * <p>
+     * Writes the given float into this buffer at the current
      * position, and then increments the position.
      *
-     * @param value The float to be written
+     * @param value the float to be written
      *
-     * @return This buffer
+     * @return this buffer
      */
     public FloatBufferWrapper put(float value) {
         floatBuffer.put(value);
@@ -148,21 +151,40 @@ public class FloatBufferWrapper {
     }
 
     /**
+     * Relative bulk put method.
+     *
+     * <p>
+     * This method transfers floats into this buffer from the given source array.
+     *
+     * @param src the array from which floats are to be read
+     * @param offset the offset within the array of the first float to be read;
+     * must be non-negative and no larger than {@code array.length}
+     * @param length the number of floats to be read from the given array;
+     * must be non-negative and no larger than {@code array.length - offset}
+     *
+     * @return this buffer
+     */
+    public FloatBufferWrapper put(float[] src, int offset, int length) {
+        floatBuffer.put(src, offset, length);
+        return this;
+    }
+
+    /**
      * Returns this buffer's limit.
      *
-     * @return The limit of this buffer
+     * @return the limit of this buffer
      */
     public int limit() {
         return floatBuffer.limit();
     }
 
     /**
-     * Sets this buffer's limit.  If the position is larger than the new limit
+     * Sets this buffer's limit. If the position is larger than the new limit
      * then it is set to the new limit.
      *
-     * @param newLimit The new limit value; must be non-negative and no larger than this buffer's capacity
+     * @param newLimit the new limit value; must be non-negative and no larger than this buffer's capacity
      *
-     * @return This buffer
+     * @return this buffer
      */
     public FloatBufferWrapper limit(int newLimit) {
         floatBuffer.limit(newLimit);
@@ -172,24 +194,25 @@ public class FloatBufferWrapper {
     /**
      * Creates a new float buffer that shares this buffer's content.
      *
-     * <p> The content of the new buffer will be that of this buffer.  Changes
+     * <p>
+     * The content of the new buffer will be that of this buffer.  Changes
      * to this buffer's content will be visible in the new buffer, and vice
      * versa; the two buffers' position and limit will be
      * independent.
      *
-     * <p> The new buffer's capacity, limit, position and byte order will be identical to those of this buffer.
+     * <p>
+     * The new buffer's capacity, limit, position and byte order will be identical to those of this buffer.
      *
-     * @return The new float buffer
+     * @return the new float buffer
      */
     public FloatBufferWrapper duplicate() {
         return new FloatBufferWrapper(floatBuffer.duplicate());
     }
 
     /**
-     * Returns the number of elements between the current position and the
-     * limit.
+     * Returns the number of elements between the current position and the limit.
      *
-     * @return The number of elements remaining in this buffer
+     * @return the number of elements remaining in this buffer
      */
     public int remaining() {
         return floatBuffer.remaining();
@@ -198,9 +221,9 @@ public class FloatBufferWrapper {
     /**
      * Sets this buffer's position.
      *
-     * @param newPosition The new position value; must be non-negative and no larger than the current limit
+     * @param newPosition the new position value; must be non-negative and no larger than the current limit
      *
-     * @return This buffer
+     * @return this buffer
      */
     public FloatBufferWrapper position(int newPosition) {
         floatBuffer.position(newPosition);
@@ -212,15 +235,17 @@ public class FloatBufferWrapper {
      * Creates a new float buffer whose content is a shared subsequence of
      * this buffer's content.
      *
-     * <p> The content of the new buffer will start at this buffer's current
+     * <p>
+     * The content of the new buffer will start at this buffer's current
      * position.  Changes to this buffer's content will be visible in the new
      * buffer, and vice versa; the two buffers' position and limit values will be independent.
      *
-     * <p> The new buffer's position will be zero, its capacity and its limit
+     * <p>
+     * The new buffer's position will be zero, its capacity and its limit
      * will be the number of floats remaining in this buffer and its byte order
      * will be identical to that of this buffer.
      *
-     * @return The new float buffer
+     * @return the new float buffer
      */
     public FloatBufferWrapper slice() {
         return new FloatBufferWrapper(floatBuffer.slice());
@@ -229,16 +254,17 @@ public class FloatBufferWrapper {
     /**
      * Wraps a float array into a buffer.
      *
-     * <p> The new buffer will be backed by the given float array;
+     * <p>
+     * The new buffer will be backed by the given float array;
      * that is, modifications to the buffer will cause the array to be modified
      * and vice versa.  The new buffer's capacity and limit will be
      * {@code array.length}, its position will be zero and its byte order
      * will be the {@link ByteOrder#nativeOrder native order} of the underlying hardware.
      * Its {@link #array backing array} will be the given array, and its {@link #arrayOffset array offset} will be zero.
      *
-     * @param array The array that will back this buffer
+     * @param array the array that will back this buffer
      *
-     * @return The new float buffer
+     * @return the new float buffer
      */
     public static FloatBufferWrapper wrap(float[] array) {
         return new FloatBufferWrapper(FloatBuffer.wrap(array));
@@ -247,7 +273,8 @@ public class FloatBufferWrapper {
     /**
      * Allocates a new float buffer.
      *
-     * <p> The new buffer's position will be zero, its limit will be its
+     * <p>
+     * The new buffer's position will be zero, its limit will be its
      * capacity, its mark will be undefined, each of its elements will be
      * initialized to zero, and its byte order will be
      * the {@link ByteOrder#nativeOrder native order} of the underlying
@@ -255,9 +282,9 @@ public class FloatBufferWrapper {
      * It will have a {@link #array backing array}, and its
      * {@link #arrayOffset array offset} will be zero.
      *
-     * @param capacity The new buffer's capacity, in floats
+     * @param capacity the new buffer's capacity, in floats
      *
-     * @return The new float buffer
+     * @return the new float buffer
      */
     public static FloatBufferWrapper allocate(int capacity) {
         return new FloatBufferWrapper(FloatBuffer.allocate(capacity));

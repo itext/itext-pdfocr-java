@@ -8,15 +8,12 @@ package com.itextpdf.pdfocr.onnx.detection;
 
 import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnx.FloatBufferWrapper;
 import com.itextpdf.pdfocr.onnx.detection.score.IScoreCalculator;
 import com.itextpdf.pdfocr.onnx.detection.score.MeanScoreCalculator;
 import com.itextpdf.pdfocr.onnx.util.MathUtil;
 import com.itextpdf.pdfocr.onnx.util.OpenCvUtil;
-
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import org.bytedeco.javacpp.indexer.UByteIndexer;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_core.MatVector;
@@ -26,6 +23,10 @@ import org.bytedeco.opencv.opencv_core.Rect;
 import org.bytedeco.opencv.opencv_core.RotatedRect;
 import org.bytedeco.opencv.opencv_core.Size2f;
 import org.opencv.core.CvType;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of a text detection predictor post-processor, which is used
@@ -68,9 +69,9 @@ public abstract class BasicDetectionPostProcessor implements IDetectionPostProce
      * Creates a new post-processor.
      *
      * @param binarizationThreshold threshold value used, when binarizing a monochromatic image. If pixel value is
-     *                              greater or equal to the threshold, it is mapped to 1, otherwise it is mapped to 0
+     * greater or equal to the threshold, it is mapped to 1, otherwise it is mapped to 0
      * @param scoreThreshold score threshold for a detected box. If score is lower than this value,
-     *                       the box gets discarded
+     * the box gets discarded
      * @param maxCandidates maximum amount of text box contours, that will be handled in the post processor
      */
     protected BasicDetectionPostProcessor(
@@ -272,18 +273,27 @@ public abstract class BasicDetectionPostProcessor implements IDetectionPostProce
         final IScoreCalculator scoreCalculator = createScoreCalculator();
         final int contourX = contourBox.x();
         final int contourY = contourBox.y();
-        try (final Mat mask = buildTextContourPredictionMask(contour, contourBox);
-             final UByteIndexer maskIndexer = mask.createIndexer()) {
+        try (final Mat mask = buildTextContourPredictionMask(contour, contourBox)) {
             // Making sure we use correct boundaries for preds
             final int yEnd = Math.min(mask.rows(), preds.getDimension(0) - contourY);
             final int xEnd = Math.min(mask.cols(), preds.getDimension(1) - contourX);
+
+            final BytePointer maskPtr = mask.data();
+            final int maskStep = (int) mask.step();
+
+            FloatBufferWrapper predsData = preds.getData();
+            final int predsWidth = preds.getDimension(1);
+            final int predsOffsetBase = contourY * predsWidth + contourX;
+
             for (int y = 0; y < yEnd; ++y) {
-                final FloatBufferMdArray predictionsRow = preds.getSubArray(y + contourY);
+                final int maskRowStart = y * maskStep;
+                final int predRowStart = predsOffsetBase + y * predsWidth;
+
                 for (int x = 0; x < xEnd; ++x) {
-                    if (maskIndexer.get(y, x) == 0) {
+                    if (maskPtr.get(maskRowStart + x) == 0) {
                         continue;
                     }
-                    final float sample = mapPredToSample(predictionsRow.getScalar(x + contourX));
+                    final float sample = mapPredToSample(predsData.get(predRowStart + x));
                     scoreCalculator.observe(sample);
                 }
             }

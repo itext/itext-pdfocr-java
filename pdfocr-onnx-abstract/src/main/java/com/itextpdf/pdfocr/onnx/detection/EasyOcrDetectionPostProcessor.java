@@ -43,7 +43,7 @@ public class EasyOcrDetectionPostProcessor extends BasicDetectionPostProcessor {
      * Creates a new post-processor.
      *
      * @param scoreThreshold score threshold for a detected box. If score is lower than this value,
-     *                       the box gets discarded
+     * the box gets discarded
      */
     public EasyOcrDetectionPostProcessor(float scoreThreshold) {
         super(1.0F, scoreThreshold, Integer.MAX_VALUE);
@@ -89,17 +89,21 @@ public class EasyOcrDetectionPostProcessor extends BasicDetectionPostProcessor {
          * link data. So we are creating a new buffer, where they are
          * combined.
          */
-        final FloatBufferWrapper textScoreBuffer = output.getSubArray(0).getData();
-        final FloatBufferWrapper linkScoreBuffer = output.getSubArray(1).getData();
         final int height = output.getDimension(1);
         final int width = output.getDimension(2);
         final int size = height * width;
+        final float[] textScoreBuffer = new float[size];
+        output.getSubArray(0).getData().get(textScoreBuffer);
+        final float[] linkScoreBuffer = new float[size];
+        output.getSubArray(1).getData().get(linkScoreBuffer);
         final FloatBufferWrapper maskSourceBuffer = FloatBufferWrapper.allocate(height * width);
+        float[] mask = new float[size];
         for (int i = 0; i < size; ++i) {
-            final float text = textScoreBuffer.get() >= TEXT_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;
-            final float link = linkScoreBuffer.get() >= LINK_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;
-            maskSourceBuffer.put(text + link);
+            float text = textScoreBuffer[i] >= TEXT_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;
+            float link = linkScoreBuffer[i] >= LINK_BINARIZATION_THRESHOLD ? 1.0F : 0.0F;
+            mask[i] = text + link;
         }
+        maskSourceBuffer.put(mask, 0, mask.length);
         maskSourceBuffer.rewind();
         return new FloatBufferMdArray(maskSourceBuffer, new long[]{height, width});
     }
