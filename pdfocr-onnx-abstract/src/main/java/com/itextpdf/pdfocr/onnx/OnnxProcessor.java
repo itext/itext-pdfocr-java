@@ -82,14 +82,14 @@ class OnnxProcessor {
             }
             List<String> textString = toList(recognitionPredictor.predict(textImages));
             List<TextInfo> textInfos = new ArrayList<>(textBoxes.size());
+            int imageHeight = image.getHeight();
             for (int i = 0; i < textBoxes.size(); ++i) {
                 TextOrientation textOrientation = TextOrientation.HORIZONTAL;
                 if (textOrientations != null) {
                     textOrientation = textOrientations.get(i);
                 }
                 Point[] textPoints = getTextPoints(textBoxes.get(i), textOrientation);
-                textInfos.add(new TextInfo().setText(textString.get(i))
-                        .setPixelTextPoints(textPoints, image.getHeight()));
+                textInfos.add(new TextInfo().setText(textString.get(i)).setPixelTextPoints(textPoints, imageHeight));
             }
             result.put(imageIndex + 1, textInfos);
             ++imageIndex;
