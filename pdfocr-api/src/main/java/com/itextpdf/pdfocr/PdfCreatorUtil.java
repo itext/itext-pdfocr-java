@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -286,7 +286,7 @@ class PdfCreatorUtil {
      * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
      * string
      */
-    private static int getNumberOfPageTiff(final File inputImage)
+    static int getNumberOfPageTiff(final File inputImage)
             throws IOException {
         RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
                 new RandomAccessSourceFactory()

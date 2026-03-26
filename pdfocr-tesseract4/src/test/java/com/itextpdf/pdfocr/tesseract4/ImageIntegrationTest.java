@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -27,10 +27,7 @@ import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.TextInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ImageIntegrationTest extends IntegrationTestHelper {
-
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ImageIntegrationTest.class);
 
     AbstractTesseract4OcrEngine tesseractReader;
     String testFileTypeName;
@@ -84,20 +78,16 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
         Assertions.assertEquals("degrees", pageData.get(1).get(1).getText());
         Assertions.assertEquals("rotated", pageData.get(1).get(2).getText());
         Assertions.assertEquals("image", pageData.get(1).get(3).getText());
-        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getWidth() > 100);
-        Assertions.assertTrue(pageData.get(1).get(1).getBboxRect().getHeight() < 100);
+        Assertions.assertTrue(pageData.get(1).get(1).getBBoxRect().getWidth() > 100);
+        Assertions.assertTrue(pageData.get(1).get(1).getBBoxRect().getHeight() < 100);
     }
 
     @Test
-    @Disabled("DEVSIX-9261 Investigate test failures on Windows Server 2025 and Windows 11")
     public void compareRotatedImage() throws InterruptedException, IOException {
         String testName = "compareRotatedImage";
         String filename = "90_degrees_rotated";
 
-        //Tesseract for Java and Tesseract for .NET give different output
-        //So we cannot use one reference pdf file for them
-        String expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        String expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        String expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
 
         String resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
 
@@ -111,48 +101,32 @@ public abstract class ImageIntegrationTest extends IntegrationTestHelper {
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-        // Because of difference of tesseract 5 and tesseract 4 there are some differences in text recognition.
         // So the goal of this test is to make text invisible and check if image is rotated.
         // Proper text recognition is compared in testHocrRotatedImage test by checking HOCR file.
-        boolean javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        boolean dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 16.5));
 
         filename = "180_degrees_rotated";
-        expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
         resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
         doOcrAndSavePdfToPath(tesseractReader,
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-
-        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 18.5));
 
         filename = "270_degrees_rotated";
-        expectedPdfPathJava = TEST_DOCUMENTS_DIRECTORY + filename + "_java.pdf";
-        expectedPdfPathDotNet = TEST_DOCUMENTS_DIRECTORY + filename + "_dotnet.pdf";
+        expectedPdfPath = TEST_DOCUMENTS_DIRECTORY + filename + ".pdf";
         resultPdfPath = getTargetDirectory() + filename + "_" + testName + ".pdf";
         doOcrAndSavePdfToPath(tesseractReader,
                 TEST_IMAGES_DIRECTORY + filename + ".jpg", resultPdfPath,
                 Arrays.<String>asList("eng"), Arrays.<String>asList(NOTO_SANS_FONT_PATH),
                 null, true);
 
-
-        javaTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathJava,
-                getTargetDirectory(), "diff_") == null;
-        dotNetTest = new CompareTool().compareVisually(resultPdfPath, expectedPdfPathDotNet,
-                getTargetDirectory(), "diff_") == null;
-
-        Assertions.assertTrue(javaTest || dotNetTest);
+        Assertions.assertNull(new CompareTool().compareVisually(resultPdfPath, expectedPdfPath,
+                getTargetDirectory(), 18.5));
     }
 
 }

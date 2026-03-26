@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -181,7 +181,7 @@ public class ApiTest extends ExtendedITextTest {
 
         TextInfo textInfo = new TextInfo();
         textInfo.setText("text");
-        textInfo.setBboxRect(new Rectangle(204.0f, 158.0f, 538.0f, 136.0f));
+        textInfo.setTextPoints(new Rectangle(204.0f, 158.0f, 538.0f, 136.0f).toPointsArray());
         int page = 2;
         result.put(page, Collections.<TextInfo>singletonList(textInfo));
 
@@ -252,7 +252,7 @@ public class ApiTest extends ExtendedITextTest {
         IOcrEngine ocrEngine = new TestStructureDetectionOcrEngine();
 
         OcrPdfCreatorProperties creatorProperties = new OcrPdfCreatorProperties();
-        creatorProperties.setTextColor(DeviceRgb.RED);
+        creatorProperties.setTextColor(DeviceRgb.RED).setTextBBoxColor(DeviceRgb.GREEN);
         creatorProperties.setTagged(true);
         OcrPdfCreator pdfCreator = new OcrPdfCreator(ocrEngine, creatorProperties);
         TestProcessProperties processProperties = new TestProcessProperties(5, 6, 50, 15, 100, 200);

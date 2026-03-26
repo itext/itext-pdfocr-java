@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -22,16 +22,19 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
-
-import java.util.Objects;
 
 /**
  * This class describes how recognized text is positioned on the image
  * providing bbox for each text item (could be a line or a word).
  */
 public class TextInfo {
+    /**
+     * Image pixel to PDF point ratio.
+     */
+    private static final float PX_TO_PT = 0.75F;
 
     /**
      * Contains any text.
@@ -39,15 +42,9 @@ public class TextInfo {
     private String text;
 
     /**
-     * {@link Rectangle} describing text bbox (lower-left based) expressed in points.
+     * Array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in PDF points.
      */
-    private Rectangle bboxRect;
-
-    /**
-     * {@link TextOrientation} describing the orientation of the text (i.e. rotation). Text is
-     * assumed to be horizontal without any rotation by default.
-     */
-    private TextOrientation orientation = TextOrientation.HORIZONTAL;
+    private Point[] textPoints;
 
     /**
      * If LogicalStructureTreeItem is set, then {@link TextInfo}s are expected to be in logical order.
@@ -67,38 +64,41 @@ public class TextInfo {
      */
     public TextInfo(final TextInfo textInfo) {
         this.text = textInfo.text;
-        this.bboxRect = new Rectangle(textInfo.bboxRect);
-        this.orientation = textInfo.orientation;
+        this.textPoints = (Point[]) textInfo.textPoints.clone();
     }
 
     /**
-     * Creates a new {@link TextInfo} instance.
+     * Creates new {@link TextInfo} instance.
      *
-     * @param text any text
-     * @param bbox {@link Rectangle} describing text bbox
+     * @param text text string
+     * @param bbox array of 4 {@link Point}s describing text bbox (lower-left based relative to text)
+     * expressed in points (0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point)
+     */
+    public TextInfo(final String text, final Point[] bbox) {
+        this.text = text;
+        this.textPoints = bbox;
+    }
+
+    /**
+     * Creates new {@link TextInfo} instance. Could be used for not rotated text chunks.
+     *
+     * @param text text string
+     * @param bbox {@link Rectangle} describing text bounding box expressed in PDF points
      */
     public TextInfo(final String text, final Rectangle bbox) {
         this.text = text;
-        this.bboxRect = new Rectangle(bbox);
-    }
-
-    /**
-     * Creates a new {@link TextInfo} instance.
-     *
-     * @param text any text
-     * @param bbox {@link Rectangle} describing text bbox
-     * @param orientation orientation of the text
-     */
-    public TextInfo(final String text, final Rectangle bbox, final TextOrientation orientation) {
-        this.text = text;
-        this.bboxRect = new Rectangle(bbox);
-        this.orientation = Objects.requireNonNull(orientation);
+        this.textPoints = new Point[]{
+                new Point(bbox.getLeft(), bbox.getBottom()),
+                new Point(bbox.getLeft(), bbox.getTop()),
+                new Point(bbox.getRight(), bbox.getTop()),
+                new Point(bbox.getRight(), bbox.getBottom())
+        };
     }
 
     /**
      * Gets text element.
      *
-     * @return String
+     * @return text string
      */
     public String getText() {
         return text;
@@ -108,45 +108,153 @@ public class TextInfo {
      * Sets text element.
      *
      * @param newText retrieved text
+     *
+     * @return this instance
      */
-    public void setText(final String newText) {
+    public TextInfo setText(final String newText) {
         text = newText;
+        return this;
     }
 
     /**
-     * Gets bbox coordinates.
+     * Gets array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in points.
      *
-     * @return {@link Rectangle} describing text bbox
+     * <p>
+     * Point array stores text polygon in the following order relative to text:
+     * 0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point.
+     *
+     * <p>
+     * The following coordinate system is used for points coordinate:
+     * the origin is located in left bottom corner of the page,
+     * vertical (y) coordinates increase from the bottom of the page to the top,
+     * horizontal (x) coordinates increase from the left side of the page to the right,
+     * axe unit is user space unit which we call PDF point (1 PDF point = 1/72 inch = 4/3 pixel).
+     *
+     * @return array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in points
      */
-    public Rectangle getBboxRect() {
-        return bboxRect;
+    public Point[] getTextPoints() {
+        return textPoints;
     }
 
     /**
-     * Sets text bbox.
+     * Sets array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in points.
      *
-     * @param bbox {@link Rectangle} describing text bbox
+     * <p>
+     * Point array should store text polygon in the following order relative to text:
+     * 0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point.
+     *
+     * <p>
+     * The following coordinate system is used for points coordinate:
+     * the origin is located in left bottom corner of the page,
+     * vertical (y) coordinates increase from the bottom of the page to the top,
+     * horizontal (x) coordinates increase from the left side of the page to the right,
+     * axe unit is user space unit which we call PDF point (1 PDF point = 1/72 inch = 4/3 pixel).
+     *
+     * @param textPoints array of 4 {@link Point}s describing text bbox (lower-left based relative to text)
+     * expressed in points
+     *
+     * @return this instance
      */
-    public void setBboxRect(final Rectangle bbox) {
-        this.bboxRect = new Rectangle(bbox);
+    public TextInfo setTextPoints(Point[] textPoints) {
+        this.textPoints = textPoints;
+        return this;
     }
 
     /**
-     * Gets the text orientation.
+     * Gets array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in pixels.
      *
-     * @return {@link TextOrientation} describing the orientation of the text (i.e. rotation)
+     * <p>
+     * Point array stores text polygon in the following order relative to text:
+     * 0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point.
+     *
+     * <p>
+     * The following coordinate system is used for text points coordinate:
+     * the origin is located in left top corner of the page (image),
+     * vertical (y) coordinates increase from the top of the page to the bottom,
+     * horizontal (x) coordinates increase from the left side of the page to the right,
+     * axe unit is pixel (1 pixel = 1/96 inch = 0.75 PDF point).
+     *
+     * @param imageHeight height of the image to convert the text PDF points to image pixels coordinates.
+     * Used to change the {@code y} origin
+     *
+     * @return array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in pixels
      */
-    public TextOrientation getOrientation() {
-        return orientation;
+    public Point[] getPixelTextPoints(int imageHeight) {
+        Point[] result = new Point[this.textPoints.length];
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = new Point(this.textPoints[i].getX() / PX_TO_PT,
+                    imageHeight - this.textPoints[i].getY() / PX_TO_PT);
+        }
+        return result;
     }
 
     /**
-     * Sets the text orientation.
+     * Sets an array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in pixels.
      *
-     * @param orientation {@link TextOrientation} describing the orientation of the text (i.e. rotation)
+     * <p>
+     * Point array should store text polygon in the following order relative to text:
+     * 0 - lower-left, 1 - upper-left, 2 - upper-right, 3 - lower-right point.
+     *
+     * <p>
+     * The following coordinate system is used for text points coordinate:
+     * the origin is located in left top corner of the page,
+     * vertical (y) coordinates increase from the top of the page to the bottom,
+     * horizontal (x) coordinates increase from the left side of the page to the right,
+     * axe unit is pixel (1 pixel = 1/96 inch = 0.75 PDF point).
+     *
+     * @param textPoints array of 4 {@link Point}s describing text bbox (0 - lower-left, 1 - upper-left,
+     * 2 - upper-right, 3 - lower-right relative to text) expressed in pixels
+     * @param imageHeight height of the image to convert the text PDF points to image pixels coordinates.
+     * Used to change the {@code y} origin
+     *
+     * @return array of 4 {@link Point}s describing text bbox (lower-left based relative to text) expressed in pixels
      */
-    public void setOrientation(final TextOrientation orientation) {
-        this.orientation = Objects.requireNonNull(orientation);
+    public TextInfo setPixelTextPoints(Point[] textPoints, int imageHeight) {
+        Point[] result = new Point[textPoints.length];
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = new Point(PX_TO_PT * textPoints[i].getX(),
+                    PX_TO_PT * (imageHeight - textPoints[i].getY()));
+        }
+        this.textPoints = result;
+        return this;
+    }
+
+    /**
+     * Converts a text polygon to a bounding box.
+     *
+     * @return {@link Rectangle} representing text bounding box
+     */
+    public Rectangle getBBoxRect() {
+        float minX = (float) this.textPoints[0].getX();
+        float maxX = minX;
+        float minY = (float) this.textPoints[0].getY();
+        float maxY = minY;
+        for (int i = 1; i < this.textPoints.length; ++i) {
+            final float x = (float) this.textPoints[i].getX();
+            if (x < minX) {
+                minX = x;
+            } else if (x > maxX) {
+                maxX = x;
+            }
+            final float y = (float) this.textPoints[i].getY();
+            if (y < minY) {
+                minY = y;
+            } else if (y > maxY) {
+                maxY = y;
+            }
+        }
+        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    /**
+     * Returns the text rotation angle in radian for this {@link TextInfo} in the range of -pi to pi.
+     *
+     * @return the text rotation angle in radian for the current {@link TextInfo}
+     */
+    public float getRotationAngle() {
+        double dx = textPoints[3].getX() - textPoints[0].getX();
+        double dy = textPoints[3].getY() - textPoints[0].getY();
+        return (float) Math.atan2(dy, dx);
     }
 
     /**
@@ -161,12 +269,12 @@ public class TextInfo {
     /**
      * Sets logical structure tree parent item for the text info. It allows to organize text chunks
      * into logical hierarchy, e.g. specify document paragraphs, tables, etc.
-     * <p>
      *
+     * <p>
      * If LogicalStructureTreeItem is set, then the list of {@link TextInfo}s in {@link IOcrEngine#doImageOcr}
      * return value is expected to be in logical order.
      *
-     * @param logicalStructureTreeItem structure tree item.
+     * @param logicalStructureTreeItem structure tree item
      */
     public void setLogicalStructureTreeItem(LogicalStructureTreeItem logicalStructureTreeItem) {
         this.logicalStructureTreeItem = logicalStructureTreeItem;

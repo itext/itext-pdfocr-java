@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -90,6 +90,30 @@ public class TestStructureDetectionOcrEngine implements IOcrEngine {
 
         Map<Integer, List<TextInfo>> result = new HashMap<Integer, List<TextInfo>>();
         result.put(1, textItems);
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        Map<Integer, List<TextInfo>> result = new HashMap<>();
+        for (File file : inputs) {
+            Map<Integer, List<TextInfo>> imageOcr = doImageOcr(file, ocrProcessContext);
+            int pageShift = result.size();
+            for (Map.Entry<Integer, List<TextInfo>> entry : imageOcr.entrySet()) {
+                result.put(entry.getKey() + pageShift, entry.getValue());
+            }
+        }
         return result;
     }
 

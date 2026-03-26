@@ -3,109 +3,143 @@
     <ignored>
         <java>
             <fileset reason="Different implementation of Tesseract engine in Java and .NET">
-                <file path="com/itextpdf/pdfocr/tesseract4/TesseractOcrUtil.java" />
-                <file path="com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java" />
+                <file path="com/itextpdf/pdfocr/tesseract4/TesseractOcrUtil.java"/>
+                <file path="com/itextpdf/pdfocr/tesseract4/LeptonicaWrapper.java"/>
             </fileset>
             <fileset reason="Different implementation for multipage images handling">
-              <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java" />
+                <file path="com/itextpdf/pdfocr/util/TiffImageUtil.java"/>
             </fileset>
             <fileset reason="Different implementation for files handling">
-                <file path="com/itextpdf/pdfocr/util/PdfOcrFileUtil.java" />
+                <file path="com/itextpdf/pdfocr/util/PdfOcrFileUtil.java"/>
             </fileset>
             <fileset reason="Difference in text output expected in tests">
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrFileTypesTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrLanguagesTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrRotatedTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxDoImageOcrTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRIntegrationTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRPdfAIntegrationTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/OnnxTRRotationIntegrationTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrFileTypesTest.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrLanguagesTest.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/OnnxDoImageOcrTest.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/OnnxIntegrationTest.java"/>
             </fileset>
             <fileset reason="Difference in Iterators in java and enumerators in .net">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/Batching.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGeneratorTest.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BatchProcessingGenerator.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/orientation/OnnxOrientationPredictorTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/Batching.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/util/BatchProcessingGeneratorTest.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/util/BatchProcessingGenerator.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/recognition/TextBoxSplitter.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/orientation/OnnxOrientationPredictorTest.java"/>
             </fileset>
             <fileset reason="Different API for image processing in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtil.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/util/BufferedImageUtilTest.java" />
+                <file path="com/itextpdf/pdfocr/onnx/util/BufferedImageUtil.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/util/BufferedImageUtilTest.java"/>
             </fileset>
             <fileset reason="Different API for onnxruntime classes in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/AbstractOnnxPredictor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/AbstractOnnxPredictor.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/IOrtSessionOptionsCreator.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/DefaultOrtSessionOptionsCreator.java"/>
             </fileset>
             <fileset reason="Different exception messages in Java and .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadChecker.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/DependencyLoadCheckerTest.java" />
-            </fileset>
-            <fileset reason="Lack of similar API as ByteBuffer in .NET">
-                <file path="com/itextpdf/pdfocr/onnxtr/FloatBufferMdArray.java" />
+                <file path="com/itextpdf/pdfocr/onnx/DependencyLoadChecker.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/DependencyLoadCheckerTest.java"/>
             </fileset>
             <fileset reason="Interface extending autocloseable can't be ported">
-                <file path="com/itextpdf/pdfocr/onnxtr/IPredictor.java" />
+                <file path="com/itextpdf/pdfocr/onnx/IPredictor.java"/>
             </fileset>
-            <fileset reason="Different opencv API in between .NET and java">
-                <file path="com/itextpdf/pdfocr/onnxtr/util/OnnxTRTestUtil.java" />
-                <file path="com/itextpdf/pdfocr/onnxtr/detection/OnnxDetectionPostProcessor.java" />
+            <fileset reason="Different opencv API in between .NET and Java">
+                <file path="com/itextpdf/pdfocr/onnx/util/OnnxTestUtil.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/detection/BasicDetectionPostProcessor.java"/>
+                <file path="com/itextpdf/pdfocr/onnx/util/OpenCvUtil.java"/>
+            </fileset>
+            <fileset reason="Different string codepoints operations in .NET and Java">
+                <file path="com/itextpdf/pdfocr/onnx/recognition/StringMapper.java"/>
+            </fileset>
+            <fileset reason="Different YAML parsing logic in .NET and Java">
+                <file path="com/itextpdf/pdfocr/onnx/util/YamlUtil.java"/>
+            </fileset>
+            <fileset reason="Lack of similar API as ByteBuffer in .NET">
+                <file path="com/itextpdf/pdfocr/onnx/FloatBufferWrapper.java"/>
             </fileset>
         </java>
     </ignored>
-	<resource>
-      <fileset reason="Some compare files differ on .NET">
-          <file path="com/itextpdf/pdfocr/documents/OcrPdfIntegrationTest/notRecognizable.pdf" />
-      </fileset>
+    <resource>
+        <fileset reason="Compare files differ on .NET for Tesseract tests.">
+            <file path="com/itextpdf/pdfocr/documents/OcrPdfIntegrationTest/notRecognizable.pdf"/>
+        </fileset>
+        <fileset reason="Compare files differ on .NET for Onnx tests.">
+            <file path="com/itextpdf/pdfocr/IntegrationPdfOcrOnnxTest/cmp_numbers.pdf"/>
+            <file path="com/itextpdf/pdfocr/IntegrationPdfOcrOnnxTest/cmp_pageRotation.pdf"/>
 
-      <fileset reason="Compare files differ in .NET for Onnx tests.">
-            <file path="com/itextpdf/pdfocr/OnnxCreateTxtFileTest/cmp_createTxtFile.txt" />
+            <file path="com/itextpdf/pdfocr/EasyOCRLanguageTest/georgian_01.txt"/>
 
-            <file path="com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/cmp_multiFiles.pdf" />
-			
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_arabicTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_bengaliTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_chineseTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_greekTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_halftoneTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_hindiTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_japaneseTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_jfifTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_multipageTiffTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_scannedTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_thaiTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRIntegrationTest/cmp_tiff10MBTest.pdf" />
-			
-            <file path="com/itextpdf/pdfocr/OnnxTRPdfAIntegrationTest/cmp_cmykpdfA.pdf" />
-			
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated90Test.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated180Test.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated270Test.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedBy90DegreesTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedCapsLCTest.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2Test.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTest.pdf" />
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2images.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2pages.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_changedImageProportion.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_imageIntersection.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_layers.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_mixedRotation.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_notRecognizable.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_numbers.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_pageRotation.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_rotated.pdf"/>
+            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_textWithImages.pdf"/>
 
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated90TestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated180TestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotated270TestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedBy90DegreesTestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedCapsLCTestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMix2TestByLines.pdf" />
-            <file path="com/itextpdf/pdfocr/OnnxTRRotationIntegrationTest/cmp_rotatedColorsMixTestByLines.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxCreateTxtFileTest/cmp_createTxtFile.txt"/>
 
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2images.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_2pages.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_changedImageProportion.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_imageIntersection.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_layers.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_mixedRotation.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_notRecognizable.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_numbers.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_pageRotation.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_rotated.pdf" />
-            <file path="com/itextpdf/pdfocr/OcrPdfTest/cmp_textWithImages.pdf" />
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_arabicTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_bengaliTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_chineseTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_hindiTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_japaneseTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_jfifTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_spanishTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxIntegrationTest/cmp_tiff10MBTest.pdf"/>
 
-            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowAdobeCmykTest.txt" />
-            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowCmykNoProfileTest.txt" />
-            <file path="com/itextpdf/pdfocr/OnnxTRCmykIntegrationTest/cmp_rainbowInvertedCmykTest.txt" />
+            <file path="com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/cmp_DocTR_bmp.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/cmp_DocTR_invoice_front_thai.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/cmp_PaddleOCR_invoice_front_thai.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/cmp_EasyOCR_invoice_front_thai.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/OnnxMultiFilesIntegrationTest/cmp_multiFiles.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/OnnxPdfAIntegrationTest/cmp_cmykpdfA.pdf"/>
+            <file path="com/itextpdf/pdfocr/OnnxPdfAIntegrationTest/cmp_rgbpdfA.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_DocTR_rotatedTextBasicTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_DocTR_rotated90Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_DocTR_rotated180Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_DocTR_rotatedColorsMixTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_DocTR_rotatedLines.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_EasyOCR_rotated90Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_EasyOCR_rotated180Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_EasyOCR_rotatedLines.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_PaddleOCR_rotatedTextBasicTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_PaddleOCR_rotated90Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_PaddleOCR_rotated180Test.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_PaddleOCR_rotatedColorsMixTest.pdf"/>
+            <file path="com/itextpdf/pdfocr/RotationTest/cmp_PaddleOCR_rotatedLines.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_WORDS_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_WORDS_AND_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_WORDS_linesWithSpaces.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_LINES_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_WORDS_AND_LINES_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_DocTR_BY_WORDS_obliqueLines.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_WORDS_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_WORDS_AND_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_WORDS_linesWithSpaces.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_WORDS_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_WORDS_AND_LINES_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_EasyOCR_BY_LINES_obliqueLines.pdf"/>
+
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_WORDS_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_WORDS_AND_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_LINES_lines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_WORDS_linesWithSpaces.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_LINES_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_WORDS_AND_LINES_obliqueLines.pdf"/>
+            <file path="com/itextpdf/pdfocr/text/TextPositioningModeTest/cmp_PaddleOCR_BY_WORDS_obliqueLines.pdf"/>
         </fileset>
     </resource>
 </configuration>

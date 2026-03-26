@@ -1,0 +1,182 @@
+/*
+    This file is part of the iText (R) project.
+    Copyright (c) 1998-2026 Apryse Group NV
+    Authors: Apryse Software.
+
+    This program is offered under a commercial and under the AGPL license.
+    For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
+
+    AGPL licensing:
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.itextpdf.pdfocr.onnx.orientation;
+
+import com.itextpdf.pdfocr.TextOrientation;
+import com.itextpdf.pdfocr.onnx.AbstractOnnxPredictor;
+import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
+import com.itextpdf.pdfocr.onnx.IOrtSessionOptionsCreator;
+import com.itextpdf.pdfocr.onnx.util.BufferedImageUtil;
+import com.itextpdf.pdfocr.onnx.util.MathUtil;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A crop orientation predictor implementation, which is using ONNX Runtime and
+ * its ML models to figure out, how text is oriented in a cropped image of text.
+ */
+public class OnnxOrientationPredictor
+        extends AbstractOnnxPredictor<BufferedImage, TextOrientation>
+        implements IOrientationPredictor {
+    /**
+     * If an input image ratio exceeds this value, then the image will be
+     * truncated.
+     */
+    private static final double IMAGE_RATIO_LIMIT = 4;
+
+    /**
+     * Configuration properties of the predictor.
+     */
+    private final OnnxOrientationPredictorProperties properties;
+
+    /**
+     * Creates a crop orientation predictor with the specified properties.
+     *
+     * @param properties properties of the predictor
+     */
+    public OnnxOrientationPredictor(OnnxOrientationPredictorProperties properties) {
+        super(properties, getExpectedOutputShape(properties));
+        this.properties = properties;
+    }
+
+    /**
+     * Creates a new crop orientation predictor using an existing pre-trained
+     * MobileNetV3 model, stored on disk. This is the only crop orientation
+     * model architecture available in OnnxTR.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/mobilenet_v3_small_crop_orientation-5620cf7e.onnx">
+     *             mobilenet_v3_small_crop_orientation
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/mobilenet_v3_small_crop_orientation_static_8_bit-4cfaa621.onnx">
+     *             mobilenet_v3_small_crop_orientation (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model
+     *
+     * @return a new predictor with the MobileNetV3 model loaded
+     */
+    public static OnnxOrientationPredictor mobileNetV3(String modelPath) {
+        return new OnnxOrientationPredictor(OnnxOrientationPredictorProperties.mobileNetV3(modelPath));
+    }
+
+    /**
+     * Creates a new crop orientation predictor using an existing pre-trained
+     * MobileNetV3 model, stored on disk. This is the only crop orientation
+     * model architecture available in OnnxTR.
+     *
+     * <p>
+     * This can be used to load the following models from OnnxTR:
+     * <ul>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.0.1/mobilenet_v3_small_crop_orientation-5620cf7e.onnx">
+     *             mobilenet_v3_small_crop_orientation
+     *         </a>
+     *     <li>
+     *         <a href="https://github.com/felixdittrich92/OnnxTR/releases/download/v0.1.2/mobilenet_v3_small_crop_orientation_static_8_bit-4cfaa621.onnx">
+     *             mobilenet_v3_small_crop_orientation (8-bit quantized)
+     *         </a>
+     * </ul>
+     *
+     * @param modelPath path to the pre-trained model
+     * @param ortSessionOptionsCreator the ONNX runtime session options creator
+     *
+     * @return a new predictor with the MobileNetV3 model loaded
+     */
+    public static OnnxOrientationPredictor mobileNetV3(String modelPath,
+            IOrtSessionOptionsCreator ortSessionOptionsCreator) {
+        return new OnnxOrientationPredictor(
+                OnnxOrientationPredictorProperties.mobileNetV3(modelPath, ortSessionOptionsCreator));
+    }
+
+    /**
+     * Returns the crop orientation predictor properties.
+     *
+     * @return the crop orientation predictor properties
+     */
+    public OnnxOrientationPredictorProperties getProperties() {
+        return properties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected FloatBufferMdArray toInputBuffer(List<BufferedImage> batch) {
+        /*
+         * This orientation predictor was initially made based on the OnnxTR
+         * one. There the output of the text detection model is words, which
+         * are pretty narrow. So when they were resized to fit a square input
+         * buffer, there were no issues.
+         *
+         * But in the other tools, like EasyOCR and PaddleOCR, the text
+         * detection step outputs lines. And since they could be really wide,
+         * when they are resized for the square input buffer, there will be,
+         * like, 1 or 2 pixels in one of the dimensions, which is not enough
+         * for the orientation model to work.
+         *
+         * To counteract that we will just truncate the images. This shouldn't
+         * make the output worse, as you don't need the whole line or word to
+         * figure out the orientation. On the other hand, not having one of the
+         * dimensions getting degraded to nothing is much more useful.
+         */
+        final List<BufferedImage> truncatedBatch = new ArrayList<>(batch.size());
+        for (int i = 0; i < batch.size(); ++i) {
+            truncatedBatch.add(BufferedImageUtil.truncateToRatio(batch.get(i), IMAGE_RATIO_LIMIT));
+        }
+        // After that it is just a regular BCHW input conversion
+        return BufferedImageUtil.toBchwInput(truncatedBatch, properties.getInputProperties());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected List<TextOrientation> fromOutputBuffer(List<BufferedImage> inputBatch, FloatBufferMdArray outputBatch) {
+        // Just extracting the highest scoring "orientation class" for each image via argmax
+        final List<TextOrientation> orientations = new ArrayList<>(outputBatch.getDimension(0));
+        final float[] values = new float[outputBatch.getDimension(1)];
+        final float[] outputBuffer = outputBatch.getData().array();
+        int offset = outputBatch.getArrayOffset();
+        for (int i = offset; i < offset + outputBatch.getArraySize(); i += values.length) {
+            System.arraycopy(outputBuffer, i, values, 0, values.length);
+            final int label = MathUtil.argmax(values);
+            orientations.add(properties.getOutputMapper().map(label));
+        }
+        return orientations;
+    }
+
+    private static long[] getExpectedOutputShape(OnnxOrientationPredictorProperties properties) {
+        // Dynamic batch size
+        final long BATCH_SIZE = -1;
+        final long classCount = properties.getOutputMapper().size();
+        return new long[]{BATCH_SIZE, classCount};
+    }
+}

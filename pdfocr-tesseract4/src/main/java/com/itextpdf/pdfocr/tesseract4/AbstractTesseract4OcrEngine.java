@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -251,6 +251,30 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
         verifyImageFormatValidity(input);
         return ((TextInfoTesseractOcrResult)processInputFiles(input,
                 OutputFormat.HOCR, ocrProcessContext.getOcrEventHelper())).getTextInfos();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+        return doImageOcr(inputs, new OcrProcessContext(new Tesseract4EventHelper()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+        Map<Integer, List<TextInfo>> allTextInfos = new LinkedHashMap<>();
+        for (File image : inputs) {
+            Map<Integer, List<TextInfo>> imageTextInfos = doImageOcr(image, ocrProcessContext);
+            int pageShift = allTextInfos.size();
+            for (Map.Entry<Integer, List<TextInfo>> entry : imageTextInfos.entrySet()) {
+                allTextInfos.put(entry.getKey() + pageShift, entry.getValue());
+            }
+        }
+        return allTextInfos;
     }
 
     /**

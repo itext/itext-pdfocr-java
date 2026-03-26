@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
@@ -151,10 +152,11 @@ public class ApiTest extends IntegrationTestHelper {
                 new Tesseract4OcrEngineProperties().setTextPositioning(TextPositioning.BY_WORDS_AND_LINES));
         TextInfo textInfo = parsedHocr.get(1).get(1);
 
-        Assertions.assertEquals(287.25, (float)textInfo.getBboxRect().getLeft(), 0.1);
-        Assertions.assertEquals(136.5f, (float)textInfo.getBboxRect().getBottom(), 0.1);
-        Assertions.assertEquals(385.5, (float)textInfo.getBboxRect().getRight(), 0.1);
-        Assertions.assertEquals(162.75, (float)textInfo.getBboxRect().getTop(), 0.1);
+        Point[] textPoints = textInfo.getTextPoints();
+        Assertions.assertEquals(287.25, (float) textPoints[0].getX(), 0.1);
+        Assertions.assertEquals(136.5f, (float) textPoints[0].getY(), 0.1);
+        Assertions.assertEquals(385.5f, (float) textPoints[3].getX(), 0.1);
+        Assertions.assertEquals(162.75, (float) textPoints[1].getY(), 0.1);
     }
 
     @Test

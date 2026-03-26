@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -24,6 +24,10 @@ package com.itextpdf.pdfocr;
 
 /**
  * Enumeration of supported text orientations.
+ *
+ * <p>
+ * {@link TextOrientation} is used to determine text bounding box rectangle orientation.
+ * Text rotation could be more precisely determined by the bounding points, see {@link TextInfo#getRotationAngle()}.
  */
 public enum TextOrientation {
     /**

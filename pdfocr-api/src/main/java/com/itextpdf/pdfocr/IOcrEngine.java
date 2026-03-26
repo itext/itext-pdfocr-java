@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -40,6 +40,7 @@ public interface IOcrEngine {
      * in the format described below.
      *
      * @param input input image {@link java.io.File}
+     *
      * @return {@link java.util.Map} where key is {@link java.lang.Integer}
      * representing the number of the page and value is
      * {@link java.util.List} of {@link TextInfo} elements where each
@@ -62,6 +63,35 @@ public interface IOcrEngine {
      * coordinates(bbox)
      */
     Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext);
+
+    /**
+     * Reads data from the provided list of input image files and returns retrieved data
+     * in the format described below.
+     *
+     * @param inputs list of {@link java.io.File} input images
+     *
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs);
+
+    /**
+     * Reads data from the provided list of input image files and returns retrieved data
+     * in the format described below.
+     *
+     * @param inputs list of {@link java.io.File} input images
+     * @param ocrProcessContext ocr processing context
+     *
+     * @return {@link java.util.Map} where key is {@link java.lang.Integer}
+     * representing the number of the page and value is
+     * {@link java.util.List} of {@link TextInfo} elements where each
+     * {@link TextInfo} element contains a word or a line and its 4
+     * coordinates(bbox)
+     */
+    Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext);
 
     /**
      * Performs OCR using provided {@link IOcrEngine} for the given list of

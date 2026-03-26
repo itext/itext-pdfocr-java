@@ -1,6 +1,6 @@
 /*
     This file is part of the iText (R) project.
-    Copyright (c) 1998-2025 Apryse Group NV
+    Copyright (c) 1998-2026 Apryse Group NV
     Authors: Apryse Software.
 
     This program is offered under a commercial and under the AGPL license.
@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
@@ -59,7 +60,8 @@ public class PdfInputImageTest extends ExtendedITextTest {
                 + "corrupted");
         Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> PdfHelper.getTextFromPdf(file, "testCorruptedImageWithoutExtension"));
-        Assertions.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
+        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE_PARAMS,
+                file.getAbsolutePath()), e.getMessage());
     }
 
     @LogMessages(messages = {
@@ -70,6 +72,7 @@ public class PdfInputImageTest extends ExtendedITextTest {
         File file = new File("test.Name");
         Exception e = Assertions.assertThrows(PdfOcrInputException.class,
                 () -> PdfHelper.getTextFromPdf(file, "testInvalidPathWithDot"));
-        Assertions.assertEquals(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE, e.getMessage());
+        Assertions.assertEquals(MessageFormatUtil.format(PdfOcrExceptionMessageConstant.CANNOT_READ_INPUT_IMAGE_PARAMS,
+                file.getAbsolutePath()), e.getMessage());
     }
 }
