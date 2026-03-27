@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx.util;
 
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.pdfocr.onnx.FloatBufferMdArray;
 import com.itextpdf.pdfocr.onnx.ImageChannelConfiguration;
 import com.itextpdf.pdfocr.onnx.ImageResizeOptions;
@@ -31,7 +32,6 @@ import com.itextpdf.test.ExtendedITextTest;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -161,8 +161,8 @@ public class BufferedImageUtilTest extends ExtendedITextTest {
     @ParameterizedTest(name = "resize: {0}")
     @MethodSource("resizeTestParams")
     public void resizeTest(String cmpFileName, int width, int height, PaddingStrategy paddingStrategy) throws IOException {
-        final BufferedImage inputImage = ImageIO.read(new File(TEST_DIRECTORY + "resize_base.png"));
-        final BufferedImage expectedImage = ImageIO.read(new File(TEST_DIRECTORY + cmpFileName));
+        final BufferedImage inputImage = ImageIO.read(FileUtil.getInputStreamForFile(TEST_DIRECTORY + "resize_base.png"));
+        final BufferedImage expectedImage = ImageIO.read(FileUtil.getInputStreamForFile(TEST_DIRECTORY + cmpFileName));
         final BufferedImage actualImage = BufferedImageUtil.resize(
                 inputImage, width, height, paddingStrategy, expectedImage.getType()
         );

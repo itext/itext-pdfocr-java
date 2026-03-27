@@ -496,7 +496,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
         ITesseractOcrResult result = null;
         try {
             // image needs to be paginated only if it's tiff or preprocessing isn't required
-            int realNumOfPages = TiffImageUtil.isTiffImage(input) ? ImagePreprocessingUtil.getNumberOfPageTiff(input) : 1;
+            int realNumOfPages = TiffImageUtil.isTiffImage(input) ? TiffImageUtil.getNumberOfPageTiff(input) : 1;
             int numOfPages = getTesseract4OcrEngineProperties().isPreprocessingImages() ? realNumOfPages : 1;
             int numOfFiles = getTesseract4OcrEngineProperties().isPreprocessingImages() ? 1 : realNumOfPages;
 

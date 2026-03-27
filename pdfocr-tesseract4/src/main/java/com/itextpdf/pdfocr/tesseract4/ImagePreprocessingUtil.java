@@ -23,9 +23,6 @@
 package com.itextpdf.pdfocr.tesseract4;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
-import com.itextpdf.io.image.TiffImageData;
-import com.itextpdf.io.source.RandomAccessFileOrArray;
-import com.itextpdf.io.source.RandomAccessSourceFactory;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
@@ -50,26 +47,6 @@ class ImagePreprocessingUtil {
      * Creates a new {@link ImagePreprocessingUtil} instance.
      */
     private ImagePreprocessingUtil() {
-    }
-
-    /**
-     * Counts number of pages in the provided tiff image.
-     *
-     * @param inputImage input image {@link java.io.File}
-     * @return number of pages in the provided TIFF image
-     * @throws IOException if error occurred during creating a
-     * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
-     * string
-     */
-    static int getNumberOfPageTiff(final File inputImage)
-            throws IOException {
-        RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
-                new RandomAccessSourceFactory()
-                        .createBestSource(
-                                inputImage.getAbsolutePath()));
-        int numOfPages = TiffImageData.getNumberOfPages(raf);
-        raf.close();
-        return numOfPages;
     }
 
     /**

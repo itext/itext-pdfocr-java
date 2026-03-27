@@ -64,16 +64,13 @@ public class SharpenConfigMapping implements MappingConfiguration {
                 Collections.singletonList("iText.Pdfocr.Onnx.Util"));
         configurator.mapMethod("java.awt.image.BufferedImage.getWidth", "BufferedImageUtil.GetWidth");
         configurator.mapMethod("java.awt.image.BufferedImage.getHeight", "BufferedImageUtil.GetHeight");
-        configurator.mapMethod("javax.imageio.ImageIO.read", "IronSoftware.Drawing.AnyBitmap.FromFile");
-        configurator.mapMethodWithParameterConversion("javax.imageio.ImageIO.read", "1:memberCall:FullName");
+        configurator.mapMethod("javax.imageio.ImageIO.read", "IronSoftware.Drawing.AnyBitmap.FromStream");
 
         configurator.mapMethod("java.util.Collection.iterator", "GetEnumerator");
         configurator.mapMethod("java.util.Iterator.hasNext", "MoveNext");
         configurator.mapProperty("java.util.Iterator.next", "Current");
         mapOpenCv(configurator);
 
-        configurator.mapMethod("org.junit.jupiter.api.Assertions.assertDoesNotThrow",
-                "NUnit.Framework.Assert.DoesNotThrow", false);
         configurator.mapMethod("org.junit.jupiter.api.Assertions.assertInstanceOf",
                 "NUnit.Framework.Assert.IsInstanceOf");
 

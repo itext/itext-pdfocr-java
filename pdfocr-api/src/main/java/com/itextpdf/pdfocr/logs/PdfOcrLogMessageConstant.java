@@ -55,10 +55,15 @@ public class PdfOcrLogMessageConstant {
 
     public static final String CANNOT_RETRIEVE_PAGES_FROM_IMAGE = "Cannot get pages from image {0}: {1}";
 
+    public static final String CANNOT_RETRIEVE_PAGES_FROM_IMAGE_STREAM = "Cannot get pages from image: {0}";
+
     public static final String PAGE_SIZE_IS_NOT_APPLIED = "Page size has no effect when pdf file is being OCRed";
 
     public static final String IMAGE_LAYER_NAME_IS_NOT_APPLIED =
             "Image layer name has no effect when pdf file is being OCRed";
+    public static final String CANNOT_OPEN_INPUT_STREAM = "Cannot open input stream from file {0}.";
+    public static final String CANNOT_OPEN_OUTPUT_STREAM = "Cannot open output stream from file {0}.";
+    public static final String CANNOT_READ_INPUT_STREAM = "Cannot read input stream: {0}.";
 
     private PdfOcrLogMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly

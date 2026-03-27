@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.onnx;
 
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPostProcessor;
@@ -34,9 +35,11 @@ import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictorProperties;
 import com.itextpdf.pdfocr.onnx.recognition.Vocabulary;
 import com.itextpdf.pdfocr.onnx.util.BufferedImageUtil;
+import com.itextpdf.pdfocr.util.ByteArrayStreamUtil;
 import com.itextpdf.test.ExtendedITextTest;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -63,7 +66,7 @@ public class OnnxUnitTest extends ExtendedITextTest {
     }
 
     @Test
-    public void tooManyImagesTest() {
+    public void tooManyImagesTest() throws IOException {
         ImageResizeOptions imageResizeOptions = new ImageResizeOptions(
                 ImageChannelConfiguration.RGB,
                 1024, 1024,
@@ -71,8 +74,10 @@ public class OnnxUnitTest extends ExtendedITextTest {
         );
         float[] mean = new float[]{0.798F, 0.785F, 0.772F};
         float[] std = new float[]{0.264F, 0.2749F, 0.287F};
+
+        ByteArrayInputStream stream = ByteArrayStreamUtil.createByteArrayInputStream(FileUtil.getInputStreamForFile(TIFF));
         Exception e = Assertions.assertThrows(IllegalArgumentException.class, () ->
-                BufferedImageUtil.toBchwInput(OnnxOcrEngine.getImages(new File(TIFF)),
+                BufferedImageUtil.toBchwInput(OnnxOcrEngine.getImages(stream),
                         new OnnxInputProperties(imageResizeOptions, mean, std)));
         Assertions.assertEquals(MessageFormatUtil.format(PdfOcrOnnxExceptionMessageConstant.TOO_MANY_IMAGES, 2, 1),
                 e.getMessage());

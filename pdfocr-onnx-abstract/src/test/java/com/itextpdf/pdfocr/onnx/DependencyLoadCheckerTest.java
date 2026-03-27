@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
+import com.itextpdf.test.AssertUtil;
 import com.itextpdf.test.ExtendedITextTest;
 
 import org.junit.jupiter.api.Assertions;
@@ -35,8 +36,8 @@ public class DependencyLoadCheckerTest extends ExtendedITextTest {
 
     @Test
     public void processExceptionTest() {
-        Assertions.assertDoesNotThrow(() -> DependencyLoadChecker.processException(new RuntimeException("Random.")));
-        Assertions.assertDoesNotThrow(
+        AssertUtil.doesNotThrow(() -> DependencyLoadChecker.processException(new RuntimeException("Random.")));
+        AssertUtil.doesNotThrow(
                 () -> DependencyLoadChecker.processException(new UnsatisfiedLinkError("Random.")));
         Exception e = Assertions.assertThrows(PdfOcrException.class, () -> DependencyLoadChecker.processException(
                 new RuntimeException("Failed to load onnx-runtime library")));
