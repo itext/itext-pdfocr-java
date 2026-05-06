@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
+import com.itextpdf.layout.logs.LayoutLogMessageConstant;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
@@ -29,6 +30,7 @@ import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -78,6 +80,12 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING,
+                    logLevel = LogLevelConstants.WARN),
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_INFO,
+                    logLevel = LogLevelConstants.INFO)
+    })
     public void compareInvoiceFrontThaiImage() throws InterruptedException, java.io.IOException {
         String testName = "compareInvoiceFrontThaiImage";
         String filename = "invoice_front_thai";
@@ -108,7 +116,10 @@ public class TessDataIntegrationLibTest extends TessDataIntegrationTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 2),
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING,
+                    logLevel = LogLevelConstants.WARN),
+
     })
     @Test
     public void compareThaiTextImage() throws InterruptedException, java.io.IOException {
