@@ -65,6 +65,8 @@ public class PdfOcrLogMessageConstant {
     public static final String CANNOT_OPEN_OUTPUT_STREAM = "Cannot open output stream from file {0}.";
     public static final String CANNOT_READ_INPUT_STREAM = "Cannot read input stream: {0}.";
 
+    public static final String CANNOT_OCR_IMAGE = "Cannot OCR image from page {0} with object number {1}.";
+
     private PdfOcrLogMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly
     }

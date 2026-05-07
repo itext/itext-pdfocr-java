@@ -596,7 +596,15 @@ public class OcrPdfCreator {
                         new LinkedHashMap<>(pageImageData.size());
                 for (PageImageData image : pageImageData) {
                     allImagePaths.add(image.getPath().getAbsolutePath());
-                    imagesTextData.put(image, ocrEngine.doImageOcr(image.getPath(), ocrProcessContext));
+                    Map<Integer, List<TextInfo>> ocrResult;
+                    try {
+                        ocrResult = ocrEngine.doImageOcr(image.getPath(), ocrProcessContext);
+                    } catch (PdfOcrException e) {
+                        int imageObjNr = image.getXObject().getPdfObject().getIndirectReference().getObjNumber();
+                        LOGGER.error(MessageFormatUtil.format(PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, pageNr, imageObjNr), e);
+                        throw e;
+                    }
+                    imagesTextData.put(image, ocrResult);
                 }
 
                 // Put the result into pdf
