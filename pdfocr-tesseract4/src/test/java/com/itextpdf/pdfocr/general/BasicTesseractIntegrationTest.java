@@ -42,14 +42,13 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.OutputFormat;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4Exception;
 import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +57,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelper {
 
@@ -430,6 +432,20 @@ public abstract class BasicTesseractIntegrationTest extends IntegrationTestHelpe
         for (String line : expectedOutput) {
             Assertions.assertTrue(result.replaceAll("\r", "").contains(line));
         }
+    }
+
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR)
+    })
+    public void jpeg2000Test() {
+        String imageName = "bee.jp2";
+        File imageFile = new File(TEST_IMAGES_DIRECTORY + imageName);
+        Exception e = Assertions.assertThrows(PdfOcrInputTesseract4Exception.class,
+                () -> getTextUsingTesseractFromImage(tesseractReader, imageFile));
+        Assertions.assertEquals(
+                MessageFormatUtil.format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT, imageName),
+                e.getMessage());
     }
 
     /**
