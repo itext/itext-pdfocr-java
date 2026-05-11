@@ -289,11 +289,15 @@ public final class PdfOcrTextBuilder {
             Point[] wordP = word.getTextPoints();
             Line left = new Line(wordP[0], wordP[1]);
             Line right = new Line(wordP[3], wordP[2]);
+            final Point ll = left.intersection(bottom);
+            final Point ul = left.intersection(top);
+            final Point ur = right.intersection(top);
+            final Point lr = right.intersection(bottom);
             word.setTextPoints(new Point[]{
-                    left.intersection(bottom),
-                    left.intersection(top),
-                    right.intersection(top),
-                    right.intersection(bottom)}
+                    ll == null ? wordP[0] : ll,
+                    ul == null ? wordP[1] : ul,
+                    ur == null ? wordP[2] : ur,
+                    lr == null ? wordP[3] : lr}
             );
         }
     }
@@ -510,7 +514,7 @@ public final class PdfOcrTextBuilder {
 
     /**
      * Class representing parametric representation of a line:
-     * point {@code (x, y)} and unit direction vector {@code (ux, uy)}.
+     * point {@code (x, y)} and normalized unit direction vector {@code (ux, uy)}.
      */
     private static class Line {
         private final double x;
@@ -561,6 +565,9 @@ public final class PdfOcrTextBuilder {
          */
         public Point intersection(Line other) {
             double det = this.ux * other.uy - other.ux * this.uy;
+            // ux and uy are normalized, so determinant equals to sin(a), where 'a' is an angle between lines.
+            // If det is ~= 0, it means sin(a) ~= 0, what means 'a' ~= 0 or 180 degrees, so lines are either parallel
+            // or collinear, and we won't be able to find an intersection point
             if (Math.abs(det) < 1e-10) {
                 return null;
             }

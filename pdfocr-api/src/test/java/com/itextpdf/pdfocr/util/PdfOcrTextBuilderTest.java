@@ -26,16 +26,16 @@ import com.itextpdf.kernel.geom.Point;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.pdfocr.TextInfo;
 import com.itextpdf.test.ExtendedITextTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
 public class PdfOcrTextBuilderTest extends ExtendedITextTest {
@@ -76,6 +76,21 @@ public class PdfOcrTextBuilderTest extends ExtendedITextTest {
         Assertions.assertTrue(new Rectangle(100, 0, 120, 50).equalsWithEpsilon(textInfos.get(1).getBBoxRect()));
         Assertions.assertTrue(new Rectangle(200, 0, 100, 50).equalsWithEpsilon(textInfos.get(2).getBBoxRect()));
         Assertions.assertTrue(new Rectangle(310, 0, 100, 50).equalsWithEpsilon(textInfos.get(3).getBBoxRect()));
+    }
+
+    @Test
+    public void generifyThinLineTest() {
+        Map<Integer, List<TextInfo>> textInfoMap = new HashMap<>();
+        List<TextInfo> textInfos = new ArrayList<>();
+        textInfos.add(new TextInfo("-", new Point[]{new Point(525, 50), new Point(525, 26), new Point(525, 28),  new Point(525, 52)}));
+        textInfoMap.put(1, textInfos);
+        PdfOcrTextBuilder.generifyWordBBoxesByLine(textInfoMap);
+        final Point[] points = textInfos.get(0).getTextPoints();
+        Assertions.assertEquals(4, points.length);
+        Assertions.assertNotNull(points[0]);
+        Assertions.assertNotNull(points[1]);
+        Assertions.assertNotNull(points[2]);
+        Assertions.assertNotNull(points[3]);
     }
 
     @Test
