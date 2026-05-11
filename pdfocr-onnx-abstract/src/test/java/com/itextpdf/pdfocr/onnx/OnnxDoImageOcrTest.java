@@ -180,4 +180,13 @@ public class OnnxDoImageOcrTest extends ExtendedITextTest {
                 () -> OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE));
         Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
     }
+
+    @Test
+    public void jbig2Test() {
+        File imageFile = new File(TEST_IMAGE_DIRECTORY + "jbig2decode.jbig2");
+
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE));
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+    }
 }

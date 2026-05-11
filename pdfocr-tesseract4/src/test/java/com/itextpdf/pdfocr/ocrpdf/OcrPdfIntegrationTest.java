@@ -184,6 +184,23 @@ public abstract class OcrPdfIntegrationTest extends IntegrationTestHelper {
                 message);
     }
 
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jbig2Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputTesseract4Exception.class,
+                () -> makeSearchableWithoutCompare("jbig2"));
+        String message = e.getMessage();
+        // Exception message is each run unique and looks like
+        // "pdfocr_img_55d1a7ff-de74-41ab-a72f-6876fb8ead471913987692833581352.jbig2 format is not supported."
+        message = ".jbig2 " + message.substring(message.indexOf("format"));
+        Assertions.assertEquals(
+                MessageFormatUtil.format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT, ".jbig2"),
+                message);
+    }
+
     private String makeSearchableWithoutCompare(String fileName) {
         String path = TEST_PDFS_DIRECTORY + fileName + ".pdf";
         String resultPdfPath = TARGET_DIRECTORY + fileName + "_" + testType + ".pdf";

@@ -141,6 +141,16 @@ public class OcrPdfTest extends ExtendedITextTest {
         Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
     }
 
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jbig2Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> makeSearchableWithoutCompare("jbig2"));
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+    }
+
     private void makeSearchable(String fileName) throws IOException, InterruptedException {
         makeSearchable(fileName, fileName, null);
     }
