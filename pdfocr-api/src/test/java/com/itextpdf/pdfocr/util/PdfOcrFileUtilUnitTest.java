@@ -24,7 +24,6 @@ package com.itextpdf.pdfocr.util;
 
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
-import com.itextpdf.test.AssertUtil;
 import com.itextpdf.test.ExtendedITextTest;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
@@ -42,7 +41,7 @@ public class PdfOcrFileUtilUnitTest extends ExtendedITextTest {
     @Test
     public void writeToTextFileTest() {
         File file = new File(PdfHelper.getImagesTestDirectory() + "writeToTextFileTest.txt");
-        AssertUtil.doesNotThrow(() -> PdfOcrFileUtil.writeToTextFile(file.getAbsolutePath(), "some text"));
+        Assertions.assertDoesNotThrow(() -> PdfOcrFileUtil.writeToTextFile(file.getAbsolutePath(), "some text"));
         file.delete();
     }
 
@@ -56,7 +55,7 @@ public class PdfOcrFileUtilUnitTest extends ExtendedITextTest {
     @Test
     public void writeToStreamTest() {
         File file = new File(PdfHelper.getImagesTestDirectory() + "writeToStreamTest.txt");
-        AssertUtil.doesNotThrow(() -> PdfOcrFileUtil.writeToStream(
+        Assertions.assertDoesNotThrow(() -> PdfOcrFileUtil.writeToStream(
                 PdfOcrFileUtil.convertToOutputStream(file), "text"));
         file.delete();
     }

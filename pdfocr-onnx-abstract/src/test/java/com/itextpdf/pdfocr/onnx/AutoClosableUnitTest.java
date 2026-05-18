@@ -28,9 +28,9 @@ import com.itextpdf.pdfocr.onnx.orientation.IOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.orientation.OnnxOrientationPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
-import com.itextpdf.test.AssertUtil;
 import com.itextpdf.test.ExtendedITextTest;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +43,7 @@ public class AutoClosableUnitTest extends ExtendedITextTest {
 
     @Test
     public void autoClosableTest() {
-        AssertUtil.doesNotThrow(() -> {
+        Assertions.assertDoesNotThrow(() -> {
             try (IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
                  IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.crnnVgg16(CRNNVGG16);
                  IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
@@ -61,8 +61,8 @@ public class AutoClosableUnitTest extends ExtendedITextTest {
              IOrientationPredictor orientationPredictor = OnnxOrientationPredictor.mobileNetV3(MOBILENETV3);
              OnnxOcrEngine ocrEngine =
                      new OnnxOcrEngine(detectionPredictor, orientationPredictor, recognitionPredictor)) {
-            AssertUtil.doesNotThrow(() -> ocrEngine.close());
-            AssertUtil.doesNotThrow(() -> ocrEngine.close());
+            Assertions.assertDoesNotThrow(() -> ocrEngine.close());
+            Assertions.assertDoesNotThrow(() -> ocrEngine.close());
         }
     }
 }
