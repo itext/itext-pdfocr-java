@@ -26,6 +26,7 @@ import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.recognition.Vocabulary;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.AfterAll;
@@ -53,7 +54,8 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         createOrClearDestinationFolder(TARGET_DIRECTORY);
 
         IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST);
-        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG);
+        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(MULTILANG,
+                Vocabulary.LATIN_EXTENDED, 0);
         MULTILANG_ENGINE = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
         OCR_ENGINE = OcrEngineType.DOCTR.get();
     }

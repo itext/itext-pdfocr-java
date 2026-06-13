@@ -426,7 +426,7 @@ public class OnnxRecognitionPredictorProperties extends AbstractOnnxPredictorPro
      */
     public static OnnxRecognitionPredictorProperties parSeq(String modelPath,
             IOrtSessionOptionsCreator ortSessionOptionsCreator) {
-        return OnnxRecognitionPredictorProperties.parSeq(modelPath, Vocabulary.LATIN_EXTENDED, 0,
+        return OnnxRecognitionPredictorProperties.parSeq(modelPath, Vocabulary.FRENCH, 0,
                 ortSessionOptionsCreator);
     }
 
