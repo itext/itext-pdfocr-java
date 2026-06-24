@@ -108,7 +108,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("I\n4\n\n-\nnI\nK/i\nhao\n", textFromImage);
+        Assertions.assertEquals("I\n4\n\n-\nnI\nhao\nK/i\n", textFromImage);
     }
 
     @Test
@@ -186,7 +186,7 @@ public class OnnxDoImageOcrLanguagesTest extends ExtendedITextTest {
         File imageFile = new File(src);
 
         String textFromImage = OnnxTestUtils.getTextFromImage(imageFile, OCR_ENGINE);
-        Assertions.assertEquals("B\n*\n-\na\naa\nK\n*\n-\n-\n", textFromImage);
+        Assertions.assertEquals("B\n*\n-\naa\n-\na\nK\n*\n-\n", textFromImage);
     }
 
     @Test

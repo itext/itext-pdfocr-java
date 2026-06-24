@@ -358,7 +358,7 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
     @Test
     public void createTxtFileStreamTest() throws IOException {
         try (InputStream input = FileUtil.getInputStreamForFile(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
-                FileOutputStream output = new FileOutputStream(TEST_IMAGE_DIRECTORY + "createTxtFileStream.txt")) {
+                FileOutputStream output = new FileOutputStream(DESTINATION_FOLDER + "createTxtFileStream.txt")) {
             OCR_ENGINE.createTxtFile(input, output);
         }
 
