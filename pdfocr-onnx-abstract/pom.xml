@@ -11,7 +11,11 @@
   <artifactId>pdfocr-onnx-abstract</artifactId>
 
   <name>pdfOCR-Onnx-Abstract</name>
-  <description>pdfOCR-Onnx is an iText add-on for Java to recognize and extract text in scanned documents and images. It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for archiving</description>
+  <description>pdfOCR-Onnx-Abstract is an iText add-on for Java to recognize and extract text in scanned documents and images.
+      It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable,
+      and suitable for archiving</description>
+  <url>https://itextpdf.com/products/pdf-ocr-text-recognition</url>
+
   <dependencies>
     <dependency>
       <groupId>com.itextpdf</groupId>

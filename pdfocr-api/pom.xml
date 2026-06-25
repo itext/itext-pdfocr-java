@@ -19,10 +19,11 @@
   <artifactId>pdfocr-api</artifactId>
 
   <name>pdfOCR API</name>
-  <description>pdfOCR is an iText add-on for Java to recognize and extract text in scanned documents and images. It can
-    also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable, and suitable for
-    archiving
+  <description>pdfOCR API is an iText add-on for Java to recognize and extract text in scanned documents and images.
+      It can also convert them into fully ISO-compliant PDF or PDF/A-3u files that are accessible, searchable,
+      and suitable for archiving
   </description>
+  <url>https://itextpdf.com/products/pdf-ocr-text-recognition</url>
 
   <dependencies>
     <dependency>

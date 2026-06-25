@@ -23,6 +23,11 @@
     <module>pdfocr-onnx-abstract</module>
   </modules>
 
+  <scm>
+      <connection>scm:git:git@github.com:itext/itext-pdfocr-java.git</connection>
+      <url>https://github.com/itext/itext-pdfocr-java</url>
+  </scm>
+
   <properties>
     <itext.version>9.8.0-SNAPSHOT</itext.version>
     <snakeyaml.version>2.9</snakeyaml.version>
