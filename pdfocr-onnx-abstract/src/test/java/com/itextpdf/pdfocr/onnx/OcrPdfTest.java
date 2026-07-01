@@ -23,19 +23,25 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.logs.KernelLogMessageConstant;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.onnx.exceptions.PdfOcrOnnxExceptionMessageConstant;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineTypeWithOrientation;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.LogLevelConstants;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
+import java.io.File;
+import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
 
 @Tag("IntegrationTest")
 public class OcrPdfTest extends ExtendedITextTest {
@@ -124,21 +130,52 @@ public class OcrPdfTest extends ExtendedITextTest {
         makeSearchable("skewedRotated45");
     }
 
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = KernelLogMessageConstant.JPXDECODE_FILTER_DECODING, logLevel = LogLevelConstants.INFO),
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jpeg2000Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> makeSearchableWithoutCompare("jpeg2000"));
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+    }
+
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jbig2Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> makeSearchableWithoutCompare("jbig2"));
+        Assertions.assertEquals(PdfOcrOnnxExceptionMessageConstant.FAILED_TO_READ_IMAGE, e.getMessage());
+    }
+
     private void makeSearchable(String fileName) throws IOException, InterruptedException {
         makeSearchable(fileName, fileName, null);
     }
 
+    private void makeSearchableWithoutCompare(String fileName) {
+        makeSearchableWithoutCompare(fileName, fileName, null);
+    }
+
     private void makeSearchable(String fileName, String outFileName, OcrPdfCreatorProperties ocrPdfCreatorProperties)
             throws IOException, InterruptedException {
+
+        String outPath = makeSearchableWithoutCompare(fileName, outFileName, ocrPdfCreatorProperties);
+        String cmpPath = TEST_DIRECTORY + "cmp_" + outFileName + ".pdf";
+        Assertions.assertNull(new CompareTool().compareByContent(outPath, cmpPath, TARGET_DIRECTORY, "diff_"));
+    }
+
+    private String makeSearchableWithoutCompare(String fileName, String outFileName, OcrPdfCreatorProperties ocrPdfCreatorProperties) {
         String srcPath = TEST_PDFS_DIRECTORY + fileName + ".pdf";
         String outPath = TARGET_DIRECTORY + outFileName + ".pdf";
-        String cmpPath = TEST_DIRECTORY + "cmp_" + outFileName + ".pdf";
 
         if (ocrPdfCreatorProperties == null) {
             ocrPdfCreatorProperties = new OcrPdfCreatorProperties().setTextColor(DeviceCmyk.MAGENTA);
         }
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OcrEngineTypeWithOrientation.DOCTR.get(), ocrPdfCreatorProperties);
         ocrPdfCreator.makePdfSearchable(new File(srcPath), new File(outPath));
-        Assertions.assertNull(new CompareTool().compareByContent(outPath, cmpPath, TARGET_DIRECTORY, "diff_"));
+        return outPath;
     }
 }

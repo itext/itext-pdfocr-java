@@ -22,11 +22,11 @@
  */
 package com.itextpdf.pdfocr.onnx.orientation;
 
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.pdfocr.TextOrientation;
 import com.itextpdf.test.ExtendedITextTest;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +71,7 @@ public class OnnxOrientationPredictorTest extends ExtendedITextTest {
     @ParameterizedTest(name = "predictWithLongLines: {1}")
     @MethodSource("predictWithLongLinesParams")
     public void predictWithLongLines(TextOrientation expectedResult, String inputFileName) throws IOException {
-        final BufferedImage inputImage = ImageIO.read(new File(TEST_DIRECTORY + inputFileName));
+        final BufferedImage inputImage = ImageIO.read(FileUtil.getInputStreamForFile(TEST_DIRECTORY + inputFileName));
         final TextOrientation actualResult = PREDICTOR.predict(Collections.singleton(inputImage)).next();
         Assertions.assertNotNull(((OnnxOrientationPredictor) PREDICTOR).getProperties());
         Assertions.assertEquals(expectedResult, actualResult);

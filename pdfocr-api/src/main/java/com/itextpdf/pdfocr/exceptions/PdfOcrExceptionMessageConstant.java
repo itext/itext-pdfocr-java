@@ -28,20 +28,28 @@ package com.itextpdf.pdfocr.exceptions;
 public class PdfOcrExceptionMessageConstant {
 
     public static final String CANNOT_READ_INPUT_IMAGE = "Cannot read input image";
+    public static final String CANNOT_READ_INPUT_STREAM = "Cannot read input stream";
     public static final String CANNOT_READ_INPUT_IMAGE_PARAMS = "Cannot read input image {0}";
     public static final String CANNOT_RESOLVE_PROVIDED_FONTS =
             "Cannot resolve any of provided fonts. Please check provided FontProvider.";
     public static final String CANNOT_CREATE_PDF_DOCUMENT = "Cannot create PDF document: {0}";
     public static final String CANNOT_WRITE_TO_FILE = "Cannot write to file {0}: {1}";
+    public static final String CANNOT_WRITE_TO_STREAM = "Cannot write to stream: {1}";
     public static final String STATISTICS_EVENT_TYPE_CANT_BE_NULL = "Statistics event type can't be null";
     public static final String STATISTICS_EVENT_TYPE_IS_NOT_DETECTED = "Statistics event type is not detected.";
     public static final String TAGGING_IS_NOT_SUPPORTED = "Tagging is not supported by the OCR engine.";
-    public static final String TAGGED_PDF_IS_NOT_SUPPORTED = "Tagged PDF is not supported";
-    public static final String PDFA_IS_NOT_SUPPORTED = "PDF/A is not supported";
+    public static final String TAGGED_PDF_IS_NOT_SUPPORTED =
+            "Tagged PDF input isn't supported, because it's not guaranteed that output will be tagged correctly. "
+            + "The check could be disabled by overriding OcrPdfCreator#validateInputPdfDocument(PdfDocument) method.";
+    public static final String PDFA_IS_NOT_SUPPORTED =
+            "PDF/A input isn't supported, because it's not guaranteed that output will be valid PDF/A. "
+            + "The check could be disabled by overriding OcrPdfCreator#validateInputPdfDocument(PdfDocument) method.";
     public static final String PDF_DOCUMENT_MUST_BE_OPENED_IN_STAMPING_MODE =
             "Pdf document must be opened in stamping mode";
     public static final String IO_EXCEPTION_OCCURRED = "IO exception occurred while reading the document";
-
+    public static final String CANNOT_OPEN_INPUT_STREAM = "Cannot open input stream from file {0}.";
+    public static final String CANNOT_OPEN_OUTPUT_STREAM = "Cannot open output stream from file {0}.";
+    public static final String CANNOT_SAVE_TO_FILE = "Cannot save to file {0}.";
     private PdfOcrExceptionMessageConstant() {
         //Private constructor will prevent the instantiation of this class directly
     }

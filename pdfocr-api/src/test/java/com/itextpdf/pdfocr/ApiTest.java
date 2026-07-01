@@ -24,6 +24,7 @@ package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.io.image.ImageData;
+import com.itextpdf.layout.logs.LayoutLogMessageConstant;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -190,7 +191,8 @@ public class ApiTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 7)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 7),
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 1)
     })
     @Test
     public void testThaiImageWithNotDefGlyphs() throws IOException {

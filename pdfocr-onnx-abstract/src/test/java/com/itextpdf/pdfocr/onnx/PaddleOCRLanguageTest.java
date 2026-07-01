@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.commons.utils.FileUtil;
+import com.itextpdf.layout.logs.LayoutLogMessageConstant;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
@@ -31,6 +32,10 @@ import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.LogLevelConstants;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -70,6 +75,12 @@ public class PaddleOCRLanguageTest extends ExtendedITextTest {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING,
+                    logLevel = LogLevelConstants.WARN),
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_INFO,
+                    logLevel = LogLevelConstants.INFO)
+    })
     public void arabicTest() throws Exception {
         String modelName = "arabic_PP-OCRv3_mobile_rec_infer";
         runOcrTest(modelName, "arabic_01.jpg");
@@ -142,6 +153,9 @@ public class PaddleOCRLanguageTest extends ExtendedITextTest {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 1)
+    })
     public void thaiTest() throws Exception {
         String modelName = "th_PP-OCRv5_mobile_rec_infer";
         runOcrTest(modelName, "thai_01.jpg");

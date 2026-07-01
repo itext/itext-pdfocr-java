@@ -1,35 +1,41 @@
 This  a test
 message for
 OCR Scanner
-ST
--
 Test
 BMPTest
+ST
+-
 TEST
 This textIS sideways
 DiagonalTxT
 SI ENSAYARA COMO ACTUAR?
 Tanto peor, lo mejor es descansar   no
-fiesta, si                                     pensar
-puede.    hay nada mas desalentador
-se     No
+fiesta, si
+pensar
+puede. No
 la
+hay nada mas desalentador
+se
 ver en las fiestas   jovenes con cara de lastima y
-iluslonadas       se han pasado todo el
-que                      dia tratando
+iluslonadas       se    pasado todo el
+que   han
+dia tratando
 hallar lo mejor   la mas atractiva manera de pres
 tarse en publico. Hay que actuar con calma y
 cansaremos de repetirlo, Lo mas importante es saber
 que se va a poner   tener todo a
 Si intenta probar un nuevo lapiz labial para la a
 sion, asegurese que armonice con   vestido
-rà.                                        que lle
-También el                  el
+rà.
+que lle
+También el
+el
 maquillaje de los ojos debe armoni
 con el conjunto.
 C
 4
-oueur           A
+oueur
+A
 ou
 K
 K
@@ -46,7 +52,8 @@ typesetting remaining essentially unchanged. It was popularised in
 the 1960s with the release of Letraset sheets containing Lorem
 Ipsum passages, and more recently with desktop publishing
 software like Aldus PageMaker including versions of Lorem Ipsum.
-pue                                 s!
+pue
+s!
 jwMsdI
 a
 a

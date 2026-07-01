@@ -30,6 +30,7 @@ import com.itextpdf.commons.actions.confirmations.ConfirmedEventWrapper;
 import com.itextpdf.commons.actions.confirmations.EventConfirmationType;
 import com.itextpdf.commons.actions.contexts.IMetaInfo;
 import com.itextpdf.commons.actions.sequence.SequenceId;
+import com.itextpdf.commons.utils.FileUtil;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.pdfocr.AbstractPdfOcrEventHelper;
@@ -46,7 +47,11 @@ import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -88,14 +93,15 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
     @Test
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OPEN_INPUT_STREAM,
+                    logLevel = LogLevelConstants.ERROR)
     })
-    public void ocrPdfCreatorCreatePdfFileNoImageTest() throws IOException {
+    public void ocrPdfCreatorCreatePdfFileNoImageTest() {
         File imgFile = new File("unknown");
         List<File> images = Collections.singletonList(imgFile);
         File outPdfFile = new File(DESTINATION_FOLDER + "ocrPdfCreatorCreatePdfFileNoImage.pdf");
         OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(OCR_ENGINE);
-        Assertions.assertThrows(PdfOcrException.class, () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
+        Assertions.assertThrows(PdfOcrInputException.class, () -> ocrPdfCreator.createPdfFile(images, outPdfFile));
 
         // check ocr events
         Assertions.assertEquals(0, eventsHandler.getEvents().size());
@@ -197,7 +203,8 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
     @Test
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OPEN_INPUT_STREAM,
+                    logLevel = LogLevelConstants.ERROR)
     })
     public void ocrPdfCreatorCreatePdfNoImageTest() throws IOException {
         List<File> images = Collections.singletonList(new File("no_image"));
@@ -287,8 +294,22 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
     }
 
     @Test
+    public void doImageOcrStreamTest() throws IOException {
+        try (InputStream input = FileUtil.getInputStreamForFile(TEST_IMAGE_DIRECTORY + "numbers_01.jpg")) {
+            OCR_ENGINE.doImageOcr(input);
+        }
+
+        Assertions.assertEquals(2, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+        // there is no statistic event
+        validateConfirmEvent(eventsHandler.getEvents().get(1), usageEvent);
+    }
+
+    @Test
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OPEN_INPUT_STREAM,
+                    logLevel = LogLevelConstants.ERROR)
     })
     public void doImageOcrNoImageTest() {
         File imgFile = new File("uncknown");
@@ -335,6 +356,20 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
     }
 
     @Test
+    public void createTxtFileStreamTest() throws IOException {
+        try (InputStream input = FileUtil.getInputStreamForFile(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
+                FileOutputStream output = new FileOutputStream(DESTINATION_FOLDER + "createTxtFileStream.txt")) {
+            OCR_ENGINE.createTxtFile(input, output);
+        }
+
+        Assertions.assertEquals(2, eventsHandler.getEvents().size());
+        IEvent usageEvent1 = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent1, EventConfirmationType.ON_DEMAND);
+        // there is no statistic event
+        validateConfirmEvent(eventsHandler.getEvents().get(1), usageEvent1);
+    }
+
+    @Test
     public void createTxtFileNullEventHelperTest() throws IOException {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
         OCR_ENGINE.createTxtFile(Arrays.asList(imgFile, imgFile),
@@ -354,9 +389,10 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
 
     @Test
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR)
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OPEN_INPUT_STREAM,
+                    logLevel = LogLevelConstants.ERROR)
     })
-    public void createTxtFileNoImageTest() throws IOException {
+    public void createTxtFileNoImageTest() {
         File imgFile = new File("no_image");
         List<File> images = Arrays.asList(imgFile, imgFile);
         File outPdfFile = new File(DESTINATION_FOLDER + " createTxtFileNoImage.pdf");
@@ -365,6 +401,10 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OPEN_OUTPUT_STREAM,
+                    logLevel = LogLevelConstants.ERROR)
+    })
     public void createTxtFileNoFileTest() {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
@@ -372,20 +412,11 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
         Exception e = Assertions.assertThrows(PdfOcrException.class,
                 () -> OCR_ENGINE.createTxtFile(images, outPdfFile));
         Assertions.assertTrue(e.getMessage().contains(
-                PdfOcrExceptionMessageConstant.CANNOT_WRITE_TO_FILE.substring(0, 20)));
+                PdfOcrExceptionMessageConstant.CANNOT_OPEN_OUTPUT_STREAM.substring(0, 20)));
         Assertions.assertTrue(e.getMessage().contains("nopath"));
         Assertions.assertTrue(e.getMessage().contains("nofile"));
 
-        Assertions.assertEquals(2, eventsHandler.getEvents().size());
-        IEvent usageEvent = eventsHandler.getEvents().get(0);
-        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
-        // there is no statistic event
-        // there is no confirm event
-
-        usageEvent = eventsHandler.getEvents().get(1);
-        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
-        // there is no statistic event
-        // there is no confirm event
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     @Test
@@ -393,13 +424,7 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
         List<File> images = Arrays.asList(imgFile, imgFile);
         Assertions.assertThrows(NullPointerException.class, () -> OCR_ENGINE.createTxtFile(images, null));
-        Assertions.assertEquals(2, eventsHandler.getEvents().size());
-        IEvent usageEvent = eventsHandler.getEvents().get(0);
-        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
-        // there is no statistic event
-        usageEvent = eventsHandler.getEvents().get(1);
-        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
-        // there is no statistic event
+        Assertions.assertEquals(0, eventsHandler.getEvents().size());
     }
 
     // Section with MetaInfo related tests
@@ -489,6 +514,18 @@ public class OnnxEventHandlingTest extends IntegrationEventHandlingTestHelper {
     @Test
     public void doImageOcrCustomEventHelperTest() {
         File imgFile = new File(TEST_IMAGE_DIRECTORY + "numbers_01.jpg");
+        OCR_ENGINE.doImageOcr(imgFile, new OcrProcessContext(new CustomEventHelper()));
+
+        Assertions.assertEquals(2, eventsHandler.getEvents().size());
+        IEvent usageEvent = eventsHandler.getEvents().get(0);
+        validateUsageEvent(usageEvent, EventConfirmationType.ON_DEMAND);
+        // there is no statistic event
+        validateConfirmEvent(eventsHandler.getEvents().get(1), usageEvent);
+    }
+
+    @Test
+    public void doImageOcrStreamCustomEventHelperTest() throws IOException {
+        InputStream imgFile = Files.newInputStream(Paths.get(TEST_IMAGE_DIRECTORY + "numbers_01.jpg"));
         OCR_ENGINE.doImageOcr(imgFile, new OcrProcessContext(new CustomEventHelper()));
 
         Assertions.assertEquals(2, eventsHandler.getEvents().size());

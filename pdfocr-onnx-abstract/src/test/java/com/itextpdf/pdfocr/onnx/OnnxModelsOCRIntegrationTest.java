@@ -24,11 +24,16 @@ package com.itextpdf.pdfocr.onnx;
 
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IOcrEngine;
+import com.itextpdf.pdfocr.onnx.detection.IDetectionPredictor;
+import com.itextpdf.pdfocr.onnx.detection.OnnxDetectionPredictor;
+import com.itextpdf.pdfocr.onnx.recognition.IRecognitionPredictor;
+import com.itextpdf.pdfocr.onnx.recognition.OnnxRecognitionPredictor;
 import com.itextpdf.pdfocr.onnx.util.OcrEngineType;
 import com.itextpdf.test.ExtendedITextTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -41,6 +46,9 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
     private static final String TEST_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/";
     private static final String TEST_IMAGE_DIRECTORY = "./src/test/resources/com/itextpdf/pdfocr/images/";
     private static final String TARGET_DIRECTORY = "./target/test/resources/com/itextpdf/pdfocr/OnnxModelsOCRIntegrationTest/";
+    private static final String FAST_MODEL_PATH = "./src/test/resources/com/itextpdf/pdfocr/models/rep_fast_tiny-28867779.onnx";
+    private static final String PARSEQ_MODEL_PATH = "./src/test/resources/com/itextpdf/pdfocr/models/parseq-00b40714.onnx";
+
 
     public static Iterable<Object[]> ocrEngines() {
         return Arrays.stream(OcrEngineType.all())
@@ -99,6 +107,23 @@ public class OnnxModelsOCRIntegrationTest extends ExtendedITextTest {
         Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         OnnxTestUtils.extractTextAndCompare(dest, cmpTxt, "Text1", 0.7);
+    }
+
+    @Test
+    public void frenchTest() throws IOException, InterruptedException {
+        IDetectionPredictor detectionPredictor = OnnxDetectionPredictor.fast(FAST_MODEL_PATH);
+        IRecognitionPredictor recognitionPredictor = OnnxRecognitionPredictor.parSeq(PARSEQ_MODEL_PATH);
+        IOcrEngine ocrEngine = new OnnxOcrEngine(detectionPredictor, recognitionPredictor);
+
+        String src = TEST_IMAGE_DIRECTORY + "french_01.png";
+        String dest = TARGET_DIRECTORY + "french.pdf";
+        String cmp = TEST_DIRECTORY + "cmp_french.pdf";
+        String cmpTxt = TEST_DIRECTORY + "french.txt";
+
+        OnnxTestUtils.doOcrAndCreatePdf(src, dest, ocrEngine);
+        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+
+        extractTextAndCompare(dest, cmpTxt);
     }
 
     private void extractTextAndCompare(String dest, String cmpTxt) throws IOException {

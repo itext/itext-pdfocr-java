@@ -38,7 +38,8 @@ import java.util.stream.Collectors;
  * Class to build text output from the provided image OCR result and write it to the TXT file.
  */
 public final class PdfOcrTextBuilder {
-    private static final float DEFAULT_INTERSECTION_THRESHOLD = 0.55F;
+    private static final double DEFAULT_INTERSECTION_THRESHOLD = 0.55;
+    private static final double DEFAULT_DISTANCE_THRESHOLD = 2;
     private static final double DEFAULT_ANGLE_THRESHOLD = Math.toRadians(10);
     private static final double EPS = 1e-6;
 
@@ -151,35 +152,77 @@ public final class PdfOcrTextBuilder {
      * element contains a word or a line and its 4 coordinates (bbox)
      */
     public static void sortTextInfosByLines(Map<Integer, List<TextInfo>> textInfos) {
-        for (Map.Entry<Integer, List<TextInfo>> entry : textInfos.entrySet()) {
-            Collections.sort(entry.getValue(), new Comparator<TextInfo>() {
-                @Override
-                public int compare(TextInfo first, TextInfo second) {
-                    // Not really needed, but just in case.
-                    if (first == second) {
-                        return 0;
+        List<Integer> pages = textInfos.keySet().stream().sorted().collect(Collectors.toList());
+        for (int pageNr : pages) {
+            List<TextInfo> originals = textInfos.get(pageNr);
+            if (originals == null || originals.size() <= 1) {
+                continue;
+            }
+
+            // Group by rotation: group TextInfo items whose angles are within DEFAULT_ANGLE_THRESHOLD
+            List<List<TextInfo>> rotGroups = new ArrayList<>();
+            List<Double> rotations = new ArrayList<>();
+
+            for (TextInfo ti : originals) {
+                final double angle = ti.getRotationAngle();
+                int toPlace = -1;
+                double bestDiff = DEFAULT_ANGLE_THRESHOLD;
+                for (int i = 0; i < rotations.size(); ++i) {
+                    final double angleDiff = Math.abs(getAngleDiff(ti, rotGroups.get(i).get(0)));
+                    if (angleDiff <= bestDiff) {
+                        bestDiff = angleDiff;
+                        toPlace = i;
                     }
-
-                    double angleDiff = getAngleDiff(first, second);
-                    if (Math.abs(angleDiff) > DEFAULT_ANGLE_THRESHOLD) {
-                        double firstRoundAngle = roundAngle(first.getRotationAngle(), DEFAULT_ANGLE_THRESHOLD);
-                        double secondRoundAngle = roundAngle(second.getRotationAngle(), DEFAULT_ANGLE_THRESHOLD);
-                        return Double.compare(firstRoundAngle, secondRoundAngle);
-                    }
-
-                    BoundingBox[] boxes = BoundingBox.getNormalizedBBoxes(first, second);
-                    BoundingBox box1 = boxes[0];
-                    BoundingBox box2 = boxes[1];
-
-                    if (!areIntersect(box1, box2)) {
-                        double middleDistPerpendicularDiff =
-                                (box2.minY + box2.getHeight() / 2) - (box1.minY + box1.getHeight() / 2);
-                        return middleDistPerpendicularDiff > 0 ? 1 : -1;
-                    }
-
-                    return Double.compare(box1.minX, box2.minX) > 0 ? 1 : -1;
                 }
+                if (toPlace == -1) {
+                    List<TextInfo> g = new ArrayList<>();
+                    g.add(ti);
+                    rotGroups.add(g);
+                    rotations.add(angle);
+                } else {
+                    rotGroups.get(toPlace).add(ti);
+                }
+            }
+
+            // Sort by angle
+            List<Integer> indices = new ArrayList<>(rotations.size());
+            for (int i = 0; i < rotations.size(); ++i) {
+                indices.add(i);
+            }
+            Collections.sort(indices, (first, second) -> {
+                return Double.compare(roundAngle(rotations.get(first), DEFAULT_ANGLE_THRESHOLD),
+                        roundAngle(rotations.get(second), DEFAULT_ANGLE_THRESHOLD));
             });
+
+            List<TextInfo> result = new ArrayList<>(originals.size());
+            for (int idx : indices) {
+                List<TextInfo> group = rotGroups.get(idx);
+                Collections.sort(group, new Comparator<TextInfo>() {
+                    @Override
+                    public int compare(TextInfo first, TextInfo second) {
+                        // Not really needed, but just in case
+                        if (first == second) {
+                            return 0;
+                        }
+
+                        BoundingBox[] boxes = BoundingBox.getNormalizedBBoxes(first, second);
+                        BoundingBox box1 = boxes[0];
+                        BoundingBox box2 = boxes[1];
+
+                        if (!areIntersectOnVertical(box1, box2)) {
+                            double middleDistPerpendicularDiff =
+                                    (box2.minY + box2.getHeight() / 2) - (box1.minY + box1.getHeight() / 2);
+                            return middleDistPerpendicularDiff > 0 ? 1 : -1;
+                        }
+
+                        return Double.compare(box1.minX, box2.minX) > 0 ? 1 : -1;
+                    }
+                });
+
+                result.addAll(group);
+            }
+
+            textInfos.put(pageNr, result);
         }
     }
 
@@ -232,7 +275,7 @@ public final class PdfOcrTextBuilder {
         }
 
         BoundingBox[] boxes = BoundingBox.getNormalizedBBoxes(currentTextInfo, previousTextInfo);
-        return areIntersect(boxes[0], boxes[1]);
+        return areIntersectOnVertical(boxes[0], boxes[1]) && areCloseOnHorizontal(boxes[0], boxes[1]);
     }
 
     /**
@@ -289,31 +332,59 @@ public final class PdfOcrTextBuilder {
             Point[] wordP = word.getTextPoints();
             Line left = new Line(wordP[0], wordP[1]);
             Line right = new Line(wordP[3], wordP[2]);
+            final Point ll = left.intersection(bottom);
+            final Point ul = left.intersection(top);
+            final Point ur = right.intersection(top);
+            final Point lr = right.intersection(bottom);
             word.setTextPoints(new Point[]{
-                    left.intersection(bottom),
-                    left.intersection(top),
-                    right.intersection(top),
-                    right.intersection(bottom)}
+                    ll == null ? wordP[0] : ll,
+                    ul == null ? wordP[1] : ul,
+                    ur == null ? wordP[2] : ur,
+                    lr == null ? wordP[3] : lr}
             );
         }
     }
 
     /**
-     * Checks whether 2 text chunks are in the same line by their bounding boxes. The horizontal intersection
-     * determined by the projection onto the y-axis must be more than {@link #DEFAULT_INTERSECTION_THRESHOLD}
-     * for at least one of the text chunks.
+     * Checks whether 2 text chunks are in the same line by their bounding boxes.
+     *
+     * <p>
+     * The intersection on vertical is determined by the projection onto the y-axis must be more
+     * than {@link #DEFAULT_INTERSECTION_THRESHOLD} for at least one of the text chunks.
      *
      * @param box1 bounding box of the first text chunk
      * @param box2 bounding box of the second text chunk
      *
-     * @return {@code true} if chunks intersect horizontally, {@code false} otherwise
+     * @return {@code true} if chunks intersect on vertical, {@code false} otherwise
      */
-    private static boolean areIntersect(BoundingBox box1, BoundingBox box2) {
+    private static boolean areIntersectOnVertical(BoundingBox box1, BoundingBox box2) {
         double intersection = Math.min(box1.maxY, box2.maxY) - Math.max(box1.minY, box2.minY);
         double firstIntersectPercentage = intersection / box1.getHeight();
         double secondIntersectPercentage = intersection / box2.getHeight();
 
         return Math.max(firstIntersectPercentage, secondIntersectPercentage) > DEFAULT_INTERSECTION_THRESHOLD;
+    }
+
+    /**
+     * Checks whether 2 text chunks are close to each other on the horizontal.
+     *
+     * <p>
+     * If the distance between them is {@link #DEFAULT_DISTANCE_THRESHOLD} times bigger
+     * than the biggest chunk, such chunks are treated as not close.
+     *
+     * @param box1 bounding box of the first text chunk
+     * @param box2 bounding box of the second text chunk
+     *
+     * @return {@code true} if chunks intersect, {@code false} otherwise
+     */
+    private static boolean areCloseOnHorizontal(BoundingBox box1, BoundingBox box2) {
+        double distance = Math.min(box1.maxX, box2.maxX) - Math.max(box1.minX, box2.minX);
+        if (distance >= 0) {
+            // Even intersected
+            return true;
+        }
+
+        return Math.abs(distance) < Math.max(box1.getWidth(), box2.getWidth()) * DEFAULT_DISTANCE_THRESHOLD;
     }
 
     /**
@@ -510,7 +581,7 @@ public final class PdfOcrTextBuilder {
 
     /**
      * Class representing parametric representation of a line:
-     * point {@code (x, y)} and unit direction vector {@code (ux, uy)}.
+     * point {@code (x, y)} and normalized unit direction vector {@code (ux, uy)}.
      */
     private static class Line {
         private final double x;
@@ -561,6 +632,9 @@ public final class PdfOcrTextBuilder {
          */
         public Point intersection(Line other) {
             double det = this.ux * other.uy - other.ux * this.uy;
+            // ux and uy are normalized, so determinant equals to sin(a), where 'a' is an angle between lines.
+            // If det is ~= 0, it means sin(a) ~= 0, what means 'a' ~= 0 or 180 degrees, so lines are either parallel
+            // or collinear, and we won't be able to find an intersection point
             if (Math.abs(det) < 1e-10) {
                 return null;
             }

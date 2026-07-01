@@ -75,9 +75,6 @@ import com.itextpdf.pdfocr.structuretree.ArtifactItem;
 import com.itextpdf.pdfocr.structuretree.LogicalStructureTreeItem;
 import com.itextpdf.pdfocr.util.TiffImageUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -87,6 +84,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link OcrPdfCreator} is the class that creates PDF documents containing input
@@ -215,7 +214,7 @@ public class OcrPdfCreator {
             for (File inputImage : inputImages) {
                 try {
                     int pageCount =
-                            TiffImageUtil.isTiffImage(inputImage) ? PdfCreatorUtil.getNumberOfPageTiff(inputImage) : 1;
+                            TiffImageUtil.isTiffImage(inputImage) ? TiffImageUtil.getNumberOfPageTiff(inputImage) : 1;
                     Map<Integer, List<TextInfo>> currentImagesTextDataInfos = new HashMap<>();
                     for (int j = 0; j <= pageCount; j++) {
                         currentImagesTextDataInfos.put(j, imagesTextDataInfos.get(i + j));
@@ -597,7 +596,15 @@ public class OcrPdfCreator {
                         new LinkedHashMap<>(pageImageData.size());
                 for (PageImageData image : pageImageData) {
                     allImagePaths.add(image.getPath().getAbsolutePath());
-                    imagesTextData.put(image, ocrEngine.doImageOcr(image.getPath(), ocrProcessContext));
+                    Map<Integer, List<TextInfo>> ocrResult;
+                    try {
+                        ocrResult = ocrEngine.doImageOcr(image.getPath(), ocrProcessContext);
+                    } catch (PdfOcrException e) {
+                        int imageObjNr = image.getXObject().getPdfObject().getIndirectReference().getObjNumber();
+                        LOGGER.error(MessageFormatUtil.format(PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, pageNr, imageObjNr), e);
+                        throw e;
+                    }
+                    imagesTextData.put(image, ocrResult);
                 }
 
                 // Put the result into pdf

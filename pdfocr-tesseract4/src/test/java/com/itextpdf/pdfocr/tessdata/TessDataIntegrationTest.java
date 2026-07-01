@@ -22,6 +22,7 @@
  */
 package com.itextpdf.pdfocr.tessdata;
 
+import com.itextpdf.layout.logs.LayoutLogMessageConstant;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
@@ -32,6 +33,7 @@ import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
 import com.itextpdf.pdfocr.tesseract4.TextPositioning;
+import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 
@@ -286,6 +288,13 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING,
+                    logLevel = LogLevelConstants.WARN),
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_INFO,
+                    logLevel = LogLevelConstants.INFO, count = 3)
+    })
+
     public void testArabicTextWithEng() {
         String imgPath = TEST_IMAGES_DIRECTORY + "arabic_01.jpg";
         File file = new File(imgPath);
@@ -306,6 +315,12 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING,
+                logLevel = LogLevelConstants.WARN),
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_INFO,
+                logLevel = LogLevelConstants.INFO, count = 3)
+    })
     public void testArabicText() {
         String imgPath = TEST_IMAGES_DIRECTORY + "arabic_02.png";
         File file = new File(imgPath);
@@ -355,7 +370,8 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 12)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER, count = 12),
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING)
     })
     @Test
     public void testHindiTextWithUrdu() throws IOException {
@@ -383,7 +399,8 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER)
+        @LogMessage(messageTemplate = PdfOcrLogMessageConstant.COULD_NOT_FIND_CORRESPONDING_GLYPH_TO_UNICODE_CHARACTER),
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING)
     }, ignore = true)
     @Test
     public void testHindiTextWithUrduActualTextWithIncorrectFont() throws IOException {
@@ -410,6 +427,12 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 2,
+                    logLevel = LogLevelConstants.WARN),
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_INFO, count = 3,
+                    logLevel = LogLevelConstants.INFO),
+    })
     public void testHindiTextWithEng() {
         String imgPath = TEST_IMAGES_DIRECTORY + "hindi_02.jpg";
         File file = new File(imgPath);
@@ -472,6 +495,9 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 2)
+    })
     public void testBengali() {
         String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
         File file = new File(imgPath);
@@ -571,6 +597,9 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING)
+    })
     public void testBengaliScript() {
         String imgPath = TEST_IMAGES_DIRECTORY + "bengali_01.jpeg";
         File file = new File(imgPath);
@@ -631,6 +660,9 @@ public abstract class TessDataIntegrationTest extends IntegrationTestHelper {
     }
 
     @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 1)
+    })
     public void testThai03ImageWithImprovedHocrParsing() {
 
         String[] expected = {"บ๊อบสตรอเบอรีออดิชั่นธัม โมเนิร์สเซอรี่",

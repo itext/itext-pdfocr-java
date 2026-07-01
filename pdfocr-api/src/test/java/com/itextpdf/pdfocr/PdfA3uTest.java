@@ -23,6 +23,7 @@
 package com.itextpdf.pdfocr;
 
 import com.itextpdf.commons.utils.MessageFormatUtil;
+import com.itextpdf.layout.logs.LayoutLogMessageConstant;
 import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -142,7 +143,9 @@ public class PdfA3uTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-        @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+        @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1),
+        @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 1)
+
     })
     @Test
     public void testNonCompliantThaiPdfA() throws IOException {
@@ -166,6 +169,9 @@ public class PdfA3uTest extends ExtendedITextTest {
                 exception.getMessage());
     }
 
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = LayoutLogMessageConstant.TYPOGRAPHY_NOT_FOUND_WARNING, count = 1)
+    })
     @Test
     public void testCompliantThaiPdfA() throws IOException {
         String testName = "testCompliantThaiPdfA";
@@ -202,7 +208,7 @@ public class PdfA3uTest extends ExtendedITextTest {
     }
 
     @LogMessages(messages = {
-            @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1)
+            @LogMessage(messageTemplate = PdfOcrExceptionMessageConstant.CANNOT_CREATE_PDF_DOCUMENT, count = 1),
     })
     @Test
     public void testPdfACreateWithoutPdfLangProperty() {

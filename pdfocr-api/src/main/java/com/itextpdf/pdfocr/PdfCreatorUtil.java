@@ -22,14 +22,11 @@
  */
 package com.itextpdf.pdfocr;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.io.image.ImageType;
 import com.itextpdf.io.image.ImageTypeDetector;
-import com.itextpdf.io.image.TiffImageData;
-import com.itextpdf.io.source.RandomAccessFileOrArray;
-import com.itextpdf.io.source.RandomAccessSourceFactory;
-import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -42,6 +39,7 @@ import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
 import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
+import com.itextpdf.pdfocr.util.TiffImageUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -184,7 +182,7 @@ class PdfCreatorUtil {
         try (InputStream imageStream = new FileInputStream(inputImage)) {
             ImageType imageType = ImageTypeDetector.detectImageType(imageStream);
             if (ImageType.TIFF == imageType) {
-                int tiffPages = getNumberOfPageTiff(inputImage);
+                int tiffPages = TiffImageUtil.getNumberOfPageTiff(inputImage);
 
                 for (int page = 0; page < tiffPages; page++) {
                     byte[] bytes = Files.readAllBytes(inputImage.toPath());
@@ -275,25 +273,5 @@ class PdfCreatorUtil {
      */
     static float getPoints(final float pixels) {
         return pixels * PX_TO_PT;
-    }
-
-    /**
-     * Counts number of pages in the provided tiff image.
-     *
-     * @param inputImage input image {@link java.io.File}
-     * @return number of pages in the provided TIFF image
-     * @throws IOException if error occurred during creating a
-     * {@link com.itextpdf.io.source.IRandomAccessSource} based on a filename
-     * string
-     */
-    static int getNumberOfPageTiff(final File inputImage)
-            throws IOException {
-        RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
-                new RandomAccessSourceFactory()
-                        .createBestSource(
-                                inputImage.getAbsolutePath()));
-        int numOfPages = TiffImageData.getNumberOfPages(raf);
-        raf.close();
-        return numOfPages;
     }
 }

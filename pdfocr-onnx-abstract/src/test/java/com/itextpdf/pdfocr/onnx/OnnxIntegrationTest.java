@@ -148,28 +148,32 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("la\n" +
-                    "se No\n" +
-                    "-\n" +
-                    "AY SI ENSAYARA COMO ACTUAR?\n" +
-                    "Tanto peor, lo mejor es descansar y no\n" +
-                    "fiesta, si pensar\n" +
-                    "puede. hay nada mas desalentador\n" +
-                    "ver en las fiestas a jovenes con cara de lastima y\n" +
-                    "el\n" +
-                    "iluslonadas y se pasado todo\n" +
-                    "que han dia tratando\n" +
-                    "hallar lo mejor y la mas atractiva manera de pres\n" +
-                    "tarse en publico. Hay que actuar con calma y no\n" +
-                    "cansaremos de repetirlo, Lo mas importante es saber\n" +
-                    "que se va a poner y tener todo a mano,\n" +
-                    "Si intenta probar un nuevo lapiz labial para la a\n" +
-                    "sion, asegurese que armonice con vestido lle\n" +
-                    "-\n" +
-                    "También el el\n" +
-                    "rà. que\n" +
-                    "maquillaje de los ojos debe armoni\n" +
-                    "con el conjunto.", extractionStrategy.getResultantText());
+            Assertions.assertEquals("la\n"
+                    + "se\n"
+                    + "No\n"
+                    + "-\n"
+                    + "AY SI ENSAYARA COMO ACTUAR?\n"
+                    + "Tanto peor, lo mejor es descansar y no\n"
+                    + "pensar\n"
+                    + "fiesta, si\n"
+                    + "puede. hay nada mas desalentador\n"
+                    + "ver en las fiestas a jovenes con cara de lastima y\n"
+                    + "iluslonadas y\n"
+                    + "que han\n"
+                    + "se pasado todo el\n"
+                    + "dia tratando\n"
+                    + "hallar lo mejor y la mas atractiva manera de pres\n"
+                    + "tarse en publico. Hay que actuar con calma y no\n"
+                    + "cansaremos de repetirlo, Lo mas importante es saber\n"
+                    + "que se va a poner y tener todo a mano,\n"
+                    + "Si intenta probar un nuevo lapiz labial para la a\n"
+                    + "sion, asegurese que armonice con vestido lle\n"
+                    + "-\n"
+                    + "que\n"
+                    + "rà. También el\n"
+                    + "maquillaje de los ojos debe armoni\n"
+                    + "con el conjunto.\n"
+                    + "el", extractionStrategy.getResultantText());
         }
     }
 
@@ -183,16 +187,42 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
             Assertions.assertEquals(DeviceCmyk.MAGENTA, extractionStrategy.getFillColor());
-            Assertions.assertEquals("Silliness Enablers INVOICE\nYou dream it we enable it\n" +
-                            "Middle of Nowhere\nPhone +32 9 292 22 22 INVOICE #100\n" +
-                            "Fax +32 9 270 00 00 DATE: 6/30/2020\nTO: SHIP TO:\nAndré André Lemos\n" +
-                            "Le emos\nTycoon Corp. Tycoor Corp\nWonderfulStreet Wonderfu Street\n" +
-                            "Lala Land Lala Land\n+351 911 111 111 +351 911 111 111\n" +
-                            "C AMENTS OR SPFCIAI INSTRUCTIONS\nITEMS MUST BE DELIVERED FULLY ASSEMBLED\n" +
-                            "ON P.O NUMBER REQUISITIONER SHIPPED VIA F.O.B POINT TERMS\nS/ ES RSC\n" +
-                            "3Vi #7394009320 V Vebsite form Al R Delivery Due on receipt\n" +
-                            "QUANTITY DESCRIPTION UNIT PRICE TOTAL\n10 Lasers $3000 $30000\n" +
-                            "2 Band-Aids $1 $2\nSharks $99999 $499995"
+            Assertions.assertEquals("INVOICE\n"
+                            + "Silliness Enablers\n"
+                            + "You dream it we enable it\n"
+                            + "Middle of Nowhere\n"
+                            + "INVOICE #100\n"
+                            + "Phone +32 9 292 22 22\n"
+                            + "DATE: 6/30/2020\n"
+                            + "Fax +32 9 270 00 00\n"
+                            + "TO: SHIP TO:\n"
+                            + "André Lemos\n"
+                            + "André Le emos\n"
+                            + "Tycoor Corp\n"
+                            + "Tycoon Corp.\n"
+                            + "Wonderfu Street\n"
+                            + "WonderfulStreet\n"
+                            + "Lala Land\n"
+                            + "Lala Land\n"
+                            + "+351 911 111 111 +351 911 111 111\n"
+                            + "C AMENTS OR SPFCIAI INSTRUCTIONS\n"
+                            + "ITEMS MUST BE DELIVERED FULLY ASSEMBLED\n"
+                            + "P.O NUMBER REQUISITIONER SHIPPED VIA F.O.B POINT TERMS\n"
+                            + "S/ RSC ON\n"
+                            + "ES\n"
+                            + "3Vi #7394009320 V Vebsite form Al R\n"
+                            + "Delivery Due on receipt\n"
+                            + "UNIT PRICE TOTAL\n"
+                            + "DESCRIPTION\n"
+                            + "QUANTITY\n"
+                            + "$3000 $30000\n"
+                            + "10\n"
+                            + "Lasers\n"
+                            + "$1 $2\n"
+                            + "Band-Aids\n"
+                            + "2\n"
+                            + "$99999 $499995\n"
+                            + "Sharks"
                     , extractionStrategy.getResultantText());
         }
     }

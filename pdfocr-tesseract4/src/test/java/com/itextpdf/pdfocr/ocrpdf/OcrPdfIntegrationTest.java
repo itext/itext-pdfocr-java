@@ -22,16 +22,25 @@
  */
 package com.itextpdf.pdfocr.ocrpdf;
 
+import com.itextpdf.commons.utils.MessageFormatUtil;
 import com.itextpdf.commons.utils.StringNormalizer;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.logs.KernelLogMessageConstant;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.IntegrationTestHelper;
 import com.itextpdf.pdfocr.OcrPdfCreator;
 import com.itextpdf.pdfocr.OcrPdfCreatorProperties;
+import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.pdfocr.tesseract4.AbstractTesseract4OcrEngine;
 import com.itextpdf.pdfocr.tesseract4.Tesseract4OcrEngineProperties;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrInputTesseract4Exception;
+import com.itextpdf.pdfocr.tesseract4.exceptions.PdfOcrTesseract4ExceptionMessageConstant;
+import com.itextpdf.pdfocr.tesseract4.logs.Tesseract4LogMessageConstant;
+import com.itextpdf.test.LogLevelConstants;
+import com.itextpdf.test.annotations.LogMessage;
+import com.itextpdf.test.annotations.LogMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -157,13 +166,53 @@ public abstract class OcrPdfIntegrationTest extends IntegrationTestHelper {
                 getTargetDirectory(), "diff_"));
     }
 
-    private void makeSearchable(String fileName) throws InterruptedException, IOException {
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = KernelLogMessageConstant.JPXDECODE_FILTER_DECODING, logLevel = LogLevelConstants.INFO),
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jpeg2000Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputTesseract4Exception.class,
+                () -> makeSearchableWithoutCompare("jpeg2000"));
+        String message = e.getMessage();
+        // Exception message is each run unique and looks like
+        // "pdfocr_img_f31dce56-6917-49ac-b437-92d296936f5413047335812688118701.jp2 format is not supported."
+        message = ".jp2 " + message.substring(message.indexOf("format"));
+        Assertions.assertEquals(
+                MessageFormatUtil.format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT, ".jp2"),
+                message);
+    }
+
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+            @LogMessage(messageTemplate = Tesseract4LogMessageConstant.CANNOT_READ_INPUT_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void jbig2Test() {
+        Exception e = Assertions.assertThrows(PdfOcrInputTesseract4Exception.class,
+                () -> makeSearchableWithoutCompare("jbig2"));
+        String message = e.getMessage();
+        // Exception message is each run unique and looks like
+        // "pdfocr_img_55d1a7ff-de74-41ab-a72f-6876fb8ead471913987692833581352.jbig2 format is not supported."
+        message = ".jbig2 " + message.substring(message.indexOf("format"));
+        Assertions.assertEquals(
+                MessageFormatUtil.format(PdfOcrTesseract4ExceptionMessageConstant.INCORRECT_INPUT_IMAGE_FORMAT, ".jbig2"),
+                message);
+    }
+
+    private String makeSearchableWithoutCompare(String fileName) {
         String path = TEST_PDFS_DIRECTORY + fileName + ".pdf";
-        String expectedPdfPath = CMP_DIRECTORY + fileName + ".pdf";
         String resultPdfPath = TARGET_DIRECTORY + fileName + "_" + testType + ".pdf";
 
         doOcrAndSavePdfToPath(tesseractReader, path, resultPdfPath,
                 Collections.<String>singletonList("eng"), null, DeviceCmyk.MAGENTA, false, false);
+        return resultPdfPath;
+    }
+
+    private void makeSearchable(String fileName) throws InterruptedException, IOException {
+        String resultPdfPath = makeSearchableWithoutCompare(fileName);
+        String expectedPdfPath = CMP_DIRECTORY + fileName + ".pdf";
 
         Assertions.assertNull(new CompareTool().compareByContent(resultPdfPath,
                 expectedPdfPath, getTargetDirectory(), "diff_"));

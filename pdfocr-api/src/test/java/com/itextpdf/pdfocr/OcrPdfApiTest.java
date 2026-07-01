@@ -32,10 +32,12 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.CompareTool;
 import com.itextpdf.pdfocr.exceptions.PdfOcrException;
 import com.itextpdf.pdfocr.exceptions.PdfOcrExceptionMessageConstant;
+import com.itextpdf.pdfocr.exceptions.PdfOcrInputException;
 import com.itextpdf.pdfocr.helpers.CustomOcrEngine;
 import com.itextpdf.pdfocr.helpers.PdfHelper;
 import com.itextpdf.pdfocr.logs.PdfOcrLogMessageConstant;
 import com.itextpdf.test.ExtendedITextTest;
+import com.itextpdf.test.LogLevelConstants;
 import com.itextpdf.test.annotations.LogMessage;
 import com.itextpdf.test.annotations.LogMessages;
 import com.itextpdf.test.pdfa.VeraPdfValidator;
@@ -43,6 +45,8 @@ import com.itextpdf.test.pdfa.VeraPdfValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -163,6 +167,21 @@ public class OcrPdfApiTest extends ExtendedITextTest {
         new VeraPdfValidator().validate(resultPdfPath);
     }
 
+    @Test
+    @LogMessages(messages = {
+            @LogMessage(messageTemplate = PdfOcrLogMessageConstant.CANNOT_OCR_IMAGE, logLevel = LogLevelConstants.ERROR),
+    })
+    public void logOnInputImageExceptionTest() {
+        String path = PdfHelper.getPdfsTestDirectory() + "randomImage.pdf";
+        String resultPdfPath = DESTINATION_FOLDER + "logOnInputImageException.pdf";
+
+        OcrPdfCreator ocrPdfCreator = new OcrPdfCreator(new ErrorOcrEngine());
+        Exception e = Assertions.assertThrows(PdfOcrInputException.class,
+                () -> ocrPdfCreator.makePdfSearchable(new File(path), new File(resultPdfPath)));
+        Assertions.assertEquals("Custom message", e.getMessage());
+        Assertions.assertTrue(e instanceof PdfOcrInputException);
+    }
+
     private static void makeSearchable(String fileName) throws InterruptedException, IOException {
         makeSearchable(fileName, null, new OcrPdfCreatorProperties());
     }
@@ -194,5 +213,43 @@ public class OcrPdfApiTest extends ExtendedITextTest {
 
         Assertions.assertNull(
                 new CompareTool().compareByContent(resultPdfPath, expectedPdfPath, DESTINATION_FOLDER, "diff_"));
+    }
+
+    private static class ErrorOcrEngine implements IOcrEngine {
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(File input) {
+            return null;
+        }
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(File input, OcrProcessContext ocrProcessContext) {
+            throw new PdfOcrInputException("Custom message");
+        }
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs) {
+            return null;
+        }
+
+        @Override
+        public Map<Integer, List<TextInfo>> doImageOcr(List<File> inputs, OcrProcessContext ocrProcessContext) {
+            return null;
+        }
+
+        @Override
+        public void createTxtFile(List<File> inputImages, File txtFile) {
+
+        }
+
+        @Override
+        public void createTxtFile(List<File> inputImages, File txtFile, OcrProcessContext ocrProcessContext) {
+
+        }
+
+        @Override
+        public boolean isTaggingSupported() {
+            return false;
+        }
     }
 }
