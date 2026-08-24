@@ -53,7 +53,7 @@ class TextBoxSplitter {
     /**
      * Creates new {@link TextBoxSplitter} instance.
      */
-    public TextBoxSplitter() {
+    TextBoxSplitter() {
         // Empty constructor in order for default one to not be removed if another one is added.
     }
 
@@ -65,7 +65,7 @@ class TextBoxSplitter {
      *
      * @return iterator, which outputs split input images
      */
-    public Iterator<BufferedImage> mapInputs(Iterator<BufferedImage> inputs) {
+    Iterator<BufferedImage> mapInputs(Iterator<BufferedImage> inputs) {
         if (!mergeQueue.isEmpty()) {
             throw new IllegalStateException(
                     PdfOcrOnnxExceptionMessageConstant.CANNOT_START_ANOTHER_MAPPING_OPERATION
@@ -130,7 +130,7 @@ class TextBoxSplitter {
      *
      * @return iterator, which returns merged images
      */
-    public Iterator<String> mapOutputs(Iterator<String> outputs) {
+    Iterator<String> mapOutputs(Iterator<String> outputs) {
         return new Iterator<String>() {
             @Override
             public boolean hasNext() {

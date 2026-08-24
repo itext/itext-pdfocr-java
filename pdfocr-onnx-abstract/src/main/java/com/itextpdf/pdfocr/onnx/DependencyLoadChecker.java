@@ -43,7 +43,7 @@ final class DependencyLoadChecker {
      *
      * @param throwable exception or error to process
      */
-    public static void processException(Throwable throwable) {
+    static void processException(Throwable throwable) {
         String throwableMessage = throwable.getMessage();
         boolean isOnnxRuntime = (throwable instanceof RuntimeException &&
                 throwableMessage.contains("Failed to load onnx-runtime library")) ||

@@ -43,35 +43,35 @@ final class LeptonicaWrapper {
 
     private LeptonicaWrapper() {}
 
-    public static int pixGetDepth(Pix pix) {
+    static int pixGetDepth(Pix pix) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixGetDepth(pix);
         }
         return Leptonica1.pixGetDepth(pix);
     }
 
-    public static Pix pixConvertRGBToLuminance(Pix pix) {
+    static Pix pixConvertRGBToLuminance(Pix pix) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixConvertRGBToLuminance(pix);
         }
         return Leptonica1.pixConvertRGBToLuminance(pix);
     }
 
-    public static Pix pixRemoveColormap(Pix pix, int option) {
+    static Pix pixRemoveColormap(Pix pix, int option) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixRemoveColormap(pix, option);
         }
         return Leptonica1.pixRemoveColormap(pix, option);
     }
 
-    public static Pix pixRead(String var1) {
+    static Pix pixRead(String var1) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixRead(var1);
         }
         return Leptonica1.pixRead(var1);
     }
 
-    public static void pixOtsuAdaptiveThreshold(Pix pix, int i, int i1, int i2, int i3, float v,
+    static void pixOtsuAdaptiveThreshold(Pix pix, int i, int i1, int i2, int i3, float v,
             PointerByReference pointerByReference, PointerByReference pointerByReference1) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.pixOtsuAdaptiveThreshold(pix, i, i1, i2, i3, v, pointerByReference,
@@ -81,7 +81,7 @@ final class LeptonicaWrapper {
         Leptonica1.pixOtsuAdaptiveThreshold(pix, i, i1, i2, i3, v, pointerByReference, pointerByReference1);
     }
 
-    public static void lept_free(Pointer pointer) {
+    static void lept_free(Pointer pointer) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.lept_free(pointer);
             return;
@@ -89,7 +89,7 @@ final class LeptonicaWrapper {
         Leptonica1.lept_free(pointer);
     }
 
-    public static void pixFreeData(Pix pix) {
+    static void pixFreeData(Pix pix) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.pixFreeData(pix);
             return;
@@ -97,7 +97,7 @@ final class LeptonicaWrapper {
         Leptonica1.pixFreeData(pix);
     }
 
-    public static void pixWriteMem(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
+    static void pixWriteMem(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.pixWriteMem(pointer, nativeSize, pix, i);
             return;
@@ -105,14 +105,14 @@ final class LeptonicaWrapper {
         Leptonica1.pixWriteMem(pointer, nativeSize, pix, i);
     }
 
-    public static int pixWriteMemPng(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
+    static int pixWriteMemPng(PointerByReference pointer, NativeSizeByReference nativeSize, Pix pix, int i) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixWriteMemPng(pointer, nativeSize, pix, i);
         }
         return Leptonica1.pixWriteMemPng(pointer, nativeSize, pix, i);
     }
 
-    public static void pixWritePng(String s, Pix pix, float v) {
+    static void pixWritePng(String s, Pix pix, float v) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             Leptonica.INSTANCE.pixWritePng(s, pix, v);
             return;
@@ -120,21 +120,21 @@ final class LeptonicaWrapper {
         Leptonica1.pixWritePng(s, pix, v);
     }
 
-    public static Pix pixReadMem(ByteBuffer buffer, NativeSize nativeSize) {
+    static Pix pixReadMem(ByteBuffer buffer, NativeSize nativeSize) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixReadMem(buffer, nativeSize);
         }
         return Leptonica1.pixReadMem(buffer, nativeSize);
     }
 
-    public static Pix pixRotate90(Pix pix, int i) {
+    static Pix pixRotate90(Pix pix, int i) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixRotate90(pix, i);
         }
         return Leptonica1.pixRotate90(pix, i);
     }
 
-    public static Pix pixRotate180(Pix pix1, Pix pix2) {
+    static Pix pixRotate180(Pix pix1, Pix pix2) {
         if (JDK_MAJOR_VERSION < LEPTONICA_NOT_SUPPORTED_JDK_VERSION) {
             return Leptonica.INSTANCE.pixRotate180(pix1, pix2);
         }

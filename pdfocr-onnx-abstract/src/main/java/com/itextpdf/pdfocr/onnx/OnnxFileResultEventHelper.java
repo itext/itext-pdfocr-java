@@ -75,7 +75,7 @@ final class OnnxFileResultEventHelper extends AbstractPdfOcrEventHelper {
     /**
      * Register all previously saved events to wrapped {@link AbstractPdfOcrEventHelper}.
      */
-    public void registerAllSavedEvents() {
+    void registerAllSavedEvents() {
         for (AbstractProductITextEvent event : events) {
             wrappedEventHelper.onEvent(event);
         }
