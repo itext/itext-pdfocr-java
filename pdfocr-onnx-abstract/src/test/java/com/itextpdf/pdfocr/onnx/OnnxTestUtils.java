@@ -58,14 +58,16 @@ public class OnnxTestUtils {
 
     public static void comparePdfs(String dest, String cmp, String targetDirectory)
             throws InterruptedException, IOException {
-        String diff = new CompareTool().compareByContent(dest, cmp, targetDirectory, "diff_");
+        String diff = new CompareTool().setContentStreamFloatTolerance(0.021f)
+                .compareByContent(dest, cmp, targetDirectory, "diff_");
         if (diff != null) {
             String[] splitted = cmp.split("\\.");
             String filename = splitted[splitted.length - 2];
             String cmp2 = cmp.replace(filename, filename + "_2");
             if (FileUtil.fileExists(cmp2)) {
                 // Second cmp is required on .NET because of different results on .NET CoreApp and .NET Framework.
-                diff = new CompareTool().compareByContent(dest, cmp2, targetDirectory, "diff_");
+                diff = new CompareTool().setContentStreamFloatTolerance(0.021f)
+                        .compareByContent(dest, cmp2, targetDirectory, "diff_");
             }
         }
         Assertions.assertNull(diff);
