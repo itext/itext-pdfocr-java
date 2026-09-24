@@ -153,6 +153,7 @@ public class Tesseract4LibOcrEngine extends AbstractTesseract4OcrEngine {
      * @param dispatchEvent indicates if event needs to be dispatched
      * @param eventHelper event helper
      */
+    @Override
     void doTesseractOcr(final File inputImage,
             final List<File> outputFiles, final OutputFormat outputFormat,
             final int pageNumber, final boolean dispatchEvent, AbstractPdfOcrEventHelper eventHelper) {

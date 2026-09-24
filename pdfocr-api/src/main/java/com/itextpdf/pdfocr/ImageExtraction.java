@@ -135,6 +135,7 @@ final class ImageExtraction {
             // Empty constructor
         }
 
+        @Override
         public void eventOccurred(IEventData data, EventType type) {
             if (type == EventType.RENDER_IMAGE) {
                 ImageRenderInfo renderInfo = (ImageRenderInfo) data;

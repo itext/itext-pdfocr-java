@@ -135,6 +135,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @param inputImages {@link java.util.List} of images to be OCRed
      * @param txtFile file to be created
      */
+    @Override
     public void createTxtFile(final List<File> inputImages, final File txtFile) {
         createTxtFile(inputImages, txtFile, new OcrProcessContext(new Tesseract4EventHelper()));
     }
@@ -147,6 +148,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * @param txtFile file to be created
      * @param ocrProcessContext ocr process context
      */
+    @Override
     public void createTxtFile(final List<File> inputImages, final File txtFile,
             final OcrProcessContext ocrProcessContext) {
         LoggerFactory.getLogger(getClass()).info(
@@ -226,6 +228,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
      */
+    @Override
     public final Map<Integer, List<TextInfo>> doImageOcr(
             final File input) {
         verifyImageFormatValidity(input);
@@ -245,6 +248,7 @@ public abstract class AbstractTesseract4OcrEngine implements IOcrEngine, IProduc
      * {@link TextInfo} element contains a word or a line and its 4
      * coordinates(bbox)
      */
+    @Override
     public final Map<Integer, List<TextInfo>> doImageOcr(
             final File input,
             OcrProcessContext ocrProcessContext) {

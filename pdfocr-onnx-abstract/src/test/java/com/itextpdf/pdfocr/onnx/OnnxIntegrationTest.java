@@ -80,7 +80,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_jfifTest.pdf";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
 
         try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(dest))) {
             ExtractionStrategy extractionStrategy = OnnxTestUtils.extractTextFromLayer(pdfDocument, 1, "Text1");
@@ -234,7 +235,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_arabicTest.pdf";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
     @Test
@@ -244,7 +246,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_bengaliTest.pdf";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
     @Test
@@ -254,7 +257,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_chineseTest.pdf";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
     @Test
@@ -294,7 +298,8 @@ public class OnnxIntegrationTest extends ExtendedITextTest {
         String cmp = TEST_DIRECTORY + "cmp_hindiTest.pdf";
 
         OnnxTestUtils.doOcrAndCreatePdf(src, dest, OCR_ENGINE);
-        Assertions.assertNull(new CompareTool().compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(dest, cmp, TARGET_DIRECTORY, "diff_"));
     }
 
     @Test

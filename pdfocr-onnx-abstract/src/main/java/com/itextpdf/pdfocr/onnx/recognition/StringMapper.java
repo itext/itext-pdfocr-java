@@ -68,6 +68,7 @@ public class StringMapper implements IOutputLabelMapper<String> {
      *
      * @return the size of the string mapper
      */
+    @Override
     public int size() {
         return lookUpTable.length;
     }
@@ -80,6 +81,7 @@ public class StringMapper implements IOutputLabelMapper<String> {
      *
      * @return mapped character
      */
+    @Override
     public String map(int index) {
         return lookUpTable[index];
     }

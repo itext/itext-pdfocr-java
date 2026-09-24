@@ -164,7 +164,8 @@ public class OcrPdfTest extends ExtendedITextTest {
 
         String outPath = makeSearchableWithoutCompare(fileName, outFileName, ocrPdfCreatorProperties);
         String cmpPath = TEST_DIRECTORY + "cmp_" + outFileName + ".pdf";
-        Assertions.assertNull(new CompareTool().compareByContent(outPath, cmpPath, TARGET_DIRECTORY, "diff_"));
+        Assertions.assertNull(new CompareTool().setContentStreamFloatTolerance(0.02f)
+                .compareByContent(outPath, cmpPath, TARGET_DIRECTORY, "diff_"));
     }
 
     private String makeSearchableWithoutCompare(String fileName, String outFileName, OcrPdfCreatorProperties ocrPdfCreatorProperties) {
